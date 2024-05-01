@@ -1,0 +1,8 @@
+version: 1
+tag_space: 64M
+extend_limits: false
+scenarios:
+  - "[shm]/halo_1/maps/installation_04/installation_04"
+commands:
+  release:
+    - mercury build --release --output package/game-maps/
