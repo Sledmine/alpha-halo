@@ -2,7 +2,9 @@ version: 1
 tag_space: 64M
 extend_limits: false
 scenarios:
-  - "[shm]/halo_1/maps/installation_04/installation_04"
+  - "[shm]/halo_1/maps/installation_04/alpha_halo_dev"
 commands:
   release:
     - mercury build --release --output package/game-maps/
+  symlinks:
+  - ln -f -s "$PWD/dist/alpha_halo.lua" "$HALO_CE_DATA_PATH/chimera/lua/scripts/map/alpha_halo_dev.lua"

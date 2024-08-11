@@ -1,0 +1,15 @@
+{
+    "target": "lua53",
+    "output": "dist/alpha_halo.lua",
+    "main": "lua/alpha_halo",
+    "include": [
+        "lua/",
+        "lua/modules/"
+    ],
+    "name": "Alpha Halo",
+    "modules": [
+        "blam",
+        "luna",
+        "constants"
+    ]
+}
