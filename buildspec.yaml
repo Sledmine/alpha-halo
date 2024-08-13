@@ -6,3 +6,5 @@ scenarios:
 commands:
   release:
     - mercury build --release --output package/game-maps/
+  symlinks:
+  - ln -f -s "$PWD/dist/alpha_halo.lua" "$HALO_CE_DATA_PATH/chimera/lua/scripts/map/alpha_halo_dev.lua"
