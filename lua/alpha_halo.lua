@@ -24,7 +24,7 @@ local armorLockAnimations = {
 
 function OnMapLoad()
     console_out("Loading alpha_halo.lua...")
-    hsc.AllegianceSet(team1, team2)
+    hsc.AllegianceSet("player", "human")
 end
 
 local function findArmorLock()
