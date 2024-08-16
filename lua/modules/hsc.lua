@@ -66,12 +66,12 @@ end
 ------------------------------------------------------------------------------
 --- AI Functions
 ------------------------------------------------------------------------------
---- Attempt to get the counter of an AI encounter
+--- Attempt to get the number of alive AI of an AI encounter
 ---@param encounterName string Name of the encounter in Sapien
-function hsc.aiLivingCount(encounterName)
-    local getAiLivingCountScript = [[(begin (set clua_short1 (living_count "%s")))]]
-    execute_script(getAiLivingCountScript:format(encounterName))
-    return get_global("clua_short1")
+function hsc.aiLivingCount(encounterName, globalVar) 
+    local getAiLivingCountScript = [[(begin (set "%s" (ai_living_count "%s")))]]
+    execute_script(getAiLivingCountScript:format(globalVar, encounterName))
+    return get_global(globalVar)
 end
 
 --- AI Spawning
