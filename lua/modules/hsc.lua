@@ -142,6 +142,12 @@ function hsc.aiAction(type, encounterName)
     execute_script("ai_" .. returnType[type] .. " " .. encounterName)
 end
 
+function hsc.aiState(type, encounterName, boolean)
+    local returnType = {"berserk", "braindead"}
+    local returnBoolean = {"true", "false"}
+    execute_script("ai_" .. returnType[type] .. " " .. encounterName .. " " .. returnBoolean[boolean])
+end
+
 ---@param biped string Declare a biped
 ---@param ai string Declare an ai squad formartted encounter/sqd
 function hsc.aiAttach(biped, ai)

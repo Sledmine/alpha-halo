@@ -2,7 +2,7 @@ local test = {}
 local hsc = require "hsc"
 local theyChill = false
 
-function test.AllegianceSet()
+--[[function test.AllegianceSetPlayer()
     local teams = {"player", "covenant", "sentinel", "flood"}
     if (theyChill == false) then
         for i = 1, #teams do
@@ -17,6 +17,23 @@ function test.AllegianceSet()
                 hsc.AllegianceRemove(teams[i], teams[k])
             end
         end
+        theyChill = false
+    end
+end]]
+
+function test.AllegianceSet()
+    if (theyChill == false) then
+        hsc.aiState(2, "Covenant_Firing_Positions", 1)
+        hsc.aiState(2, "UNSC_Firing_Positions", 1)
+        hsc.aiState(2, "Sentinels_Firing_Positions", 1)
+        hsc.aiState(2, "Flood_Firing_Positions", 1)
+        theyChill = true
+        console_out("STOOOOP FIGHTIIIIIIIING!!!")
+    elseif (theyChill == true) then
+        hsc.aiState(2, "Covenant_Firing_Positions", 2)
+        hsc.aiState(2, "UNSC_Firing_Positions", 2)
+        hsc.aiState(2, "Sentinels_Firing_Positions", 2)
+        hsc.aiState(2, "Flood_Firing_Positions", 2)
         theyChill = false
     end
 end
