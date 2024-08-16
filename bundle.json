@@ -4,12 +4,15 @@
     "main": "lua/alpha_halo",
     "include": [
         "lua/",
-        "lua/modules/"
+        "lua/modules/",
+        "lua/modules/alpha_halo"
     ],
     "name": "Alpha Halo",
     "modules": [
         "blam",
         "luna",
-        "constants"
+        "constants",
+        "hsc",
+        "alpha_halo.test"
     ]
 }

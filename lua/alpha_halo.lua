@@ -4,6 +4,9 @@ local balltze = require "mods.balltze"
 local isNull = blam.isNull
 local luna = require "luna"
 
+local hsc = require "hsc"
+local test = require "alpha_halo.test"
+
 clua_version = 2.056
 
 local armorLockVehicleHandle
@@ -21,6 +24,7 @@ local armorLockAnimations = {
 
 function OnMapLoad()
     console_out("Loading alpha_halo.lua...")
+    hsc.AllegianceSet(team1, team2)
 end
 
 local function findArmorLock()
@@ -229,6 +233,8 @@ local function sprint()
 end
 
 function OnTick()
+    test.AllegianceSet()
+
     if not armorLockAnimations["armor_lock enter"] then
         local biped = blam.biped(get_dynamic_player())
         if biped then
