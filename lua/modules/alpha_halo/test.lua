@@ -3,29 +3,20 @@ local hsc = require "hsc"
 local theyChill = false
 
 function test.AllegianceSet()
+    local teams = {"player", "covenant", "sentinel", "flood"}
     if (theyChill == false) then
-        console_out("They're chill")
-        hsc.AllegianceSet("player", "covenant")
-        hsc.AllegianceSet("player", "flood")
-        hsc.AllegianceSet("player", "sentinel")
-        hsc.AllegianceSet("human", "covenant")
-        hsc.AllegianceSet("human", "flood")
-        hsc.AllegianceSet("human", "sentinel")
-        hsc.AllegianceSet("covenant", "flood")
-        hsc.AllegianceSet("covenant", "sentinel")
-        hsc.AllegianceSet("flood", "covenant")
+        for i = 1, #teams do
+            for k = 1, #teams do
+                hsc.AllegianceSet(teams[i], teams[k])
+            end
+        end
         theyChill = true
     elseif (theyChill == true) then
-        console_out("They're angry!")
-        hsc.AllegianceRemove("player", "covenant")
-        hsc.AllegianceRemove("player", "flood")
-        hsc.AllegianceRemove("player", "sentinel")
-        hsc.AllegianceRemove("human", "covenant")
-        hsc.AllegianceRemove("human", "flood")
-        hsc.AllegianceRemove("human", "sentinel")
-        hsc.AllegianceRemove("covenant", "flood")
-        hsc.AllegianceRemove("covenant", "sentinel")
-        hsc.AllegianceRemove("flood", "covenant")
+        for i = 1, #teams do
+            for k = 1, #teams do
+                hsc.AllegianceRemove(teams[i], teams[k])
+            end
+        end
         theyChill = false
     end
 end
