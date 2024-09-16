@@ -7,8 +7,16 @@
 --- How to add functions to hsc.lua 
 --- Use hsc.isPlayerInsideVolume and hsc.aiPlace as examples
 ------------------------------------------------------------------------------
-local hsc = {}
-
+local hsc = {
+    ai = {},
+    unit = {}
+}
+local teams = {"player", "human", "covenant", "flood", "sentinel", "unused6", "unused7", "unused8", "unused9"}
+local errorMessages = {}
+errorMessages.string = " must be of type string"
+errorMessages.number = " must be of type number"
+errorMessages.table = " must be of type table"
+errorMessages.boolean = " must be of type boolean"
 ------------------------------------------------------------------------------
 --- Variables & Conditions
 ------------------------------------------------------------------------------
@@ -47,9 +55,9 @@ end]]
 
 --- Structure BSP Index
 --- Returns the BSP index via a global
-function hsc.bspIndex()
-    execute_script("set clua_short2 (structure_bsp_index)")
-    return get_global("clua_short2")
+function hsc.bspIndex(global)
+    execute_script("set " .. global .. " (structure_bsp_index)")
+    return get_global(global)
 end
 
 function hsc.gamesafe()
@@ -68,11 +76,14 @@ end
 ------------------------------------------------------------------------------
 --- Attempt to get the number of alive AI of an AI encounter
 ---@param encounterName string Name of the encounter in Sapien
+---@param globalVar string
 function hsc.aiLivingCount(encounterName, globalVar) 
-    local getAiLivingCountScript = [[(begin (set "%s" (ai_living_count "%s")))]]
+    local getAiLivingCountScript = [[(begin (set %s (ai_living_count "%s")))]]
     execute_script(getAiLivingCountScript:format(globalVar, encounterName))
     return get_global(globalVar)
 end
+
+
 
 --- AI Spawning
 ---@param1 script type (1 - 5)
@@ -84,8 +95,8 @@ function hsc.aiSpawn(type, encounterName)
 end
 
 --- AI Migration
---- @param from string blahhh
---- @param string 
+--- @param from encounter string
+--- @param to encounter string 
 function hsc.aiMigrate(from, to)
     execute_script("ai_migrate ".. from .. " " .. to)
 end
@@ -95,31 +106,58 @@ function hsc.aiCommandList(ai, list)
 end
 
 --- Magic Sight
----@param1 type of Sight (1 - 3)
+---@param1 script the behaviour for ai magically seeing something. Use string or integers 1/2/3.
 ---@param2 encounterName string name of the encounter in Sapien 
 ---@param3 Object (encounter name or object name)
 --- If using 1/Players, declare object as ""
-function hsc.aiMagicallySee(type, encounterName, object)
+function hsc.aiMagicallySee(script, sourceEncounter, targetObj)
     local returnType = {"players", "unit", "encounter"}
-    execute_script("ai_magically_see_" .. returnType[type] .. " " .. encounterName .. " " .. object)
+    if type(script) == "string" then
+        execute_script("ai_magically_see_" .. script .. " " .. sourceEncounter .. " " .. targetObj)
+    else
+        execute_script("ai_magically_see_" .. returnType[script] .. " " .. sourceEncounter .. " " .. targetObj)
+    end
 end
 
 --- Set AI Allegiances
----@param1 team1 string name for Team 1
----@param2 team2 string name for Team 2
----@param3 team3 string name for Team 3
----@param4 team4 string name for Team 4
----@param5 team5 string name for Team 5
+---@param1 team1 string or number - uses lua one-index rather than hsc zero-index
+---@param2 team2 string or number - uses lua one-index rather than hsc zero-index
 function hsc.AllegianceSet(team1, team2)
-    execute_script("ai_allegiance " .. team1 .. " " .. team2)
-    --console_out("Allegiance made between " .. team1 .. " and " .. team2)
+    if (team1) and (team2) then
+        assert((type(team1) == "string" or type(team1) == "number") and (type(team2) == "string" or type(team2) == "number") , "Please use a string or a number to declare the teams")
+        local t1 = team1
+        local t2 = team2
+        if type(team1) == "number" then
+            t1 = teams[team1]
+        end
+        if type(team2) == "number" then
+            t2 = teams[team2]
+        end
+        execute_script("ai_allegiance " .. t1 .. " " .. t2)
+        --console_out("Allegiance made between " .. t1 .. " and " .. t2)
+    else
+        console_out("Parameter missing from hsc.allegianceSet function")
+    end
 end
 
 --- Remove AI Allegiances
 function hsc.AllegianceRemove(team1, team2)
-  if (team1) and (team2) then
-    execute_script("ai_allegiance_remove " .. team1 .. " " .. team2)
-  end
+    if (team1) and (team2) then
+        assert((type(team1) == "string" or type(team1) == "number") and (type(team2) == "string" or type(team2) == "number") , "Please use a string or a number to declare the teams")
+        local t1 = team1
+        local t2 = team2
+        local teams = {"player", "human", "covenant", "flood", "sentinel", "unused6", "unused7", "unused8", "unused9"}
+        if type(team1) == "number" then
+            t1 = teams[team1]
+        end
+        if type(team2) == "number" then
+            t2 = teams[team2]
+        end
+        execute_script("ai_allegiance_remove " .. t1 .. " " .. t2)
+        --console_out("Allegiance removed between " .. t1 .. " and " .. t2)
+    else
+        console_out("Parameter missing from hsc.allegianceSet function")
+    end
 end
 
 --- Check AI Allegiances
@@ -138,7 +176,7 @@ end
 --- AI Behaviour
 ---
 function hsc.aiAction(type, encounterName)
-    local returnType = {"berserk", "follow_target_players", "attack", "defend"}
+    local returnType = {"follow_target_players", "attack", "defend"}
     execute_script("ai_" .. returnType[type] .. " " .. encounterName)
 end
 
@@ -147,6 +185,7 @@ function hsc.aiState(type, encounterName, boolean)
     local returnBoolean = {"true", "false"}
     execute_script("ai_" .. returnType[type] .. " " .. encounterName .. " " .. returnBoolean[boolean])
 end
+
 
 ---@param biped string Declare a biped
 ---@param ai string Declare an ai squad formartted encounter/sqd
@@ -509,5 +548,219 @@ function hsc.groundedOpen()
     execute_script(flash)
 end
 
-return hsc
+------------------------------------------------------------------------------
+--- HSC Refactor but not removing existing lines to keep code from breaking.
+------------------------------------------------------------------------------
+-- The goal of this refactor is to move the functions into a method. It will start with hsc.<object>:function(<param>) I will not be removing working code, so don't you remove it either. Or i'll hunt you down and stare at you, because I'm doing a hack version of refactoring. 
 
+--- Set AI Allegiance
+--- @param team1 string|number The string or index (1 - 9) of the team
+---@param team2 string|number The string or index (1 - 9) of the team
+---@param state boolean True/False to remove or set the AI Allegiance
+function hsc.ai:allegiance(team1, team2, state)
+    if (team1) and (team2) then
+        assert((type(team1) == "string" or type(team1) == "number") and (type(team2) == "string" or type(team2) == "number") , "Please use a string or a number to declare the teams")
+        local t1 = team1
+        local t2 = team2
+        if type(team1) == "number" then
+            t1 = teams[team1]
+        end
+        if type(team2) == "number" then
+            t2 = teams[team2]
+        end
+        if (state) then
+            execute_script("ai_allegiance " .. t1 .. " " .. t2)
+            --console_out("Allegiance made between " .. t1 .. " and " .. t2)
+        else
+            execute_script("ai_allegiance_remove" .. t1 .. " " .. t2)
+            --console_out("Allegiance removed between " .. t1 .. " and " .. t2)
+        end
+    else
+        console_out("Parameter missing from hsc.allegianceSet function")
+    end
+end
+
+--- Alter various states of AI behaviour. Can set the AI to be: (Case sensitive)
+--- berserk, attack, defend, braindead, playfight, blind, deaf, respawn (enables respawning defined in the encounter in the scenario)
+--- @param behaviour string|number the targeted behaviour
+---@param targetEncounter string the encounter to apply this behaviour to. Can be in format encounter/squad
+---@param boolean? boolean optional boolean
+function hsc.ai:behaviour(behaviour, targetEncounter, boolean)
+    assert((type(behaviour == "string") or type(behaviour == "number")) and type(targetEncounter == "string"), "Wrong types used in function. Please use string or number")
+    if boolean then
+        assert(type(boolean) == "boolean", "boolean" .. errorMessages.boolean)
+    end
+    local tempBool = ""
+    local behaviourTable = {"berserk", "attack", "defend", "braindead", "playfight", "blind", "deaf", "respawn"}
+    local booleanBehaviours = {behaviourTable[1], behaviourTable[4], behaviourTable[5], behaviourTable[6], behaviourTable[7], behaviourTable[8]}
+    local setBehaviour = {behaviourTable[6], behaviourTable[7], behaviourTable[8]}
+    if type(behaviour) == "number" then
+        assert(behaviour <= #behaviourTable, "Integer must not be greater than " .. #behaviourTable)
+    end
+    local aiBehaviour = behaviour
+    if type(behaviour) == "number" then
+        aiBehaviour = behaviourTable[behaviour]
+        if boolean == nil then
+            tempBool = "true"
+        end
+    else
+        --local safe = false
+        for i = 1, #behaviourTable do
+            local str = string.find(behaviourTable[i], behaviour)
+            if str then
+                aiBehaviour = behaviourTable[i]
+                break
+            end
+            if i == #behaviourTable then
+                assert(false, "Incorrect behaviour input to paramter \"Behaviour\"")
+            end
+        end
+    end
+    for i = 1, #booleanBehaviours do
+        if aiBehaviour == booleanBehaviours[i] then
+            if boolean == true then
+                tempBool = "true"
+            else
+                tempBool = "false"
+            end
+            break
+        else
+            tempBool = ""
+        end
+    end
+    for i = 1, #setBehaviour do
+        if aiBehaviour == setBehaviour[i] then
+            aiBehaviour = "set_" .. aiBehaviour
+        end
+    end
+    execute_script("ai_" .. aiBehaviour .. " " .. targetEncounter .. " " .. tempBool)
+    console_out("ai_" .. aiBehaviour .. " " .. targetEncounter .. " " .. tempBool)
+end
+
+
+    --[[ 
+        Example Usage 
+    
+    Follow the player
+        hsc.ai:follow("player", "encounter1", nil, true)
+    
+    Disable following
+        hsc.ai:follow(nil, "encounter1", nil, false)
+
+    Follow a unit at a specific distance
+        hsc.ai:follow("unit", "encounter1", "warthog1", true, 10)
+    ]]
+--- @param followType string|number Loose string for determining the follow behaviour. 
+--- @param sourceEncounter string The encounter that will perform the follow behaviour
+---@param target string The target for the encounter
+---@param state? boolean Enables/Disables following 
+---@param distance? number Optionally set the distance the ai follows at
+function hsc.ai:follow(followType, sourceEncounter, target, state, distance) 
+    assert(type(followType) == "string" or type(followType) == "number" or type(followType) == "nil", "Follow type needs to be a string or number")
+    assert(type(sourceEncounter) == "string" , sourceEncounter .. errorMessages.string)
+    assert(type(target) == "string" or type(target) == "nil", target  .. errorMessages.string)
+    assert(type(state) == "boolean", state .. errorMessages.boolean)
+    local followVar = ""
+    local followTable = {"ai", "players", "unit"}
+    local newState = true
+    if (not state) then
+        newState = false
+    end
+    if newState then
+        if type(followType) == "number" then
+            followVar = followTable[followType]
+            console_out(followVar)
+        else
+            for i = 1, #followTable do
+                local str1 = string.find(followTable[i], followType)
+                if str1 then
+                    followVar = followTable[i]
+                end
+            end
+        end
+        local newTarget = ""
+        if (not target == nil) then
+            newTarget = target
+        end
+        execute_script("ai_follow_target_" .. followVar .. " " .. sourceEncounter .. " " .. newTarget)
+        if distance then
+            assert(type(distance) == "number", "distance needs to be a number")
+            execute_script("ai_follow_distance " .. sourceEncounter .. " " .. distance)
+        end
+    end
+    if (not state) then
+        execute_script("ai_follow_target_disable " .. sourceEncounter)
+    end
+end
+
+--- Get the living count of AI in a specific encounter. Must use a global short that you declared in <yourmap>.hsc. Globals MUST be lower case.
+--- @param encounter string name of the encounter
+---@param globalVar string Global variable declared in yourmap.hsc
+function hsc.ai:livingCount(encounter, globalVar) 
+    assert(type(encounter) == "string", encounter .. errorMessages.string)
+    assert(type(globalVar) == "string", globalVar .. errorMessages.string)
+    local getAiLivingCountScript = [[(begin (set "%s" (living_count "%s")))]]
+    execute_script(getAiLivingCountScript:format(globalVar, encounter))
+    return get_global(globalVar)
+end
+
+--- Attach ai to a biped
+--- @param encounter string Can be in the format of encounter/squad
+---@param biped string A biped that has a string name declared in the .scenario file
+function hsc.ai:attach(encounter, biped)
+    assert(type(encounter) == "string", encounter .. errorMessages.string)
+    assert(type(biped) == "string", biped .. errorMessages.string)
+    execute_script("ai_attach " .. biped .. " " .. encounter)
+end
+
+function hsc.ai:spawn(encounter)
+    assert(type(encounter) == "string", encounter .. errorMessages.string)
+    execute_script("ai_place " .. encounter)
+end
+
+--- @param encounter string
+---@param modifier? string
+function hsc.ai:kill(encounter, modifier)
+    assert(type(encounter) == "string", encounter .. errorMessages.string)
+    assert(type(modifier) == "string" or type(modifier) == "number", modifier .. errorMessages.string .. " or " .. errorMessages.number)
+    
+end
+
+function hsc.ai:look(unit)
+
+end
+
+
+--- UNIT FUNCTIONS ---
+
+--- Get unit health and return as a global declared in map.hsc file
+--- @param unit string Name or table of unit
+---@param globalVar string This needs to be declared in yourmap.hsc 
+function hsc.unit:getHealth(unit, globalVar)
+    assert(type(unit) == "string", "Unit must be a string")
+    assert(type(globalVar) == "string", "globalVar must be a string")
+    execute_script("set " .. globalVar .. " (unit_get_health " .. unit ..")")
+    return (get_global(globalVar))
+end
+
+--- @param unit string|table 
+---@param animation_graph string path to animation
+---@param animation_string string string name of animation in the animation graph
+---@param boolean any enables interpolation between the
+---@param startFrame any
+function hsc.unit:animate(unit, animation_graph, animation_string, boolean, startFrame)
+    local unitType = type(unit)
+    local scriptText = [[custom_animation ]]
+    local startingFrame = 0
+    if startFrame then
+        startingFrame = startFrame
+    end
+    if unitType == "table" then
+        scriptText = [[custom_animation_list ]]
+    end
+    
+end
+
+
+
+return hsc

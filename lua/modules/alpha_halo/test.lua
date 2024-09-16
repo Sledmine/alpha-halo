@@ -23,49 +23,51 @@ end]]
 
 function test.AllegianceSet()
     if (theyChill == false) then
-        hsc.aiState(2, "Covenant_Firing_Positions", 1)
-        hsc.aiState(2, "UNSC_Firing_Positions", 1)
-        hsc.aiState(2, "Sentinels_Firing_Positions", 1)
-        hsc.aiState(2, "Flood_Firing_Positions", 1)
+        hsc.aiState(2, "Covenant_Firing_Positions/platoon_a", 1)
+        hsc.aiState(2, "UNSC_Firing_Positions/platoon_a", 1)
+        hsc.aiState(2, "Sentinels_Firing_Positions/platoon_a", 1)
+        hsc.aiState(2, "Flood_Firing_Positions/platoon_a", 1)
+        hsc.aiState(2, "Covenant_Banshee/Covenant_Banshee", 1)
         theyChill = true
         console_out("STOOOOP FIGHTIIIIIIIING!!!")
     elseif (theyChill == true) then
-        hsc.aiState(2, "Covenant_Firing_Positions", 2)
-        hsc.aiState(2, "UNSC_Firing_Positions", 2)
-        hsc.aiState(2, "Sentinels_Firing_Positions", 2)
-        hsc.aiState(2, "Flood_Firing_Positions", 2)
+        hsc.aiState(2, "Covenant_Firing_Positions/platoon_a", 2)
+        hsc.aiState(2, "UNSC_Firing_Positions/platoon_a", 2)
+        hsc.aiState(2, "Sentinels_Firing_Positions/platoon_a", 2)
+        hsc.aiState(2, "Flood_Firing_Positions/platoon_a", 2)
+        hsc.aiState(2, "Covenant_Banshee/Covenant_Banshee", 2)
         theyChill = false
     end
 end
 
 function test.AiCheck()
-    local marine_living_count = hsc.aiLivingCount("UNSC_Firing_Positions", "marine_living_count")
-    local sentinel_living_count = hsc.aiLivingCount("Sentinels_Firing_Positions", "sentinel_living_count")
-    local flood_living_count = hsc.aiLivingCount("Flood_Firing_Positions", "flood_living_count")
-    local covenant_living_count = hsc.aiLivingCount("Covenant_Firing_Positions", "covenant_living_count")
+    local marine_living_count = hsc.aiLivingCount("UNSC_Firing_Positions/platoon_a", "marine_living_count")
+    local sentinel_living_count = hsc.aiLivingCount("Sentinels_Firing_Positions/platoon_a", "sentinel_living_count")
+    local flood_living_count = hsc.aiLivingCount("Flood_Firing_Positions/platoon_a", "flood_living_count")
+    local covenant_living_count = hsc.aiLivingCount("Covenant_Firing_Positions/platoon_a", "covenant_living_count")
 
       if (marine_living_count <= 2) then
-        hsc.aiSpawn(1, "UNSC_Firing_Positions")
+        hsc.aiSpawn(1, "UNSC_Firing_Positions/platoon_a")
       end
       if (sentinel_living_count <= 4) then
-        hsc.aiSpawn(1, "Sentinels_Firing_Positions")
+        hsc.aiSpawn(1, "Sentinels_Firing_Positions/platoon_a")
       end
       if (flood_living_count <= 8) then
-        hsc.aiSpawn(1, "Flood_Firing_Positions")
+        hsc.aiSpawn(1, "Flood_Firing_Positions/platoon_a")
       end
       if (covenant_living_count <= 5) then
-        hsc.aiSpawn(1, "Covenant_Firing_Positions")
+        hsc.aiSpawn(1, "Covenant_Firing_Positions/platoon_a")
       end
 
-      hsc.aiMagicallySee(1, "Covenant_Firing_Positions", "players")
-      hsc.aiMagicallySee(1, "UNSC_Firing_Positions", "players")
-      hsc.aiMagicallySee(1, "Sentinels_Firing_Positions", "players")
-      hsc.aiMagicallySee(1, "Flood_Firing_Positions", "players")
+      hsc.aiMagicallySee(1, "Covenant_Firing_Positions/platoon_a", "players")
+      hsc.aiMagicallySee(1, "UNSC_Firing_Positions/platoon_a", "players")
+      hsc.aiMagicallySee(1, "Sentinels_Firing_Positions/platoon_a", "players")
+      hsc.aiMagicallySee(1, "Flood_Firing_Positions/platoon_a", "players")
 
-      hsc.aiAction(2, "Covenant_Firing_Positions")
-      hsc.aiAction(2, "UNSC_Firing_Positions")
-      hsc.aiAction(2, "Sentinels_Firing_Positions")
-      hsc.aiAction(2, "Flood_Firing_Positions")
+      hsc.aiAction(2, "Covenant_Firing_Positions/platoon_a")
+      hsc.aiAction(2, "UNSC_Firing_Positions/platoon_a")
+      hsc.aiAction(2, "Sentinels_Firing_Positions/platoon_a")
+      hsc.aiAction(2, "Flood_Firing_Positions/platoon_a")
 end
 
 return test
