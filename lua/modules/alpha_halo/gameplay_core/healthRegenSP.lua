@@ -1,10 +1,11 @@
 -- Lua libraries
 local const = require "alpha_halo.constants"
+local blam = require "blam"
 
-local healthRegen = {}
+local healthRegenSP = {}
 
 --- Regenerate player health on low shield using game ticks on singleplayer
-function healthRegen.regenerateHealth()
+function healthRegenSP.regenerateHealth()
     local player = blam.biped(get_dynamic_player())
     if player then
         -- Fix muted audio shield sync
@@ -24,4 +25,4 @@ function healthRegen.regenerateHealth()
     end
 end
 
-return healthRegen
+return healthRegenSP

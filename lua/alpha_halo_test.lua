@@ -1,5 +1,9 @@
-local test = require "alpha_halo.test"
 local blam = require "blam"
+local test = require "alpha_halo.test"
+local healthRegen = require "alpha_halo.gameplay_core.healthRegen"
+local healthRegenSP = require "alpha_halo.gameplay_core.healthRegenSP"
+local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
+
 local isLoaded = false
 
 clua_version = 2.056
@@ -13,11 +17,16 @@ function OnTick()
         isLoaded = true
         return
     end
+
     local player = blam.biped(get_dynamic_player())
-    test.AiCheck()
     if player.actionKey and player.crouchHold then
         test.AllegianceSet()
     end
+    
+    test.AiCheck()
+    --healthRegen.regenerateHealth()
+    healthRegenAlly.regenerateHealth()
+    healthRegenSP.regenerateHealth()
 end
 
 --OnMapLoad()

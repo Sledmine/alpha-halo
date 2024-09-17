@@ -1,5 +1,6 @@
 -- Lua libraries
 local const = require "alpha_halo.constants"
+local blam = require "blam"
 local engine = Engine
 
 local healthRegen = {}
