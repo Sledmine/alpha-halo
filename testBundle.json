@@ -11,6 +11,7 @@
     "modules": [
         "blam",
         "hsc",
-        "alpha_halo.test"
+        "alpha_halo.test",
+        "alpha_halo.constants"
     ]
 }

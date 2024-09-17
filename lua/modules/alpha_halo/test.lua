@@ -64,10 +64,10 @@ function test.AiCheck()
       hsc.aiMagicallySee(1, "Sentinels_Firing_Positions/platoon_a", "players")
       hsc.aiMagicallySee(1, "Flood_Firing_Positions/platoon_a", "players")
 
-      hsc.aiAction(2, "Covenant_Firing_Positions/platoon_a")
-      hsc.aiAction(2, "UNSC_Firing_Positions/platoon_a")
-      hsc.aiAction(2, "Sentinels_Firing_Positions/platoon_a")
-      hsc.aiAction(2, "Flood_Firing_Positions/platoon_a")
+      hsc.aiAction(1, "Covenant_Firing_Positions/platoon_a")
+      hsc.aiAction(1, "UNSC_Firing_Positions/platoon_a")
+      hsc.aiAction(1, "Sentinels_Firing_Positions/platoon_a")
+      hsc.aiAction(1, "Flood_Firing_Positions/platoon_a")
 end
 
 return test
