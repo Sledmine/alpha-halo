@@ -11,10 +11,12 @@
     "modules": [
         "blam",
         "hsc",
+        "luna",
         "alpha_halo.test",
         "alpha_halo.constants",
         "alpha_halo.gameplay_core.healthRegen",
         "alpha_halo.gameplay_core.healthRegenAlly",
-        "alpha_halo.gameplay_core.healthRegenSP"
+        "alpha_halo.gameplay_core.healthRegenSP",
+        "alpha_halo.gameplay_core.skulls"
     ]
 }
