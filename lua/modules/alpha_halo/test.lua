@@ -31,20 +31,22 @@ function test.AllegianceSet()
         theyChill = true
         console_out("STOOOOP FIGHTIIIIIIIING!!!")
     elseif (theyChill == true) then
-        hsc.aiState(2, "Covenant_Firing_Positions/platoon_a", 2)
-        hsc.aiState(2, "UNSC_Firing_Positions/platoon_a", 2)
-        hsc.aiState(2, "Sentinels_Firing_Positions/platoon_a", 2)
-        hsc.aiState(2, "Flood_Firing_Positions/platoon_a", 2)
-        hsc.aiState(2, "Covenant_Banshee/Covenant_Banshee", 2)
+        --hsc.aiState(2, "Covenant_Firing_Positions/platoon_a", 2)
+        hsc.aiState(2, "UNSC_Firing_Positions", 2)
+        --hsc.aiState(2, "Sentinels_Firing_Positions/platoon_a", 2)
+        --hsc.aiState(2, "Flood_Firing_Positions/platoon_a", 2)
+        --hsc.aiState(2, "Covenant_Banshee/Covenant_Banshee", 2)
         theyChill = false
     end
 end
 
 function test.AiCheck()
-    local marine_living_count = hsc.aiLivingCount("UNSC_Firing_Positions/platoon_a", "marine_living_count")
+    local marine_living_count = hsc.aiLivingCount("UNSC_Firing_Positions", "marine_living_count")
     local sentinel_living_count = hsc.aiLivingCount("Sentinels_Firing_Positions/platoon_a", "sentinel_living_count")
     local flood_living_count = hsc.aiLivingCount("Flood_Firing_Positions/platoon_a", "flood_living_count")
     local covenant_living_count = hsc.aiLivingCount("Covenant_Firing_Positions/platoon_a", "covenant_living_count")
+    
+    console_out(marine_living_count)
 
       if (marine_living_count <= 2) then
         hsc.aiSpawn(1, "UNSC_Firing_Positions/platoon_a")

@@ -10,11 +10,8 @@ local isLoaded = false
 
 clua_version = 2.056
 
-skulls.flags.assasin = true
-
 function OnMapLoad()
     console_out("On map load...")
-    --skulls.modifier()
 end
 
 function OnTick()
@@ -27,8 +24,14 @@ function OnTick()
     local player = blam.biped(get_dynamic_player())
     if player.actionKey and player.crouchHold then
         test.AllegianceSet()
+        --[[if skulls.flags.assasin == false then
+            skulls.flags.assasin = true
+        else
+            skulls.flags.assasin = false
+        end]]
     end
-    
+
+    skulls.assasin()
     test.AiCheck()
     --healthRegen.regenerateHealth()
     healthRegenAlly.regenerateHealth()

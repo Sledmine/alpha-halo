@@ -7,15 +7,20 @@ local bipeds = blam.findTagsList("", blam.tagClasses.biped)
 local actorVariants = blam.findTagsList("", blam.tagClasses.actorVariant)
 local keywords = {
     "flood",
+    "elite",
+    "grunt",
+    "jackal",
+    "hunter",
+    "sentinel",
     "odst"
 }
 
 skulls.flags = {
     assasin = false,
-    mytic = false
+    mythic = false
 }
 
-function skulls.modifier()
+function skulls.mythic()
     for _, tagEntry in pairs(actorVariants) do
         local actorVariantTag = blam.actorVariant(tagEntry.id)
         local isSkullBiped = table.find(keywords, function (keyword) return actorVariantTag.path:includes(keyword) end)
@@ -29,7 +34,7 @@ function skulls.modifier()
     end
 end
 
-function skulls.handler()
+function skulls.assasin()
     -- Get all current spawned objects in the game
     local gameObjects = blam.getObjects()
     for objectId, objectIndex in pairs(gameObjects) do
@@ -46,6 +51,8 @@ function skulls.handler()
                     if tagFromList.path:includes(keyword) then
                         if skulls.flags.assasin and biped.health >= 0 then
                             biped.invisible = true
+                        else
+                            biped.invisible = false
                         end
                     end
                 end

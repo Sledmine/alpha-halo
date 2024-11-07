@@ -95,10 +95,10 @@ function hsc.aiSpawn(type, encounterName)
 end
 
 --- AI Migration
---- @param from encounter string
---- @param to encounter string 
+--- @param1 from string name of the encounter in Sapien
+--- @param2 to string name of the encounter in Sapien
 function hsc.aiMigrate(from, to)
-    execute_script("ai_migrate ".. from .. " " .. to)
+    execute_script("ai_migrate " .. from .. " " .. to)
 end
 
 function hsc.aiCommandList(ai, list)
