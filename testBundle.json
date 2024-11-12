@@ -17,6 +17,7 @@
         "alpha_halo.gameplay_core.healthRegen",
         "alpha_halo.gameplay_core.healthRegenAlly",
         "alpha_halo.gameplay_core.healthRegenSP",
-        "alpha_halo.gameplay_core.skulls"
+        "alpha_halo.gameplay_core.skulls",
+        "alpha_halo.gameplay_core.waveManager"
     ]
 }

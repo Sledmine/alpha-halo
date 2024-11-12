@@ -48,28 +48,28 @@ function test.AiCheck()
     
     console_out(marine_living_count)
 
-      if (marine_living_count <= 2) then
+    if (marine_living_count <= 2) then
         hsc.aiSpawn(1, "UNSC_Firing_Positions/platoon_a")
-      end
-      if (sentinel_living_count <= 4) then
+    end
+    if (sentinel_living_count <= 4) then
         hsc.aiSpawn(1, "Sentinels_Firing_Positions/platoon_a")
-      end
-      if (flood_living_count <= 8) then
+    end
+    if (flood_living_count <= 8) then
         hsc.aiSpawn(1, "Flood_Firing_Positions/platoon_a")
-      end
-      if (covenant_living_count <= 5) then
+    end
+    if (covenant_living_count <= 5) then
         hsc.aiSpawn(1, "Covenant_Firing_Positions/platoon_a")
-      end
+    end
 
-      hsc.aiMagicallySee(1, "Covenant_Firing_Positions/platoon_a", "players")
-      hsc.aiMagicallySee(1, "UNSC_Firing_Positions/platoon_a", "players")
-      hsc.aiMagicallySee(1, "Sentinels_Firing_Positions/platoon_a", "players")
-      hsc.aiMagicallySee(1, "Flood_Firing_Positions/platoon_a", "players")
+    hsc.aiMagicallySee(1, "Covenant_Firing_Positions/platoon_a", "players")
+    hsc.aiMagicallySee(1, "UNSC_Firing_Positions/platoon_a", "players")
+    hsc.aiMagicallySee(1, "Sentinels_Firing_Positions/platoon_a", "players")
+    hsc.aiMagicallySee(1, "Flood_Firing_Positions/platoon_a", "players")
 
-      hsc.aiAction(1, "Covenant_Firing_Positions/platoon_a")
-      hsc.aiAction(1, "UNSC_Firing_Positions/platoon_a")
-      hsc.aiAction(1, "Sentinels_Firing_Positions/platoon_a")
-      hsc.aiAction(1, "Flood_Firing_Positions/platoon_a")
+    hsc.aiAction(1, "Covenant_Firing_Positions/platoon_a")
+    hsc.aiAction(1, "UNSC_Firing_Positions/platoon_a")
+    hsc.aiAction(1, "Sentinels_Firing_Positions/platoon_a")
+    hsc.aiAction(1, "Flood_Firing_Positions/platoon_a")
 end
 
 return test

@@ -102,7 +102,7 @@ function hsc.aiMigrate(from, to)
 end
 
 function hsc.aiCommandList(ai, list)
-  execute_script("ai_command_list " .. ai .. " " .. list)
+    execute_script("ai_command_list " .. ai .. " " .. list)
 end
 
 --- Magic Sight
@@ -186,11 +186,16 @@ function hsc.aiState(type, encounterName, boolean)
     execute_script("ai_" .. returnType[type] .. " " .. encounterName .. " " .. returnBoolean[boolean])
 end
 
+--- Tells a group of actors to get out of any vehicles that they are in
+function hsc.aiExitVehicle(ai)
+    execute_script("ai_exit_vehicle " .. ai)
+end
+
 
 ---@param biped string Declare a biped
 ---@param ai string Declare an ai squad formartted encounter/sqd
 function hsc.aiAttach(biped, ai)
-  execute_script("ai_attach " .. biped .. " " .. ai)
+    execute_script("ai_attach " .. biped .. " " .. ai)
 end
 ------------------------------------------------------------------------------
 --- Unit Functions
@@ -219,6 +224,27 @@ end
 ---@param1 Unit to eject
 function hsc.unitExitVehicle(unit)
     execute_script("unit_exit_vehicle " .. unit)
+end
+
+--- Vehicle load magic
+function hsc.vehicleLoadMagic(vehicle, seat, ai)
+    execute_script("vehicle_load_magic " .. vehicle .. " " .. seat .. " " .. ai)
+end
+
+--- Vehicle load magic without specified seat
+function hsc.vehicleLoadNoSeat(vehicle, ai)
+    execute_script("vehicle_load_magic " .. vehicle .. " " .. ai)
+end
+
+--- Vehicle unload magic
+function hsc.vehicleUnloadMagic(vehicle, seat)
+    execute_script("vehicle_load_magic " .. vehicle .. " " .. seat)
+end
+
+--- Custom animation
+function hsc.customAnimation(unit, animation_graph, string, boolean)
+    local returnBoolean = {"true", "false"}
+    execute_script("custom_animation " .. unit .. " " .. animation_graph .. " " .. string .. " " .. returnBoolean[boolean])
 end
 
 ------------------------------------------------------------------------------
