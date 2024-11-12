@@ -41,7 +41,7 @@ function waveManager.WaveDeployer()
         hsc.aiPlace(selectedSquad)
         hsc.objectCreate(selectedDropship)
         hsc.vehicleLoadNoSeat(selectedSquad, selectedDropship)
-        --hsc.customAnimation(selectedDropship, "[shm]\halo_1\maps\installation_04_ic14_test\installation_04_ic14_test", selectedDropship, 2)
+        hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", selectedDropship, 2)
         dropshipsLeft = dropshipsLeft - 1
     end
     -- luego de esto se bajan los cacos
