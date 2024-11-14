@@ -191,6 +191,13 @@ function hsc.aiExitVehicle(ai)
     execute_script("ai_exit_vehicle " .. ai)
 end
 
+--[[@param1 Sleep
+function hsc.sleepTick(ticks)
+    function OnTick()
+    local tickCounter
+    
+    end
+end]]
 
 ---@param biped string Declare a biped
 ---@param ai string Declare an ai squad formartted encounter/sqd
@@ -228,7 +235,8 @@ end
 
 --- Vehicle load magic
 function hsc.vehicleLoadMagic(vehicle, seat, ai)
-    execute_script("vehicle_load_magic " .. vehicle .. " " .. seat .. " " .. ai)
+    execute_script("vehicle_load_magic " .. vehicle .. " " .. seat .. " " .. "(ai_actors " .. ai .. ")")
+    --referencia: (vehicle_load_magic vehicle seat (ai_actors ai))
 end
 
 --- Vehicle load magic without specified seat
@@ -237,14 +245,14 @@ function hsc.vehicleLoadNoSeat(vehicle, ai)
 end
 
 --- Vehicle unload magic
-function hsc.vehicleUnloadMagic(vehicle, seat)
-    execute_script("vehicle_load_magic " .. vehicle .. " " .. seat)
+function hsc.vehicleUnload(vehicle, seat)
+    execute_script("vehicle_unload " .. vehicle .. " " .. seat)
 end
 
 --- Custom animation
-function hsc.customAnimation(unit, animation_graph, string, boolean)
+function hsc.customAnimation(vehicle, animation_graph, animation_name, boolean)
     local returnBoolean = {"true", "false"}
-    execute_script("custom_animation " .. unit .. " " .. animation_graph .. " " .. string .. " " .. returnBoolean[boolean])
+    execute_script("custom_animation " .. vehicle .. " " .. animation_graph .. " " .. animation_name .. " " .. returnBoolean[boolean])
 end
 
 ------------------------------------------------------------------------------

@@ -21,10 +21,11 @@ function OnTick()
     end
 
     --healthRegen.regenerateHealth()
-    healthRegenAlly.regenerateHealth()
-    healthRegenSP.regenerateHealth()
+    --healthRegenAlly.regenerateHealth()
+    --healthRegenSP.regenerateHealth()
     waveManager.WaveManager()
-    test.AiCheck()
+    waveManager.DropshipManager()
+    --test.AiCheck()
 end
 
 --OnMapLoad()
