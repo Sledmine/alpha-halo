@@ -24,7 +24,6 @@ function OnTick()
     --healthRegenAlly.regenerateHealth()
     --healthRegenSP.regenerateHealth()
     waveManager.WaveManager()
-    waveManager.DropshipManager()
     --test.AiCheck()
 end
 

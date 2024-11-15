@@ -2,30 +2,32 @@ local waveManager = {}
 local blam = require "blam"
 local hsc = require "hsc"
 
--- Preguntarle a Sled domo manejar las funciones locales.
 -- Aquí manejamos las Waves, Rounds y Sets. 5 waves son una round, 3 rounds son un set.
 local currentWave = 1
 local currentRound = 1
 local currentSet = 0
+-- Aqui manejamos los Platoons. Nos sirve para loopear las dropships.
 local platoonsAsigned = 1
 local dropshipsAsigned = 3
--- Estas son las variables que determinan el randomizador del spawn de unidades.
+-- Aquí manejamos los despliegues. Esto lleva la cuenta desbordar las dropships.
+local deploymentTime = 650
+local dropshipsSent = false
+local deploymentCounter = deploymentTime
+-- Estas son las variables que determinan el randomizador de los squads.
+local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
 local randomTeam = math.random (1, 2)
 local currentTier = 1
-local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
+local randomSquad = math.random (1, 6)
+local selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
+-- Estas son las variables que determinan el randomizador de los platoons.
 local platoonTemplate = "Enemy_Team_%s/Selected_Platoon"
 local platoonSelected = platoonTemplate:format(randomTeam)
 -- Estas variables determinan el randomizador de las dropships.
-local dropshipTemplate = "dropship_%s_%s" -- Las units en Sapien no llevan mayusculas, al parecer.
+local dropshipTemplate = "dropship_%s_%s" -- Las units en Sapien no llevan mayusculas.
 local randomDropship = math.random (1, 2)
 local selectedDropship = dropshipTemplate:format(dropshipsAsigned, randomDropship)
-local dropshipsSent = false
-local deploymentTime = 650
-local deploymentCounter = deploymentTime
 
-local selectedSquad = "Enemy_Team_1/Tier_2_Squad_1"
-
--- Esta es la función que se llama al iniciar cada wave, y es la que randomiza, spawnea y transporta a los enemigos.
+-- Esta es la función que se llama al iniciar cada wave, y es la que randomiza, spawnea e inicia el despliegue.
 function waveManager.WaveDeployer()
     --[[A partir del Set 3 cada oleada tendrá un equipo diferente. Antes de eso, sólo se randomiza cada inicio de ronda.
     if currentSet >= 3 then
@@ -52,31 +54,47 @@ function waveManager.WaveDeployer()
         hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", selectedDropship, 2)
         dropshipsLeft = dropshipsLeft - 1
     end]]
+    -- Randomizamos el squad cada que esta función es llamada.
+    -- Así como está, spawnea equipos Flood. Hay que conseguir que se suban a las Spirits.
+    randomTeam = 2
+    currentTier = 1
+    randomSquad = math.random (1, 6)
+    -- Randomizamos la dropship cada que esta función es llamada.
+    selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
     randomDropship = math.random (1, 2)
     selectedDropship = dropshipTemplate:format(dropshipsAsigned, randomDropship)
-    if dropshipsAsigned > 0 then
-        hsc.objectCreate(selectedDropship)
-        hsc.aiSpawn(1, selectedSquad)
-        hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
-        hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", selectedDropship, 2)
-        hsc.aiMigrate(selectedSquad, "Current_Wave")
-        dropshipsSent = true
-        deploymentCounter = deploymentTime
-        dropshipsAsigned = dropshipsAsigned - 1
-        --console_out("If i still had fingers...")
-    end
-
+    -- Comenzamos el despliegue de los squads en las dropships.
+    hsc.objectCreate(selectedDropship)
+    hsc.aiSpawn(1, selectedSquad)
+    hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
+    hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", selectedDropship, 2)
+    hsc.aiMigrate(selectedSquad, "Current_Wave")
+    dropshipsSent = true
+    deploymentCounter = deploymentTime
+    dropshipsAsigned = dropshipsAsigned - 1
+    -- Para ayudarme a sobrevivir a estos tests, invoco a los ODSTs.
+    hsc.aiSpawn(1, "dummy")
 end
 
 function waveManager.WaveManager()
-    -- Estas dos variables nos van a determinar cuántas tropas se despliegan en una oleada.
+    -- Aquí nos aseguramos de que la IA siga a los jugadores.
+    hsc.aiMagicallySee(1, "Current_Wave", "")
+    hsc.aiAction(1, "Current_Wave")
+    -- Aquí gestionamos el despliegue de tropas y el inicio de las oleadas.
     local waveLivingCount = hsc.aiLivingCount("Current_Wave", "wave_living_count")
-    console_out(waveLivingCount)
     if dropshipsAsigned > 0 then
         waveManager.WaveDeployer()
     elseif waveLivingCount <= 8 then
         dropshipsAsigned = 3
         console_out("Next Wave Incoming!")
+    end
+    -- Aquí cronometramos el despliegue de las tropas en las dropships desplegadas.
+    if dropshipsSent == true and deploymentCounter > 0 then
+        deploymentCounter = deploymentCounter - 1
+    elseif deploymentCounter <= 0 then
+        hsc.aiExitVehicle("Current_Wave")
+        dropshipsSent = false
+        deploymentCounter = deploymentTime
     end
     --[[local platoonRemaining = platoonsAsigned
     if (currentSet >= 1) then
@@ -108,25 +126,7 @@ function waveManager.WaveManager()
             console_out("Butts have been kicked!")
             waveManager.WaveDeployer()
         end
-        -- Estos comandos son para que los enemigos siempre sepan dónde estás y te sigan.
-        -- Están acá porque quieres que esto ocurra onTick mientras la partida esté corriendo.
-        hsc.aiMagicallySeePlayers("Current_Wave")
-        hsc.aiAction(1, "Current_Wave")
     end]]
-end
-
-function waveManager.DropshipManager()
-    if dropshipsSent == true and deploymentCounter > 0 then
-        deploymentCounter = deploymentCounter - 1
-    elseif deploymentCounter <= 0 then
-        -- Esto no funciona con varias dropships, ya que el "Selected Dropship" cambia cada que es llamado el script.
-        -- Por ende, necesitamos una forma de bajar todo el encounter, o hacerle el vehicleUnload a toda Spirit.
-        -- Es posible que para esto necesitemos utilizar las tablas. El script de skulls tiene lo que necesito.
-        --hsc.vehicleUnload(selectedDropship, "passenger")
-        --hsc.unitExitVehicle("Current_Wave")
-        dropshipsSent = false
-        deploymentCounter = deploymentTime
-    end
 end
 
 return waveManager

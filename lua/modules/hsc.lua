@@ -83,8 +83,6 @@ function hsc.aiLivingCount(encounterName, globalVar)
     return get_global(globalVar)
 end
 
-
-
 --- AI Spawning
 ---@param1 script type (1 - 5)
 ---@param2 encounterName string name of the encounter in Sapien
@@ -190,14 +188,6 @@ end
 function hsc.aiExitVehicle(ai)
     execute_script("ai_exit_vehicle " .. ai)
 end
-
---[[@param1 Sleep
-function hsc.sleepTick(ticks)
-    function OnTick()
-    local tickCounter
-    
-    end
-end]]
 
 ---@param biped string Declare a biped
 ---@param ai string Declare an ai squad formartted encounter/sqd

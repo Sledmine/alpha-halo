@@ -1,11 +1,13 @@
 - comprobar que las dropships funcionan en hsc -- LISTO
 - comprobar que las dropships funcionan en lua -- LISTO
 - desplegar a los cacos en la dropship -- LISTO
-- repetir el proceso tras cada ai_living_count = x -- TRABAJANDO
-- hacer spawnear unos cacos con el nameTemplate
-- imprimir en la consola el progreso de oleada, ronda y set
-- hacer la randomización de squad
-- hacer la progresión de tier
-- hacer la randomización de team
-- meter los eventos aleatorios
-- baile de victoria
+- hacer spawnear unos cacos con el nameTemplate -- LISTO
+- repetir el proceso tras cada ai_living_count -- LISTO
+-- arreglar los labels de hunters y flood -- EN PROGRESO
+-- crear la progresión de nombre de oleada
+-- crear la progresión de nombre de squad
+-- crear los eventos aleatorios
+-- hacer correcciones a los bitmaps
+-- cazar detalles en los tags
+-- revisión de código con sled
+-- baile de victoria
