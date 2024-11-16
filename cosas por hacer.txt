@@ -3,10 +3,14 @@
 - desplegar a los cacos en la dropship -- LISTO
 - hacer spawnear unos cacos con el nameTemplate -- LISTO
 - repetir el proceso tras cada ai_living_count -- LISTO
--- arreglar los labels de hunters y flood -- EN PROGRESO
+-- arreglar los labels de hunters y flood -- LISTO* (hay que ajustar las anims del Flood)
+-- separar los fighting encounters para covenant y flood -- LISTO
+-- ni pedo, resolver la tontería del dropship -- EN PROGRESO
+-- crearle sus propias dropships al flood
 -- crear la progresión de nombre de oleada
 -- crear la progresión de nombre de squad
 -- crear los eventos aleatorios
+-- crear sistema de rondas mixtas
 -- hacer correcciones a los bitmaps
 -- cazar detalles en los tags
 -- revisión de código con sled

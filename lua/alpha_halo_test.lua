@@ -23,7 +23,7 @@ function OnTick()
     --healthRegen.regenerateHealth()
     --healthRegenAlly.regenerateHealth()
     --healthRegenSP.regenerateHealth()
-    waveManager.WaveManager()
+    --waveManager.WaveManager()
     --test.AiCheck()
 end
 

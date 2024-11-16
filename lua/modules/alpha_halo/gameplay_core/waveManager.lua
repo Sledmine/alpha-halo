@@ -15,17 +15,18 @@ local dropshipsSent = false
 local deploymentCounter = deploymentTime
 -- Estas son las variables que determinan el randomizador de los squads.
 local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
-local randomTeam = math.random (1, 2)
+local randomTeam = 1
 local currentTier = 1
-local randomSquad = math.random (1, 6)
+local randomSquad = 1
 local selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
 -- Estas son las variables que determinan el randomizador de los platoons.
 local platoonTemplate = "Enemy_Team_%s/Selected_Platoon"
 local platoonSelected = platoonTemplate:format(randomTeam)
 -- Estas variables determinan el randomizador de las dropships.
 local dropshipTemplate = "dropship_%s_%s" -- Las units en Sapien no llevan mayusculas.
-local randomDropship = math.random (1, 2)
+local randomDropship = 1
 local selectedDropship = dropshipTemplate:format(dropshipsAsigned, randomDropship)
+local dropshipAnimation = dropshipTemplate:format(dropshipsAsigned, randomDropship)
 
 -- Esta es la función que se llama al iniciar cada wave, y es la que randomiza, spawnea e inicia el despliegue.
 function waveManager.WaveDeployer()
@@ -55,47 +56,63 @@ function waveManager.WaveDeployer()
         dropshipsLeft = dropshipsLeft - 1
     end]]
     -- Randomizamos el squad cada que esta función es llamada.
-    -- Así como está, spawnea equipos Flood. Hay que conseguir que se suban a las Spirits.
-    randomTeam = 2
-    currentTier = 1
     randomSquad = math.random (1, 6)
-    -- Randomizamos la dropship cada que esta función es llamada.
     selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
-    randomDropship = math.random (1, 2)
+    -- Randomizamos la dropship cada que esta función es llamada.
+    randomDropship = 1
     selectedDropship = dropshipTemplate:format(dropshipsAsigned, randomDropship)
+    dropshipAnimation = dropshipTemplate:format(dropshipsAsigned, randomDropship)
     -- Comenzamos el despliegue de los squads en las dropships.
     hsc.objectCreate(selectedDropship)
     hsc.aiSpawn(1, selectedSquad)
     hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
-    hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", selectedDropship, 2)
-    hsc.aiMigrate(selectedSquad, "Current_Wave")
+    hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", dropshipAnimation, 2)
+    if randomTeam == 1 then
+        hsc.aiMigrate(selectedSquad, "Covenant_Wave")
+    elseif randomTeam == 2 then
+        hsc.aiMigrate(selectedSquad, "Flood_Wave")
+    end
     dropshipsSent = true
     deploymentCounter = deploymentTime
     dropshipsAsigned = dropshipsAsigned - 1
-    -- Para ayudarme a sobrevivir a estos tests, invoco a los ODSTs.
-    hsc.aiSpawn(1, "dummy")
 end
 
 function waveManager.WaveManager()
-    -- Aquí nos aseguramos de que la IA siga a los jugadores.
-    hsc.aiMagicallySee(1, "Current_Wave", "")
-    hsc.aiAction(1, "Current_Wave")
+    -- Aquí revisamos el living count. Esto se conecta a un bool en hsc.
+    local waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
+    local marineLivingCount = hsc.aiLivingCount("Human_Team", "marine_living_count")
     -- Aquí gestionamos el despliegue de tropas y el inicio de las oleadas.
-    local waveLivingCount = hsc.aiLivingCount("Current_Wave", "wave_living_count")
     if dropshipsAsigned > 0 then
         waveManager.WaveDeployer()
     elseif waveLivingCount <= 8 then
         dropshipsAsigned = 3
+        randomTeam = 1 --math.random (1, 2)
         console_out("Next Wave Incoming!")
     end
     -- Aquí cronometramos el despliegue de las tropas en las dropships desplegadas.
     if dropshipsSent == true and deploymentCounter > 0 then
         deploymentCounter = deploymentCounter - 1
     elseif deploymentCounter <= 0 then
-        hsc.aiExitVehicle("Current_Wave")
+        hsc.aiExitVehicle("Covenant_Wave")
+        hsc.aiExitVehicle("Flood_Wave")
         dropshipsSent = false
         deploymentCounter = deploymentTime
     end
+    -- Aquí spawneamos refuerzos. En el futuro, llegarán en un Pelican en las Boss Waves.
+    if marineLivingCount <= 2 then
+        hsc.aiSpawn(1, "Human_Team/ODSTs")
+    end
+    -- Debe haber una mejor forma de hacer esto, lmao.
+    hsc.aiMagicallySee(1, "Covenant_Wave", "")
+    hsc.aiAction(1, "Covenant_Wave")
+    hsc.aiMagicallySee(1, "Flood_Wave", "")
+    hsc.aiAction(1, "Flood_Wave")
+    hsc.aiMagicallySee(1, "Human_Team", "")
+    hsc.aiAction(1, "Human_Team")
+    hsc.aiMagicallySee(1, "Sentinel_Team", "")
+    hsc.aiAction(1, "Sentinel_Team")
+    hsc.aiMagicallySee(1, "Emergent_Dangers", "")
+    hsc.aiAction(1, "Emergent_Dangers")
     --[[local platoonRemaining = platoonsAsigned
     if (currentSet >= 1) then
         -- El juego revisa cuántas units quedan vivas y aún quedan platoons por desplegar.
