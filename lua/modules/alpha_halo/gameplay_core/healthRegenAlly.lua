@@ -12,7 +12,7 @@ function healthRegenAlly.regenerateHealth()
             local bipedTagId = bipedObject.tagId
             if bipedTagId == const.bipeds.odstAllyTag.id then
                 --console_out("Biped found")
-                if bipedObject.health < 1 and bipedObject.shield > 0.95 and blam.isNull(bipedObject.vehicleObjectId) then
+                if bipedObject.health < 1 and bipedObject.shield > 0.75 then
                     bipedObject.health = bipedObject.health + const.healthRegenAiAmount
                     if bipedObject.health > 1 then
                         bipedObject.health = 1

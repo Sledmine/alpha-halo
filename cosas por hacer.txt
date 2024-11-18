@@ -5,12 +5,14 @@
 - repetir el proceso tras cada ai_living_count -- LISTO
 -- arreglar los labels de hunters y flood -- LISTO* (hay que ajustar las anims del Flood)
 -- separar los fighting encounters para covenant y flood -- LISTO
--- ni pedo, resolver la tontería del dropship -- EN PROGRESO
--- crearle sus propias dropships al flood
--- crear la progresión de nombre de oleada
--- crear la progresión de nombre de squad
--- crear los eventos aleatorios
--- crear sistema de rondas mixtas
+-- identificar tag que causa la caída del arma de la dropship -- LISTO
+-- resolver conducta aberrante de la torreta -- LISTO
+-- transicionar a un sistema de cutscenes tradicionales -- MARK EN PROGRESO
+-- crearle sus propias dropships al flood -- A LA ESPERA DE NUEVAS DROPSHIPS
+-- crear la progresión de nombre de oleada -- LISTO
+-- crear la progresión de nombre de squad -- LISTO
+-- crear sistema de rondas mixtas -- LISTO
+-- crear los eventos aleatorios -- EN PROGRESO
 -- hacer correcciones a los bitmaps
 -- cazar detalles en los tags
 -- revisión de código con sled

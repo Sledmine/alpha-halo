@@ -10,7 +10,7 @@ local isLoaded = false
 clua_version = 2.056
 
 function OnMapLoad()
-    console_out("On map load...")
+    waveManager.GameStart()
 end
 
 function OnTick()
@@ -20,10 +20,10 @@ function OnTick()
         return
     end
 
+    waveManager.WaveManager()
+    healthRegenAlly.regenerateHealth()
+    healthRegenSP.regenerateHealth()
     --healthRegen.regenerateHealth()
-    --healthRegenAlly.regenerateHealth()
-    --healthRegenSP.regenerateHealth()
-    --waveManager.WaveManager()
     --test.AiCheck()
 end
 
