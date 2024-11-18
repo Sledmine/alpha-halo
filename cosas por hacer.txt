@@ -12,7 +12,8 @@
 -- crear la progresión de nombre de oleada -- LISTO
 -- crear la progresión de nombre de squad -- LISTO
 -- crear sistema de rondas mixtas -- LISTO
--- crear los eventos aleatorios -- EN PROGRESO
+-- crear las boss rounds -- EN PROGRESO
+-- crear los eventos aleatorios
 -- hacer correcciones a los bitmaps
 -- cazar detalles en los tags
 -- capar health regen
