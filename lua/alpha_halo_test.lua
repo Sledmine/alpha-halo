@@ -79,7 +79,7 @@ function OnTick()
             end
         end
     end
-    waveManager.WaveManager()
+    --waveManager.WaveManager()
     healthRegenAlly.regenerateHealth()
     healthRegenSP.regenerateHealth()
     --healthRegen.regenerateHealth()
