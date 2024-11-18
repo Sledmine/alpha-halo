@@ -128,8 +128,8 @@ function waveManager.WaveDeployer()
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
     -- Randomizamos las animaciones pre grabadas
-    randomRecordedAnimation = math.random (1)
-    selectedRecordedAnimation = recordedAnimationTemplate:format(dropshipsLeft, randomRecordedAnimation)
+    --randomRecordedAnimation = math.random (1)
+    --selectedRecordedAnimation = recordedAnimationTemplate:format(dropshipsLeft, randomRecordedAnimation)
     -- Comenzamos el despliegue de los squads en las dropships.
     hsc.objectCreate(selectedDropship)
     hsc.aiSpawn(1, selectedSquad)
