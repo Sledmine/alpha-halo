@@ -15,5 +15,6 @@
 -- crear los eventos aleatorios -- EN PROGRESO
 -- hacer correcciones a los bitmaps
 -- cazar detalles en los tags
+-- capar health regen
 -- revisión de código con sled
 -- baile de victoria

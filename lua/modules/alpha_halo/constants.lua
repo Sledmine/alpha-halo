@@ -24,7 +24,7 @@ constants.sounds = {
 }
 
 constants.bipeds = {
-    odstAllyTag = blam.findTag("odst", tagClasses.biped)
+    odstAllyTag = blam.findTag("alpha_firefight\\characters\\human\\marine\\marine_odst\\odst", tagClasses.biped)
 }
 
 return constants
