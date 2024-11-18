@@ -240,9 +240,13 @@ function hsc.vehicleUnload(vehicle, seat)
 end
 
 --- Custom animation
-function hsc.customAnimation(vehicle, animation_graph, animation_name, boolean)
+---@param vehicle string
+---@param model_animation_path string
+---@param animation_name string
+---@param boolean string
+function hsc.customAnimation(vehicle, model_animation_path, animation_name, boolean)
     local returnBoolean = {"true", "false"}
-    execute_script("custom_animation " .. vehicle .. " " .. animation_graph .. " " .. animation_name .. " " .. returnBoolean[boolean])
+    execute_script("custom_animation " .. vehicle .. " " .. model_animation_path .. " " .. animation_name .. " " .. boolean)
 end
 
 --- Recorded Animation Hover
