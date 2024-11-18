@@ -245,6 +245,13 @@ function hsc.customAnimation(vehicle, animation_graph, animation_name, boolean)
     execute_script("custom_animation " .. vehicle .. " " .. animation_graph .. " " .. animation_name .. " " .. returnBoolean[boolean])
 end
 
+--- Recorded Animation Hover
+---@param1 vehicle name in scenario
+---@param2 recorded animation name in scenario
+function hsc.recordingAnimationHover(vehicle, recorded_animation_name)
+    execute_script("recording_play_and_hover " .. vehicle .. " " .. recorded_animation_name)
+end
+
 ------------------------------------------------------------------------------
 --- Object Functions
 ------------------------------------------------------------------------------
@@ -277,7 +284,6 @@ end
 function hsc.objectCreate(objectName)
     execute_script("object_create_containing " .. objectName)
 end
-
 
 
 ------------------------------------------------------------------------------
