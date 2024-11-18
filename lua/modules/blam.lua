@@ -1262,6 +1262,7 @@ local deviceGroupsTableStructure = {
 ---@field address number
 ---@field tagId number Object tag ID
 ---@field networkRoleClass number Object network role class
+---@field isNotMoving boolean TESTING
 ---@field isGhost boolean Set object in some type of ghost mode
 ---@field isOnGround boolean Is the object touching ground
 ---@field isNotAffectedByGravity boolean Enable/disable object gravity
@@ -1350,6 +1351,7 @@ local objectStructure = {
     tagId = {type = "dword", offset = 0x0},
     networkRoleClass = {type = "dword", offset = 0x4},
     isNotMoving = {type = "bit", offset = 0x8, bitLevel = 0},
+    shouldForceBaselineUpdate = {type = "bit", offset = 0x8, bitLevel = 8},
     existanceTime = {type = "dword", offset = 0xC},
     isGhost = {type = "bit", offset = 0x10, bitLevel = 0},
     isOnGround = {type = "bit", offset = 0x10, bitLevel = 1},
@@ -1420,6 +1422,7 @@ local objectStructure = {
     pitchVel = {type = "float", offset = 0x90},
     rollVel = {type = "float", offset = 0x94},
     locationId = {type = "dword", offset = 0x98},
+    clusterId = {type = "word", offset = 0x9C},
     boundingRadius = {type = "float", offset = 0xAC},
     ---@deprecated
     type = {type = "word", offset = 0xB4},
@@ -1453,11 +1456,14 @@ local objectStructure = {
 }
 
 local unitStructure = extendStructure(objectStructure, {
+    isActive = {type = "bit", offset = 0x204, bitLevel = 0},
     ---@deprecated
     invisible = {type = "bit", offset = 0x204, bitLevel = 4},
     isCamoActive = {type = "bit", offset = 0x204, bitLevel = 4},
     isControllable = {type = "bit", offset = 0x204, bitLevel = 5},
+    isCurrentlyControllable = {type = "bit", offset = 0x204, bitLevel = 6},
     isPlayerNotAllowedToEntry = {type = "bit", offset = 0x204, bitLevel = 16},
+    isSuspended = {type = "bit", offset = 0x204, bitLevel = 24},
     parentSeatIndex = {type = "word", offset = 0x2F0},
     weaponAnimationTypeIndex = {type = "byte", offset = 0x2A1},
     weaponSlot = {type = "byte", offset = 0x2F2},
@@ -1472,6 +1478,8 @@ local unitStructure = extendStructure(objectStructure, {
 ---@field isCamoActive boolean Unit camo state
 ---@field isControllable boolean Unit controllable state
 ---@field isPlayerNotAllowedToEntry boolean Unit player not allowed to entry
+---@field isActive boolean TESTING
+---@field isSuspended boolean TESTING
 ---@field parentSeatIndex number Unit parent seat index
 ---@field weaponAnimationTypeIndex number Unit weapon animation type index
 ---@field weaponSlot number Current unit weapon slot
