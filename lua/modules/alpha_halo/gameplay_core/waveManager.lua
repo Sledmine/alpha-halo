@@ -126,7 +126,8 @@ function waveManager.WaveDeployer()
     selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
-    selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
+    --selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
+    selectedDropship = "dropship_1_1"
     -- Guardamos el nombre de las dropships para las animaciones.
     if dropshipsLeft == 3 then
         dropshipThird = selectedDropship
