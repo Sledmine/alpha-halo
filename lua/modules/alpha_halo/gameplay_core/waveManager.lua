@@ -30,6 +30,11 @@ local selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
 local dropshipTemplate = "dropship_%s_%s" -- Las units en Sapien no llevan mayusculas.
 local randomDropship = 1
 local selectedDropship = dropshipTemplate:format(dropshipsAsigned, randomDropship)
+-- Variables para animaciones pregrabadas
+--local recordedAnimationsAsigned = 2
+--local randomRecordedAnimation = 1
+--local recordedAnimationTemplate = "drop_%s" -- Nombres de las Animaciones
+--local selectedRecordedAnimation = recordedAnimationTemplate:format(recordedAnimationsAsigned, randomRecordedAnimation)
 
 -- Esta es la función que inicia el juego.
 function waveManager.GameStart()
@@ -122,11 +127,15 @@ function waveManager.WaveDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
+    -- Randomizamos las animaciones pre grabadas
+    randomRecordedAnimation = math.random (1)
+    selectedRecordedAnimation = recordedAnimationTemplate:format(dropshipsLeft, randomRecordedAnimation)
     -- Comenzamos el despliegue de los squads en las dropships.
     hsc.objectCreate(selectedDropship)
     hsc.aiSpawn(1, selectedSquad)
     hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
     hsc.customAnimation(selectedDropship, "[shm]\\halo_1\\maps\\installation_04_ic14_test\\installation_04_ic14_test", selectedDropship, 2)
+    --hsc.recordingAnimationHover(selectedDropship, selectedRecordedAnimation)
     if randomTeam == 1 then
         hsc.aiMigrate(selectedSquad, "Covenant_Wave")
     elseif randomTeam == 2 then
