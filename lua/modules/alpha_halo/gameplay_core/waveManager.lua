@@ -1,5 +1,4 @@
 local waveManager = {}
-local blam = require "blam"
 local hsc = require "hsc"
 -- Aquí manejamos las Waves, Rounds y Sets. 5 waves son una round, 3 rounds son un set.
 local currentWave = 0
@@ -13,11 +12,11 @@ local actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 local dropshipsAsigned = 3
 local dropshipsLeft = 0
 -- Aquí manejamos el wave cooldown. Esto lleva la cuenta desbordar las dropships.
-local waveCooldownTimer = 300
+local waveCooldownTimer = 270
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- Aquí manejamos los despliegues. Esto lleva la cuenta desbordar las dropships.
-local dropshipCountdownTimer = 650
+local dropshipCountdownTimer = 630
 local dropshipCountdownStart = false
 local dropshipCountdownCounter = 0
 -- Estas son las variables que determinan el randomizador de los squads.
@@ -30,6 +29,10 @@ local selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
 local dropshipTemplate = "dropship_%s_%s" -- Las units en Sapien no llevan mayusculas.
 local randomDropship = 1
 local selectedDropship = dropshipTemplate:format(dropshipsAsigned, randomDropship)
+-- Estas variables registran cada una de las dropships.
+local dropshipThird = selectedDropship
+local dropshipSecond = selectedDropship
+local dropshipFirst = selectedDropship
 
 -- Esta es la función que inicia el juego.
 function waveManager.GameStart()
@@ -46,15 +49,16 @@ function waveManager.WaveManager()
     if gameIsOn == true then
         -- Aquí revisamos el living count. Esto se conecta a un bool en hsc.
         local waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
-        actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
         -- Aquí gestionamos el despliegue de tropas y el inicio de las oleadas.
+        actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
         if waveIsOn == true then
             if dropshipsLeft > 0 then
                 waveManager.WaveDeployer()
+                console_out("If i still had fingers...")
             elseif waveLivingCount <= 8 then
-                waveIsOn = false
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
+                waveIsOn = false
                 -- Si la Wave es menor a 5, avanza una. Si pasaste el Set 4, se randomiza el team.
                 if (currentWave < 5) then
                     currentWave = currentWave + 1
@@ -78,21 +82,22 @@ function waveManager.WaveManager()
                     end
                 end
             end
-        elseif waveIsOn == false then
-            if waveCooldownStart == true and waveCooldownCounter > 0 then
-                waveCooldownCounter = waveCooldownCounter - 1
-            elseif waveCooldownCounter <= 0 then
-                waveIsOn = true
-                waveCooldownStart = false
-                waveCooldownCounter = 0
-                dropshipsLeft = dropshipsAsigned
-                console_out(actualWave)
-            end
+        end
+        -- Aquí cronometramos el cooldown de las oleadas y el despliegue de las anims.
+        if waveCooldownStart == true and waveCooldownCounter > 0 then
+            waveCooldownCounter = waveCooldownCounter - 1
+            console_out(waveCooldownCounter)
+        elseif waveCooldownStart == true and waveCooldownCounter <= 0 then
+            console_out(actualWave)
+            waveIsOn = true
+            dropshipsLeft = dropshipsAsigned
+            waveCooldownStart = false
+            waveCooldownCounter = 0
         end
         -- Aquí cronometramos el despliegue de las tropas en las dropships desplegadas.
         if dropshipCountdownStart == true and dropshipCountdownCounter > 0 then
             dropshipCountdownCounter = dropshipCountdownCounter - 1
-        elseif dropshipCountdownCounter <= 0 then
+        elseif dropshipCountdownStart == true and dropshipCountdownCounter <= 0 then
             hsc.aiExitVehicle("Covenant_Wave")
             hsc.aiExitVehicle("Flood_Wave")
             dropshipCountdownStart = false
@@ -114,7 +119,7 @@ end
 
 -- Esta es la función que se llama al iniciar cada wave, y es la que randomiza, spawnea e inicia el despliegue.
 function waveManager.WaveDeployer()
-    -- Randomizamos el squad cada que esta función es llamada.
+    -- Randomizamos el squad cada que esta función es llamada, sólo dos veces.
     if dropshipsLeft > 1 then
         randomSquad = math.random (1, 6)
     end
@@ -122,8 +127,16 @@ function waveManager.WaveDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    -- Comenzamos el despliegue de los squads en las dropships.
-    hsc.objectCreate(selectedDropship)
+    -- Guardamos el nombre de las dropships para las animaciones.
+    if dropshipsLeft == 3 then
+        dropshipThird = selectedDropship
+    elseif dropshipsLeft == 2 then
+        dropshipSecond = selectedDropship
+    elseif dropshipsLeft == 1 then
+        dropshipFirst = selectedDropship
+    end
+    -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
+    --hsc.objectCreate(selectedDropship)
     hsc.aiSpawn(1, selectedSquad)
     hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
     hsc.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, 2)
@@ -132,6 +145,7 @@ function waveManager.WaveDeployer()
     elseif randomTeam == 2 then
         hsc.aiMigrate(selectedSquad, "Flood_Wave")
     end
+    -- Iniciamos los contadores y vamos extinguiendo el script.
     dropshipsLeft = dropshipsLeft - 1
     dropshipCountdownStart = true
     dropshipCountdownCounter = dropshipCountdownTimer

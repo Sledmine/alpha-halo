@@ -44,7 +44,6 @@ function OnTick()
                 if objectTag.path:includes("covenant_spirit") then
                     local vehicle = blam.vehicle(get_object(objectHandle))
                     if vehicle then
-                        execute_script("cls")
                         local mainNode = getNodePosition(get_object(objectHandle) + 0x5B8)
                         local absoluteNodeX = mainNode.x + (vehicle.x - mainNode.x)
                         local absoluteNodeY = mainNode.y + (vehicle.y - mainNode.y)
