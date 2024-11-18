@@ -59,9 +59,9 @@ data
 six-shooter.ini
 hek/
 *_sync.hsc
+maps
 
 # Cloud files
 *.db*
 *.log
 Desktop.ini
-maps
