@@ -245,7 +245,6 @@ end
 ---@param animation_name string
 ---@param boolean string
 function hsc.customAnimation(vehicle, model_animation_path, animation_name, boolean)
-    local returnBoolean = {"true", "false"}
     execute_script("custom_animation " .. vehicle .. " " .. model_animation_path .. " " .. animation_name .. " " .. boolean)
 end
 
@@ -289,6 +288,11 @@ function hsc.objectCreate(objectName)
     execute_script("object_create_containing " .. objectName)
 end
 
+--- Object Create
+---@param1 object Name
+function hsc.objectCreateANew(objectName)
+    execute_script("object_create_anew " .. objectName)
+end
 
 ------------------------------------------------------------------------------
 --- Player Functions

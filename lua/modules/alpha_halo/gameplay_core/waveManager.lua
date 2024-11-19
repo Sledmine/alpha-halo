@@ -42,6 +42,7 @@ function waveManager.GameStart()
     currentRound = 1
     currentSet = 1
     hsc.aiSpawn(1, "Human_Team/ODSTs")
+    --hsc.objectCreateANew("dropship_1_2")
 end
 
 -- Esta es la función que corre onTick y controla los eventos del juego.
@@ -127,7 +128,7 @@ function waveManager.WaveDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
     --selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    selectedDropship = "dropship_1_1"
+    selectedDropship = "dropship_1_2"
     -- Guardamos el nombre de las dropships para las animaciones.
     if dropshipsLeft == 3 then
         dropshipThird = selectedDropship
@@ -140,7 +141,7 @@ function waveManager.WaveDeployer()
     --hsc.objectCreate(selectedDropship)
     hsc.aiSpawn(1, selectedSquad)
     hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
-    hsc.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, 2)
+    hsc.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
     if randomTeam == 1 then
         hsc.aiMigrate(selectedSquad, "Covenant_Wave")
     elseif randomTeam == 2 then
