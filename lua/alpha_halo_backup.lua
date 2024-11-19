@@ -1,6 +1,6 @@
 local blam = require "blam"
 local test = require "alpha_halo.test"
-local firefightManager = require "lua.modules.alpha_halo.gameplay_core.firefightManager"
+local firefightManager = require "alpha_halo.gameplay_core.firefightManager"
 --local healthRegen = require "alpha_halo.gameplay_core.healthRegen"
 local healthRegenSP = require "alpha_halo.gameplay_core.healthRegenSP"
 local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
