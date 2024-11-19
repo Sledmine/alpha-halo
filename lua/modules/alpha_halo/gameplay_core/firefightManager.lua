@@ -1,8 +1,8 @@
 local firefightManager = {}
 local hsc = require "hsc"
--- VARIABLES DE LA FUNCIÓN firefightManager.OnMapLoad
+-- VARIABLES DE LA FUNCIÓN firefightManager.WhenMapLoads
 local gameIsOn = false
--- VARIABLES DE LA FUNCIÓN firefightManager.OnTick
+-- VARIABLES DE LA FUNCIÓN firefightManager.EachTick
 local waveIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveProgression
 local currentWave = 0
@@ -31,18 +31,19 @@ local dropshipCountdownTimer = 630
 local dropshipCountdownStart = false
 local dropshipCountdownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.AiCheck
-local waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
+local waveLivingCount = 0
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
-function firefightManager.OnMapLoad()
-    console_out("Welcome to Alpha Firefight")
+function firefightManager.WhenMapLoads()
+    console_out("Welcome to Alpha Firefight.")
     gameIsOn = true
+    waveIsOn = true
     currentRound = 1
     currentSet = 1
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
-function firefightManager.OnTick()
+function firefightManager.EachTick()
     if gameIsOn == true then
         -- Actualizamos constantemente el estado de la IA.
         firefightManager.AiCheck()
@@ -51,6 +52,7 @@ function firefightManager.OnTick()
             if dropshipsLeft > 0 then
                 firefightManager.DropshipDeployer()
             elseif waveLivingCount <= 8 then
+                console_out("Sending buggers on your way.")
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
                 waveIsOn = false
@@ -89,13 +91,14 @@ function firefightManager.WaveProgression()
             currentSet = currentSet + 1
         end
     end
+    actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
 function firefightManager.WaveCooldown()
     if waveCooldownStart == true and waveCooldownCounter > 0 then
         waveCooldownCounter = waveCooldownCounter - 1
-        console_out(waveCooldownCounter)
+        --console_out(waveCooldownCounter)
     elseif waveCooldownStart == true and waveCooldownCounter <= 0 then
         console_out(actualWave)
         waveIsOn = true
@@ -147,6 +150,7 @@ end
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 function firefightManager.AiCheck()
     waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
+    --console_out(waveLivingCount)
     hsc.aiMagicallySee(1, "Covenant_Wave", "")
     hsc.aiAction(1, "Covenant_Wave")
     hsc.aiMagicallySee(1, "Flood_Wave", "")
