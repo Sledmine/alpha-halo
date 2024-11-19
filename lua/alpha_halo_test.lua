@@ -1,6 +1,6 @@
 local blam = require "blam"
 local test = require "alpha_halo.test"
-local waveManager = require "alpha_halo.gameplay_core.waveManager"
+local firefightManager = require "alpha_halo.gameplay_core.firefightManager"
 --local healthRegen = require "alpha_halo.gameplay_core.healthRegen"
 local healthRegenSP = require "alpha_halo.gameplay_core.healthRegenSP"
 local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
@@ -10,7 +10,7 @@ local isLoaded = false
 clua_version = 2.056
 
 function OnMapLoad()
-    waveManager.GameStart()
+    firefightManager.WhenMapLoads()
 end
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
@@ -79,7 +79,7 @@ function OnTick()
             end
         end
     end
-    waveManager.WaveManager()
+    firefightManager.EachTick()
     healthRegenAlly.regenerateHealth()
     healthRegenSP.regenerateHealth()
 end
