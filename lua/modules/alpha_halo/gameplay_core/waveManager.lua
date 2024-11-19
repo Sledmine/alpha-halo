@@ -135,7 +135,7 @@ function waveManager.WaveDeployer()
         dropshipFirst = selectedDropship
     end
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
-    hsc.objectCreate(selectedDropship)
+    hsc.objectCreateANew(selectedDropship)
     hsc.aiSpawn(1, selectedSquad)
     hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
     hsc.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
