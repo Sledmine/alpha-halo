@@ -1,8 +1,10 @@
-- comprobar que las dropships funcionan en hsc -- LISTO
-- comprobar que las dropships funcionan en lua -- LISTO
-- desplegar a los cacos en la dropship -- LISTO
-- hacer spawnear unos cacos con el nameTemplate -- LISTO
-- repetir el proceso tras cada ai_living_count -- LISTO
+ALFA FIREFIGHT v1
+
+-- comprobar que las dropships funcionan en hsc -- LISTO
+-- comprobar que las dropships funcionan en lua -- LISTO
+-- desplegar a los cacos en la dropship -- LISTO
+-- hacer spawnear unos cacos con el nameTemplate -- LISTO
+-- repetir el proceso tras cada ai_living_count -- LISTO
 -- arreglar los labels de hunters y flood -- LISTO* (hay que ajustar las anims del Flood)
 -- separar los fighting encounters para covenant y flood -- LISTO
 -- identificar tag que causa la caída del arma de la dropship -- LISTO

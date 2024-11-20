@@ -40,6 +40,7 @@ function firefightManager.WhenMapLoads()
     waveIsOn = true
     currentRound = 1
     currentSet = 1
+    firefightManager.GameAssists()
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -79,7 +80,7 @@ function firefightManager.WaveProgression()
     elseif currentWave >= 5 then
         currentWave = 1
         randomTeam = math.random (1, 2)
-        hsc.aiSpawn(1, "Human_Team/ODSTs")
+        firefightManager.GameAssists()
         if currentTier < 3 then
             currentTier = currentTier + 1
         end
@@ -145,6 +146,10 @@ function firefightManager.DropshipCountdown()
         dropshipCountdownStart = false
         dropshipCountdownCounter = 0
     end
+end
+
+function firefightManager.GameAssists()
+    hsc.aiSpawn(1, "Human_Team/ODSTs")
 end
 
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
