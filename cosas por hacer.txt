@@ -14,8 +14,8 @@ ALFA FIREFIGHT v1
 -- crear la progresión de nombre de squad -- LISTO
 -- crear sistema de rondas mixtas -- LISTO
 -- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
--- capar health regen -- EN PROGRESO
--- crear las boss rounds
+-- capar health regen -- LISTO
+-- crear las boss rounds -- EN PROGRESO
 -- crear los eventos aleatorios
 -- crearle sus propias dropships al flood
 -- cazar detalles en los tags
