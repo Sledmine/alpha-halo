@@ -14,10 +14,9 @@
         "luna",
         "alpha_halo.test",
         "alpha_halo.constants",
-        "alpha_halo.gameplay_core.healthRegen",
-        "alpha_halo.gameplay_core.healthRegenAlly",
+        "alpha_halo.firefightManager",
         "alpha_halo.gameplay_core.healthRegenSP",
-        "alpha_halo.gameplay_core.skulls",
-        "alpha_halo.gameplay_core.firefightManager"
+        "alpha_halo.gameplay_core.healthRegenAlly",
+        "alpha_halo.gameplay_core.skulls"
     ]
 }

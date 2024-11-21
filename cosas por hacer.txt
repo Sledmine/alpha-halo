@@ -5,19 +5,19 @@ ALFA FIREFIGHT v1
 -- desplegar a los cacos en la dropship -- LISTO
 -- hacer spawnear unos cacos con el nameTemplate -- LISTO
 -- repetir el proceso tras cada ai_living_count -- LISTO
--- arreglar los labels de hunters y flood -- LISTO* (hay que ajustar las anims del Flood)
+-- arreglar los labels de hunters y flood -- LISTO*** (hay que ajustar las anims del Flood)
 -- separar los fighting encounters para covenant y flood -- LISTO
 -- identificar tag que causa la caída del arma de la dropship -- LISTO
 -- resolver conducta aberrante de la torreta -- LISTO
--- transicionar a un sistema de cutscenes tradicionales -- MARK EN PROGRESO
--- crearle sus propias dropships al flood -- A LA ESPERA DE NUEVAS DROPSHIPS
+-- transicionar a un sistema de cutscenes tradicionales -- LISTO
 -- crear la progresión de nombre de oleada -- LISTO
 -- crear la progresión de nombre de squad -- LISTO
 -- crear sistema de rondas mixtas -- LISTO
--- crear las boss rounds -- EN PROGRESO
+-- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
+-- capar health regen -- EN PROGRESO
+-- crear las boss rounds
 -- crear los eventos aleatorios
--- hacer correcciones a los bitmaps
+-- crearle sus propias dropships al flood
 -- cazar detalles en los tags
--- capar health regen
 -- revisión de código con sled
 -- baile de victoria

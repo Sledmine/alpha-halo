@@ -8,7 +8,7 @@ local constants = {}
 constants.localPlayerAddress = 0x815918
 
 -- Constant gameplay values
-constants.healthRegenerationAmount = 0.0037
+constants.healthRegenerationAmount = 0.005
 -- health recharged on 90 ticks or 3 seconds
 constants.healthRegenAiAmount = 0.02
 constants.raycastOffset = 0.3
