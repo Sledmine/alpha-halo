@@ -11,7 +11,7 @@ local currentSet = 0
 local waveTemplate = "Wave %s, Round %s, Set %s."
 local actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveCooldown
-local waveCooldownTimer = 270
+local waveCooldownTimer = 450
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
@@ -27,7 +27,7 @@ local randomDropship = 1
 local dropshipTemplate = "dropship_%s_%s"
 local selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipCountdown
-local dropshipCountdownTimer = 630
+local dropshipCountdownTimer = 720
 local dropshipCountdownStart = false
 local dropshipCountdownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.AiCheck
@@ -40,7 +40,6 @@ function firefightManager.WhenMapLoads()
     waveIsOn = true
     currentRound = 1
     currentSet = 1
-    firefightManager.GameAssists()
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -79,8 +78,6 @@ function firefightManager.WaveProgression()
         -- Si la Wave es igual a 5, se reinicia y se randomiza el team.
     elseif currentWave >= 5 then
         currentWave = 1
-        randomTeam = math.random (1, 2)
-        firefightManager.GameAssists()
         if currentTier < 3 then
             currentTier = currentTier + 1
         end
@@ -92,6 +89,11 @@ function firefightManager.WaveProgression()
             currentSet = currentSet + 1
         end
     end
+    -- Si la ronda acaba de comenzar, randomizamos el team y spawneamos las asistencias.
+    if currentWave == 1 then
+        randomTeam = math.random (1, 2)
+        firefightManager.GameAssists()
+    end
     actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 end
 
@@ -99,7 +101,6 @@ end
 function firefightManager.WaveCooldown()
     if waveCooldownStart == true and waveCooldownCounter > 0 then
         waveCooldownCounter = waveCooldownCounter - 1
-        --console_out(waveCooldownCounter)
     elseif waveCooldownStart == true and waveCooldownCounter <= 0 then
         console_out(actualWave)
         waveIsOn = true
@@ -155,7 +156,6 @@ end
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 function firefightManager.AiCheck()
     waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
-    --console_out(waveLivingCount)
     hsc.aiMagicallySee(1, "Covenant_Wave", "")
     hsc.aiAction(1, "Covenant_Wave")
     hsc.aiMagicallySee(1, "Flood_Wave", "")
