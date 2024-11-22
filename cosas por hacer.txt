@@ -15,8 +15,10 @@ ALFA FIREFIGHT v1
 -- crear sistema de rondas mixtas -- LISTO
 -- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
 -- capar health regen -- LISTO
--- crear las boss rounds -- EN PROGRESO
--- crear los eventos aleatorios
+-- crear las boss rounds -- LISTO
+-- implementar centinelas -- LISTO
+-- implementar vehiculos -- EN PROCESO
+-- implementar peligros aleatorios
 -- crearle sus propias dropships al flood
 -- cazar detalles en los tags
 -- revisión de código con sled

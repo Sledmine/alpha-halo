@@ -77,9 +77,11 @@ end
 --- Attempt to get the number of alive AI of an AI encounter
 ---@param encounterName string Name of the encounter in Sapien
 ---@param globalVar string
+---@return number
 function hsc.aiLivingCount(encounterName, globalVar) 
     local getAiLivingCountScript = [[(begin (set %s (ai_living_count "%s")))]]
     execute_script(getAiLivingCountScript:format(globalVar, encounterName))
+    ---@diagnostic disable-next-line: return-type-mismatch
     return get_global(globalVar)
 end
 
