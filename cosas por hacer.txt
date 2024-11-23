@@ -13,12 +13,15 @@ ALFA FIREFIGHT v1
 -- crear la progresión de nombre de oleada -- LISTO
 -- crear la progresión de nombre de squad -- LISTO
 -- crear sistema de rondas mixtas -- LISTO
--- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
 -- capar health regen -- LISTO
 -- crear las boss rounds -- LISTO
 -- implementar centinelas -- LISTO
--- implementar vehiculos -- EN PROCESO
--- implementar peligros aleatorios
+-- implementar vehiculos -- LISTO
+-- implementar asistencias -- LISTO
+-- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
+-- implementar peligros aleatorios -- EN PROGRESO
+-- implementar sistema de vidas
+-- reiniciar el script junto con la partida
 -- crearle sus propias dropships al flood
 -- cazar detalles en los tags
 -- revisión de código con sled

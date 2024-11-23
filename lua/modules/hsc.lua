@@ -186,9 +186,16 @@ function hsc.aiState(type, encounterName, boolean)
     execute_script("ai_" .. returnType[type] .. " " .. encounterName .. " " .. returnBoolean[boolean])
 end
 
---- Tells a group of actors to get out of any vehicles that they are in
 function hsc.aiExitVehicle(ai)
     execute_script("ai_exit_vehicle " .. ai)
+end
+
+function hsc.aiVehicleEntrableDistance(vehicle, real)
+    execute_script("ai_vehicle_enterable_distance " .. vehicle .. " " .. real)
+end
+
+function hsc.aiVehicleEncounter(vehicle, encounter)
+    execute_script("ai_vehicle_encounter " .. vehicle .. " " .. encounter)
 end
 
 ---@param biped string Declare a biped
@@ -284,16 +291,52 @@ function hsc.objectScale(object, scale, frames)
     execute_script("object_set_scale " .. object .. " " .. scale .. " " .. frames)
 end
 
---- Object Create
+--- Object Create: Creates an object from the scenario. 
 ---@param1 object Name
 function hsc.objectCreate(objectName)
-    execute_script("object_create_containing " .. objectName)
+    execute_script("object_create " .. objectName)
 end
 
---- Object Create
+--- Object Create: Destroys an object.
+---@param1 object Name
+function hsc.objectDestroy(objectName)
+    execute_script("object_destroy " .. objectName)
+end
+
+--- Object Create A New: Creates an object, destroying it first if it already exists. 
 ---@param1 object Name
 function hsc.objectCreateANew(objectName)
     execute_script("object_create_anew " .. objectName)
+end
+
+--- Object Create Containing: Creates all objects from the scenario whose names contain the given substring.
+---@param1 object Name
+function hsc.objectCreateContaining(objectName)
+    execute_script("object_create_containing " .. objectName)
+end
+
+--- Object Create A New Containing: Create A New + Create Containing.
+---@param1 object Name
+function hsc.objectCreateANewContaining(objectName)
+    execute_script("object_create_anew_containing " .. objectName)
+end
+
+--- Object Destroy Containing: Destroys + Create Containing.
+---@param1 object Name
+function hsc.objectDestroyContaining(objectName)
+    execute_script("object_destroy_containing " .. objectName)
+end
+
+--- Object Destroy All: Destroy all objects from the scenario. 
+function hsc.objectDestroyAll()
+    execute_script("object_destroy_all")
+end
+
+--- Object Destroy Containing: Destroys + Create Containing.
+---@param1 object Name
+---@param2 cutsceneFlag Name
+function hsc.objectTeleport(objectName, cutsceneFlag)
+    execute_script("object_teleport " .. objectName .. " " .. cutsceneFlag)
 end
 
 ------------------------------------------------------------------------------
