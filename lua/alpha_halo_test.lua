@@ -1,6 +1,6 @@
 local blam = require "blam"
 local firefightManager = require "alpha_halo.firefightManager"
-local healthRegenSP = require "alpha_halo.gameplay_core.healthRegenSP"
+local healthManagerSP = require "alpha_halo.gameplay_core.healthManagerSP"
 local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
 require "luna"
 
@@ -9,6 +9,7 @@ clua_version = 2.056
 
 function OnMapLoad()
     firefightManager.WhenMapLoads()
+    healthManagerSP.WhenMapLoads()
 end
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
@@ -78,7 +79,7 @@ function OnTick()
         end
     end
     firefightManager.EachTick()
-    healthRegenSP.regenerateHealth()
+    healthManagerSP.EachTick()
     healthRegenAlly.regenerateHealth()
 end
 

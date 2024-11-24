@@ -358,9 +358,22 @@ function hsc.actionTest(type)
     return false
 end
 
---- Object teleportFrom
+--- Object teleportFrom.
 function hsc.teleMe(flag)
     execute_script("object_teleport (unit (list_get (players) 0)) " .. flag)
+end
+
+-- Enable or disable player input.
+---@param1 boolean
+function hsc.playerEnableInput(boolean)
+    execute_script("player_enable_input " .. boolean)
+end
+
+-- Adds/resets the player's health, shield, and inventory (weapons and grenades) to the named profile.
+-- Resets if third parameter is true, adds if false. 
+---@param1 boolean
+function hsc.playerAddEquipment(unit, starting_profile, boolean)
+    execute_script("player_add_equipment " .. unit .. " " .. starting_profile .. " " .. boolean)
 end
 
 ------------------------------------------------------------------------------
