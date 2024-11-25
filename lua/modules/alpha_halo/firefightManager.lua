@@ -1,5 +1,6 @@
 local firefightManager = {}
 local hsc = require "hsc"
+local healthManagerSP = require "alpha_halo.gameplay_core.healthManagerSP"
 -- VARIABLES DE LA FUNCIÓN firefightManager.WhenMapLoads
 local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.EachTick
@@ -45,12 +46,11 @@ local sentinelSquadTemplate = "Sentinel_Team/Sentinels_%s"
 local selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
 -- VARIALBES DE LA FUNCIÓN firefightManager.GhostLoader()
 local randomGhost = 0
-local ghostATemplate = "ghost_%s_A"
-local ghostBTemplate = "ghost_%s_B"
-local ghostCTemplate = "ghost_%s_C"
-local selectedGhostA = ghostATemplate:format(randomGhost)
-local selectedGhostB = ghostBTemplate:format(randomGhost)
-local selectedGhostC = ghostCTemplate:format(randomGhost)
+local ghostTemplate = "ghost_var%s_drop%s"
+local selectedGhost = ghostTemplate:format(randomGhost, dropshipsLeft)
+local selectedGhostA = ghostTemplate:format(randomGhost, 1)
+local selectedGhostB = ghostTemplate:format(randomGhost, 2)
+local selectedGhostC = ghostTemplate:format(randomGhost, 3)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GameAssists()
 local randomWarthog = 0
 local warthogTemplate = "warthog_%s"
@@ -143,6 +143,7 @@ function firefightManager.WaveProgression()
     -- Si la ronda es 5, entonces es una Boss Wave.
     if currentWave == 5 then
         bossWave = true
+        randomGhost = math.random (1, 3)
     else
         bossWave = false
     end
@@ -177,10 +178,12 @@ function firefightManager.DropshipDeployer()
         randomSquad = math.random (1, 6)
     end
     selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
-    selectedBossSquad = bossSquadTemplate:format(randomTeam)
-    if dropshipsLeft == 1 and bossWave == true then
-        selectedSquad = selectedBossSquad
+    if bossWave == true then
         firefightManager.GhostLoader()
+        if dropshipsLeft == 1 then
+            selectedBossSquad = bossSquadTemplate:format(randomTeam)
+            selectedSquad = selectedBossSquad
+        end
     end
     hsc.aiSpawn(1, selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
@@ -195,19 +198,13 @@ function firefightManager.DropshipDeployer()
 end
 
 function firefightManager.GhostLoader()
-    randomGhost = math.random (1, 3)
-    selectedGhostA = ghostATemplate:format(randomGhost)
-    selectedGhostB = ghostBTemplate:format(randomGhost)
-    selectedGhostC = ghostCTemplate:format(randomGhost)
-    hsc.objectCreateANew(selectedGhostA)
-    hsc.objectCreateANew(selectedGhostB)
-    hsc.objectCreateANew(selectedGhostC)
-    hsc.unitEnterVehicle(selectedGhostA, selectedDropship, "cargo_ghost01")
-    hsc.unitEnterVehicle(selectedGhostB, selectedDropship, "cargo_ghost02")
-    hsc.unitEnterVehicle(selectedGhostC, selectedDropship, "cargo_ghost03")
-    hsc.aiVehicleEncounter(selectedGhostA, currentTeam)
-    hsc.aiVehicleEncounter(selectedGhostB, currentTeam)
-    hsc.aiVehicleEncounter(selectedGhostC, currentTeam)
+    selectedGhost = ghostTemplate:format(randomGhost, dropshipsLeft)
+    selectedGhostA = ghostTemplate:format(randomGhost, 1)
+    selectedGhostB = ghostTemplate:format(randomGhost, 2)
+    selectedGhostC = ghostTemplate:format(randomGhost, 3)
+    hsc.objectCreateANew(selectedGhost)
+    hsc.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost01")
+    hsc.aiVehicleEncounter(selectedGhost, currentTeam)
 end
 
 -- Esta función es llamada por tick cuando sus condiciones son activadas por el DropshipDeployer.
@@ -215,11 +212,10 @@ function firefightManager.DropshipCountdown()
     if dropshipCountdownStart == true and dropshipCountdownCounter > 0 then
         dropshipCountdownCounter = dropshipCountdownCounter - 1
     elseif dropshipCountdownStart == true and dropshipCountdownCounter <= 0 then
-        hsc.aiExitVehicle("Covenant_Wave")
-        hsc.aiExitVehicle("Flood_Wave")
+        hsc.aiExitVehicle(currentTeam)
         hsc.unitExitVehicle(selectedGhostA)
-        hsc.unitExitVehicle(selectedGhostB)
         hsc.unitExitVehicle(selectedGhostC)
+        hsc.unitExitVehicle(selectedGhostB)
         dropshipCountdownStart = false
         dropshipCountdownCounter = 0
     end
@@ -227,7 +223,9 @@ end
 
 function firefightManager.GameAssists()
     hsc.aiSpawn(1, "Human_Team/ODSTs")
+    healthManagerSP.LivesGained()
     randomWarthog = math.random (1, 3)
+    -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     selectedWarthog = warthogTemplate:format(randomWarthog)
     hsc.objectCreateANew(selectedWarthog)
     hsc.objectCreateANewContaining("assist_")
@@ -271,19 +269,22 @@ end
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 function firefightManager.AiCheck()
     waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
+    console_out(waveLivingCount)
+    hsc.aiMagicallySeePlayers("Covenant_Wave")
     hsc.aiAction(1, "Covenant_Wave")
-    hsc.aiMagicallySee(1, "Flood_Wave", "")
+    hsc.aiMagicallySeePlayers("Flood_Wave")
     hsc.aiAction(1, "Flood_Wave")
-    hsc.aiMagicallySee(1, "Human_Team", "")
+    hsc.aiMagicallySeePlayers("Human_Team")
     hsc.aiAction(1, "Human_Team")
-    hsc.aiMagicallySee(1, "Sentinel_Team", "")
+    hsc.aiMagicallySeePlayers("Sentinel_Team")
     hsc.aiAction(1, "Sentinel_Team")
-    hsc.aiMagicallySee(1, "Emergent_Dangers", "")
+    hsc.aiMagicallySeePlayers("Emergent_Dangers")
     hsc.aiAction(1, "Emergent_Dangers")
     hsc.aiVehicleEntrableDistance(selectedGhostA, 20.0)
     hsc.aiVehicleEntrableDistance(selectedGhostB, 20.0)
     hsc.aiVehicleEntrableDistance(selectedGhostC, 20.0)
-    hsc.aiVehicleEntrableDistance(selectedWarthog, 20.0)
+    -- Se podría hacer que la IA también entre en el Hog, pero ya que la IA es medio tonta, mejor que sólo a los Ghosts.
+    --hsc.aiVehicleEntrableDistance(selectedWarthog, 20.0)
 end
 
 return firefightManager

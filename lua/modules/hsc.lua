@@ -74,7 +74,7 @@ end
 ------------------------------------------------------------------------------
 --- AI Functions
 ------------------------------------------------------------------------------
---- Attempt to get the number of alive AI of an AI encounter
+--- AI Living Count
 ---@param encounterName string Name of the encounter in Sapien
 ---@param globalVar string
 ---@return number
@@ -105,7 +105,7 @@ function hsc.aiCommandList(ai, list)
     execute_script("ai_command_list " .. ai .. " " .. list)
 end
 
---- Magic Sight
+--- AI Magic Sight
 ---@param1 script the behaviour for ai magically seeing something. Use string or integers 1/2/3.
 ---@param2 encounterName string name of the encounter in Sapien 
 ---@param3 Object (encounter name or object name)
@@ -117,6 +117,11 @@ function hsc.aiMagicallySee(script, sourceEncounter, targetObj)
     else
         execute_script("ai_magically_see_" .. returnType[script] .. " " .. sourceEncounter .. " " .. targetObj)
     end
+end
+
+--- AI Magic Sight Player.
+function hsc.aiMagicallySeePlayers(ai)
+    execute_script("ai_magically_see_players " .. ai)
 end
 
 --- Set AI Allegiances
@@ -184,6 +189,10 @@ function hsc.aiState(type, encounterName, boolean)
     local returnType = {"berserk", "braindead"}
     local returnBoolean = {"true", "false"}
     execute_script("ai_" .. returnType[type] .. " " .. encounterName .. " " .. returnBoolean[boolean])
+end
+
+function hsc.aiDisregard(objectList, boolean)
+    execute_script("ai_disregard " .. objectList .. " " .. boolean)
 end
 
 function hsc.aiExitVehicle(ai)
@@ -583,9 +592,15 @@ function hsc.setCamera(camera_point, real, sleep)
 end
 
 --- Camera control
----@param1 num
-function hsc.cameraControl(num)
-    execute_script("camera_control " .. num)
+---@param1 boolean
+function hsc.cameraControl(boolean)
+    execute_script("camera_control " .. boolean)
+end
+
+--- Makes the scripted camera zoom out around a unit as if it were dead.
+---@param1 unit
+function hsc.cameraSetDead(unit)
+    execute_script("camera_set_dead " .. unit)
 end
 ------------------------------------------------------------------------------
 --- Device Functions
