@@ -19,9 +19,9 @@ ALFA FIREFIGHT v1
 -- implementar vehiculos -- LISTO
 -- implementar asistencias -- LISTO
 -- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
+-- implementar sistema de vidas -- LISTO
+-- reiniciar el script junto con la partida -- LISTO*** (Mis métodos son... rusticos.)
 -- implementar peligros aleatorios -- EN PROGRESO
--- implementar sistema de vidas
--- reiniciar el script junto con la partida
 -- crearle sus propias dropships al flood
 -- cazar detalles en los tags
 -- revisión de código con sled

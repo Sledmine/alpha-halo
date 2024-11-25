@@ -12,7 +12,7 @@ local maxHealth = 1
 -- VARIALBES DE LA FUNCIÓN healthRegenSP.respawnAndDeath.
 local diedOnVehicle = false
 local playerDead = false
-local playerLives = 6
+local playerLives = 99
 local livesLeftTemplate = "Lives left... %s"
 local actualLivesLeft = livesLeftTemplate:format(playerLives)
 -- VARIABLES DE LA FUNCIÓN healthRegenSP.respawnCountdown.
