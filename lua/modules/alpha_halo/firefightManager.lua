@@ -141,9 +141,12 @@ function firefightManager.WaveProgression()
         firefightManager.GameAssists()
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
-    if currentWave == 5 then
+    -- For bug-hunting purposes, we're setting randomGhost to always be the same & every wave is Boss Wave.
+    if currentWave <= 5 then
         bossWave = true
-        randomGhost = math.random (1, 3)
+        --randomGhost = math.random (1, 3)
+        
+        randomGhost = 1
     else
         bossWave = false
     end
@@ -180,10 +183,11 @@ function firefightManager.DropshipDeployer()
     selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
     if bossWave == true then
         firefightManager.GhostLoader()
-        if dropshipsLeft == 1 then
-            selectedBossSquad = bossSquadTemplate:format(randomTeam)
-            selectedSquad = selectedBossSquad
-        end
+        -- For bug-hunting purposes, we're turning this off.
+        --if dropshipsLeft == 1 then
+        --    selectedBossSquad = bossSquadTemplate:format(randomTeam)
+        --    selectedSquad = selectedBossSquad
+        --end
     end
     hsc.aiSpawn(1, selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
