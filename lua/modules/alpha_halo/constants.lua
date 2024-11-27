@@ -27,4 +27,10 @@ constants.bipeds = {
     odstAllyTag = blam.findTag("alpha_firefight\\characters\\human\\marine\\marine_odst\\odst", tagClasses.biped)
 }
 
+constants.vehicles = {
+    ghostNormal = blam.findTag("gdd\\vehicles\\ghost\\gdd_ghost", tagClasses.vehicle),
+    ghostFuelRod = blam.findTag("gdd\\vehicles\\ghost fuel rod\\gdd_ghost_fuel_rod", tagClasses.vehicle),
+    ghostNeedler = blam.findTag("gdd\\vehicles\\ghost needler\\gdd_ghost_needler", tagClasses.vehicle)
+}
+
 return constants

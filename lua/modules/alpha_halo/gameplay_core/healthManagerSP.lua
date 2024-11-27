@@ -7,6 +7,8 @@ local hsc = require "hsc"
 local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN healthManagerSP.EachTick.
 local player = blam.biped(get_dynamic_player())
+-- VARIABLES DE LA FUNCIÓN healthManagerSP.vehicleHandler.
+local playerVehicle
 -- VARIABLES DE LA FUNCIÓN healthRegenSP.maxHealthCap.
 local maxHealth = 1
 -- VARIALBES DE LA FUNCIÓN healthRegenSP.respawnAndDeath.
@@ -18,6 +20,7 @@ local actualLivesLeft = livesLeftTemplate:format(playerLives)
 -- VARIABLES DE LA FUNCIÓN healthRegenSP.respawnCountdown.
 local respawnCountdownTimer = 300
 local respawnCountdownCounter = 0
+local playerVehicleHealth = 1
 
 -- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
 function healthManagerSP.WhenMapLoads()
@@ -34,8 +37,37 @@ function healthManagerSP.EachTick()
             healthManagerSP.healthRegen()
             healthManagerSP.respawnAndDeath()
             healthManagerSP.respawnCountdown()
+            healthManagerSP.vehicleHandler()
         end
+    end
+end
 
+-- Esta función hace cositas con los vehículos.
+function healthManagerSP.vehicleHandler()
+    -- Ya que cheat_deathless_player no deja que tu Ghost sea destruído, lo destruimos por ti.
+    playerVehicle = blam.vehicle(get_object(player.vehicleObjectId))
+    if playerVehicle then
+        playerVehicleHealth = playerVehicle.health
+        if playerVehicleHealth <= 0 then
+            playerVehicle.isSilentlyKilled = true
+        end
+        console_out(playerVehicleHealth)
+    else
+        playerVehicleHealth = 1
+    end
+    -- Añadimos una capa adicional de protección, porque a veces el vehículo no capta que está muerto.
+    for objectId, index in pairs(blam.getObjects()) do
+        local vehicleObject = blam.vehicle(get_object(objectId))
+        if vehicleObject then
+            local vehicleTagId = vehicleObject.tagId
+            if vehicleTagId == const.vehicles.ghostNormal.id or const.vehicles.ghostFuelRod.id or const.vehicles.ghostNeedler.id then
+                if vehicleObject.health <= 0 then
+                    vehicleObject.isPlayerNotAllowedToEntry = true
+                else
+                    vehicleObject.isPlayerNotAllowedToEntry = false
+                end
+            end
+        end
     end
 end
 
@@ -46,7 +78,6 @@ function healthManagerSP.LivesGained()
     if player then
         player.health = 1
     end
-    -- "attempt to index a nill value (upvalue 'player')"
 end
 
 -- Le ponemos un límite al máximo health regen, según el estado del jugador.
@@ -74,11 +105,11 @@ end
 function healthManagerSP.respawnAndDeath()
     -- Si "playerDead" es falso y te has quedado sin vida...
     if playerDead == false then
-        if player.health <= 0 then
+        if player.health <= 0 or playerVehicleHealth <= 0 then
             -- Llamamos todas las funciones necesarias para simular la muerte.
             if blam.isNull(player.vehicleObjectId) == false then
-                hsc.unitExitVehicle("(player0)")
                 diedOnVehicle = true
+                hsc.unitExitVehicle("(player0)")
             end
             player.isNotDamageable = true
             hsc.aiDisregard("(player0)", 1)
@@ -111,6 +142,10 @@ function healthManagerSP.respawnCountdown()
         -- Antes que todo, realizamos la cuenta regresiva del respawn.
         if respawnCountdownCounter > 0 then
             respawnCountdownCounter = respawnCountdownCounter - 1
+            if blam.isNull(player.vehicleObjectId) == false then
+                diedOnVehicle = true
+                hsc.unitExitVehicle("(player0)")
+            end
         elseif respawnCountdownCounter <= 0 then
             -- Si aún te quedan vidas, revives.
             if playerLives >= 0 then
