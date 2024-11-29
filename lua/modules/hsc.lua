@@ -567,6 +567,23 @@ function hsc.clearNav(type, unit, source)
     local returnType = {"flag", "object"}
     execute_script("deactivate_nav_point_" .. returnType[type] .. " " .. unit .. " " .. source)
 end
+
+--- Enable navpoint for enemy.
+---@param unit string Name for unitName OR static script referencing the player biped.
+---@param ai string Declare an ai squad formartted encounter/sqd.
+---@param object number Number of the biped from the object list.
+function hsc.navpointEnemy(unit, ai, object)
+    local navpointEnemy = [[(begin
+            (activate_nav_point_object
+                default
+                %s
+                (unit
+                    (list_get (ai_actors %s) %s)
+                )
+                0.400000
+            ))]]
+    execute_script(navpointEnemy:format(unit, ai, object))
+end
 ------------------------------------------------------------------------------
 --- Static Script Functions
 ------------------------------------------------------------------------------

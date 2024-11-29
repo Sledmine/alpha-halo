@@ -51,7 +51,6 @@ function healthManagerSP.vehicleHandler()
         if playerVehicleHealth <= 0 then
             playerVehicle.isSilentlyKilled = true
         end
-        console_out(playerVehicleHealth)
     else
         playerVehicleHealth = 1
     end

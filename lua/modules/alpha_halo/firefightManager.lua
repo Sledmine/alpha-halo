@@ -88,6 +88,9 @@ function firefightManager.EachTick()
         firefightManager.GetOutOfGhost()
         -- Si waveIsOn = true, se inician los procesos de la oleaada. Si no, se inicia el cooldown.
         if waveIsOn == true then
+            -- radarada
+            firefightManager.aiNavpoint()
+            -- radarada
             if dropshipsLeft > 0 then
                 firefightManager.DropshipDeployer()
             elseif bossWave == false and waveLivingCount <= 8 then
@@ -301,6 +304,15 @@ function firefightManager.GetOutOfGhost()
         hsc.aiVehicleEntrableDistance(selectedGhostA, 20.0)
         hsc.aiVehicleEntrableDistance(selectedGhostB, 20.0)
         hsc.aiVehicleEntrableDistance(selectedGhostC, 20.0)
+    end
+end
+
+function firefightManager.aiNavpoint()
+    if waveLivingCount <= 4 then
+        hsc.navpointEnemy("(player0)", currentTeam, 0)
+        hsc.navpointEnemy("(player0)", currentTeam, 1)
+        hsc.navpointEnemy("(player0)", currentTeam, 2)
+        hsc.navpointEnemy("(player0)", currentTeam, 3)
     end
 end
 
