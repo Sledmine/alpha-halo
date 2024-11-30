@@ -15,7 +15,7 @@ local waveTemplate = "Wave %s, Round %s, Set %s."
 local actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 local bossWave = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveCooldown
-local waveCooldownTimer = 450
+local waveCooldownTimer = 270
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
@@ -86,14 +86,13 @@ function firefightManager.EachTick()
         firefightManager.DropshipCountdown()
         -- Revisamos constantemente si puedes o no subir al Ghost.
         firefightManager.GetOutOfGhost()
+        -- Revisamos constantemente si puedes o no marcar a los enemigos resagados.
+        firefightManager.aiNavpoint()
         -- Si waveIsOn = true, se inician los procesos de la oleaada. Si no, se inicia el cooldown.
         if waveIsOn == true then
-            -- radarada
-            firefightManager.aiNavpoint()
-            -- radarada
             if dropshipsLeft > 0 then
                 firefightManager.DropshipDeployer()
-            elseif bossWave == false and waveLivingCount <= 8 then
+            elseif bossWave == false and waveLivingCount <= 4 then
                 console_out("Bad guys comming in!")
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
@@ -145,19 +144,19 @@ function firefightManager.WaveProgression()
             randomTeam = 1
             currentTeam = "Covenant_Wave"
 ---- ** BUG-HUNTING: FORZAMOS EL TEAM A SER EL MISMO SIEMPRE. PARA REGRESAR, DESCOMENTA LO DE ABAJO. ** ----
-            --if randomTeam == 2 then
-            --    randomTeam = 1
-            --    currentTeam = "Covenant_Wave"
-            --elseif randomTeam == 1 then
-            --    randomTeam = 2
-            --    currentTeam = "Flood_Wave"
-            --end
+            if randomTeam == 2 then
+                randomTeam = 1
+                currentTeam = "Covenant_Wave"
+            elseif randomTeam == 1 then
+                randomTeam = 2
+                currentTeam = "Flood_Wave"
+            end
         end
         firefightManager.GameAssists()
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
 ---- ** BUG-HUNTING: CADA WAVE ES UNA BOSS WAVE. PARA REGRESAR, CAMBIAR "<="" POR ""=="" ** ----
-    if currentWave <= 5 then
+    if currentWave == 5 then
         bossWave = true
         randomGhost = math.random (1, 3)
     else
@@ -308,11 +307,13 @@ function firefightManager.GetOutOfGhost()
 end
 
 function firefightManager.aiNavpoint()
-    if waveLivingCount <= 4 then
-        hsc.navpointEnemy("(player0)", currentTeam, 0)
-        hsc.navpointEnemy("(player0)", currentTeam, 1)
-        hsc.navpointEnemy("(player0)", currentTeam, 2)
-        hsc.navpointEnemy("(player0)", currentTeam, 3)
+    if waveIsOn == false or bossWave == true then
+        if waveLivingCount <= 4 then
+            hsc.navpointEnemy("(player0)", currentTeam, 0)
+            hsc.navpointEnemy("(player0)", currentTeam, 1)
+            hsc.navpointEnemy("(player0)", currentTeam, 2)
+            hsc.navpointEnemy("(player0)", currentTeam, 3)
+        end
     end
 end
 
