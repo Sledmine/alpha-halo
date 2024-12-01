@@ -88,6 +88,8 @@ function firefightManager.EachTick()
         firefightManager.GetOutOfGhost()
         -- Revisamos constantemente si puedes o no marcar a los enemigos resagados.
         firefightManager.aiNavpoint()
+        -- Fix para las torretas enloquecidas de los dropships. Quizás o no funcione. (No, no funciona).
+        --firefightManager.dropshipTurretFix()
         -- Si waveIsOn = true, se inician los procesos de la oleaada. Si no, se inicia el cooldown.
         if waveIsOn == true then
             if dropshipsLeft > 0 then
@@ -209,6 +211,7 @@ function firefightManager.DropshipDeployer()
     dropshipCountdownCounter = dropshipCountdownTimer
 end
 
+-- Esto carga al Ghost en la Spirit.
 function firefightManager.GhostLoader()
     selectedGhost = ghostTemplate:format(randomGhost, dropshipsLeft)
     selectedGhostA = ghostTemplate:format(randomGhost, 1)
@@ -232,6 +235,7 @@ function firefightManager.DropshipCountdown()
     end
 end
 
+-- Esto spawnea a los Centinelas.
 function firefightManager.SentinelChance()
     -- Aquí progresamos el Cooldown y el Chance de los Sentinels.
     if sentinelCooldown < 5 then
@@ -265,6 +269,7 @@ function firefightManager.SentinelChance()
     end
 end
 
+-- Esto spawnea las ayudas para el jugador (No funciona en MP).
 function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     healthManagerSP.livesGained()
@@ -281,6 +286,7 @@ function firefightManager.GameAssists()
     hsc.objectTeleport(selectedWarthog, "Selected_Warthog")
 end
 
+-- Esto parcha horriblemente el problema del Ghost en el Spirit.
 function firefightManager.GetOutOfGhost()
     if bossWaveCooldown == true then
         hsc.vehicleUnload(selectedGhostA, "driver")
@@ -302,6 +308,7 @@ function firefightManager.GetOutOfGhost()
     end
 end
 
+-- Esto genera un navpoint en las unidades resagadas.
 function firefightManager.aiNavpoint()
     if waveIsOn == false or bossWave == true then
         if waveLivingCount <= 4 then
@@ -309,6 +316,20 @@ function firefightManager.aiNavpoint()
             hsc.navpointEnemy("(player0)", currentTeam, 1)
             hsc.navpointEnemy("(player0)", currentTeam, 2)
             hsc.navpointEnemy("(player0)", currentTeam, 3)
+        end
+    end
+end
+
+-- Esto debería arreglar el problema de los Spirits atacando a sus tropas (NO FUNCIONA, NO ESTÁ SIENDO LLAMADO).
+function firefightManager.dropshipTurretFix()
+    for objectId, index in pairs(blam.getObjects()) do
+        local bipedObject = blam.biped(get_object(objectId))
+        if bipedObject then
+            local bipedTagId = bipedObject.tagId
+            if bipedTagId == const.bipeds.covSpiritTurret.id then
+                hsc.objectToUnit(bipedObject)
+                hsc.aiMigrateByUnit(bipedObject, "Covenant_Wave")
+            end
         end
     end
 end

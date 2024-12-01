@@ -24,7 +24,8 @@ constants.sounds = {
 }
 
 constants.bipeds = {
-    odstAllyTag = blam.findTag("alpha_firefight\\characters\\human\\marine\\marine_odst\\odst", tagClasses.biped)
+    odstAllyTag = blam.findTag("alpha_firefight\\characters\\human\\marine\\marine_odst\\odst", tagClasses.biped),
+    covSpiritTurret = blam.findTag("vehicles\\c_dropship\\cd_gun\\cd_gun", tagClasses.biped)
 }
 
 constants.vehicles = {

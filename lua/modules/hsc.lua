@@ -101,6 +101,13 @@ function hsc.aiMigrate(from, to)
     execute_script("ai_migrate " .. from .. " " .. to)
 end
 
+--- AI Migration By Unit
+--- @param1 from string name of the object or objects
+--- @param2 to string name of the encounter
+function hsc.aiMigrateByUnit(unit, ai)
+    execute_script("ai_migrate_by_unit " .. unit .. " " .. ai)
+end
+
 function hsc.aiCommandList(ai, list)
     execute_script("ai_command_list " .. ai .. " " .. list)
 end
@@ -215,6 +222,11 @@ end
 ------------------------------------------------------------------------------
 --- Unit Functions
 ------------------------------------------------------------------------------
+-- Converts an object to a unit.
+function hsc.objectToUnit(object)
+    execute_script("unit " .. object)
+end
+
 -- Get unit health
 ---@param unitName string name for unitName OR static script referencing the player biped.
 function hsc.unitGetHealth(unitName)
