@@ -19,9 +19,9 @@ local waveCooldownTimer = 270
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
-local randomTeam = 1
+local randomTeam = math.random(1, 2)
 local currentTier = 1
-local randomSquad = 1
+local randomSquad = math.random(1, 6)
 local currentTeam = "Covenant_Wave"
 local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
 local selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
@@ -43,7 +43,7 @@ local waveLivingCount = 0
 local sentinelCooldown = 0
 local sentinelChance = 0
 local sentinelRandomMath = 0
-local randomSentinelSquad = 1
+local randomSentinelSquad = math.random(1, 6)
 local sentinelSquadTemplate = "Sentinel_Team/Sentinels_%s"
 local selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
 -- VARIALBES DE LA FUNCIÓN firefightManager.GhostLoader()
@@ -54,7 +54,7 @@ local selectedGhostA = ghostTemplate:format(randomGhost, 1)
 local selectedGhostB = ghostTemplate:format(randomGhost, 2)
 local selectedGhostC = ghostTemplate:format(randomGhost, 3)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GameAssists()
-local randomWarthog = 0
+local randomWarthog = math.random(1, 3)
 local warthogTemplate = "warthog_%s"
 local selectedWarthog = warthogTemplate:format(randomWarthog)
 local ghostAssistTemplate = "reward_ghost_var%s"
@@ -141,9 +141,6 @@ function firefightManager.WaveProgression()
     -- Si la ronda acaba de comenzar, randomizamos el team y spawneamos las asistencias.
     if currentWave == 1 then
         if currentSet < 4 then
-            randomTeam = 1
-            currentTeam = "Covenant_Wave"
----- ** BUG-HUNTING: FORZAMOS EL TEAM A SER EL MISMO SIEMPRE. PARA REGRESAR, DESCOMENTA LO DE ABAJO. ** ----
             if randomTeam == 2 then
                 randomTeam = 1
                 currentTeam = "Covenant_Wave"
@@ -155,7 +152,6 @@ function firefightManager.WaveProgression()
         firefightManager.GameAssists()
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
----- ** BUG-HUNTING: CADA WAVE ES UNA BOSS WAVE. PARA REGRESAR, CAMBIAR "<="" POR ""=="" ** ----
     if currentWave == 5 then
         bossWave = true
         randomGhost = math.random (1, 3)
@@ -271,7 +267,7 @@ end
 
 function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
-    healthManagerSP.LivesGained()
+    healthManagerSP.livesGained()
     hsc.aiSpawn(1, "Human_Team/ODSTs")
     hsc.objectCreateANewContaining("assist_")
     -- Spawneamos el Ghost de recompenza.
