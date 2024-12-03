@@ -24,14 +24,14 @@ local waveCooldownTimer = 270
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
-local randomTeam = math.random(1, 2)
+local randomTeamIndex = math.random(1, 2)
 local currentTier = 1
 local randomSquad = math.random(1, 6)
-local currentTeam = "Covenant_Wave"
+local currentWaveType = "Covenant_Wave"
 local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
-local selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
+local selectedSquad = squadTemplate:format(randomTeamIndex, currentTier, randomSquad)
 local bossSquadTemplate = "Enemy_Team_%s/Boss_Wave"
-local selectedBossSquad = bossSquadTemplate:format(randomTeam)
+local selectedBossSquad = bossSquadTemplate:format(randomTeamIndex)
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Vehicle.
 local dropshipsAsigned = 3
 local dropshipsLeft = 0
@@ -82,6 +82,13 @@ function firefightManager.announcer()
     end)()
 end
 
+local function getRandomTeamWave()
+    local randomTeam = math.random(1, 2)
+    local team = randomTeam == 1 and "Covenant_Wave" or "Flood_Wave"
+    logger:debug("Random team wave: {}", team)
+    return team
+end
+
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
 function firefightManager.onMapLoad()
     console_out("Welcome to Alpha Firefight.")
@@ -89,12 +96,8 @@ function firefightManager.onMapLoad()
     waveIsOn = true
     currentRound = 1
     currentSet = 1
-    randomTeam = math.random (1, 2)
-    if randomTeam == 1 then
-        currentTeam = "Covenant_Wave"
-    elseif randomTeam == 2 then
-        currentTeam = "Flood_Wave"
-    end
+    currentWaveType = getRandomTeamWave()
+    engine.core.consolePrint("{}", currentWaveType)
     firefightManager.announcer()
 end
 
@@ -143,12 +146,7 @@ function firefightManager.WaveProgression()
     if (currentWave < 5) then
         currentWave = currentWave + 1
         if currentSet >= 4 then
-            randomTeam = math.random (1, 2)
-            if randomTeam == 1 then
-                currentTeam = "Covenant_Wave"
-            elseif randomTeam == 2 then
-                currentTeam = "Flood_Wave"
-            end
+            currentWaveType = getRandomTeamWave()
         end
     elseif currentWave == 5 then
         currentWave = 1
@@ -165,15 +163,16 @@ function firefightManager.WaveProgression()
     end
     -- Si la ronda acaba de comenzar, randomizamos el team y spawneamos las asistencias.
     if currentWave == 1 then
-        if currentSet < 4 then
-            if randomTeam == 2 then
-                randomTeam = 1
-                currentTeam = "Covenant_Wave"
-            elseif randomTeam == 1 then
-                randomTeam = 2
-                currentTeam = "Flood_Wave"
-            end
-        end
+        -- WTF??
+        --if currentSet < 4 then
+        --    if randomTeamIndex == 2 then
+        --        randomTeamIndex = 1
+        --        currentWaveType = "Covenant_Wave"
+        --    elseif randomTeamIndex == 1 then
+        --        randomTeamIndex = 2
+        --        currentWaveType = "Flood_Wave"
+        --    end
+        --end
         firefightManager.GameAssists()
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
@@ -217,11 +216,11 @@ function firefightManager.DropshipDeployer()
     if dropshipsLeft > 1 then
         randomSquad = math.random (1, 6)
     end
-    selectedSquad = squadTemplate:format(randomTeam, currentTier, randomSquad)
+    selectedSquad = squadTemplate:format(randomTeamIndex, currentTier, randomSquad)
     if bossWave == true then
         firefightManager.GhostLoader()
         if dropshipsLeft == 1 then
-            selectedBossSquad = bossSquadTemplate:format(randomTeam)
+            selectedBossSquad = bossSquadTemplate:format(randomTeamIndex)
             selectedSquad = selectedBossSquad
         end
     end
@@ -230,7 +229,7 @@ function firefightManager.DropshipDeployer()
     hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
     hsc.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
-    hsc.aiMigrate(selectedSquad, currentTeam)
+    hsc.aiMigrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
     dropshipsLeft = dropshipsLeft - 1
     dropshipCountdownStart = true
@@ -252,7 +251,7 @@ function firefightManager.DropshipCountdown()
     if dropshipCountdownStart == true and dropshipCountdownCounter > 0 then
         dropshipCountdownCounter = dropshipCountdownCounter - 1
     elseif dropshipCountdownStart == true and dropshipCountdownCounter <= 0 then
-        hsc.aiExitVehicle(currentTeam)
+        hsc.aiExitVehicle(currentWaveType)
         hsc.unitExitVehicle(selectedGhostA)
         hsc.unitExitVehicle(selectedGhostC)
         hsc.unitExitVehicle(selectedGhostB)
@@ -338,10 +337,10 @@ end
 function firefightManager.aiNavpoint()
     if waveIsOn == false or bossWave == true then
         if waveLivingCount <= 4 then
-            hsc.navpointEnemy("(player0)", currentTeam, 0)
-            hsc.navpointEnemy("(player0)", currentTeam, 1)
-            hsc.navpointEnemy("(player0)", currentTeam, 2)
-            hsc.navpointEnemy("(player0)", currentTeam, 3)
+            hsc.navpointEnemy("(player0)", currentWaveType, 0)
+            hsc.navpointEnemy("(player0)", currentWaveType, 1)
+            hsc.navpointEnemy("(player0)", currentWaveType, 2)
+            hsc.navpointEnemy("(player0)", currentWaveType, 3)
         end
     end
 end

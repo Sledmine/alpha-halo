@@ -6,6 +6,8 @@ local balltze = Balltze
 local engine = Engine
 require "luna"
 local dispatchScripts = require "script".dispatch
+math.randomseed(os.time())
+logger = balltze.logger.createLogger("Alpha Halo")
 
 local isLoaded = false
 clua_version = 2.056
@@ -27,6 +29,7 @@ function getNodePosition(address)
 end
 
 function OnTick()
+    math.randomseed(engine.core.getTickCount())
     dispatchScripts()
     if not isLoaded then
         isLoaded = true
