@@ -86,18 +86,24 @@ function healthManagerSP.tryingToRespawn()
         actualLivesLeft = livesLeftTemplate:format(playerLives)
         if playerLives > 0 then
             console_out(actualLivesLeft)
-        elseif playerLives == 5 then
-            --healthManagerSP.playSound(const.sounds.fiveLivesLeft, 0.5)
-            playSound(const.sounds.fiveLivesLeft.handle)
-        elseif playerLives == 1 then
-            --healthManagerSP.playSound(const.sounds.oneLiveLeft, 0.5)
-            playSound(const.sounds.oneLiveLeft.handle)
-        elseif playerLives == 0 then
-            --healthManagerSP.playSound(const.sounds.noLivesLeft, 0.5)
-            playSound(const.sounds.noLivesLeft.handle)
-            console_out("No lives left.")
-            console_out("You feel a sense of dread crawling up your spine...")
         end
+        script(function (sleep, sleepUntil)
+            if playerLives == 5 then
+                sleep(10)
+                playSound(const.sounds.fiveLivesLeft.handle)
+            end
+            if playerLives == 1 then
+                sleep(10)
+                playSound(const.sounds.oneLiveLeft.handle)
+            end
+            if playerLives == 0 then
+                --healthManagerSP.playSound(const.sounds.noLivesLeft, 0.5)
+                console_out("No lives left.")
+                console_out("You feel a sense of dread crawling up your spine...")
+                sleep(10)
+                playSound(const.sounds.noLivesLeft.handle)
+            end
+        end)()
     end
 end
 
