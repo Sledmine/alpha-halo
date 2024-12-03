@@ -5,6 +5,7 @@ local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
 local balltze = Balltze
 local engine = Engine
 require "luna"
+local dispatchScripts = require "script".dispatch
 
 local isLoaded = false
 clua_version = 2.056
@@ -26,6 +27,7 @@ function getNodePosition(address)
 end
 
 function OnTick()
+    dispatchScripts()
     if not isLoaded then
         isLoaded = true
         OnMapLoad()

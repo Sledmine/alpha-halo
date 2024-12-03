@@ -4,6 +4,7 @@ local blam = require "blam"
 local const = require "alpha_halo.constants"
 local engine = Engine
 local balltze = Balltze
+local script = require "script".script
 
 local firefightManager = {}
 
@@ -68,9 +69,13 @@ local bossWaveCooldown = false
 
 
 function firefightManager.announcer()
-    if currentSet >= 1 then
-        engine.userInterface.playSound(const.sounds.setStart.handle)
-    end
+    script(function (sleep, sleepUntil)
+        if currentSet >= 1 then
+            sleep(90)
+            engine.userInterface.playSound(const.sounds.setStart.handle)
+        end
+    end)()
+    
 end
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
