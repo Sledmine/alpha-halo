@@ -75,10 +75,6 @@ function firefightManager.announcer()
             playSound(const.sounds.setStart.handle)
             --console_out(actualWave)
         end
-        if currentRound > 1 then
-            sleep(120)
-            playSound(const.sounds.roundStart.handle)
-        end
     end)()
 end
 
@@ -119,20 +115,19 @@ function firefightManager.EachTick()
             if dropshipsLeft > 0 then
                 firefightManager.DropshipDeployer()
             elseif bossWave == false and waveLivingCount <= 4 then
-                console_out("Bad guys comming in!")
+                console_out("Reinforcements")
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
                 waveIsOn = false
                 firefightManager.WaveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 console_out("Round Complete!")
-                --firefightManager.playSound(const.sounds.roundComplete, 0.5)
+                --playSound(const.sounds.roundComplete.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
                 firefightManager.WaveProgression()
-                --firefightManager.playSound(const.sounds.setStart, 0.5)
             end
         else
             firefightManager.WaveCooldown()
@@ -188,6 +183,14 @@ function firefightManager.WaveProgression()
     if currentWave > 1 then
         engine.userInterface.playSound(const.sounds.reinforcements.handle)
     end
+    script(function (sleep, sleepUntil)
+        if currentWave == 1 and currentRound > 1 then
+            --sleep(10)
+            --playSound(const.sounds.roundComplete.handle)
+            sleep(270)
+            playSound(const.sounds.roundStart.handle)
+        end
+    end)()
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
