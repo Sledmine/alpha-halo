@@ -26,6 +26,7 @@ constants.sounds = {
     setStart = findTags("survival_new_set", engine.tag.classes.sound)[1],
     roundStart = findTags("survival_new_round", engine.tag.classes.sound)[1],
     reinforcements = findTags("survival_reinforcements", engine.tag.classes.sound)[1],
+    roundCompleted = findTags("survival_end_round", engine.tag.classes.sound)[1],
     fiveLivesLeft = findTags("survival_5_lives_left", engine.tag.classes.sound)[1],
     oneLiveLeft = findTags("survival_1_life_left", engine.tag.classes.sound)[1],
     noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1]
