@@ -97,7 +97,6 @@ function healthManagerSP.tryingToRespawn()
                 playSound(const.sounds.oneLiveLeft.handle)
             end
             if playerLives == 0 then
-                --healthManagerSP.playSound(const.sounds.noLivesLeft, 0.5)
                 console_out("No lives left.")
                 console_out("You feel a sense of dread crawling up your spine...")
                 sleep(10)
