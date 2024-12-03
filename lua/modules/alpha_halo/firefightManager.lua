@@ -20,7 +20,7 @@ local waveTemplate = "Wave %s, Round %s, Set %s."
 local actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 local bossWave = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveCooldown
-local waveCooldownTimer = 270
+local waveCooldownTimer = 210
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
@@ -32,6 +32,8 @@ local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
 local selectedSquad = squadTemplate:format(randomTeamIndex, currentTier, randomSquad)
 local bossSquadTemplate = "Enemy_Team_%s/Boss_Wave"
 local selectedBossSquad = bossSquadTemplate:format(randomTeamIndex)
+local startingSquadTemplate = "Enemy_Team_%s/Starting_Wave"
+local selectedStartingSquad = startingSquadTemplate:format(randomTeamIndex)
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Vehicle.
 local dropshipsAsigned = 3
 local dropshipsLeft = 0
@@ -58,6 +60,8 @@ local selectedGhost = ghostTemplate:format(randomGhost, dropshipsLeft)
 local selectedGhostA = ghostTemplate:format(randomGhost, 1)
 local selectedGhostB = ghostTemplate:format(randomGhost, 2)
 local selectedGhostC = ghostTemplate:format(randomGhost, 3)
+local ghostPilotTemplate = "Enemy_Team_%s/Ghost_Pilot"
+local selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GameAssists()
 local randomWarthog = math.random(1, 3)
 local warthogTemplate = "warthog_%s"
@@ -158,16 +162,16 @@ function firefightManager.WaveProgression()
     end
     -- Si la ronda acaba de comenzar, randomizamos el team y spawneamos las asistencias.
     if currentWave == 1 then
-        -- WTF??
-        --if currentSet < 4 then
-        --    if randomTeamIndex == 2 then
-        --        randomTeamIndex = 1
-        --        currentWaveType = "Covenant_Wave"
-        --    elseif randomTeamIndex == 1 then
-        --        randomTeamIndex = 2
-        --        currentWaveType = "Flood_Wave"
-        --    end
-        --end
+        -- No apaguen esto.
+        if currentSet < 4 then
+            if randomTeamIndex == 2 then
+                randomTeamIndex = 1
+                currentWaveType = "Covenant_Wave"
+            elseif randomTeamIndex == 1 then
+                randomTeamIndex = 2
+                currentWaveType = "Flood_Wave"
+            end
+        end
         firefightManager.GameAssists()
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
@@ -220,6 +224,10 @@ function firefightManager.DropshipDeployer()
         randomSquad = math.random (1, 6)
     end
     selectedSquad = squadTemplate:format(randomTeamIndex, currentTier, randomSquad)
+    if currentWave == 1 then
+        selectedStartingSquad = startingSquadTemplate:format(randomTeamIndex)
+        selectedSquad = selectedStartingSquad
+    end
     if bossWave == true then
         firefightManager.GhostLoader()
         if dropshipsLeft == 1 then
@@ -245,7 +253,11 @@ function firefightManager.GhostLoader()
     selectedGhostA = ghostTemplate:format(randomGhost, 1)
     selectedGhostB = ghostTemplate:format(randomGhost, 2)
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
+    selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
     hsc.objectCreateANew(selectedGhost)
+    -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
+    hsc.aiSpawn(1, selectedGhostPilot)
+    hsc.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
     hsc.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
 end
 
@@ -297,12 +309,13 @@ function firefightManager.SentinelChance()
     end
 end
 
--- Esto spawnea las ayudas para el jugador (No funciona en MP).
+-- Esto spawnea las ayudas para el jugador.
 function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     healthManagerSP.livesGained()
     hsc.aiSpawn(1, "Human_Team/ODSTs")
-    hsc.objectCreateANewContaining("assist_")
+    -- No spawneamos objetos de ayuda, pues no funcionan en MP.
+    --hsc.objectCreateANewContaining("assist_")
     -- Spawneamos el Ghost de recompenza.
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
     hsc.objectCreateANew(selectedAssistGhost)
