@@ -37,9 +37,8 @@ end
 
 -- @param inputFunction fun(await: fun(callback: fun(...:U): (T?), ...:U): T)
 
----Perform an async function
----@generic T, U
----@param inputFunction fun(sleep: fun(sleepForTicks: number), sleepUntil: fun(callback: (fun(): boolean), checkOnceEveryTicks: number?, maximumTicksToWait: number?): void): fun(...:U): T
+---Perform a script like function in a non-blocking way
+---@param inputFunction fun(sleep: fun(sleepForTicks: number), sleepUntil: fun(callback: (fun(): boolean), checkOnceEveryTicks: number?, maximumTicksToWait: number?))
 function script.script(inputFunction)
     local co
     local await = function(syncCallback, ...)
