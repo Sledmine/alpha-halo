@@ -3,6 +3,7 @@ local blam = require "blam"
 local tagClasses = blam.tagClasses
 local engine = Engine
 local balltze = Balltze
+local findTags = engine.tag.findTags
 
 local constants = {}
 
@@ -20,8 +21,14 @@ constants.hsc = {
     playSound = [[(begin (sound_impulse_start "%s" (list_get (players) %s) %s))]]
 }
 
-constants.sounds = { 
-    setStart = engine.tag.findTags("survival_new_set", engine.tag.classes.sound)[1]
+constants.sounds = {
+    livesAdded = findTags("survival_awarded_lives2", engine.tag.classes.sound)[1],
+    setStart = findTags("survival_new_set", engine.tag.classes.sound)[1],
+    roundStart = findTags("survival_new_round", engine.tag.classes.sound)[1],
+    reinforcements = findTags("survival_reinforcements", engine.tag.classes.sound)[1],
+    fiveLivesLeft = findTags("survival_5_lives_left", engine.tag.classes.sound)[1],
+    oneLiveLeft = findTags("survival_1_life_left", engine.tag.classes.sound)[1],
+    noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1]
 }
 
 constants.bipeds = {

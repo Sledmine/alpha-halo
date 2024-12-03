@@ -1,6 +1,9 @@
 -- LIBRERÍAS DE LUA
 local healthManagerSP = {}
 local blam = require "blam"
+local engine = Engine
+local balltze = Balltze
+local script = require "script".script
 -- VARIABLES DE LA FUNCIÓN healthManagerSP.WhenMapLoads
 local const = require "alpha_halo.constants"
 local gameIsOn = false
@@ -14,15 +17,7 @@ local maxHealth = 1
 local playerLives = 6
 local livesLeftTemplate = "Lives left... %s"
 local actualLivesLeft = livesLeftTemplate:format(playerLives)
-
---- Attempt to play a sound given tag path and optionally a gain number
-function healthManagerSP.playSound(tagPath, gain)
-    local player = blam.player(get_player())
-    if (player) then
-        local playSoundCommand = const.hsc.playSound:format(tagPath, player.index, gain or 1.0)
-        execute_script(playSoundCommand)
-    end
-end
+local playSound = engine.userInterface.playSound
 
 -- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
 function healthManagerSP.onMapLoad()
@@ -92,11 +87,14 @@ function healthManagerSP.tryingToRespawn()
         if playerLives > 0 then
             console_out(actualLivesLeft)
         elseif playerLives == 5 then
-            healthManagerSP.playSound(const.sounds.fiveLivesLeft, 0.5)
+            --healthManagerSP.playSound(const.sounds.fiveLivesLeft, 0.5)
+            playSound(const.sounds.fiveLivesLeft.handle)
         elseif playerLives == 1 then
-            healthManagerSP.playSound(const.sounds.oneLiveLeft, 0.5)
+            --healthManagerSP.playSound(const.sounds.oneLiveLeft, 0.5)
+            playSound(const.sounds.oneLiveLeft.handle)
         elseif playerLives == 0 then
-            healthManagerSP.playSound(const.sounds.noLivesLeft, 0.5)
+            --healthManagerSP.playSound(const.sounds.noLivesLeft, 0.5)
+            playSound(const.sounds.noLivesLeft.handle)
             console_out("No lives left.")
             console_out("You feel a sense of dread crawling up your spine...")
         end
@@ -105,9 +103,12 @@ end
 
 -- Esta función es llamada desde otros modulos cuando ganas una vida.
 function healthManagerSP.livesGained()
-    console_out("Lives added!")
-    playerLives = playerLives + 1
-    healthManagerSP.playSound(const.sounds.livesAdded, 0.5)
+    script(function (sleep, sleepUntil)
+        console_out("Lives added!")
+        playerLives = playerLives + 1
+        sleep(100)
+        playSound(const.sounds.livesAdded.handle)
+    end)()
     if player then
         player.health = 1
     end

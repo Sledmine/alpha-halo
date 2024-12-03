@@ -66,16 +66,20 @@ local ghostAssistTemplate = "reward_ghost_var%s"
 local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GetOutOfGhost()
 local bossWaveCooldown = false
-
+local playSound = engine.userInterface.playSound
 
 function firefightManager.announcer()
     script(function (sleep, sleepUntil)
         if currentSet >= 1 then
-            sleep(90)
-            engine.userInterface.playSound(const.sounds.setStart.handle)
+            sleep(270)
+            playSound(const.sounds.setStart.handle)
+            --console_out(actualWave)
+        end
+        if currentRound > 1 then
+            sleep(120)
+            playSound(const.sounds.roundStart.handle)
         end
     end)()
-    
 end
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
@@ -138,7 +142,6 @@ function firefightManager.WaveProgression()
     -- Si la Wave es menor que 5, avanaz una. Si es 5, se reinicia y Set avanza una.
     if (currentWave < 5) then
         currentWave = currentWave + 1
-        --firefightManager.playSound(const.sounds.reinforcements, 0.5)
         if currentSet >= 4 then
             randomTeam = math.random (1, 2)
             if randomTeam == 1 then
@@ -183,6 +186,9 @@ function firefightManager.WaveProgression()
     actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
     -- Aquí llamamos la función de los Sentinelas.
     firefightManager.SentinelChance()
+    if currentWave > 1 then
+        engine.userInterface.playSound(const.sounds.reinforcements.handle)
+    end
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
