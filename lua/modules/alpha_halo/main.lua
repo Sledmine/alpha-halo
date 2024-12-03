@@ -1,16 +1,17 @@
 local blam = require "blam"
-local test = require "alpha_halo.test"
-local firefightManager = require "alpha_halo.gameplay_core.firefightManager"
---local healthRegen = require "alpha_halo.gameplay_core.healthRegen"
-local healthRegenSP = require "alpha_halo.gameplay_core.healthRegenSP"
+local firefightManager = require "alpha_halo.firefightManager"
+local healthManagerSP = require "alpha_halo.gameplay_core.healthManagerSP"
 local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
+local balltze = Balltze
+local engine = Engine
 require "luna"
 
 local isLoaded = false
 clua_version = 2.056
 
 function OnMapLoad()
-    firefightManager.OnMapLoad()
+    firefightManager.onMapLoad()
+    healthManagerSP.onMapLoad()
 end
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
@@ -26,8 +27,8 @@ end
 
 function OnTick()
     if not isLoaded then
-        OnMapLoad()
         isLoaded = true
+        OnMapLoad()
         return
     end
     for objectHandle in pairs(blam.getObjects()) do
@@ -79,11 +80,20 @@ function OnTick()
             end
         end
     end
-    firefightManager.OnTick()
+    firefightManager.EachTick()
+    healthManagerSP.EachTick()
     healthRegenAlly.regenerateHealth()
-    healthRegenSP.regenerateHealth()
 end
 
---OnMapLoad()
---set_callback("map load", "OnMapLoad")
-set_callback("tick", "OnTick")
+local onTickEvent = balltze.event.tick.subscribe(function(event)
+    if event.time == "before" then
+        OnTick()
+    end
+end)
+
+return {
+    unload = function()
+        logger:warning("Unloadig Alpha Firefight")
+        onTickEvent:remove()
+    end
+}

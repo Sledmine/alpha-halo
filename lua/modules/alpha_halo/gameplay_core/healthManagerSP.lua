@@ -1,8 +1,8 @@
 -- LIBRERÍAS DE LUA
 local healthManagerSP = {}
-local const = require "alpha_halo.constants"
 local blam = require "blam"
 -- VARIABLES DE LA FUNCIÓN healthManagerSP.WhenMapLoads
+local const = require "alpha_halo.constants"
 local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN healthManagerSP.healthRegen(playerIndex)
 local player
@@ -15,8 +15,17 @@ local playerLives = 6
 local livesLeftTemplate = "Lives left... %s"
 local actualLivesLeft = livesLeftTemplate:format(playerLives)
 
+--- Attempt to play a sound given tag path and optionally a gain number
+function healthManagerSP.playSound(tagPath, gain)
+    local player = blam.player(get_player())
+    if (player) then
+        local playSoundCommand = const.hsc.playSound:format(tagPath, player.index, gain or 1.0)
+        execute_script(playSoundCommand)
+    end
+end
+
 -- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
-function healthManagerSP.WhenMapLoads()
+function healthManagerSP.onMapLoad()
     gameIsOn = true
 end
 
@@ -82,7 +91,12 @@ function healthManagerSP.tryingToRespawn()
         actualLivesLeft = livesLeftTemplate:format(playerLives)
         if playerLives > 0 then
             console_out(actualLivesLeft)
+        elseif playerLives == 5 then
+            healthManagerSP.playSound(const.sounds.fiveLivesLeft, 0.5)
+        elseif playerLives == 1 then
+            healthManagerSP.playSound(const.sounds.oneLiveLeft, 0.5)
         elseif playerLives == 0 then
+            healthManagerSP.playSound(const.sounds.noLivesLeft, 0.5)
             console_out("No lives left.")
             console_out("You feel a sense of dread crawling up your spine...")
         end
@@ -93,6 +107,7 @@ end
 function healthManagerSP.livesGained()
     console_out("Lives added!")
     playerLives = playerLives + 1
+    healthManagerSP.playSound(const.sounds.livesAdded, 0.5)
     if player then
         player.health = 1
     end

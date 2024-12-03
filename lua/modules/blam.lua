@@ -125,9 +125,6 @@ local addressList = {
     cinematicGlobals = 0x0068c83c
 }
 
-local balltze = require "mods.balltze"
-balltze.set_clipboard(tohex(addressList.firstPerson))
-
 -- Server side addresses adjustment
 if blam.isGameSAPP() then
     addressList.deviceGroupsTable = 0x006E1C50

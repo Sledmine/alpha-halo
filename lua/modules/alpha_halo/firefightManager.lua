@@ -1,8 +1,12 @@
-local firefightManager = {}
 local hsc = require "hsc"
 local healthManagerSP = require "alpha_halo.gameplay_core.healthManagerSP"
 local blam = require "blam"
 local const = require "alpha_halo.constants"
+local engine = Engine
+local balltze = Balltze
+
+local firefightManager = {}
+
 -- VARIABLES DE LA FUNCIÓN firefightManager.WhenMapLoads
 local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.EachTick
@@ -62,8 +66,15 @@ local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GetOutOfGhost()
 local bossWaveCooldown = false
 
+
+function firefightManager.announcer()
+    if currentSet >= 1 then
+        engine.userInterface.playSound(const.sounds.setStart.handle)
+    end
+end
+
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
-function firefightManager.WhenMapLoads()
+function firefightManager.onMapLoad()
     console_out("Welcome to Alpha Firefight.")
     gameIsOn = true
     waveIsOn = true
@@ -75,6 +86,7 @@ function firefightManager.WhenMapLoads()
     elseif randomTeam == 2 then
         currentTeam = "Flood_Wave"
     end
+    firefightManager.announcer()
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -102,11 +114,13 @@ function firefightManager.EachTick()
                 firefightManager.WaveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 console_out("Round Complete!")
+                --firefightManager.playSound(const.sounds.roundComplete, 0.5)
                 waveIsOn = false
                 bossWaveCooldown = true
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
                 firefightManager.WaveProgression()
+                --firefightManager.playSound(const.sounds.setStart, 0.5)
             end
         else
             firefightManager.WaveCooldown()
@@ -119,6 +133,7 @@ function firefightManager.WaveProgression()
     -- Si la Wave es menor que 5, avanaz una. Si es 5, se reinicia y Set avanza una.
     if (currentWave < 5) then
         currentWave = currentWave + 1
+        --firefightManager.playSound(const.sounds.reinforcements, 0.5)
         if currentSet >= 4 then
             randomTeam = math.random (1, 2)
             if randomTeam == 1 then
