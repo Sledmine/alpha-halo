@@ -3,16 +3,20 @@ local healthManager = {}
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
-local script = require "script".script
+local scriptBlock = require "script".block
+
 -- VARIABLES DE LA FUNCIÓN healthManager.WhenMapLoads
 local const = require "alpha_halo.constants"
 local gameIsOn = false
+
 -- VARIABLES DE LA FUNCIÓN healthManager.healthRegen(playerIndex)
 local player
 local playerIsDead = false
 local waitingForRespawn = false
+
 -- VARIABLES DE LA FUNCIÓN healthRegenSP.maxHealthCap
 local maxHealth = 1
+
 -- VARIALBES DE LA FUNCIÓN healthRegenSP.respawnAndDeath
 local playerLives = 6
 local livesLeftTemplate = "Lives left... %s"
@@ -88,7 +92,7 @@ function healthManager.tryingToRespawn()
         if playerLives > 0 then
             console_out(actualLivesLeft)
         end
-        script(function (sleep, sleepUntil)
+        scriptBlock(function (sleep, sleepUntil)
             if playerLives == 5 then
                 sleep(10)
                 playSound(const.sounds.fiveLivesLeft.handle)
@@ -109,7 +113,7 @@ end
 
 -- Esta función es llamada desde otros modulos cuando ganas una vida.
 function healthManager.livesGained()
-    script(function (sleep, sleepUntil)
+    scriptBlock(function (sleep, sleepUntil)
         console_out("Lives added!")
         playerLives = playerLives + 1
         sleep(100)
