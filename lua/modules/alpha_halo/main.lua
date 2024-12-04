@@ -97,7 +97,7 @@ end)
 
 return {
     unload = function()
-        logger:warning("Unloadig Alpha Firefight")
+        logger:debug("Unloading main")
         onTickEvent:remove()
     end
 }

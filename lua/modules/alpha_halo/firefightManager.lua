@@ -4,7 +4,7 @@ local blam = require "blam"
 local const = require "alpha_halo.constants"
 local engine = Engine
 local balltze = Balltze
-local script = require "script".script
+local scriptBlock = require "script".block
 
 local firefightManager = {}
 
@@ -73,7 +73,7 @@ local bossWaveCooldown = false
 local playSound = engine.userInterface.playSound
 
 function firefightManager.announcer()
-    script(function (sleep, sleepUntil)
+    scriptBlock(function (sleep, sleepUntil)
         if currentSet >= 1 then
             sleep(270)
             playSound(const.sounds.setStart.handle)
@@ -187,7 +187,7 @@ function firefightManager.WaveProgression()
     if currentWave > 1 then
         engine.userInterface.playSound(const.sounds.reinforcements.handle)
     end
-    script(function (sleep, sleepUntil)
+    scriptBlock(function (sleep, sleepUntil)
         if currentWave == 1 and currentRound > 1 then
             --sleep(10)
             --playSound(const.sounds.roundComplete.handle)

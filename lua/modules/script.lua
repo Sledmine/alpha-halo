@@ -39,7 +39,7 @@ end
 
 ---Perform a script like function in a non-blocking way
 ---@param inputFunction fun(sleep: fun(sleepForTicks: number), sleepUntil: fun(callback: (fun(): boolean), checkOnceEveryTicks: number?, maximumTicksToWait: number?))
-function script.script(inputFunction)
+function script.block(inputFunction)
     local co
     local await = function(syncCallback, ...)
         local args = {...}

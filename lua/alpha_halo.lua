@@ -25,8 +25,8 @@ function PluginMetadata()
 end
 
 function PluginInit()
-    engine.core.consolePrint("plugin init")
-    logger = balltze.logger.createLogger("alpha_halo")
+    logger = balltze.logger.createLogger("Alpha Halo")
+    logger:muteIngame(false)
 
     -- Replace Chimera functions with Balltze functions
     execute_script = engine.hsc.executeScript
@@ -58,7 +58,7 @@ function PluginInit()
     balltze.event.mapLoad.subscribe(function(event)
         if event.time == "after" then
             local currentMap = event.context:mapName()
-            engine.core.consolePrint("map loaded: " .. currentMap)
+            logger:debug("Map loaded: {}", currentMap)
             if isMultiplayerMap(currentMap) then
                 if not main then
                     logger:info("loading main")
@@ -69,7 +69,7 @@ function PluginInit()
                     main.unload()
                     package.loaded["alpha_halo.main"] = nil
                     for k, v in pairs(package.loaded) do
-                        if k:includes "alpha_halo" then
+                        if k:startswith "alpha_halo" then
                             package.loaded[k] = nil
                         end
                     end
@@ -83,7 +83,7 @@ end
 function PluginLoad()
     -- Load Chimera compatibility
     for k, v in pairs(balltze.chimera) do
-        if not k:includes "timer" and not k:includes "execute_script" then
+        if not k:includes "timer" and not k:includes "execute_script"  and not k:includes "set_callback" then
             _G[k] = v
         end
     end
