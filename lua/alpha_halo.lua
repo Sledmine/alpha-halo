@@ -58,8 +58,8 @@ function PluginInit()
     balltze.event.mapLoad.subscribe(function(event)
         if event.time == "after" then
             local currentMap = event.context:mapName()
-            logger:debug("Map loaded: {}", currentMap)
             if isMultiplayerMap(currentMap) then
+                logger:debug("Map loaded: {}", currentMap)
                 if not main then
                     logger:info("loading main")
                     main = require "alpha_halo.main"
