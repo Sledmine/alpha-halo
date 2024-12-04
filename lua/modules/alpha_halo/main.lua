@@ -1,7 +1,7 @@
 local blam = require "blam"
 local firefightManager = require "alpha_halo.firefightManager"
-local healthManagerSP = require "alpha_halo.gameplay_core.healthManagerSP"
-local healthRegenAlly = require "alpha_halo.gameplay_core.healthRegenAlly"
+local healthManager = require "alpha_halo.gameplay_core.healthManager"
+--local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 local balltze = Balltze
 local engine = Engine
 require "luna"
@@ -14,7 +14,7 @@ clua_version = 2.056
 
 function OnMapLoad()
     firefightManager.onMapLoad()
-    healthManagerSP.onMapLoad()
+    healthManager.onMapLoad()
 end
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
@@ -86,8 +86,7 @@ function OnTick()
         end
     end
     firefightManager.EachTick()
-    healthManagerSP.EachTick()
-    healthRegenAlly.regenerateHealth()
+    healthManager.EachTick()
 end
 
 local onTickEvent = balltze.event.tick.subscribe(function(event)

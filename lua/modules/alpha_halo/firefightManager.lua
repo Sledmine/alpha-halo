@@ -1,5 +1,5 @@
 local hsc = require "hsc"
-local healthManagerSP = require "alpha_halo.gameplay_core.healthManagerSP"
+local healthManager = require "alpha_halo.gameplay_core.healthManager"
 local blam = require "blam"
 local const = require "alpha_halo.constants"
 local engine = Engine
@@ -217,6 +217,9 @@ function firefightManager.DropshipDeployer()
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
     hsc.objectCreateANew(selectedDropship)
+    hsc.aiSpawn(1, "Enemy_Team_1/Spirit_Gunner")
+    hsc.vehicleLoadMagic(selectedDropship, "gunseat", "Enemy_Team_1/Spirit_Gunner")
+    hsc.aiMigrate("Enemy_Team_1/Spirit_Gunner", "Emergent_Dangers")
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
     -- Si es una Boss Wave, la Dropship 1 carga el Boss Squad y los Ghost.
@@ -312,7 +315,7 @@ end
 -- Esto spawnea las ayudas para el jugador.
 function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
-    healthManagerSP.livesGained()
+    healthManager.livesGained()
     hsc.aiSpawn(1, "Human_Team/ODSTs")
     -- No spawneamos objetos de ayuda, pues no funcionan en MP.
     --hsc.objectCreateANewContaining("assist_")

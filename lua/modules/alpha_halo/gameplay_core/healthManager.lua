@@ -1,13 +1,13 @@
 -- LIBRERÍAS DE LUA
-local healthManagerSP = {}
+local healthManager = {}
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
 local script = require "script".script
--- VARIABLES DE LA FUNCIÓN healthManagerSP.WhenMapLoads
+-- VARIABLES DE LA FUNCIÓN healthManager.WhenMapLoads
 local const = require "alpha_halo.constants"
 local gameIsOn = false
--- VARIABLES DE LA FUNCIÓN healthManagerSP.healthRegen(playerIndex)
+-- VARIABLES DE LA FUNCIÓN healthManager.healthRegen(playerIndex)
 local player
 local playerIsDead = false
 local waitingForRespawn = false
@@ -20,28 +20,29 @@ local actualLivesLeft = livesLeftTemplate:format(playerLives)
 local playSound = engine.userInterface.playSound
 
 -- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
-function healthManagerSP.onMapLoad()
+function healthManager.onMapLoad()
     gameIsOn = true
 end
 
 --- Cada tick. Aquí llamamos al resto de funciones si inició el juego & existe el jugador.
-function healthManagerSP.EachTick()
+function healthManager.EachTick()
     if gameIsOn == true then
-        healthManagerSP.healthRegen()
-        healthManagerSP.tryingToRespawn()
+        healthManager.healthRegen()
+        healthManager.tryingToRespawn()
+        healthManager.regenerateAllyHealth()
     end
 end
 
 --- Regenerate players health on low shield using game ticks
 ---@param playerIndex? number
-function healthManagerSP.healthRegen(playerIndex)
+function healthManager.healthRegen(playerIndex)
     if playerIndex then
         player = blam.biped(get_dynamic_player(playerIndex))
     else
         player = blam.biped(get_dynamic_player())
     end
     if player then
-        healthManagerSP.maxHealthCap()
+        healthManager.maxHealthCap()
         playerIsDead = false
         if player.health <= 0 then
             player.health = 0.000000001
@@ -68,7 +69,7 @@ function healthManagerSP.healthRegen(playerIndex)
 end
 
 -- Le ponemos un límite al máximo health regen, según el estado del jugador.
-function healthManagerSP.maxHealthCap()
+function healthManager.maxHealthCap()
     if player.health >= 0.655 then
         maxHealth = 1
     elseif player.health < 0.655 and player.health >= 0.305 then
@@ -79,7 +80,7 @@ function healthManagerSP.maxHealthCap()
 end
 
 -- El jugador ha perdido una vida. Vaya fracasado.
-function healthManagerSP.tryingToRespawn()
+function healthManager.tryingToRespawn()
     if waitingForRespawn == true and player then
         waitingForRespawn = false
         playerLives = playerLives - 1
@@ -107,7 +108,7 @@ function healthManagerSP.tryingToRespawn()
 end
 
 -- Esta función es llamada desde otros modulos cuando ganas una vida.
-function healthManagerSP.livesGained()
+function healthManager.livesGained()
     script(function (sleep, sleepUntil)
         console_out("Lives added!")
         playerLives = playerLives + 1
@@ -119,4 +120,23 @@ function healthManagerSP.livesGained()
     end
 end
 
-return healthManagerSP
+--- Regenerate a designated biped health on low shield using game ticks on singleplayer. CURRENTLY NOT WORKING.
+function healthManager.regenerateAllyHealth()
+    for objectId, index in pairs(blam.getObjects()) do
+        local bipedObject = blam.biped(get_object(objectId))
+        if bipedObject then
+            local bipedTagId = bipedObject.tagId
+            if bipedTagId == const.bipeds.odstAllyTag.id then
+                --console_out("Biped found")
+                if bipedObject.health < 1 and bipedObject.shield > 0.75 then
+                    bipedObject.health = bipedObject.health + const.healthRegenAiAmount
+                    if bipedObject.health > 1 then
+                        bipedObject.health = 1
+                    end
+                end
+            end
+        end
+    end
+end
+
+return healthManager
