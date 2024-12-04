@@ -1,16 +1,15 @@
 local blam = require "blam"
-local firefightManager = require "alpha_halo.firefightManager"
-local healthManager = require "alpha_halo.gameplay_core.healthManager"
---local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 local balltze = Balltze
 local engine = Engine
 require "luna"
 local dispatchScripts = require "script".dispatch
 math.randomseed(os.time())
-logger = balltze.logger.createLogger("Alpha Halo")
+--logger = balltze.logger.createLogger("Alpha Halo")
 
-local isLoaded = false
-clua_version = 2.056
+--Project modules
+local firefightManager = require "alpha_halo.firefightManager"
+local healthManager = require "alpha_halo.gameplay_core.healthManager"
+--local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 
 function OnMapLoad()
     firefightManager.onMapLoad()
@@ -27,6 +26,8 @@ function getNodePosition(address)
     z = read_float(address + 0x38)
     return {x = x, y = y, z = z}
 end
+
+local isLoaded = false
 
 function OnTick()
     math.randomseed(engine.core.getTickCount())
