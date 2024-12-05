@@ -261,6 +261,7 @@ function firefightManager.GhostLoader()
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.aiSpawn(1, selectedGhostPilot)
     hsc.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
+    hsc.aiMigrate(selectedGhostPilot, currentWaveType)
     hsc.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
 end
 
