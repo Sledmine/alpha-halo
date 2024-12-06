@@ -130,8 +130,7 @@ function healthManager.regenerateAllyHealth()
         local bipedObject = blam.biped(get_object(objectId))
         if bipedObject then
             local bipedTagId = bipedObject.tagId
-            if bipedTagId == const.bipeds.odstAllyTag.id then
-                --console_out("Biped found")
+            if bipedTagId == const.bipeds.odstAllyTag.handle then
                 if bipedObject.health < 1 and bipedObject.shield > 0.75 then
                     bipedObject.health = bipedObject.health + const.healthRegenAiAmount
                     if bipedObject.health > 1 then

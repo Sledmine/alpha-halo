@@ -112,8 +112,6 @@ function firefightManager.EachTick()
         firefightManager.GetOutOfGhost()
         -- Revisamos constantemente si puedes o no marcar a los enemigos resagados.
         firefightManager.aiNavpoint()
-        -- Fix para las torretas enloquecidas de los dropships. Quizás o no funcione. (No, no funciona).
-        --firefightManager.dropshipTurretFix()
         -- Si waveIsOn = true, se inician los procesos de la oleaada. Si no, se inicia el cooldown.
         if waveIsOn == true then
             if dropshipsLeft > 0 then
@@ -361,20 +359,6 @@ function firefightManager.aiNavpoint()
             hsc.navpointEnemy("(player0)", currentWaveType, 1)
             hsc.navpointEnemy("(player0)", currentWaveType, 2)
             hsc.navpointEnemy("(player0)", currentWaveType, 3)
-        end
-    end
-end
-
--- Esto debería arreglar el problema de los Spirits atacando a sus tropas (NO FUNCIONA, NO ESTÁ SIENDO LLAMADO).
-function firefightManager.dropshipTurretFix()
-    for objectId, index in pairs(blam.getObjects()) do
-        local bipedObject = blam.biped(get_object(objectId))
-        if bipedObject then
-            local bipedTagId = bipedObject.tagId
-            if bipedTagId == const.bipeds.covSpiritTurret.id then
-                hsc.objectToUnit(bipedObject)
-                hsc.aiMigrateByUnit(bipedObject, "Covenant_Wave")
-            end
         end
     end
 end

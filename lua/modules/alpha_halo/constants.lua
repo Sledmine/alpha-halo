@@ -33,8 +33,7 @@ constants.sounds = {
 }
 
 constants.bipeds = {
-    odstAllyTag = blam.findTag("odst", tagClasses.biped).path,
-    covSpiritTurret = blam.findTag("cd_gun", tagClasses.biped).path
+    odstAllyTag = findTags("odst", engine.tag.classes.biped)[1]
 }
 
 constants.vehicles = {
