@@ -27,7 +27,8 @@ local waveCooldownCounter = 0
 local randomTeamIndex = math.random(1, 2)
 local currentTier = 1
 local randomSquad = math.random(1, 6)
-local currentWaveType = "Covenant_Wave"
+local currentWaveType
+local currentSupportType
 local squadTemplate = "Enemy_Team_%s/Tier_%s_Squad_%s"
 local selectedSquad = squadTemplate:format(randomTeamIndex, currentTier, randomSquad)
 local bossSquadTemplate = "Enemy_Team_%s/Boss_Wave"
@@ -99,6 +100,8 @@ function firefightManager.onMapLoad()
     currentWaveType = getRandomTeamWave()
     engine.core.consolePrint("{}", currentWaveType)
     firefightManager.announcer()
+    hsc.objectCreateANew("mortar_1")
+    hsc.objectCreateANew("mortar_2")
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -165,9 +168,11 @@ function firefightManager.WaveProgression()
             if randomTeamIndex == 2 then
                 randomTeamIndex = 1
                 currentWaveType = "Covenant_Wave"
+                currentSupportType = "Covenant_Support"
             elseif randomTeamIndex == 1 then
                 randomTeamIndex = 2
                 currentWaveType = "Flood_Wave"
+                currentSupportType = "Flood_Support"
             end
         end
         firefightManager.GameAssists()
@@ -215,9 +220,11 @@ function firefightManager.DropshipDeployer()
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
     hsc.objectCreateANew(selectedDropship)
-    hsc.aiSpawn(1, "Enemy_Team_1/Spirit_Gunner")
-    hsc.vehicleLoadMagic(selectedDropship, "gunseat", "Enemy_Team_1/Spirit_Gunner")
-    hsc.aiMigrate("Enemy_Team_1/Spirit_Gunner", "Emergent_Dangers")
+    local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
+    local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
+    hsc.aiSpawn(1, selectedDropshipGunner)
+    hsc.vehicleLoadMagic(selectedDropship, "gunseat", selectedDropshipGunner)
+    hsc.aiMigrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
     -- Si es una Boss Wave, la Dropship 1 carga el Boss Squad y los Ghost.
@@ -259,7 +266,7 @@ function firefightManager.GhostLoader()
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.aiSpawn(1, selectedGhostPilot)
     hsc.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
-    hsc.aiMigrate(selectedGhostPilot, currentWaveType)
+    hsc.aiMigrate(selectedGhostPilot, currentSupportType)
     hsc.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
 end
 
