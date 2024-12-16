@@ -1,28 +1,8 @@
-ALFA FIREFIGHT v1
+ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
 
--- comprobar que las dropships funcionan en hsc -- LISTO
--- comprobar que las dropships funcionan en lua -- LISTO
--- desplegar a los cacos en la dropship -- LISTO
--- hacer spawnear unos cacos con el nameTemplate -- LISTO
--- repetir el proceso tras cada ai_living_count -- LISTO
--- arreglar los labels de hunters y flood -- LISTO*** (hay que ajustar las anims del Flood)
--- separar los fighting encounters para covenant y flood -- LISTO
--- identificar tag que causa la caída del arma de la dropship -- LISTO
--- resolver conducta aberrante de la torreta -- LISTO
--- transicionar a un sistema de cutscenes tradicionales -- LISTO
--- crear la progresión de nombre de oleada -- LISTO
--- crear la progresión de nombre de squad -- LISTO
--- crear sistema de rondas mixtas -- LISTO
--- capar health regen -- LISTO
--- crear las boss rounds -- LISTO
--- implementar centinelas -- LISTO
--- implementar vehiculos -- LISTO
--- implementar asistencias -- LISTO
--- hacer correcciones a los bitmaps -- EN PROGRESO CHROMED
--- implementar sistema de vidas -- LISTO
--- reiniciar el script junto con la partida -- LISTO*** (Mis métodos son... rusticos.)
--- implementar peligros aleatorios -- EN PROGRESO
--- crearle sus propias dropships al flood
--- cazar detalles en los tags
--- revisión de código con sled
--- baile de victoria
+-- Los Flood aún tienen problemas para bajarse del Spirit apropiadamente.
+-- La creación de vehículos está buggeadísima.
+-- Fixear enemigos que se quedan varados en el vacío.
+-- Implementar los peligros aleatorios.
+-- Pulir detalles con los tags.
+-- Optimizar el código.
