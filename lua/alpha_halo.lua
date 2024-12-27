@@ -4,8 +4,6 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
-local main
-local loadWhenIn = {"alpha_halo"}
 
 loadWhenIn = table.extend(loadWhenIn, table.map(loadWhenIn, function(map)
     return map .. "_dev"
