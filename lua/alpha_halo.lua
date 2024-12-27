@@ -4,12 +4,14 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
+--local main
+local loadWhenIn = {
+    "alpha_halo"
+}
 
 loadWhenIn = table.extend(loadWhenIn, table.map(loadWhenIn, function(map)
     return map .. "_dev"
 end))
-
-DebugMode = false
 
 function PluginMetadata()
     return {
@@ -49,6 +51,8 @@ local function loadChimeraCompatibility()
     end
     execute_script = engine.hsc.executeScript
 end
+
+local main
 
 function PluginLoad()
     logger = balltze.logger.createLogger("Alpha Halo")
