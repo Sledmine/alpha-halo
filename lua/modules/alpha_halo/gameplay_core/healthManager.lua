@@ -4,9 +4,9 @@ local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
 local scriptBlock = require "script".block
-
--- VARIABLES DE LA FUNCIÓN healthManager.WhenMapLoads
 local const = require "alpha_halo.constants"
+
+-- VARIABLES DE LA FUNCIÓN healthManager.onMapLoads
 local gameIsOn = false
 
 -- VARIABLES DE LA FUNCIÓN healthManager.healthRegen(playerIndex)

@@ -8,6 +8,7 @@ math.randomseed(os.time())
 --Project modules
 local firefightManager = require "alpha_halo.firefightManager"
 local healthManager = require "alpha_halo.gameplay_core.healthManager"
+local eventsManager = require "alpha_halo.gameplay_core.eventsManager"
 local vehiclePositionLoader = require "alpha_halo.core"
 --local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 
@@ -25,6 +26,7 @@ end
 function OnMapLoad()
     firefightManager.onMapLoad()
     healthManager.onMapLoad()
+    eventsManager.onMapLoad()
 end
 
 local isLoaded = false
@@ -32,6 +34,7 @@ local isLoaded = false
 function OnTick()
     firefightManager.EachTick()
     healthManager.EachTick()
+    eventsManager.EachTick()
     vehiclePositionLoader.vehiclePositionLoader()
     math.randomseed(engine.core.getTickCount())
     dispatchScripts()
