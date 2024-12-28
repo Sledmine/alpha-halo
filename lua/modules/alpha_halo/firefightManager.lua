@@ -323,17 +323,17 @@ function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     healthManager.livesGained()
     hsc.aiSpawn(1, "Human_Team/ODSTs")
-    -- No spawneamos objetos de ayuda, pues no funcionan en MP.
-    --hsc.objectCreateANewContaining("assist_")
+    -- Le otorgamos los Warthos estandar al jugador.
+    hsc.objectCreateANewContaining("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
     hsc.objectCreateANew(selectedAssistGhost)
-    hsc.objectTeleport(selectedAssistGhost, "Selected_Ghost")
+    --hsc.objectTeleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     randomWarthog = math.random (1, 3)
     selectedWarthog = warthogTemplate:format(randomWarthog)
     hsc.objectCreateANew(selectedWarthog)
-    hsc.objectTeleport(selectedWarthog, "Selected_Warthog")
+    --hsc.objectTeleport(selectedWarthog, "Selected_Warthog")
 end
 
 -- Esto parcha horriblemente el problema del Ghost en el Spirit.
@@ -373,6 +373,8 @@ end
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 function firefightManager.AiCheck()
     waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
+    hsc.aiMagicallySeePlayers("Covenant_Support")
+    hsc.aiMagicallySeePlayers("Flood_Support")
     hsc.aiMagicallySeePlayers("Covenant_Wave")
     hsc.aiAction(1, "Covenant_Wave")
     hsc.aiMagicallySeePlayers("Flood_Wave")
