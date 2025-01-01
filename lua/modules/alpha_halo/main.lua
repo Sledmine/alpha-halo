@@ -24,9 +24,9 @@ function getNodePosition(address)
 end
 
 function OnMapLoad()
-    firefightManager.onMapLoad()
-    healthManager.onMapLoad()
-    eventsManager.onMapLoad()
+    firefightManager.WhenMapLoads()
+    healthManager.WhenMapLoads()
+    --eventsManager.WhenMapLoads()
 end
 
 local isLoaded = false
@@ -34,7 +34,7 @@ local isLoaded = false
 function OnTick()
     firefightManager.EachTick()
     healthManager.EachTick()
-    eventsManager.EachTick()
+    --eventsManager.EachTick()
     vehiclePositionLoader.vehiclePositionLoader()
     math.randomseed(engine.core.getTickCount())
     dispatchScripts()

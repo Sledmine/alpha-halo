@@ -6,7 +6,7 @@ local balltze = Balltze
 local scriptBlock = require "script".block
 local const = require "alpha_halo.constants"
 
--- VARIABLES DE LA FUNCIÓN healthManager.onMapLoads
+-- VARIABLES DE LA FUNCIÓN healthManager.WhenMapLoads
 local gameIsOn = false
 
 -- VARIABLES DE LA FUNCIÓN healthManager.healthRegen(playerIndex)
@@ -24,7 +24,7 @@ local actualLivesLeft = livesLeftTemplate:format(playerLives)
 local playSound = engine.userInterface.playSound
 
 -- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
-function healthManager.onMapLoad()
+function healthManager.WhenMapLoads()
     gameIsOn = true
 end
 

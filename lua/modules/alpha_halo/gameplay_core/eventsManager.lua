@@ -4,10 +4,10 @@ local engine = Engine
 local balltze = Balltze
 local scriptBlock = require "script".block
 
--- VARIABLES DE LA FUNCIÓN eventManager.onMapLoad
+-- VARIABLES DE LA FUNCIÓN eventManager.WhenMapLoads
 local gameIsOn = false
 
-function eventsManager.onMapLoad()
+function eventsManager.WhenMapLoads()
     gameIsOn = true
     eventsManager.debugFunction()
 end

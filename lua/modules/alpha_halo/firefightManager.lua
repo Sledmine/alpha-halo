@@ -20,7 +20,7 @@ local waveTemplate = "Wave %s, Round %s, Set %s."
 local actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 local bossWave = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveCooldown
-local waveCooldownTimer = 210
+local waveCooldownTimer = 30
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
@@ -91,7 +91,7 @@ local function getRandomTeamWave()
 end
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
-function firefightManager.onMapLoad()
+function firefightManager.WhenMapLoads()
     console_out("Welcome to Alpha Firefight.")
     gameIsOn = true
     waveIsOn = true
