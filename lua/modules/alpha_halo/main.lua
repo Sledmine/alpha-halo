@@ -12,6 +12,10 @@ local eventsManager = require "alpha_halo.gameplay_core.eventsManager"
 local vehiclePositionLoader = require "alpha_halo.core"
 --local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 
+-- TESTING
+local pigPen = require "alpha_halo.pigPen"
+-- END OF TESTING
+
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
 -- TRUST ME, I'M SLED DA FOKIN GOAT
 function getNodePosition(address)
@@ -27,6 +31,13 @@ function OnMapLoad()
     firefightManager.WhenMapLoads()
     healthManager.WhenMapLoads()
     --eventsManager.WhenMapLoads()
+
+    -- TESTING
+    console_out("Fuuk this, bitchis!");
+    pigPen.test()
+    pigPen.test2()
+    -- END OF TESTING
+
 end
 
 local isLoaded = false
