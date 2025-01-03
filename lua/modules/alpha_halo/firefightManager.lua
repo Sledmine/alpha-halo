@@ -5,6 +5,7 @@ local const = require "alpha_halo.constants"
 local engine = Engine
 local balltze = Balltze
 local scriptBlock = require "script".block
+local pigPen = require "pigPen"
 
 local firefightManager = {}
 
@@ -262,7 +263,9 @@ function firefightManager.GhostLoader()
     selectedGhostB = ghostTemplate:format(randomGhost, 2)
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
     selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
-    hsc.objectCreateANew(selectedGhost)
+    -- hsc.objectCreateANew(selectedGhost)
+    -- Ghost is now spawned dynamically
+    pigPen.compactSpawnNamedVehicle(selectedGhost)
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.aiSpawn(1, selectedGhostPilot)
     hsc.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
@@ -324,15 +327,20 @@ function firefightManager.GameAssists()
     healthManager.livesGained()
     hsc.aiSpawn(1, "Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
+    -- TODO: create a replacement function to spawn assist_warthog dynamically
     hsc.objectCreateANewContaining("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
-    hsc.objectCreateANew(selectedAssistGhost)
+    -- hsc.objectCreateANew(selectedAssistGhost)
+    -- Ghost is now spawned dynamically
+    pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
     --hsc.objectTeleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     randomWarthog = math.random (1, 3)
     selectedWarthog = warthogTemplate:format(randomWarthog)
-    hsc.objectCreateANew(selectedWarthog)
+    -- hsc.objectCreateANew(selectedWarthog)
+    -- Warthog is now spawned dynamically
+    pigPen.compactSpawnNamedVehicle(selectedWarthog)
     --hsc.objectTeleport(selectedWarthog, "Selected_Warthog")
 end
 

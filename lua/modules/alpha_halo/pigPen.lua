@@ -1,4 +1,4 @@
--- This is the pig pen. A module that contains some -real dirty- code, hence the name.
+-- This is the pig pen. A module that contains some -real dirty- code, hence the name. (Not anymore, thankfully).
 -- TODO: add annotations to all of this, where missing
 
 -- Module imports
