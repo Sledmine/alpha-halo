@@ -5,7 +5,7 @@ local const = require "alpha_halo.constants"
 local engine = Engine
 local balltze = Balltze
 local scriptBlock = require "script".block
-local pigPen = require "pigPen"
+local pigPen = require "alpha_halo.pigPen"
 
 local firefightManager = {}
 
