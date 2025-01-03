@@ -3,7 +3,8 @@ local engine = Engine
 DebugMode = false
 local dispatchScripts = require "script".dispatch
 math.randomseed(os.time())
---logger = balltze.logger.createLogger("Alpha Halo")
+
+-- logger = balltze.logger.createLogger("Alpha Halo")
 
 --Project modules
 local firefightManager = require "alpha_halo.firefightManager"
@@ -11,10 +12,7 @@ local healthManager = require "alpha_halo.gameplay_core.healthManager"
 local eventsManager = require "alpha_halo.gameplay_core.eventsManager"
 local vehiclePositionLoader = require "alpha_halo.core"
 --local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
-
--- TESTING
-local pigPen = require "alpha_halo.pigPen"
--- END OF TESTING
+local pigPen = require "alpha_halo.pigPen" -- This module contains the functions to spawn named vehicles dynamically
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
 -- TRUST ME, I'M SLED DA FOKIN GOAT
@@ -31,13 +29,18 @@ function OnMapLoad()
     firefightManager.WhenMapLoads()
     healthManager.WhenMapLoads()
     --eventsManager.WhenMapLoads()
-
     -- TESTING
-    console_out("Fuuk this, bitchis!");
+    logger:muteDebug(true) -- Mutes debug messages
     pigPen.test()
-    pigPen.test2()
+    local namedScenarioVehicles = pigPen.getNamedScenarioVehicles()
+    local testerHog = pigPen.getNamedVehicle(namedScenarioVehicles, "tester")
+    if (testerHog ~= nil) then
+        local testerHogObject = pigPen.spawnNamedVehicle(testerHog)
+        logger:debug("SPAWNED THE TESTER HOG!")
+    end
+    local testerHog2 = pigPen.compactSpawnNamedVehicle("tester")
+    logger:debug("SPAWNED THE TESTER HOG! AGAIN! USING COMPACT FUNCTION!")
     -- END OF TESTING
-
 end
 
 local isLoaded = false
