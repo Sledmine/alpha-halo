@@ -9,9 +9,9 @@ local pigPen = require "alpha_halo.pigPen"
 
 local firefightManager = {}
 
--- VARIABLES DE LA FUNCIÓN firefightManager.WhenMapLoads
+-- VARIABLES DE LA FUNCIÓN firefightManager.whenMapLoads
 local gameIsOn = false
--- VARIABLES DE LA FUNCIÓN firefightManager.EachTick
+-- VARIABLES DE LA FUNCIÓN firefightManager.eachTick
 local waveIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveProgression
 local currentWave = 0
@@ -92,7 +92,7 @@ local function getRandomTeamWave()
 end
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
-function firefightManager.WhenMapLoads()
+function firefightManager.whenMapLoads()
     console_out("Welcome to Alpha Firefight.")
     gameIsOn = true
     waveIsOn = true
@@ -106,7 +106,7 @@ function firefightManager.WhenMapLoads()
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
-function firefightManager.EachTick()
+function firefightManager.eachTick()
     if gameIsOn == true then
         -- Actualizamos constantemente el estado de la IA.
         firefightManager.AiCheck()
@@ -382,7 +382,9 @@ end
 function firefightManager.AiCheck()
     waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
     hsc.aiMagicallySeePlayers("Covenant_Support")
+    hsc.aiAction(1, "Covenant_Support")
     hsc.aiMagicallySeePlayers("Flood_Support")
+    hsc.aiAction(1, "Flood_Support")
     hsc.aiMagicallySeePlayers("Covenant_Wave")
     hsc.aiAction(1, "Covenant_Wave")
     hsc.aiMagicallySeePlayers("Flood_Wave")
@@ -391,8 +393,6 @@ function firefightManager.AiCheck()
     hsc.aiAction(1, "Human_Team")
     hsc.aiMagicallySeePlayers("Sentinel_Team")
     hsc.aiAction(1, "Sentinel_Team")
-    hsc.aiMagicallySeePlayers("Emergent_Dangers")
-    hsc.aiAction(1, "Emergent_Dangers")
     hsc.aiVehicleEntrableDistance(selectedAssistGhost, 20.0)
 end
 

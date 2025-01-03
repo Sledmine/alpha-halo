@@ -26,9 +26,9 @@ function getNodePosition(address)
 end
 
 function OnMapLoad()
-    firefightManager.WhenMapLoads()
-    healthManager.WhenMapLoads()
-    --eventsManager.WhenMapLoads()
+    firefightManager.whenMapLoads()
+    healthManager.whenMapLoads()
+    eventsManager.whenMapLoads()
     -- TESTING
     logger:muteDebug(true) -- Mutes debug messages
     pigPen.test()
@@ -46,9 +46,9 @@ end
 local isLoaded = false
 
 function OnTick()
-    firefightManager.EachTick()
-    healthManager.EachTick()
-    --eventsManager.EachTick()
+    firefightManager.eachTick()
+    healthManager.eachTick()
+    eventsManager.eachTick()
     vehiclePositionLoader.vehiclePositionLoader()
     math.randomseed(engine.core.getTickCount())
     dispatchScripts()
