@@ -29,18 +29,23 @@ function OnMapLoad()
     firefightManager.WhenMapLoads()
     healthManager.WhenMapLoads()
     --eventsManager.WhenMapLoads()
-    -- TESTING
     logger:muteDebug(true) -- Mutes debug messages
-    pigPen.test()
-    local namedScenarioVehicles = pigPen.getNamedScenarioVehicles()
-    local testerHog = pigPen.getNamedVehicle(namedScenarioVehicles, "tester")
-    if (testerHog ~= nil) then
-        local testerHogObject = pigPen.spawnNamedVehicle(testerHog)
-        logger:debug("SPAWNED THE TESTER HOG!")
-    end
-    local testerHog2 = pigPen.compactSpawnNamedVehicle("tester")
-    logger:debug("SPAWNED THE TESTER HOG! AGAIN! USING COMPACT FUNCTION!")
-    -- END OF TESTING
+    -- local nestedTable = {
+    --     1,
+    --     "asd",
+    --     {
+    --         3.1,
+    --         "tres",
+    --         {
+    --             "triples",
+    --             4.21
+    --         }
+    --     },
+    --     5,
+    --     "dsa"
+    -- }
+    -- pigPen.recursivePrintTable(nestedTable)
+    local testerHog = pigPen.compactSpawnNamedVehicle("tester") -- Spawn tester hog
 end
 
 local isLoaded = false
