@@ -6,3 +6,5 @@ ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
 -- Implementar los peligros aleatorios.
 -- Pulir detalles con los tags.
 -- Optimizar el código.
+
+-- probando si ya puedo subir cambios lol
