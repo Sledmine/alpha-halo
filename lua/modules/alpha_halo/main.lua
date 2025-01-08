@@ -28,7 +28,7 @@ end
 function OnMapLoad()
     firefightManager.whenMapLoads()
     healthManager.whenMapLoads()
-    -- eventsManager.whenMapLoads()
+    --eventsManager.whenMapLoads()
     -- TESTING
     logger:muteDebug(true) -- Mutes debug messages
     -- local nestedTable = {
@@ -54,7 +54,7 @@ local isLoaded = false
 function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
-    -- eventsManager.eachTick()
+    eventsManager.eachTick()
     vehiclePositionLoader.vehiclePositionLoader()
     math.randomseed(engine.core.getTickCount())
     dispatchScripts()
