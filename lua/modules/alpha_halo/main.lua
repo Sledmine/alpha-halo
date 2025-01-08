@@ -28,9 +28,9 @@ end
 function OnMapLoad()
     firefightManager.whenMapLoads()
     healthManager.whenMapLoads()
-    --eventsManager.whenMapLoads()
+    eventsManager.whenMapLoads()
     -- TESTING
-    logger:muteDebug(true) -- Mutes debug messages
+    logger:muteDebug(not DebugMode) -- Mutes debug messages when DebugMode variable is false.
     -- local nestedTable = {
     --     1,
     --     "asd",
