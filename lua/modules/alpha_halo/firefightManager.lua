@@ -110,6 +110,7 @@ function firefightManager.eachTick()
     if gameIsOn == true then
         -- Actualizamos constantemente el estado de la IA.
         firefightManager.AiCheck()
+        firefightManager.killStagnateAi()
         -- Revisamos constantemente el countdown de las Dropships.
         firefightManager.DropshipCountdown()
         -- Revisamos constantemente si puedes o no subir al Ghost.
@@ -385,6 +386,10 @@ function firefightManager.aiNavpoint()
             hsc.navpointEnemy("(player0)", currentWaveType, 3)
         end
     end
+end
+
+function firefightManager.killStagnateAi()
+    --Here goes super code to kill AI bellow certain z cord on the map.
 end
 
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.

@@ -1,8 +1,6 @@
 ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
 
--- Los Flood aún tienen problemas para bajarse del Spirit apropiadamente.
 -- La creación de vehículos está buggeadísima.
--- Fixear enemigos que se quedan varados en el vacío.
--- Implementar los peligros aleatorios.
--- Pulir detalles con los tags.
--- Optimizar el código.
+-- Arreglar la randomización de los peligros aleatorios.
+-- Crash muy extraño que ocurre cuando los Centinelas aparecen al iniciar un set ???
+-- Implementar calaveras.
