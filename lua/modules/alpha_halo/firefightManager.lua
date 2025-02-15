@@ -1,11 +1,12 @@
 local hsc = require "hsc"
-local healthManager = require "alpha_halo.gameplay_core.healthManager"
 local blam = require "blam"
-local const = require "alpha_halo.constants"
 local engine = Engine
 local balltze = Balltze
 local scriptBlock = require "script".block
+local const = require "alpha_halo.constants"
 local pigPen = require "alpha_halo.pigPen"
+local healthManager = require "alpha_halo.gameplay_core.healthManager"
+local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 
 local firefightManager = {}
 
@@ -98,9 +99,17 @@ function firefightManager.whenMapLoads()
     waveIsOn = true
     currentRound = 1
     currentSet = 1
-    currentWaveType = getRandomTeamWave()
+    currentWaveType = 1 --getRandomTeamWave()
     engine.core.consolePrint("{}", currentWaveType)
     firefightManager.announcer()
+    skullsManager.skulls.mythic = true
+    skullsManager.skullMythic()
+    skullsManager.skulls.catch = true
+    skullsManager.skullCatch()
+    skullsManager.skulls.hunger = true
+    skullsManager.skullHunger()
+    skullsManager.skulls.assasin = true
+    skullsManager.skullAssasin()
     hsc.objectCreateANew("mortar_1")
     hsc.objectCreateANew("mortar_2")
 end
@@ -148,7 +157,7 @@ function firefightManager.WaveProgression()
     if (currentWave < 5) then
         currentWave = currentWave + 1
         if currentSet >= 4 then
-            currentWaveType = getRandomTeamWave()
+            currentWaveType = 1 --getRandomTeamWave()
         end
     elseif currentWave == 5 then
         currentWave = 1

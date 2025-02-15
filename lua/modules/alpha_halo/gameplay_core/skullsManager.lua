@@ -2,6 +2,7 @@ local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
 local skullsManager = {}
+local inspect = require "inspect"
 
 -- These flags are the ones who turn on and off the skulls.
 skullsManager.skulls = {
@@ -22,131 +23,113 @@ local keywords = {
     "odst"
 }
 
--- This get tags on the map. Currently only looking for .actor_variant's.
-local actorVariants = blam.findTagsList("", blam.tagClasses.actorVariant)
-
--- Mythic: Duplicates all AI body & shields vitality. || These and all further skulls are waiting for senior suppervision asap.
-function skullsManager.skullMythic()
-    local actorVariantTagHandle = engine.tag.getTag(0, engine.tag.classes.actorVariant)
-    assert(actorVariantTagHandle, "skullsManager: Failed to get actor_variant tag handle.")
-    local isSkullActor = table.find(keywords, function (keyword) return actorVariantTagHandle.path:includes(keyword) end)
-    assert(isSkullActor, "skullsManager: Failed to get is skull biped.")
-    local actorVariantBodyVitality = actorVariantTagHandle.data.bodyVitality
-    local actorVariantShieldVitality = actorVariantTagHandle.data.shieldVitality
-    if isSkullActor then
-        if skullsManager.skulls.mythic then
-            actorVariantBodyVitality = actorVariantBodyVitality * 2
-            actorVariantShieldVitality = actorVariantShieldVitality * 2
-        else
-            actorVariantBodyVitality = actorVariantBodyVitality * 1
-            actorVariantShieldVitality = actorVariantShieldVitality * 1
-        end
-    end
-end
-
--- Assasin: Makes the AT invisible.
-function skullsManager.skullAssasin()
-    local actorVariantTagHandle = engine.tag.getTag(0, engine.tag.classes.actorVariant)
-    assert(actorVariantTagHandle, "skullsManager: Failed to get actor_variant tag handle.")
-    local isSkullActor = table.find(keywords, function (keyword) return actorVariantTagHandle.path:includes(keyword) end)
-    assert(isSkullActor, "skullsManager: Failed to get is skull biped.")
-    local actorVariantIsInvisible = actorVariantTagHandle.data.flags.activeCamouflage
-    if isSkullActor then
-        if actorVariantIsInvisible == false then -- This should exclude all actor_variants that are invisible by default.
-            if skullsManager.skulls.assasin then
-            actorVariantIsInvisible = true
+-- Mythic: Duplicates all AI body & shields vitality.
+function skullsManager.skullMythic(restore)
+    if skullsManager.skulls.mythic then
+        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
+        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
+            for _, keyword in pairs(keywords) do
+                if tagEntry.path:includes(keyword) then
+                    return true
+                end
+            end
+            return false
+        end)
+        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+            if restore then
+                tagEntry.data.bodyVitality = tagEntry.data.bodyVitality / 2
+                tagEntry.data.shieldVitality = tagEntry.data.shieldVitality / 2
             else
-                actorVariantIsInvisible = false
+                tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 2
+                tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
             end
         end
+        engine.core.consolePrint("Mythic On")
     end
 end
 
 -- Hunger: Makes the AT drop half the ammo.
-function skullsManager.skullHunger()
-    local actorVariantTagHandle = engine.tag.getTag(0, engine.tag.classes.actorVariant)
-    assert(actorVariantTagHandle, "skullsManager: Failed to get actor_variant tag handle.")
-    local isSkullActor = table.find(keywords, function (keyword) return actorVariantTagHandle.path:includes(keyword) end)
-    assert(isSkullActor, "skullsManager: Failed to get is skull biped.")
-    local actorVariantAmmoLeft = actorVariantTagHandle.data.dropWeaponAmmo
-    local actorVariantAmmoLoaded = actorVariantTagHandle.data.dropWeaponLoaded
-    if isSkullActor then
-        if skullsManager.skulls.hunger then
-            actorVariantAmmoLeft = actorVariantAmmoLeft * 0.5
-            actorVariantAmmoLoaded = actorVariantAmmoLoaded * 0.5
-        else
-            actorVariantAmmoLeft = actorVariantAmmoLeft * 1
-            actorVariantAmmoLoaded = actorVariantAmmoLoaded * 1
+function skullsManager.skullHunger(restore)
+    if skullsManager.skulls.assasin then
+        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
+        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
+            for _, keyword in pairs(keywords) do
+                if tagEntry.path:includes(keyword) then
+                    return true
+                end
+            end
+            return false
+        end)
+        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+            if restore then
+                tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 2
+                tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 2
+                tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] * 2
+                tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] * 2
+            else
+                tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] / 2
+                tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] / 2
+                tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] / 2
+                tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] / 2
+            end
         end
+        engine.core.consolePrint("Assasin On")
     end
 end
 
 -- Catch: Makes the AI launch grenades a fuck lot.
-function skullsManager.skullCatch()
-    local actorVariantTagHandle = engine.tag.getTag(0, engine.tag.classes.actorVariant)
-    assert(actorVariantTagHandle, "skullsManager: Failed to get actor_variant tag handle.")
-    local isSkullActor = table.find(keywords, function (keyword) return actorVariantTagHandle.path:includes(keyword) end)
-    assert(isSkullActor, "skullsManager: Failed to get is skull biped.")
-    local grenadeStimulus = actorVariantTagHandle.data.grenadeStimulus.usVisibleTarget -- EngineTagDataActorVariantGrenadeStimulus?
-    local grenadeEnemyRadious = actorVariantTagHandle.data.enemyRadius
-    local grenadeVelocity = actorVariantTagHandle.data.grenadeVelocity
-    local grenadeRanges = actorVariantTagHandle.data.grenadeRanges
-    local collateralDamageRadius = actorVariantTagHandle.data.collateralDamageRadius
-    local grenadeChance = actorVariantTagHandle.data.grenadeChance
-    local grenadeCheckTime = actorVariantTagHandle.data.grenadeCheckTime
-    local encounterGrenadeTimeout = actorVariantTagHandle.data.encounterGrenadeTimeout
-    if isSkullActor then
-        --if skullsManager.skulls.catch then
-        --    grenadeVelocity = grenadeVelocity + 3
-        --    grenadeChance = grenadeChance + 1
-        --else
-        --    grenadeVelocity = grenadeVelocity
-        --    grenadeChance = grenadeChance
-        --end
+function skullsManager.skullCatch(restore)
+    if skullsManager.skulls.catch then
+        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
+        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
+            for _, keyword in pairs(keywords) do
+                if tagEntry.path:includes(keyword) then
+                    return true
+                end
+            end
+            return false
+        end)
+        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+            if restore then
+                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usNever
+            else
+                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usVisibleTarget
+                tagEntry.data.minimumEnemyCount = 1
+                tagEntry.data.enemyRadius = 6
+                tagEntry.data.grenadeVelocity = 5
+                tagEntry.data.grenadeRanges[1] = 4.5
+                tagEntry.data.grenadeRanges[2] = 14
+                tagEntry.data.collateralDamageRadius = 1
+                tagEntry.data.grenadeChance = 1
+                tagEntry.data.grenadeCheckTime = 0.5
+                tagEntry.data.encounterGrenadeTimeout = 0.5
+            end
+        end
+        engine.core.consolePrint("Catch On")
     end
 end
 
----- This is the old Mythic skull made by Sled using blam.
---function skullsManager.blamMythic()
---    for _, tagEntry in pairs(actorVariants) do
---        local actorVariantTag = blam.actorVariant(tagEntry.id)
---        local isSkullActor = table.find(keywords, function (keyword) return actorVariantTag.path:includes(keyword) end)
---        if isSkullActor then
---            if skullsManager.skulls.mytic then
---                actorVariantTag.health = actorVariantTag.health * 2
---            else
---                actorVariantTag.health = actorVariantTag.health * 0
---            end
---        end
---    end
---end
-
----- This is the old Assasin skull made by Sled using blam.
---function skullsManager.assasin()
---    -- Get all current spawned objects in the game
---    local gameObjects = blam.getObjects()
---    for objectId, objectIndex in pairs(gameObjects) do
---        local object = blam.getObject(objectIndex)
---        assert(object)
---        if object.class == blam.objectClasses.biped then
---            local biped = blam.biped(get_object(objectIndex))
---            assert(biped)
---            local tagFromList = table.find(bipeds, function (tag)
---                return biped.tagId == tag.id
---            end)
---            if tagFromList then
---                for _, keyword in pairs(keywords) do
---                    if tagFromList.path:includes(keyword) then
---                        if skullsManager.skulls.assasin and biped.health >= 0 then
---                            biped.invisible = true
---                        else
---                            biped.invisible = false
---                        end
---                    end
---                end
---            end
---        end
---    end
---end
+-- Assasin: Makes the AT invisible.
+function skullsManager.skullAssasin(restore)
+    if skullsManager.skulls.assasin then
+        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
+        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
+            for _, keyword in pairs(keywords) do
+                if tagEntry.path:includes(keyword) then
+                    return true
+                end
+            end
+            return false
+        end)
+        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+            if restore then
+                -- wololo
+            else
+                -- tagEntry.data.flags = MetaEngineTagDataActorVariantFlags.activeCamouflage
+            end
+        end
+        engine.core.consolePrint("Assasin On")
+    end
+end
 
 return skullsManager

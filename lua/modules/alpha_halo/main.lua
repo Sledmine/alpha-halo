@@ -1,6 +1,5 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = false
 local dispatchScripts = require "script".dispatch
 math.randomseed(os.time())
 
