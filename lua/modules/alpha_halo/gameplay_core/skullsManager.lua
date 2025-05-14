@@ -73,7 +73,7 @@ function skullsManager.skullHunger(restore)
                 tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] / 2
             end
         end
-        engine.core.consolePrint("Assasin On")
+        engine.core.consolePrint("Hunger On")
     end
 end
 
