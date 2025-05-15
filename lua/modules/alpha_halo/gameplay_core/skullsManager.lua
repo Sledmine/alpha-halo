@@ -7,9 +7,9 @@ local inspect = require "inspect"
 -- These flags are the ones who turn on and off the skulls.
 skullsManager.skulls = {
     mythic = false,
-    assasin = false,
     hunger = false,
-    catch = false
+    catch = false,
+    assasin = false
 }
 
 -- These keywords help separate the tags needed.
@@ -24,7 +24,7 @@ local keywords = {
 }
 
 -- Mythic: Duplicates all AI body & shields vitality.
-function skullsManager.skullMythic(restore)
+function skullsManager.skullMythic(restore) -- It works!
     if skullsManager.skulls.mythic then
         local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
         local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
@@ -49,8 +49,8 @@ function skullsManager.skullMythic(restore)
 end
 
 -- Hunger: Makes the AT drop half the ammo.
-function skullsManager.skullHunger(restore)
-    if skullsManager.skulls.assasin then
+function skullsManager.skullHunger(restore) -- It works!
+    if skullsManager.skulls.hunger then
         local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
         local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
             for _, keyword in pairs(keywords) do
@@ -91,9 +91,9 @@ function skullsManager.skullCatch(restore)
         end)
         for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
             if restore then
-                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usNever
+                --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usNever
             else
-                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usVisibleTarget
+                --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usVisibleTarget
                 tagEntry.data.minimumEnemyCount = 1
                 tagEntry.data.enemyRadius = 6
                 tagEntry.data.grenadeVelocity = 5
@@ -103,6 +103,8 @@ function skullsManager.skullCatch(restore)
                 tagEntry.data.grenadeChance = 1
                 tagEntry.data.grenadeCheckTime = 0.5
                 tagEntry.data.encounterGrenadeTimeout = 0.5
+                tagEntry.data.grenadeCount[1] = tagEntry.data.grenadeCount[1] + 1000
+                tagEntry.data.grenadeCount[2] = tagEntry.data.grenadeCount[2] + 1000
             end
         end
         engine.core.consolePrint("Catch On")
@@ -125,7 +127,7 @@ function skullsManager.skullAssasin(restore)
             if restore then
                 -- wololo
             else
-                -- tagEntry.data.flags = MetaEngineTagDataActorVariantFlags.activeCamouflage
+                -- wololo
             end
         end
         engine.core.consolePrint("Assasin On")

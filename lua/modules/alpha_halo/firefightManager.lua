@@ -102,14 +102,14 @@ function firefightManager.whenMapLoads()
     currentWaveType = 1 --getRandomTeamWave()
     engine.core.consolePrint("{}", currentWaveType)
     firefightManager.announcer()
-    skullsManager.skulls.mythic = true
-    skullsManager.skullMythic()
+    --skullsManager.skulls.mythic = true
+    --skullsManager.skullMythic()
+    --skullsManager.skulls.hunger = true
+    --skullsManager.skullHunger()
     skullsManager.skulls.catch = true
     skullsManager.skullCatch()
-    skullsManager.skulls.hunger = true
-    skullsManager.skullHunger()
-    skullsManager.skulls.assasin = true
-    skullsManager.skullAssasin()
+    --skullsManager.skulls.assasin = true
+    --skullsManager.skullAssasin()
     hsc.objectCreateANew("mortar_1")
     hsc.objectCreateANew("mortar_2")
 end

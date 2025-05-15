@@ -173,10 +173,10 @@ Engine.tag.actorVariantGrenadeStimulus = {}
 ---@field grenadeCheckTime number 
 ---@field encounterGrenadeTimeout number 
 ---@field equipment MetaEngineTagDependency 
----@field grenadeCount integer 
+---@field grenadeCount number 
 ---@field dontDropGrenadesChance number 
 ---@field dropWeaponLoaded number 
----@field dropWeaponAmmo integer 
+---@field dropWeaponAmmo number 
 ---@field bodyVitality number 
 ---@field shieldVitality number 
 ---@field shieldSappingRadius number 
