@@ -10,8 +10,8 @@ local firefightManager = require "alpha_halo.firefightManager"
 local healthManager = require "alpha_halo.gameplay_core.healthManager"
 local eventsManager = require "alpha_halo.gameplay_core.eventsManager"
 local vehiclePositionLoader = require "alpha_halo.core"
---local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
-local pigPen = require "alpha_halo.pigPen" -- This module contains the functions to spawn named vehicles dynamically
+local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+--local pigPen = require "alpha_halo.pigPen" -- This module contains the functions to spawn named vehicles dynamically
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
 -- TRUST ME, I'M SLED DA FOKIN GOAT
@@ -28,6 +28,7 @@ function OnMapLoad()
     firefightManager.whenMapLoads()
     healthManager.whenMapLoads()
     eventsManager.whenMapLoads()
+    skullsManager.whenMapLoads()
     -- TESTING
     logger:muteDebug(not DebugMode) -- Mutes debug messages when DebugMode variable is false.
     -- local nestedTable = {
@@ -45,7 +46,7 @@ function OnMapLoad()
     --     "dsa"
     -- }
     -- pigPen.recursivePrintTable(nestedTable)
-    local testerHog = pigPen.compactSpawnNamedVehicle("tester") -- Spawn tester hog
+    --local testerHog = pigPen.compactSpawnNamedVehicle("tester") -- Spawn tester hog
 end
 
 local isLoaded = false

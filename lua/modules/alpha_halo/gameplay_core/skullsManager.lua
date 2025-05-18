@@ -4,6 +4,17 @@ local balltze = Balltze
 local skullsManager = {}
 local inspect = require "inspect"
 
+function skullsManager.whenMapLoads()
+        --skullsManager.skulls.mythic = true
+    --skullsManager.skullMythic()
+    --skullsManager.skulls.hunger = true
+    --skullsManager.skullHunger()
+    skullsManager.skulls.catch = true
+    skullsManager.skullCatch()
+    --skullsManager.skulls.assasin = true
+    --skullsManager.skullAssasin()
+end
+
 -- These flags are the ones who turn on and off the skulls.
 skullsManager.skulls = {
     mythic = false,

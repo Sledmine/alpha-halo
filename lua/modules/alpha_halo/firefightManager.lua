@@ -88,7 +88,7 @@ end
 local function getRandomTeamWave()
     local randomTeam = math.random(1, 2)
     local team = randomTeam == 1 and "Covenant_Wave" or "Flood_Wave"
-    logger:debug("Random team wave: {}", team)
+    --logger:debug("Random team wave: {}", team)
     return team
 end
 
@@ -99,17 +99,9 @@ function firefightManager.whenMapLoads()
     waveIsOn = true
     currentRound = 1
     currentSet = 1
-    currentWaveType = 1 --getRandomTeamWave()
-    engine.core.consolePrint("{}", currentWaveType)
+    currentWaveType = getRandomTeamWave()
+    --engine.core.consolePrint("{}", currentWaveType)
     firefightManager.announcer()
-    --skullsManager.skulls.mythic = true
-    --skullsManager.skullMythic()
-    --skullsManager.skulls.hunger = true
-    --skullsManager.skullHunger()
-    skullsManager.skulls.catch = true
-    skullsManager.skullCatch()
-    --skullsManager.skulls.assasin = true
-    --skullsManager.skullAssasin()
     hsc.objectCreateANew("mortar_1")
     hsc.objectCreateANew("mortar_2")
 end
@@ -208,7 +200,7 @@ function firefightManager.WaveProgression()
             sleep(270)
             playSound(const.sounds.roundStart.handle)
         end
-    end)()
+    end)
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
@@ -349,6 +341,7 @@ function firefightManager.GameAssists()
     -- TODO: create a replacement function to spawn assist_warthog dynamically
     hsc.objectCreateANewContaining("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
+    randomGhost = math.random (1, 3)
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
     -- hsc.objectCreateANew(selectedAssistGhost)
     -- Ghost is now spawned dynamically
