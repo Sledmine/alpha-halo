@@ -81,9 +81,9 @@ Engine.tag.actorVariantTrajectoryType = {}
 ---| EngineTagDataActorVariantGrenadeStimulusSeekCover
 
 ---@class EngineTagDataActorVariantGrenadeStimulusTable 
----@field usNever EngineTagDataActorVariantGrenadeStimulusNever
----@field usVisibleTarget EngineTagDataActorVariantGrenadeStimulusVisibleTarget
----@field usSeekCover EngineTagDataActorVariantGrenadeStimulusSeekCover
+---@field never EngineTagDataActorVariantGrenadeStimulusNever
+---@field visibleTarget EngineTagDataActorVariantGrenadeStimulusVisibleTarget
+---@field seekCover EngineTagDataActorVariantGrenadeStimulusSeekCover
 Engine.tag.actorVariantGrenadeStimulus = {} 
 
 ---@class MetaEngineTagDataActorVariantFlags 

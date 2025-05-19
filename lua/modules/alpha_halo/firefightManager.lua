@@ -22,11 +22,12 @@ local waveTemplate = "Wave %s, Round %s, Set %s."
 local actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
 local bossWave = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveCooldown
-local waveCooldownTimer = 30
+local waveCooldownTimer = 300
+local roundCooldownTimer = 330
 local waveCooldownStart = false
 local waveCooldownCounter = 0
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Squad.
-local randomTeamIndex = math.random(1, 2)
+local randomTeamIndex
 local currentTier = 1
 local randomSquad = math.random(1, 6)
 local currentWaveType
@@ -75,35 +76,48 @@ local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
 local bossWaveCooldown = false
 local playSound = engine.userInterface.playSound
 
-function firefightManager.announcer()
-    scriptBlock(function (sleep, sleepUntil)
-        if currentSet >= 1 then
-            sleep(270)
-            playSound(const.sounds.setStart.handle)
-            --console_out(actualWave)
-        end
-    end)()
-end
-
 local function getRandomTeamWave()
     local randomTeam = math.random(1, 2)
     local team = randomTeam == 1 and "Covenant_Wave" or "Flood_Wave"
     --logger:debug("Random team wave: {}", team)
+    if team == "Covenant_Wave" then
+        randomTeamIndex = 1
+        currentSupportType = "Covenant_Support"
+    elseif team == "Flood_Wave" then
+        randomTeamIndex = 2
+        currentSupportType = "Flood_Support"
+    end
     return team
+end
+
+-- Make current enemies to be Covenant.
+function firefightManager.debugCovenantTeam()
+    randomTeamIndex = 1
+    currentWaveType = "Covenant_Wave"
+    currentSupportType = "Covenant_Support"
+end
+
+-- Make current enemies to be Flood.
+function firefightManager.debugFloodTeam()
+    randomTeamIndex = 1
+    currentWaveType = "Covenant_Wave"
+    currentSupportType = "Covenant_Support"
 end
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
 function firefightManager.whenMapLoads()
     console_out("Welcome to Alpha Firefight.")
     gameIsOn = true
-    waveIsOn = true
     currentRound = 1
     currentSet = 1
+    firefightManager.GameAssists()
     currentWaveType = getRandomTeamWave()
-    --engine.core.consolePrint("{}", currentWaveType)
+    firefightManager.WaveProgression()
+    waveCooldownStart = true
+    waveCooldownCounter = roundCooldownTimer
     firefightManager.announcer()
-    hsc.objectCreateANew("mortar_1")
-    hsc.objectCreateANew("mortar_2")
+    --hsc.objectCreateANew("mortar_1")
+    --hsc.objectCreateANew("mortar_2")
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -123,10 +137,13 @@ function firefightManager.eachTick()
             if dropshipsLeft > 0 then
                 firefightManager.DropshipDeployer()
             elseif bossWave == false and waveLivingCount <= 4 then
-                console_out("Reinforcements")
+                if currentWave > 0 then
+                    console_out("Reinforcements!")
+                    playSound(const.sounds.reinforcements.handle)
+                end
+                waveIsOn = false
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
-                waveIsOn = false
                 firefightManager.WaveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 console_out("Round Complete!")
@@ -134,7 +151,7 @@ function firefightManager.eachTick()
                 waveIsOn = false
                 bossWaveCooldown = true
                 waveCooldownStart = true
-                waveCooldownCounter = waveCooldownTimer
+                waveCooldownCounter = roundCooldownTimer
                 firefightManager.WaveProgression()
             end
         else
@@ -145,14 +162,18 @@ end
 
 -- Esta función se llama cuando pasas de oleada. Progresa el juego y realiza cambios en base a esto.
 function firefightManager.WaveProgression()
-    -- Si la Wave es menor que 5, avanaz una. Si es 5, se reinicia y Set avanza una.
+    -- Si la Wave es menor que 5, avanaz una. Si es 5, se reinicia y Round avanza una.
     if (currentWave < 5) then
         currentWave = currentWave + 1
         if currentSet >= 4 then
-            currentWaveType = 1 --getRandomTeamWave()
+            currentWaveType = getRandomTeamWave()
         end
     elseif currentWave == 5 then
         currentWave = 1
+        -- Si la ronda acaba de comenzar, spawneamos las asistencias y randomizamos el team.
+        firefightManager.GameAssists()
+        currentWaveType = getRandomTeamWave()
+        -- Si el Tier es menor que 3, avanza uno.
         if currentTier < 3 then
             currentTier = currentTier + 1
         end
@@ -164,22 +185,6 @@ function firefightManager.WaveProgression()
             currentSet = currentSet + 1
         end
     end
-    -- Si la ronda acaba de comenzar, randomizamos el team y spawneamos las asistencias.
-    if currentWave == 1 then
-        -- No apaguen esto.
-        if currentSet < 4 then
-            if randomTeamIndex == 2 then
-                randomTeamIndex = 1
-                currentWaveType = "Covenant_Wave"
-                currentSupportType = "Covenant_Support"
-            elseif randomTeamIndex == 1 then
-                randomTeamIndex = 2
-                currentWaveType = "Flood_Wave"
-                currentSupportType = "Flood_Support"
-            end
-        end
-        firefightManager.GameAssists()
-    end
     -- Si la ronda es 5, entonces es una Boss Wave.
     if currentWave == 5 then
         bossWave = true
@@ -187,20 +192,23 @@ function firefightManager.WaveProgression()
     else
         bossWave = false
     end
+    -- Recibimos el nombre actual de nuestra oleada.
     actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
     -- Aquí llamamos la función de los Sentinelas.
     firefightManager.SentinelChance()
-    if currentWave > 1 then
-        engine.userInterface.playSound(const.sounds.reinforcements.handle)
-    end
-    scriptBlock(function (sleep, sleepUntil)
-        if currentWave == 1 and currentRound > 1 then
-            --sleep(10)
-            --playSound(const.sounds.roundComplete.handle)
-            sleep(270)
-            playSound(const.sounds.roundStart.handle)
-        end
-    end)
+    ---- Aquí Mark spawneaba los sonidos.
+    ---- Reinforcements ahora se maneja debajo de waveIsOn, y roundStart y setStart se manejan en el waveCooldown.
+    --if currentWave > 1 then
+    --    engine.userInterface.playSound(const.sounds.reinforcements.handle)
+    --end
+    --scriptBlock(function (sleep, sleepUntil)
+    --    if currentWave == 1 and currentRound == 1 then
+    --        --sleep(10)
+    --        --playSound(const.sounds.roundComplete.handle)
+    --        sleep(270)
+    --        playSound(const.sounds.roundStart.handle)
+    --    end
+    --end)
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
@@ -214,6 +222,11 @@ function firefightManager.WaveCooldown()
         dropshipsLeft = dropshipsAsigned
         waveCooldownStart = false
         waveCooldownCounter = 0
+        if currentWave == 1 and currentRound == 1 then
+            playSound(const.sounds.setStart.handle)
+        elseif currentWave == 1 and currentRound > 1 then
+            playSound(const.sounds.roundStart.handle)
+        end
     end
 end
 

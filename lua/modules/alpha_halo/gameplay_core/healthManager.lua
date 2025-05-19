@@ -37,7 +37,7 @@ function healthManager.eachTick()
     end
 end
 
---- Regenerate players health on low shield using game ticks
+--- Regenerate players health using game ticks
 ---@param playerIndex? number
 function healthManager.healthRegen(playerIndex)
     if playerIndex then
@@ -72,7 +72,7 @@ function healthManager.healthRegen(playerIndex)
     end
 end
 
--- Le ponemos un límite al máximo health regen, según el estado del jugador.
+-- We cap max health regen according to current player's health.
 function healthManager.maxHealthCap()
     if player.health >= 0.655 then
         maxHealth = 1
@@ -83,7 +83,7 @@ function healthManager.maxHealthCap()
     end
 end
 
--- El jugador ha perdido una vida. Vaya fracasado.
+-- A player has lost a life. What a looser.
 function healthManager.tryingToRespawn()
     if waitingForRespawn == true and player then
         waitingForRespawn = false
@@ -111,7 +111,7 @@ function healthManager.tryingToRespawn()
     end
 end
 
--- Esta función es llamada desde otros modulos cuando ganas una vida.
+-- This function is called from other modules to add a live to the player.
 function healthManager.livesGained()
     scriptBlock(function (sleep, sleepUntil)
         console_out("Lives added!")
@@ -124,7 +124,7 @@ function healthManager.livesGained()
     end
 end
 
---- Regenerate a designated biped health on low shield using game ticks on singleplayer. CURRENTLY NOT WORKING.
+-- Regenerate a designated biped health using game ticks on singleplayer. CURRENTLY NOT WORKING.
 function healthManager.regenerateAllyHealth()
     for objectId, index in pairs(blam.getObjects()) do
         local bipedObject = blam.biped(get_object(objectId))

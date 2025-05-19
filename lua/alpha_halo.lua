@@ -5,6 +5,9 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
+local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+--local firefightManager = require "alpha_halo.firefightManager"
+
 --local main
 local loadWhenIn = {
     "alpha_halo"
@@ -56,10 +59,29 @@ end
 local main
 
 function PluginLoad()
-    logger = balltze.logger.createLogger("Alpha Halo")
+    logger = balltze.logger.createLogger("Alpha Halo") -- this means Alpha Firefight
     logger:muteDebug(not DebugMode)
-
+    logger:muteIngame(not DebugMode)
     loadChimeraCompatibility()
+
+    -- Commands for Alpha Firefight
+        balltze.command.registerCommand("turn_on_skulls", "debug", "description", nil, false, 0, 0, true,
+            false, function(args)
+                skullsManager.turnOnSkulls()
+        return true
+    end)
+
+    balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,
+            false, function(args)
+                --firefightManager.debugCovenantTeam()
+        return true
+    end)
+
+    balltze.command.registerCommand("flood_team", "debug", "description", nil, false, 0, 0, true,
+            false, function(args)
+                --firefightManager.debugFloodTeam()
+        return true
+    end)
 
     balltze.event.tick.subscribe(function(event)
         if event.time == "before" then

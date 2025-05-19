@@ -33,7 +33,7 @@ constants.sounds = {
 }
 
 constants.bipeds = {
-    odstAllyTag = findTags("alpha_firefight\\characters\\human\\marine\\marine_odst\\odst", engine.tag.classes.biped)[1]
+    odstAllyTag = findTags("mrchromed\\halo_2\\characters\\marine\\odst\\odst_h2", engine.tag.classes.biped)[1]
 }
 
 constants.vehicles = {

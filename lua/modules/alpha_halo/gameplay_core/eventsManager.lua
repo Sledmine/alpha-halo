@@ -93,11 +93,10 @@ function eventsManager.aiCheck()
     bansheeLivingCount = hsc.aiLivingCount("Covenant_Banshees", "banshees_living_count")
     snipersLivingCount = hsc.aiLivingCount("Covenant_Snipers", "snipers_living_count")
     --mortarLivingCount = hsc.aiLivingCount("Covenant_Mortars", "mortars_living_count")
-    --hsc.aiMagicallySeePlayers("Covenant_Banshees")
+    hsc.aiMagicallySeePlayers("Covenant_Banshees")
     hsc.aiMagicallySeePlayers("Covenant_Snipers")
-    hsc.aiAction(1, "Covenant_Snipers")
     --hsc.aiMagicallySeePlayers("Covenant_Mortars")
-    --hsc.aiAction(1, "Covenant_Mortars")
+    hsc.aiAction(1, "Covenant_Snipers")
 end
 
 return eventsManager

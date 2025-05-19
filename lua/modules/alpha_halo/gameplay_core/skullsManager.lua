@@ -4,15 +4,22 @@ local balltze = Balltze
 local skullsManager = {}
 local inspect = require "inspect"
 
+local gameIsOn = false
 function skullsManager.whenMapLoads()
+    gameIsOn = true
+end
+
+function skullsManager.turnOnSkulls()
+    if gameIsOn then
         --skullsManager.skulls.mythic = true
-    --skullsManager.skullMythic()
-    --skullsManager.skulls.hunger = true
-    --skullsManager.skullHunger()
-    skullsManager.skulls.catch = true
-    skullsManager.skullCatch()
-    --skullsManager.skulls.assasin = true
-    --skullsManager.skullAssasin()
+        --skullsManager.skullMythic()
+        --skullsManager.skulls.hunger = true
+        --skullsManager.skullHunger()
+        skullsManager.skulls.catch = true
+        skullsManager.skullCatch()
+        --skullsManager.skulls.assasin = true
+        --skullsManager.skullAssasin()
+    end
 end
 
 -- These flags are the ones who turn on and off the skulls.
@@ -34,19 +41,25 @@ local keywords = {
     "odst"
 }
 
+-- We look for all actor_variants in the map.
+function skullsManager.actorVariantsFiltered()
+    local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
+    assert(actorVariantTagEntries)
+    local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
+        for _, keyword in pairs(keywords) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    return actorVariantEntriesFiltered
+end
+
 -- Mythic: Duplicates all AI body & shields vitality.
 function skullsManager.skullMythic(restore) -- It works!
     if skullsManager.skulls.mythic then
-        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
-        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
-            for _, keyword in pairs(keywords) do
-                if tagEntry.path:includes(keyword) then
-                    return true
-                end
-            end
-            return false
-        end)
-        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if restore then
                 tagEntry.data.bodyVitality = tagEntry.data.bodyVitality / 2
                 tagEntry.data.shieldVitality = tagEntry.data.shieldVitality / 2
@@ -59,19 +72,10 @@ function skullsManager.skullMythic(restore) -- It works!
     end
 end
 
--- Hunger: Makes the AT drop half the ammo.
+-- Hunger: Makes the AI drop half the ammo.
 function skullsManager.skullHunger(restore) -- It works!
     if skullsManager.skulls.hunger then
-        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
-        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
-            for _, keyword in pairs(keywords) do
-                if tagEntry.path:includes(keyword) then
-                    return true
-                end
-            end
-            return false
-        end)
-        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if restore then
                 tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 2
                 tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 2
@@ -91,20 +95,13 @@ end
 -- Catch: Makes the AI launch grenades a fuck lot.
 function skullsManager.skullCatch(restore)
     if skullsManager.skulls.catch then
-        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
-        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
-            for _, keyword in pairs(keywords) do
-                if tagEntry.path:includes(keyword) then
-                    return true
-                end
-            end
-            return false
-        end)
-        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if restore then
-                --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usNever
+                -- Hay que encontrar la forma de almacenar la data de las casillas para poder revertir el valor.
             else
-                --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.usVisibleTarget
+                tagEntry.data.grenadeStimulus = 1
+                tagEntry.data.grenadeCount[1] = tagEntry.data.grenadeCount[1] + 1000
+                tagEntry.data.grenadeCount[2] = tagEntry.data.grenadeCount[2] + 1000
                 tagEntry.data.minimumEnemyCount = 1
                 tagEntry.data.enemyRadius = 6
                 tagEntry.data.grenadeVelocity = 5
@@ -114,31 +111,20 @@ function skullsManager.skullCatch(restore)
                 tagEntry.data.grenadeChance = 1
                 tagEntry.data.grenadeCheckTime = 0.5
                 tagEntry.data.encounterGrenadeTimeout = 0.5
-                tagEntry.data.grenadeCount[1] = tagEntry.data.grenadeCount[1] + 1000
-                tagEntry.data.grenadeCount[2] = tagEntry.data.grenadeCount[2] + 1000
             end
         end
         engine.core.consolePrint("Catch On")
     end
 end
 
--- Assasin: Makes the AT invisible.
+-- Assasin: Makes the AI invisible.
 function skullsManager.skullAssasin(restore)
     if skullsManager.skulls.assasin then
-        local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
-        local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function (tagEntry)
-            for _, keyword in pairs(keywords) do
-                if tagEntry.path:includes(keyword) then
-                    return true
-                end
-            end
-            return false
-        end)
-        for index, tagEntry in ipairs(actorVariantEntriesFiltered) do
+        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if restore then
-                -- wololo
+                tagEntry.data.flags:activeCamouflage(false)
             else
-                -- wololo
+                tagEntry.data.flags:activeCamouflage(true)
             end
         end
         engine.core.consolePrint("Assasin On")
