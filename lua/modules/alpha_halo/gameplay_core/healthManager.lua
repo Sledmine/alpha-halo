@@ -24,17 +24,21 @@ local actualLivesLeft = livesLeftTemplate:format(playerLives)
 local playSound = engine.userInterface.playSound
 
 -- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
-function healthManager.whenMapLoads()
-    gameIsOn = true
-end
+--function healthManager.whenMapLoads()
+--    gameIsOn = true
+--end
 
 --- Cada tick. Aquí llamamos al resto de funciones si inició el juego & existe el jugador.
 function healthManager.eachTick()
-    if gameIsOn == true then
-        healthManager.healthRegen()
-        healthManager.tryingToRespawn()
-        healthManager.regenerateAllyHealth()
-    end
+    --if gameIsOn == true then
+    --    healthManager.healthRegen()
+    --    healthManager.tryingToRespawn()
+    --    healthManager.regenerateAllyHealth()
+    --end
+    -- We have to make sure the map has loaded and the objects exist before doing all this.
+    healthManager.healthRegen()
+    healthManager.tryingToRespawn()
+    healthManager.regenerateAllyHealth()
 end
 
 --- Regenerate players health using game ticks
@@ -65,7 +69,7 @@ function healthManager.healthRegen(playerIndex)
             waitingForRespawn = true
         end
         if playerLives == 0 then
-            gameIsOn = false
+            --gameIsOn = false
             console_out("Thanks for playing.")
             execute_script("sv_end_game")
         end
@@ -124,7 +128,7 @@ function healthManager.livesGained()
     end
 end
 
--- Regenerate a designated biped health using game ticks on singleplayer. CURRENTLY NOT WORKING.
+-- Regenerate a designated biped health using game ticks on singleplayer.
 function healthManager.regenerateAllyHealth()
     for objectId, index in pairs(blam.getObjects()) do
         local bipedObject = blam.biped(get_object(objectId))

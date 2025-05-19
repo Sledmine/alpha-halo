@@ -4,22 +4,15 @@ local balltze = Balltze
 local skullsManager = {}
 local inspect = require "inspect"
 
-local gameIsOn = false
-function skullsManager.whenMapLoads()
-    gameIsOn = true
-end
-
 function skullsManager.turnOnSkulls()
-    if gameIsOn then
-        --skullsManager.skulls.mythic = true
-        --skullsManager.skullMythic()
-        --skullsManager.skulls.hunger = true
-        --skullsManager.skullHunger()
-        skullsManager.skulls.catch = true
-        skullsManager.skullCatch()
-        --skullsManager.skulls.assasin = true
-        --skullsManager.skullAssasin()
-    end
+    --skullsManager.skulls.mythic = true
+    --skullsManager.skullMythic()
+    --skullsManager.skulls.hunger = true
+    --skullsManager.skullHunger()
+    skullsManager.skulls.catch = true
+    skullsManager.skullCatch()
+    --skullsManager.skulls.assasin = true
+    --skullsManager.skullAssasin()
 end
 
 -- These flags are the ones who turn on and off the skulls.
@@ -99,18 +92,19 @@ function skullsManager.skullCatch(restore)
             if restore then
                 -- Hay que encontrar la forma de almacenar la data de las casillas para poder revertir el valor.
             else
-                tagEntry.data.grenadeStimulus = 1
-                tagEntry.data.grenadeCount[1] = tagEntry.data.grenadeCount[1] + 1000
-                tagEntry.data.grenadeCount[2] = tagEntry.data.grenadeCount[2] + 1000
+                --tagEntry.data.grenadeStimulus = 1
+                --tagEntry.data.grenadeCount[1] = tagEntry.data.grenadeCount[1] + 100
+                --tagEntry.data.grenadeCount[2] = tagEntry.data.grenadeCount[2] + 100
                 tagEntry.data.minimumEnemyCount = 1
                 tagEntry.data.enemyRadius = 6
-                tagEntry.data.grenadeVelocity = 5
-                tagEntry.data.grenadeRanges[1] = 4.5
-                tagEntry.data.grenadeRanges[2] = 14
-                tagEntry.data.collateralDamageRadius = 1
+                --tagEntry.data.grenadeVelocity = 5
+                tagEntry.data.grenadeRanges[1] = 2.8
+                tagEntry.data.grenadeRanges[2] = 12
+                tagEntry.data.collateralDamageRadius = 2.5
                 tagEntry.data.grenadeChance = 1
                 tagEntry.data.grenadeCheckTime = 0.5
-                tagEntry.data.encounterGrenadeTimeout = 0.5
+                tagEntry.data.encounterGrenadeTimeout = 1
+                tagEntry.data.flags:hasUnlimitedGrenades(true)
             end
         end
         engine.core.consolePrint("Catch On")

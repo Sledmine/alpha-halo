@@ -77,13 +77,14 @@ local bossWaveCooldown = false
 local playSound = engine.userInterface.playSound
 
 local function getRandomTeamWave()
-    local randomTeam = math.random(1, 2)
-    local team = randomTeam == 1 and "Covenant_Wave" or "Flood_Wave"
-    --logger:debug("Random team wave: {}", team)
-    if team == "Covenant_Wave" then
+    local randomTeam = math.random(1) -- This should be (1, 2)
+    local team
+    if randomTeam == 1 then
+        team = "Covenant_Wave"
         randomTeamIndex = 1
         currentSupportType = "Covenant_Support"
-    elseif team == "Flood_Wave" then
+    elseif randomTeam == 2 then
+        team = "Flood_Wave"
         randomTeamIndex = 2
         currentSupportType = "Flood_Support"
     end
