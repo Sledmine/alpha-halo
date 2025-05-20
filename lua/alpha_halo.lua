@@ -65,11 +65,18 @@ function PluginLoad()
     loadChimeraCompatibility()
 
     -- Commands for Alpha Firefight
-        balltze.command.registerCommand("turn_on_skulls", "debug", "description", nil, false, 0, 0, true,
+    balltze.command.registerCommand("turn_on_skulls", "debug", "description", nil, false, 0, 0, true,
             false, function(args)
                 skullsManager.turnOnSkulls()
         return true
     end)
+
+    --balltze.command.registerCommand("turn_off_skulls", "debug", "description", nil, false, 0, 0, true,
+    --        false, function(args)
+    --            skullsManager.turnOffSkulls()
+    --    return true
+    --end)
+
 
     balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,
             false, function(args)

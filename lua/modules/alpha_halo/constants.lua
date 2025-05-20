@@ -42,4 +42,8 @@ constants.vehicles = {
     ghostNeedler = blam.findTag("gdd_ghost_needler", tagClasses.vehicle).path
 }
 
+constants.effect = {
+    plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion", engine.tag.classes.effect)[1]
+}
+
 return constants
