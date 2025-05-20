@@ -37,7 +37,8 @@ local keywords = {
     "jackal",
     "hunter",
     "sentinel",
-    "odst"
+    "odst",
+    "marine"
 }
 
 -- We look for all actor_variants in the map.
@@ -179,28 +180,42 @@ function skullsManager.collisionsFiltered()
     return modelCollisionEntriesFiltered
 end
 
+-- Knucklehead: Multiplies damage to the head x5. Divides damage to the body by /5.
 function skullsManager.skullKnucklehead(restore)
     if skullsManager.skulls.knuckehead then
         for index, tagEntry in ipairs(skullsManager.collisionsFiltered()) do
             for i = 1, tagEntry.data.materials.count do
                 local material = tagEntry.data.materials.elements[i]
+                local shield = material.shieldDamageMultiplier
+                local body = material.bodyDamageMultiplier
                 if restore then
-                    if material.flags:head(true) then
-                        material.shieldDamageMultiplier = material.shieldDamageMultiplier / 5
-                        material.bodyDamageMultiplier = material.bodyDamageMultiplier / 5
+                    if material.flags:head() then
+                        if shield > 0 then
+                            shield = shield / 5
+                        end
+                        if body > 0 then
+                            body = body / 5
+                        end
                     else
-                        material.shieldDamageMultiplier = material.shieldDamageMultiplier * 5
-                        material.bodyDamageMultiplier = material.bodyDamageMultiplier * 5
+                        shield = shield * 5
+                        body = body * 5
                     end
                 else
-                    if material.flags:head(true) then
-                        material.shieldDamageMultiplier = material.shieldDamageMultiplier * 5
-                        material.bodyDamageMultiplier = material.bodyDamageMultiplier * 5
+                    if material.flags:head() then
+                        shield = shield * 5
+                        body = body * 5
                     else
-                        material.shieldDamageMultiplier = material.shieldDamageMultiplier / 5
-                        material.bodyDamageMultiplier = material.bodyDamageMultiplier / 5
+                        if shield > 0 then
+                            shield = shield / 500
+                        end
+                        if body > 0 then
+                            body = body / 500
+                        end
+                        console_out(shield)
                     end
                 end
+                material.shieldDamageMultiplier = shield
+                material.bodyDamageMultiplier = body
             end
         end
         engine.core.consolePrint("Kucklehead On")
