@@ -13,8 +13,10 @@ function skullsManager.turnOnSkulls()
     --skullsManager.skullCatch()
     --skullsManager.skulls.assasin = true
     --skullsManager.skullAssasin()
-    skullsManager.skulls.berserk = true
-    skullsManager.skullBerserk()
+    --skullsManager.skulls.berserk = true
+    --skullsManager.skullBerserk()
+    skullsManager.skulls.knuckehead = true
+    skullsManager.skullKnucklehead()
 end
 
 -- These flags are the ones who turn on and off the skulls.
@@ -23,7 +25,8 @@ skullsManager.skulls = {
     hunger = false,
     catch = false,
     assasin = false,
-    berserk = false
+    berserk = false,
+    knuckehead = false
 }
 
 -- These keywords help separate the tags needed.
@@ -116,10 +119,12 @@ end
 function skullsManager.skullAssasin(restore)
     if skullsManager.skulls.assasin then
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
-            if restore then
-                tagEntry.data.flags:activeCamouflage(false)
-            else
-                tagEntry.data.flags:activeCamouflage(true)
+            if not tagEntry.path:includes("stealth") then
+                if restore then
+                    tagEntry.data.flags:activeCamouflage(false)
+                else
+                    tagEntry.data.flags:activeCamouflage(true)
+                end
             end
         end
         engine.core.consolePrint("Assasin On")
@@ -141,9 +146,9 @@ function skullsManager.actorsFiltered()
     return actorEntriesFiltered
 end
 
--- Berserker: Makes the AI enter in constant berserker state.
+-- Berserk: Makes the AI enter in constant Berserk state.
 function skullsManager.skullBerserk(restore)
-    if skullsManager.skulls.berserker then
+    if skullsManager.skulls.berserk then
         for index, tagEntry in ipairs(skullsManager.actorsFiltered()) do
             if restore then
                 tagEntry.data.flags:alwaysChargeAtEnemies(false)
@@ -155,7 +160,50 @@ function skullsManager.skullBerserk(restore)
                 tagEntry.data.flags:alwaysChargeInAttackingMode(true)
             end
         end
-        engine.core.consolePrint("Berserker On")
+        engine.core.consolePrint("Berserk On")
+    end
+end
+
+-- We look for all actors in the map.
+function skullsManager.collisionsFiltered()
+    local modelCollisionTagEntries = engine.tag.findTags("", engine.tag.classes.modelCollisionGeometry)
+    assert(modelCollisionTagEntries)
+    local modelCollisionEntriesFiltered = table.filter(modelCollisionTagEntries, function (tagEntry)
+        for _, keyword in pairs(keywords) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    return modelCollisionEntriesFiltered
+end
+
+function skullsManager.skullKnucklehead(restore)
+    if skullsManager.skulls.knuckehead then
+        for index, tagEntry in ipairs(skullsManager.collisionsFiltered()) do
+            for i = 1, tagEntry.data.materials.count do
+                local material = tagEntry.data.materials.elements[i]
+                if restore then
+                    if material.flags:head(true) then
+                        material.shieldDamageMultiplier = material.shieldDamageMultiplier / 5
+                        material.bodyDamageMultiplier = material.bodyDamageMultiplier / 5
+                    else
+                        material.shieldDamageMultiplier = material.shieldDamageMultiplier * 5
+                        material.bodyDamageMultiplier = material.bodyDamageMultiplier * 5
+                    end
+                else
+                    if material.flags:head(true) then
+                        material.shieldDamageMultiplier = material.shieldDamageMultiplier * 5
+                        material.bodyDamageMultiplier = material.bodyDamageMultiplier * 5
+                    else
+                        material.shieldDamageMultiplier = material.shieldDamageMultiplier / 5
+                        material.bodyDamageMultiplier = material.bodyDamageMultiplier / 5
+                    end
+                end
+            end
+        end
+        engine.core.consolePrint("Kucklehead On")
     end
 end
 

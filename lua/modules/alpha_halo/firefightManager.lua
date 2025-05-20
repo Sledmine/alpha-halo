@@ -116,7 +116,6 @@ function firefightManager.whenMapLoads()
     firefightManager.WaveProgression()
     waveCooldownStart = true
     waveCooldownCounter = roundCooldownTimer
-    firefightManager.announcer()
     --hsc.objectCreateANew("mortar_1")
     --hsc.objectCreateANew("mortar_2")
 end
