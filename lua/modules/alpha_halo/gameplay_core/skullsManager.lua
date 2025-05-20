@@ -9,14 +9,14 @@ function skullsManager.turnOnSkulls()
     --skullsManager.skullMythic()
     --skullsManager.skulls.hunger = true
     --skullsManager.skullHunger()
-    --skullsManager.skulls.catch = true
-    --skullsManager.skullCatch()
+    skullsManager.skulls.catch = true
+    skullsManager.skullCatch()
     --skullsManager.skulls.assasin = true
     --skullsManager.skullAssasin()
     --skullsManager.skulls.berserk = true
     --skullsManager.skullBerserk()
-    skullsManager.skulls.knuckehead = true
-    skullsManager.skullKnucklehead()
+    --skullsManager.skulls.knuckehead = true
+    --skullsManager.skullKnucklehead()
 end
 
 -- These flags are the ones who turn on and off the skulls.
@@ -92,20 +92,20 @@ function skullsManager.skullHunger(restore) -- It works!
     end
 end
 
--- Catch: Makes the AI launch grenades a fuck lot.
+-- Catch: Makes the AI launch grenades a fuck lot. Currently fukin ded.
 function skullsManager.skullCatch(restore)
     if skullsManager.skulls.catch then
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if restore then
                 tagEntry.data.flags:hasUnlimitedGrenades(false)
-                --tagEntry.data.grenadeStimulus = 2
+                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(1)
                 tagEntry.data.grenadeChance = tagEntry.data.grenadeChance - 1
                 tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 10
                 tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 100
                 tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 10
             else
                 tagEntry.data.flags:hasUnlimitedGrenades(true)
-                --tagEntry.data.grenadeStimulus = 1
+                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(2)
                 tagEntry.data.grenadeChance = tagEntry.data.grenadeChance + 1
                 tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime / 10
                 tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout / 100
@@ -206,12 +206,11 @@ function skullsManager.skullKnucklehead(restore)
                         body = body * 5
                     else
                         if shield > 0 then
-                            shield = shield / 500
+                            shield = shield / 5
                         end
                         if body > 0 then
-                            body = body / 500
+                            body = body / 5
                         end
-                        console_out(shield)
                     end
                 end
                 material.shieldDamageMultiplier = shield
