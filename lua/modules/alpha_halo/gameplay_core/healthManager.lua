@@ -23,19 +23,8 @@ local livesLeftTemplate = "Lives left... %s"
 local actualLivesLeft = livesLeftTemplate:format(playerLives)
 local playSound = engine.userInterface.playSound
 
--- Cuando el mapa carga. Realiza los cambios que necesitamos al iniciar cada juego.
---function healthManager.whenMapLoads()
---    gameIsOn = true
---end
-
 --- Cada tick. Aquí llamamos al resto de funciones si inició el juego & existe el jugador.
 function healthManager.eachTick()
-    --if gameIsOn == true then
-    --    healthManager.healthRegen()
-    --    healthManager.tryingToRespawn()
-    --    healthManager.regenerateAllyHealth()
-    --end
-    -- We have to make sure the map has loaded and the objects exist before doing all this.
     healthManager.healthRegen()
     healthManager.tryingToRespawn()
     healthManager.regenerateAllyHealth()
@@ -134,6 +123,7 @@ function healthManager.regenerateAllyHealth()
         local bipedObject = blam.biped(get_object(objectId))
         if bipedObject then
             local bipedTagId = bipedObject.tagId
+            assert(bipedTagId)
             if bipedTagId == const.bipeds.odstAllyTag.handle.value then
                 if bipedObject.health < 1 and bipedObject.shield > 0.75 then
                     bipedObject.health = bipedObject.health + const.healthRegenAiAmount

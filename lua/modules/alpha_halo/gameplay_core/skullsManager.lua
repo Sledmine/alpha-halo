@@ -9,10 +9,12 @@ function skullsManager.turnOnSkulls()
     --skullsManager.skullMythic()
     --skullsManager.skulls.hunger = true
     --skullsManager.skullHunger()
-    skullsManager.skulls.catch = true
-    skullsManager.skullCatch()
+    --skullsManager.skulls.catch = true
+    --skullsManager.skullCatch()
     --skullsManager.skulls.assasin = true
     --skullsManager.skullAssasin()
+    skullsManager.skulls.berserk = true
+    skullsManager.skullBerserk()
 end
 
 -- These flags are the ones who turn on and off the skulls.
@@ -20,7 +22,8 @@ skullsManager.skulls = {
     mythic = false,
     hunger = false,
     catch = false,
-    assasin = false
+    assasin = false,
+    berserk = false
 }
 
 -- These keywords help separate the tags needed.
@@ -90,21 +93,19 @@ function skullsManager.skullCatch(restore)
     if skullsManager.skulls.catch then
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if restore then
-                -- Hay que encontrar la forma de almacenar la data de las casillas para poder revertir el valor.
+                tagEntry.data.flags:hasUnlimitedGrenades(false)
+                --tagEntry.data.grenadeStimulus = 2
+                tagEntry.data.grenadeChance = tagEntry.data.grenadeChance - 1
+                tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 10
+                tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 100
+                tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 10
             else
-                --tagEntry.data.grenadeStimulus = 1
-                --tagEntry.data.grenadeCount[1] = tagEntry.data.grenadeCount[1] + 100
-                --tagEntry.data.grenadeCount[2] = tagEntry.data.grenadeCount[2] + 100
-                tagEntry.data.minimumEnemyCount = 1
-                tagEntry.data.enemyRadius = 6
-                --tagEntry.data.grenadeVelocity = 5
-                tagEntry.data.grenadeRanges[1] = 2.8
-                tagEntry.data.grenadeRanges[2] = 12
-                tagEntry.data.collateralDamageRadius = 2.5
-                tagEntry.data.grenadeChance = 1
-                tagEntry.data.grenadeCheckTime = 0.5
-                tagEntry.data.encounterGrenadeTimeout = 1
                 tagEntry.data.flags:hasUnlimitedGrenades(true)
+                --tagEntry.data.grenadeStimulus = 1
+                tagEntry.data.grenadeChance = tagEntry.data.grenadeChance + 1
+                tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime / 10
+                tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout / 100
+                tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance / 10
             end
         end
         engine.core.consolePrint("Catch On")
@@ -122,6 +123,39 @@ function skullsManager.skullAssasin(restore)
             end
         end
         engine.core.consolePrint("Assasin On")
+    end
+end
+
+-- We look for all actors in the map.
+function skullsManager.actorsFiltered()
+    local actorTagEntries = engine.tag.findTags("", engine.tag.classes.actor)
+    assert(actorTagEntries)
+    local actorEntriesFiltered = table.filter(actorTagEntries, function (tagEntry)
+        for _, keyword in pairs(keywords) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    return actorEntriesFiltered
+end
+
+-- Berserker: Makes the AI enter in constant berserker state.
+function skullsManager.skullBerserk(restore)
+    if skullsManager.skulls.berserker then
+        for index, tagEntry in ipairs(skullsManager.actorsFiltered()) do
+            if restore then
+                tagEntry.data.flags:alwaysChargeAtEnemies(false)
+                tagEntry.data.flags:alwaysBerserkInAttackingMode(false)
+                tagEntry.data.flags:alwaysChargeInAttackingMode(false)
+            else
+                tagEntry.data.flags:alwaysChargeAtEnemies(true)
+                tagEntry.data.flags:alwaysBerserkInAttackingMode(true)
+                tagEntry.data.flags:alwaysChargeInAttackingMode(true)
+            end
+        end
+        engine.core.consolePrint("Berserker On")
     end
 end
 
