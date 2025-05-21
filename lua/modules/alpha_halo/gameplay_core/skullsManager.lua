@@ -7,18 +7,18 @@ local inspect = require "inspect"
 
 -- ACTUALMENTE NO HAY NADA HACIENDO COMPROBACIÓN DE QUE EL MAPA YA CARGÓ ANTES DE HACER TODO ESTO.
 function skullsManager.turnOnSkulls()
-    --skullsManager.skullBlind()
-    --skullsManager.skullMythic()
-    --skullsManager.skullHunger()
+    skullsManager.skullBlind()
+    skullsManager.skullMythic()
+    skullsManager.skullHunger()
     --skullsManager.skullCatch()
     skullsManager.skullAssasin()
-    --skullsManager.skullBerserk()
-    --skullsManager.skullKnucklehead()
-    --skullsManager.skullBanger()
-    --skullsManager.skullDoubleDown()
-    --skullsManager.skullEyePatch()
-    --skullsManager.skullTriggerSwitch()
-    --skullsManager.skullSlayer()
+    skullsManager.skullBerserk()
+    skullsManager.skullKnucklehead()
+    skullsManager.skullBanger()
+    skullsManager.skullDoubleDown()
+    skullsManager.skullEyePatch()
+    skullsManager.skullTriggerSwitch()
+    skullsManager.skullSlayer()
 end
 
 function skullsManager.turnOffSkulls()

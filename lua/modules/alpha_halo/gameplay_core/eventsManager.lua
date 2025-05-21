@@ -117,7 +117,6 @@ function eventsManager.AiSight(playerIndex)
     end
     if player then
         if player.isCamoActive == false then
-            console_out("This should be called every 10 seconds.")
             hsc.aiMagicallySee("unit", "Covenant_Banshees", player)
             hsc.aiMagicallySee("unit", "Covenant_Snipers", player)
         end
