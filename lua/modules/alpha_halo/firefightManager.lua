@@ -449,12 +449,12 @@ function firefightManager.AiSight(playerIndex)
         player = blam.biped(get_dynamic_player())
     end
     if player then
-        if player.isCamoActive == false then
-            hsc.aiMagicallySee("unit", "Covenant_Wave", player)
-            hsc.aiMagicallySee("unit", "Covenant_Support", player)
-            hsc.aiMagicallySee("unit", "Flood_Wave", player)
-            hsc.aiMagicallySee("unit", "Flood_Support", player)
-            hsc.aiMagicallySee("unit", "Sentinel_Team", player)
+        if player.isCamoActive == false then -- attempt to concatenate a table value (local 'targetObj')
+            --hsc.aiMagicallySee("unit", "Covenant_Wave", player)
+            --hsc.aiMagicallySee("unit", "Covenant_Support", player)
+            --hsc.aiMagicallySee("unit", "Flood_Wave", player)
+            --hsc.aiMagicallySee("unit", "Flood_Support", player)
+            --hsc.aiMagicallySee("unit", "Sentinel_Team", player)
         end
     end
 end

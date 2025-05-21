@@ -116,9 +116,9 @@ function eventsManager.AiSight(playerIndex)
         player = blam.biped(get_dynamic_player())
     end
     if player then
-        if player.isCamoActive == false then
-            hsc.aiMagicallySee("unit", "Covenant_Banshees", player)
-            hsc.aiMagicallySee("unit", "Covenant_Snipers", player)
+        if player.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
+            --hsc.aiMagicallySee("unit", "Covenant_Banshees", player)
+            --hsc.aiMagicallySee("unit", "Covenant_Snipers", player)
         end
     end
 end
