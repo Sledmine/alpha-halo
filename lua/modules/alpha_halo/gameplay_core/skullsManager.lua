@@ -5,19 +5,20 @@ local skullsManager = {}
 local inspect = require "inspect"
 --local const = require "alpha_halo.constants"
 
+-- ACTUALMENTE NO HAY NADA HACIENDO COMPROBACIÓN DE QUE EL MAPA YA CARGÓ ANTES DE HACER TODO ESTO.
 function skullsManager.turnOnSkulls()
-    skullsManager.skullBlind()
-    skullsManager.skullMythic()
-    skullsManager.skullHunger()
+    --skullsManager.skullBlind()
+    --skullsManager.skullMythic()
+    --skullsManager.skullHunger()
     --skullsManager.skullCatch()
     skullsManager.skullAssasin()
-    skullsManager.skullBerserk()
-    skullsManager.skullKnucklehead()
-    skullsManager.skullBanger()
-    skullsManager.skullDoubleDown()
-    skullsManager.skullEyePatch()
-    skullsManager.skullTriggerSwitch()
-    skullsManager.skullSlayer()
+    --skullsManager.skullBerserk()
+    --skullsManager.skullKnucklehead()
+    --skullsManager.skullBanger()
+    --skullsManager.skullDoubleDown()
+    --skullsManager.skullEyePatch()
+    --skullsManager.skullTriggerSwitch()
+    --skullsManager.skullSlayer()
 end
 
 function skullsManager.turnOffSkulls()
@@ -82,7 +83,7 @@ function skullsManager.skullBlind(restore)
     local hsc = require "hsc"
     if restore then
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
-            tagEntry.data.projectileError = tagEntry.data.projectileError / 2
+            tagEntry.data.projectileError = tagEntry.data.projectileError * 0.5
         end
         hsc.showHud(1)
         skullsManager.skulls.blind = false
@@ -101,8 +102,8 @@ end
 function skullsManager.skullMythic(restore)
     for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
         if restore then
-            tagEntry.data.bodyVitality = tagEntry.data.bodyVitality / 2
-            tagEntry.data.shieldVitality = tagEntry.data.shieldVitality / 2
+            tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 0.5
+            tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 0.5
         else
             tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 2
             tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
@@ -136,11 +137,13 @@ function skullsManager.skullHunger(restore)
             tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 2
             tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] * 2
             tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] * 2
+            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 100
         else
-            tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] / 2
-            tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] / 2
-            tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] / 2
-            tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] / 2
+            tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 0.5
+            tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 0.5
+            tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] * 0.5
+            tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] * 0.5
+            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 0.01
         end
     end
     if restore then
@@ -152,25 +155,62 @@ function skullsManager.skullHunger(restore)
     end
 end
 
--- Assasin: Makes the AI invisible and halves their shields.
+-- Assasin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
+local activateOnTick
 function skullsManager.skullAssasin(restore)
-    for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
-        if not tagEntry.path:includes("stealth") then
-            if restore then
+    if restore then
+        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+            if not tagEntry.path:includes("stealth") then
                 tagEntry.data.flags:activeCamouflage(false)
-                tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
-            else
-                tagEntry.data.flags:activeCamouflage(true)
-                tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 0.5
             end
         end
-    end
-    if restore then
+        for index, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+            tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 0.5
+            tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 2
+        end
         skullsManager.skulls.assasin = false
         engine.core.consolePrint("Assasin Off")
     else
+        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+            if not tagEntry.path:includes("stealth") then
+                tagEntry.data.flags:activeCamouflage(true)
+            end
+        end
+        for index, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+            tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 2
+            tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 0.5
+            --for i = 1, tagEntry.data.triggers.count do -- Need to find out how to access a child tag from a parent tag.
+            --    local trigger = tagEntry.data.triggers.elements[i]
+            --    trigger.projectile.impactDamage.damageActiveCamouflageDamage = wololooo
+            --end
+        end
         skullsManager.skulls.assasin = true
+        activateOnTick = true
         engine.core.consolePrint("Assasin On")
+    end
+end
+
+local player
+---@param playerIndex? number
+function skullsManager.skullAssasinOnTick(playerIndex)
+    if activateOnTick == true then
+        if skullsManager.skulls.assasin == true then
+            if playerIndex then
+                player = blam.biped(get_dynamic_player(playerIndex))
+            else
+                player = blam.biped(get_dynamic_player())
+            end
+            assert(player)
+            if player then
+                player.isCamoActive = true
+            end
+            if player.meleeKey then
+                player.camoScale = player.camoScale - 0.5
+            end
+        else
+            player.isCamoActive = false
+            activateOnTick = false
+        end
     end
 end
 
@@ -262,12 +302,8 @@ function skullsManager.skullKnucklehead(restore)
             if not tagEntry.path:includes("hunter") or not tagEntry.path:includes("sentinel") then
                 if restore then
                     if material.flags:head() then
-                        if shield > 0 then
-                            shield = shield / 10
-                        end
-                        if body > 0 then
-                            body = body / 10
-                        end
+                        shield = shield * 0.1
+                        body = body * 0.1
                     else
                         shield = shield * 10
                         body = body * 10
@@ -277,12 +313,8 @@ function skullsManager.skullKnucklehead(restore)
                         shield = shield * 10
                         body = body * 10
                     else
-                        if shield > 0 then
-                            shield = shield / 10
-                        end
-                        if body > 0 then
-                            body = body / 10
-                        end
+                        shield = shield * 0.1
+                        body = body * 0.1
                     end
                 end
             end
@@ -330,9 +362,9 @@ function skullsManager.skullDoubleDown(restore)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for index, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore then
-            tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality / 2
-            tagEntry.data.stunTime = tagEntry.data.stunTime / 2
-            tagEntry.data.rechargeTime = tagEntry.data.rechargeTime / 2
+            tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 0.5
+            tagEntry.data.stunTime = tagEntry.data.stunTime * 0.5
+            tagEntry.data.rechargeTime = tagEntry.data.rechargeTime * 0.5
         else
             tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 2
             tagEntry.data.stunTime = tagEntry.data.stunTime * 2
@@ -369,18 +401,14 @@ function skullsManager.skullEyePatch(restore)
                 --trigger.errorAngle[2] = trigger.errorAngle[2] * 2
             end
         else
-            tagEntry.data.autoaimAngle = tagEntry.data.autoaimAngle / 100
-            tagEntry.data.autoaimRange = tagEntry.data.autoaimRange / 100
-            tagEntry.data.magnetismAngle = tagEntry.data.magnetismAngle / 100
-            tagEntry.data.magnetismRange = tagEntry.data.magnetismRange / 100
+            tagEntry.data.autoaimAngle = tagEntry.data.autoaimAngle * 0.01
+            tagEntry.data.autoaimRange = tagEntry.data.autoaimRange * 0.01
+            tagEntry.data.magnetismAngle = tagEntry.data.magnetismAngle * 0.01
+            tagEntry.data.magnetismRange = tagEntry.data.magnetismRange * 0.01
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                if trigger.errorAngle[1] > 0 then
-                    trigger.errorAngle[1] = trigger.errorAngle[1] / 100
-                end
-                --if trigger.errorAngle[2] > 0 then
-                --    trigger.errorAngle[2] = trigger.errorAngle[2] / 2
-                --end
+                trigger.errorAngle[1] = trigger.errorAngle[1] * 0.01
+                --trigger.errorAngle[2] = trigger.errorAngle[2] * 0.5
             end
         end
     end
@@ -431,10 +459,10 @@ function skullsManager.skullSlayer(restore)
         if restore then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                trigger.roundsPerShot = trigger.roundsPerShot / 2
-                trigger.projectilesPerShot = trigger.projectilesPerShot / 2
-                trigger.errorAngle[1] = trigger.errorAngle[1] / 2
-                trigger.errorAngle[2] = trigger.errorAngle[2] / 2
+                trigger.roundsPerShot = trigger.roundsPerShot * 0.5
+                trigger.projectilesPerShot = trigger.projectilesPerShot * 0.5
+                trigger.errorAngle[1] = trigger.errorAngle[1] * 0.5
+                trigger.errorAngle[2] = trigger.errorAngle[2] * 0.5
             end
         else
             for i = 1, tagEntry.data.triggers.count do

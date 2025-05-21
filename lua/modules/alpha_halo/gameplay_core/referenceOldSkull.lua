@@ -3,6 +3,9 @@ local engine = Engine
 local balltze = Balltze
 local skullsManager = {}
 
+-- ESTE MÓDULO NO ESTÁ SIENDO USADO.
+-- SÓLO SE CONSERVA PARA EFECTOS DE REFERENCIA.
+
 -- These flags are the ones who turn on and off the skulls.
 skullsManager.skulls = {
     assasin = false,

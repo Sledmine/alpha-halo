@@ -24,6 +24,7 @@ function getNodePosition(address)
     return {x = x, y = y, z = z}
 end
 
+-- ESTO DEBERÍA CAMBIAR.
 function OnMapLoad()
     firefightManager.whenMapLoads()
     healthManager.whenMapLoads()
@@ -55,6 +56,7 @@ function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
     eventsManager.eachTick()
+    skullsManager.skullAssasinOnTick()
     vehiclePositionLoader.vehiclePositionLoader()
     math.randomseed(engine.core.getTickCount())
     dispatchScripts()

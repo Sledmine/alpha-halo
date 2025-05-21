@@ -10,6 +10,7 @@ local snipersLivingCount
 --local mortarLivingCount
 
 -- Esta función es llamada cada que el mapa se carga, desde el firefightManager. Se encarga de iniciar el juego.
+-- ACTUALMENTE ESTO NO ESTÁ HACIENDO NI PIÑA. HAY QUE IMPLEMENTAR OTRO SISTEMA.
 local gameIsOn = false
 function eventsManager.whenMapLoads()
     gameIsOn = true
@@ -17,10 +18,10 @@ end
 
 -- Esta función es llamada cada tick, desde el firefightManager. Se encarga de llamar otras funciones.
 function eventsManager.eachTick()
-    if gameIsOn == true then
+    --if gameIsOn == true then
         eventsManager.randomEventTimer()
         eventsManager.aiCheck()
-    end
+    --end
 end
 
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
@@ -89,14 +90,38 @@ end
 --end
 
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga de revisar el estado de los squads.
+local magicalSightCounter = 300
+local magicalSightTimer = 0
 function eventsManager.aiCheck()
     bansheeLivingCount = hsc.aiLivingCount("Covenant_Banshees", "banshees_living_count")
     snipersLivingCount = hsc.aiLivingCount("Covenant_Snipers", "snipers_living_count")
-    --mortarLivingCount = hsc.aiLivingCount("Covenant_Mortars", "mortars_living_count")
-    hsc.aiMagicallySeePlayers("Covenant_Banshees")
-    hsc.aiMagicallySeePlayers("Covenant_Snipers")
-    --hsc.aiMagicallySeePlayers("Covenant_Mortars")
     hsc.aiAction(1, "Covenant_Snipers")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Banshees")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Snipers")
+    if magicalSightTimer > 0 then
+        magicalSightTimer = magicalSightTimer - 1
+    else
+        magicalSightTimer = magicalSightCounter
+        eventsManager.AiSight()
+    end
+end
+
+-- Each 10 seconds, AI will try to magically see each player if they're not invisible.
+local player
+---@param playerIndex? number
+function eventsManager.AiSight(playerIndex)
+    if playerIndex then
+        player = blam.biped(get_dynamic_player(playerIndex))
+    else
+        player = blam.biped(get_dynamic_player())
+    end
+    if player then
+        if player.isCamoActive == false then
+            console_out("This should be called every 10 seconds.")
+            hsc.aiMagicallySee("unit", "Covenant_Banshees", player)
+            hsc.aiMagicallySee("unit", "Covenant_Snipers", player)
+        end
+    end
 end
 
 return eventsManager

@@ -106,6 +106,7 @@ function firefightManager.debugFloodTeam()
 end
 
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
+-- APARENTEMENTE ESTO ESTÁ FUNCIONANDO, PESE A QUE EL ONMAPLOAD YA NO FUNCIONA.
 function firefightManager.whenMapLoads()
     console_out("Welcome to Alpha Firefight.")
     gameIsOn = true
@@ -408,21 +409,54 @@ function firefightManager.killStagnateAi()
 end
 
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
+local magicalSightCounter = 300
+local magicalSightTimer = 0
 function firefightManager.AiCheck()
     waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
-    --hsc.aiMagicallySeePlayers("Covenant_Support")
     hsc.aiAction(1, "Covenant_Support")
-    --hsc.aiMagicallySeePlayers("Flood_Support")
     hsc.aiAction(1, "Flood_Support")
-    --hsc.aiMagicallySeePlayers("Covenant_Wave")
     hsc.aiAction(1, "Covenant_Wave")
-    --hsc.aiMagicallySeePlayers("Flood_Wave")
     hsc.aiAction(1, "Flood_Wave")
-    --hsc.aiMagicallySeePlayers("Human_Team")
-    hsc.aiAction(1, "Human_Team")
-    --hsc.aiMagicallySeePlayers("Sentinel_Team")
     hsc.aiAction(1, "Sentinel_Team")
+    hsc.aiAction(1, "Human_Team")
+    hsc.aiMagicallySeePlayers("Human_Team")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Wave")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Support")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Flood_Wave")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Flood_Support")
+    hsc.aiMagicallySee("encounter", "Human_Team", "Sentinel_Team")
+    hsc.aiMagicallySee("encounter", "Covenant_Wave", "Human_Team")
+    hsc.aiMagicallySee("encounter", "Covenant_Support", "Human_Team")
+    hsc.aiMagicallySee("encounter", "Flood_Wave", "Human_Team")
+    hsc.aiMagicallySee("encounter", "Flood_Support", "Human_Team")
+    hsc.aiMagicallySee("encounter", "Sentinel_Team", "Human_Team")
     hsc.aiVehicleEntrableDistance(selectedAssistGhost, 20.0)
+    if magicalSightTimer > 0 then
+        magicalSightTimer = magicalSightTimer - 1
+    else
+        magicalSightTimer = magicalSightCounter
+        firefightManager.AiSight()
+    end
+end
+
+-- Each 10 seconds, AI will try to magically see each player if they're not invisible.
+local player
+---@param playerIndex? number
+function firefightManager.AiSight(playerIndex)
+    if playerIndex then
+        player = blam.biped(get_dynamic_player(playerIndex))
+    else
+        player = blam.biped(get_dynamic_player())
+    end
+    if player then
+        if player.isCamoActive == false then
+            hsc.aiMagicallySee("unit", "Covenant_Wave", player)
+            hsc.aiMagicallySee("unit", "Covenant_Support", player)
+            hsc.aiMagicallySee("unit", "Flood_Wave", player)
+            hsc.aiMagicallySee("unit", "Flood_Support", player)
+            hsc.aiMagicallySee("unit", "Sentinel_Team", player)
+        end
+    end
 end
 
 return firefightManager

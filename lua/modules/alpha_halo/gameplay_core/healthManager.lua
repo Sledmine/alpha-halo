@@ -24,6 +24,7 @@ local actualLivesLeft = livesLeftTemplate:format(playerLives)
 local playSound = engine.userInterface.playSound
 
 --- Cada tick. Aquí llamamos al resto de funciones si inició el juego & existe el jugador.
+--- ACTUALMENTE NO HAY NADA HACIENDO LA COMPROBACIÓN. NECESITA ARREGLARSE PARA EVITAR CRASHEOS.
 function healthManager.eachTick()
     healthManager.healthRegen()
     healthManager.tryingToRespawn()
