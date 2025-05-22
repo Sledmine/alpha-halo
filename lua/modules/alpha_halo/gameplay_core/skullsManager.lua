@@ -124,6 +124,19 @@ function skullsManager.actorVariantsFiltered()
     return actorVariantEntriesFiltered
 end
 
+-- Ejemplo
+function skullsManager.impactDamagesFiltered()
+    local projectileTagEntries = engine.tag.findTags("", engine.tag.classes.projectile)
+    assert(projectileTagEntries)
+    local impactDamages
+    for index, tagEntry in ipairs(projectileTagEntries) do
+        impactDamages = tagEntry.data.impactDamage.tagHandle.value
+    end
+    local impactDamagesFiltered = engine.tag.findTags(impactDamages, engine.tag.classes.projectile)
+    return impactDamagesFiltered
+end
+-- Y luego hago cosas con el impactDamagesFiltered
+
 -- Blind: Hides HUD and duplicates AI error.
 function skullsManager.skullBlind(restore)
     local hsc = require "hsc"
