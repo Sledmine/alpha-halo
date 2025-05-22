@@ -184,6 +184,7 @@ function firefightManager.WaveProgression()
         elseif currentRound == 3 then
             currentRound = 1
             currentSet = currentSet + 1
+            skullsManager.resetSilverSkulls()
         end
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
@@ -197,19 +198,6 @@ function firefightManager.WaveProgression()
     actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
     -- Aquí llamamos la función de los Sentinelas.
     firefightManager.SentinelChance()
-    ---- Aquí Mark spawneaba los sonidos.
-    ---- Reinforcements ahora se maneja debajo de waveIsOn, y roundStart y setStart se manejan en el waveCooldown.
-    --if currentWave > 1 then
-    --    engine.userInterface.playSound(const.sounds.reinforcements.handle)
-    --end
-    --scriptBlock(function (sleep, sleepUntil)
-    --    if currentWave == 1 and currentRound == 1 then
-    --        --sleep(10)
-    --        --playSound(const.sounds.roundComplete.handle)
-    --        sleep(270)
-    --        playSound(const.sounds.roundStart.handle)
-    --    end
-    --end)
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
@@ -227,6 +215,14 @@ function firefightManager.WaveCooldown()
             playSound(const.sounds.setStart.handle)
         elseif currentWave == 1 and currentRound > 1 then
             playSound(const.sounds.roundStart.handle)
+        end
+        -- Si recién iniciamos una ronda, encendemos una calavera plateada.
+        if currentWave == 1 then
+            skullsManager.silverSkulls()
+        end
+        -- Si recién iniciamos un nuevo set, encendemos una calavera dorada.
+        if currentRound == 1 and currentSet > 1 then
+            skullsManager.goldenSkulls()
         end
     end
 end

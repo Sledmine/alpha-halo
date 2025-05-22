@@ -25,7 +25,7 @@ function eventsManager.eachTick()
 end
 
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
-local randomEventTimer = 3600
+local randomEventTimer = 30
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
     if bansheeLivingCount == 0 or snipersLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
@@ -98,6 +98,7 @@ function eventsManager.aiCheck()
     hsc.aiAction(1, "Covenant_Snipers")
     hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Banshees")
     hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Snipers")
+    hsc.aiMagicallySeePlayers("Covenant_Snipers")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else

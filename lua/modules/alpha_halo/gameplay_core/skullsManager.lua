@@ -3,14 +3,14 @@ local engine = Engine
 local balltze = Balltze
 local skullsManager = {}
 local inspect = require "inspect"
---local const = require "alpha_halo.constants"
+--local const = require "alpha_halo.constants" -- Podríamos limpiar el código pasando los filtros a constants.
+--local firefightManager = require "alpha_halo.firefightManager"  -- Espera a la implementación de onFirstTick.
 
 -- ACTUALMENTE NO HAY NADA HACIENDO COMPROBACIÓN DE QUE EL MAPA YA CARGÓ ANTES DE HACER TODO ESTO.
-function skullsManager.turnOnSkulls()
-    skullsManager.skullBlind()
-    skullsManager.skullMythic()
-    skullsManager.skullHunger()
-    --skullsManager.skullCatch()
+function skullsManager.silverSkulls()
+    local selectedSkull = math.random(1, 8)
+    -- Aquí debería enumerar las calaveras.
+    -- Escoger una según lo que salgan en selected skull.
     skullsManager.skullAssasin()
     skullsManager.skullBerserk()
     skullsManager.skullKnucklehead()
@@ -21,26 +21,33 @@ function skullsManager.turnOnSkulls()
     skullsManager.skullSlayer()
 end
 
-function skullsManager.turnOffSkulls()
-    --skullsManager.skullBlind(restore)
-    --skullsManager.skullMythic(restore)
-    --skullsManager.skullHunger(restore)
-    ----skullsManager.skullCatch(restore)
-    --skullsManager.skullAssasin(restore)
-    --skullsManager.skullBerserk(restore)
-    --skullsManager.skullKnucklehead(restore)
-    --skullsManager.skullBanger(restore)
-    --skullsManager.skullDoubleDown(restore)
-    --skullsManager.skullEyePatch(restore)
-    --skullsManager.skullTriggerSwitch(restore)
-    --skullsManager.skullSlayer(restore)
+function skullsManager.resetSilverSkulls()
+    skullsManager.skullAssasin(restore)
+    skullsManager.skullBerserk(restore)
+    skullsManager.skullKnucklehead(restore)
+    skullsManager.skullBanger(restore)
+    skullsManager.skullDoubleDown(restore)
+    skullsManager.skullEyePatch(restore)
+    skullsManager.skullTriggerSwitch(restore)
+    skullsManager.skullSlayer(restore)
+end
+
+function skullsManager.goldenSkulls() -- Espera a la implementación de onFirstTick.
+    --if firefightManager.currentSet == 2 then
+    --    skullsManager.skullHunger()
+    --elseif firefightManager.currentSet == 3 then
+    --    skullsManager.skullMythic()
+    --elseif firefightManager.currentSet == 4 then
+    --    skullsManager.skullBlind()
+    --end
+    --skullsManager.skullCatch()
 end
 
 -- These flags indicate where a skull is On or Off.
 skullsManager.skulls = {
-    blind = false,
-    mythic = false,
     hunger = false,
+    mythic = false,
+    blind = false,
     --catch = false,
     assasin = false,
     berserk = false,
@@ -59,7 +66,6 @@ local keywords = {
     "grunt",
     "jackal",
     "hunter",
-    "sentinel",
     "odst"
 }
 
@@ -299,22 +305,22 @@ function skullsManager.skullKnucklehead(restore)
             local material = tagEntry.data.materials.elements[i]
             local shield = material.shieldDamageMultiplier
             local body = material.bodyDamageMultiplier
-            if not tagEntry.path:includes("hunter") or not tagEntry.path:includes("sentinel") then
+            if not tagEntry.path:includes("hunter") then
                 if restore then
                     if material.flags:head() then
                         shield = shield * 0.1
                         body = body * 0.1
                     else
-                        shield = shield * 10
-                        body = body * 10
+                        shield = shield * 5
+                        body = body * 5
                     end
                 else
                     if material.flags:head() then
                         shield = shield * 10
                         body = body * 10
                     else
-                        shield = shield * 0.1
-                        body = body * 0.1
+                        shield = shield * 0.2
+                        body = body * 0.2
                     end
                 end
             end
