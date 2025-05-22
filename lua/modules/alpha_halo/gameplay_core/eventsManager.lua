@@ -9,23 +9,14 @@ local bansheeLivingCount
 local snipersLivingCount
 --local mortarLivingCount
 
--- Esta función es llamada cada que el mapa se carga, desde el firefightManager. Se encarga de iniciar el juego.
--- ACTUALMENTE ESTO NO ESTÁ HACIENDO NI PIÑA. HAY QUE IMPLEMENTAR OTRO SISTEMA.
-local gameIsOn = false
-function eventsManager.whenMapLoads()
-    gameIsOn = true
-end
-
 -- Esta función es llamada cada tick, desde el firefightManager. Se encarga de llamar otras funciones.
 function eventsManager.eachTick()
-    --if gameIsOn == true then
-        eventsManager.randomEventTimer()
-        eventsManager.aiCheck()
-    --end
+    eventsManager.randomEventTimer()
+    eventsManager.aiCheck()
 end
 
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
-local randomEventTimer = 30
+local randomEventTimer = 3600
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
     if bansheeLivingCount == 0 or snipersLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
@@ -53,7 +44,7 @@ end
 -- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covennat Banshee.
 function eventsManager.bansheeEvent()
     if bansheeLivingCount == 0 then
-        console_out("Banshee event!")
+        logger:debug("Banshee event!")
         hsc.aiSpawn(1, "Covenant_Banshees")
         hsc.objectCreateANew("banshee_1")
         hsc.objectCreateANew("banshee_2")
@@ -69,7 +60,7 @@ end
 -- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Sniper.
 function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
-        console_out("Sniper event!")
+        logger:debug("Sniper event!")
         hsc.aiSpawn(1, "Covenant_Snipers")
     else
         eventsManager.randomEventGenerator()
@@ -80,7 +71,7 @@ end
 -- Por ahora, esto no se está llamando, dado que el Mortero no dispara en lo absoluto.
 --function eventsManager.mortarEvent()
 --    if mortarLivingCount == 0 then
---        console_out("Mortar event!")
+--        logger:debug("Mortar event!")
 --        hsc.aiSpawn(1, "Covenant_Mortars")
 --        hsc.vehicleLoadMagic("mortar_1", "W-gunner", "Covenant_Mortars/mortar_a")
 --        hsc.vehicleLoadMagic("mortar_2", "W-gunner", "Covenant_Mortars/mortar_b")

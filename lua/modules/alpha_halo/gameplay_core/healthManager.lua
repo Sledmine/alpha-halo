@@ -60,7 +60,7 @@ function healthManager.healthRegen(playerIndex)
         end
         if playerLives == 0 then
             --gameIsOn = false
-            console_out("Thanks for playing.")
+            logger:debug("Thanks for playing.")
             execute_script("sv_end_game")
         end
     end
@@ -84,7 +84,7 @@ function healthManager.tryingToRespawn()
         playerLives = playerLives - 1
         actualLivesLeft = livesLeftTemplate:format(playerLives)
         if playerLives > 0 then
-            console_out(actualLivesLeft)
+            logger:debug(actualLivesLeft)
         end
         scriptBlock(function (sleep, sleepUntil)
             if playerLives == 5 then
@@ -96,8 +96,8 @@ function healthManager.tryingToRespawn()
                 playSound(const.sounds.oneLiveLeft.handle)
             end
             if playerLives == 0 then
-                console_out("No lives left.")
-                console_out("You feel a sense of dread crawling up your spine...")
+                logger:debug("No lives left.")
+                logger:debug("You feel a sense of dread crawling up your spine...")
                 sleep(10)
                 playSound(const.sounds.noLivesLeft.handle)
             end
@@ -108,7 +108,7 @@ end
 -- This function is called from other modules to add a live to the player.
 function healthManager.livesGained()
     scriptBlock(function (sleep, sleepUntil)
-        console_out("Lives added!")
+        logger:debug("Lives added!")
         playerLives = playerLives + 1
         sleep(100)
         playSound(const.sounds.livesAdded.handle)

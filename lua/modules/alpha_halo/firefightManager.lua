@@ -108,7 +108,7 @@ end
 -- Esta función ocurre al iniciar el mapa. Causa cambios a la función onTick.
 -- APARENTEMENTE ESTO ESTÁ FUNCIONANDO, PESE A QUE EL ONMAPLOAD YA NO FUNCIONA.
 function firefightManager.whenMapLoads()
-    console_out("Welcome to Alpha Firefight.")
+    logger:debug("Welcome to Alpha Firefight.")
     gameIsOn = true
     currentRound = 1
     currentSet = 1
@@ -139,7 +139,7 @@ function firefightManager.eachTick()
                 firefightManager.DropshipDeployer()
             elseif bossWave == false and waveLivingCount <= 4 then
                 if currentWave > 0 then
-                    console_out("Reinforcements!")
+                    logger:debug("Reinforcements!")
                     playSound(const.sounds.reinforcements.handle)
                 end
                 waveIsOn = false
@@ -147,7 +147,7 @@ function firefightManager.eachTick()
                 waveCooldownCounter = waveCooldownTimer
                 firefightManager.WaveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
-                console_out("Round Complete!")
+                logger:debug("Round Complete!")
                 --playSound(const.sounds.roundComplete.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
@@ -205,7 +205,7 @@ function firefightManager.WaveCooldown()
     if waveCooldownStart == true and waveCooldownCounter > 0 then
         waveCooldownCounter = waveCooldownCounter - 1
     elseif waveCooldownStart == true and waveCooldownCounter <= 0 then
-        console_out(actualWave)
+        logger:debug(actualWave)
         waveIsOn = true
         bossWaveCooldown = false
         dropshipsLeft = dropshipsAsigned
@@ -332,7 +332,7 @@ function firefightManager.SentinelChance()
     end
     -- Aquí spawneamos el squad random de Sentinelas y reiniciamos todo.
     if sentinelRandomMath == 1 then
-        console_out("Here come Sentinels!")
+        logger:debug("Here come Sentinels!")
         randomSentinelSquad = math.random(1, 6)
         selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
         hsc.aiSpawn(1, selectedSentinelSquad)

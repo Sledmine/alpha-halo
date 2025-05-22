@@ -1,6 +1,6 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = false
+DebugMode = true
 package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
@@ -65,17 +65,23 @@ function PluginLoad()
     loadChimeraCompatibility()
 
     -- Commands for Alpha Firefight
-    balltze.command.registerCommand("on_skulls", "debug", "description", nil, false, 0, 0, true,
+    balltze.command.registerCommand("silverSkulls", "debug", "description", nil, false, 0, 0, true,
             false, function(args)
-                skullsManager.turnOnSkulls()
+                skullsManager.silverSkulls()
         return true
     end)
 
-    --balltze.command.registerCommand("off_skulls", "debug", "description", nil, false, 0, 0, true,
-    --        false, function(args)
-    --            skullsManager.turnOffSkulls()
-    --    return true
-    --end)
+    balltze.command.registerCommand("goldenSkulls", "debug", "description", nil, false, 0, 0, true,
+            false, function(args)
+                skullsManager.goldenSkulls()
+        return true
+    end)
+
+    balltze.command.registerCommand("resetSilverSkulls", "debug", "description", nil, false, 0, 0, true,
+            false, function(args)
+                skullsManager.resetSilverSkulls()
+        return true
+    end)
 
 
     balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,

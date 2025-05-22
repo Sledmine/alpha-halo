@@ -3,43 +3,83 @@ local engine = Engine
 local balltze = Balltze
 local skullsManager = {}
 local inspect = require "inspect"
---local const = require "alpha_halo.constants" -- Podríamos limpiar el código pasando los filtros a constants.
---local firefightManager = require "alpha_halo.firefightManager"  -- Espera a la implementación de onFirstTick.
 
--- ACTUALMENTE NO HAY NADA HACIENDO COMPROBACIÓN DE QUE EL MAPA YA CARGÓ ANTES DE HACER TODO ESTO.
 function skullsManager.silverSkulls()
-    local selectedSkull = math.random(1, 8)
+    local selectedSkull = math.random(8, 8)
     -- Aquí debería enumerar las calaveras.
     -- Escoger una según lo que salgan en selected skull.
-    skullsManager.skullAssasin()
-    skullsManager.skullBerserk()
-    skullsManager.skullKnucklehead()
-    skullsManager.skullBanger()
-    skullsManager.skullDoubleDown()
-    skullsManager.skullEyePatch()
-    skullsManager.skullTriggerSwitch()
-    skullsManager.skullSlayer()
+    if selectedSkull == 1 then
+        if skullsManager.skulls.berserk == false then
+            skullsManager.skullBerserk()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 2 then
+        if skullsManager.skulls.dobledown == false then
+            skullsManager.skullDoubleDown()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 3 then
+        if skullsManager.skulls.eyepatch == false then
+            skullsManager.skullEyePatch()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 4 then
+        if skullsManager.skulls.triggerswitch == false then
+            skullsManager.skullTriggerSwitch()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 5 then
+        if skullsManager.skulls.slayer == false then
+            skullsManager.skullSlayer()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 6 then
+        if skullsManager.skulls.banger == false then
+            skullsManager.skullBanger()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 7 then
+        if skullsManager.skulls.knuckehead == false then
+            skullsManager.skullKnucklehead()
+        else
+            skullsManager.silverSkulls()
+        end
+    elseif selectedSkull == 8 then
+        if skullsManager.skulls.assasin == false then
+            skullsManager.skullAssasin()
+        else
+            skullsManager.silverSkulls()
+        end
+    end
 end
 
 function skullsManager.resetSilverSkulls()
-    skullsManager.skullAssasin(restore)
-    skullsManager.skullBerserk(restore)
-    skullsManager.skullKnucklehead(restore)
-    skullsManager.skullBanger(restore)
-    skullsManager.skullDoubleDown(restore)
-    skullsManager.skullEyePatch(restore)
-    skullsManager.skullTriggerSwitch(restore)
-    skullsManager.skullSlayer(restore)
+    --skullsManager.skullBerserk(restore)
+    --skullsManager.skullDoubleDown(restore)
+    --skullsManager.skullEyePatch(restore)
+    --skullsManager.skullTriggerSwitch(restore)
+    --skullsManager.skullSlayer(restore)
+    --skullsManager.skullBanger(restore)
+    --skullsManager.skullKnucklehead(restore)
+    --skullsManager.skullAssasin(restore)
 end
 
-function skullsManager.goldenSkulls() -- Espera a la implementación de onFirstTick.
-    --if firefightManager.currentSet == 2 then
-    --    skullsManager.skullHunger()
-    --elseif firefightManager.currentSet == 3 then
-    --    skullsManager.skullMythic()
-    --elseif firefightManager.currentSet == 4 then
-    --    skullsManager.skullBlind()
-    --end
+local currentSet = 1
+function skullsManager.goldenSkulls()
+    currentSet = currentSet + 1
+    if currentSet == 2 then
+        skullsManager.skullHunger()
+    elseif currentSet == 3 then
+        skullsManager.skullMythic()
+    elseif currentSet == 4 then
+        skullsManager.skullBlind()
+    end
     --skullsManager.skullCatch()
 end
 
@@ -93,14 +133,14 @@ function skullsManager.skullBlind(restore)
         end
         hsc.showHud(1)
         skullsManager.skulls.blind = false
-        engine.core.consolePrint("Blind Off")
+        logger:debug("Blind Off")
     else
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             tagEntry.data.projectileError = tagEntry.data.projectileError * 2
         end
         hsc.showHud(0)
         skullsManager.skulls.blind = true
-        engine.core.consolePrint("Blind On")
+        logger:debug("Blind On")
     end
 end
 
@@ -128,10 +168,10 @@ function skullsManager.skullMythic(restore)
     end
     if restore then
         skullsManager.skulls.mythic = false
-        engine.core.consolePrint("Mythic Off")
+        logger:debug("Mythic Off")
     else
         skullsManager.skulls.mythic = true
-        engine.core.consolePrint("Mythic On")
+        logger:debug("Mythic On")
     end
 end
 
@@ -154,17 +194,17 @@ function skullsManager.skullHunger(restore)
     end
     if restore then
         skullsManager.skulls.hunger = false
-        engine.core.consolePrint("Hunger Off")
+        logger:debug("Hunger Off")
     else
         skullsManager.skulls.hunger = true
-        engine.core.consolePrint("Hunger On")
+        logger:debug("Hunger On")
     end
 end
 
 -- Assasin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
 local activateOnTick
-function skullsManager.skullAssasin(restore)
-    if restore then
+function skullsManager.skullAssasin()--(restore)
+    if skullsManager.skulls.assasin == true then
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if not tagEntry.path:includes("stealth") then
                 tagEntry.data.flags:activeCamouflage(false)
@@ -175,7 +215,7 @@ function skullsManager.skullAssasin(restore)
             tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 2
         end
         skullsManager.skulls.assasin = false
-        engine.core.consolePrint("Assasin Off")
+        logger:debug("Assasin Off")
     else
         for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if not tagEntry.path:includes("stealth") then
@@ -192,7 +232,7 @@ function skullsManager.skullAssasin(restore)
         end
         skullsManager.skulls.assasin = true
         activateOnTick = true
-        engine.core.consolePrint("Assasin On")
+        logger:debug("Assasin On")
     end
 end
 
@@ -211,7 +251,7 @@ function skullsManager.skullAssasinOnTick(playerIndex)
                 player.isCamoActive = true
             end
             if player.meleeKey then
-                player.camoScale = player.camoScale - 0.5
+                player.camoScale = 0
             end
         else
             player.isCamoActive = false
@@ -235,12 +275,12 @@ end
 --                tagEntry.data.flags:hasUnlimitedGrenades(true)
 --                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(2) -- This doesn't work.
 --                tagEntry.data.grenadeChance = tagEntry.data.grenadeChance + 1
---                tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime / 10
---                tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout / 100
---                tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance / 10
+--                tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 0.1
+--                tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 0.01
+--                tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 0.1
 --            end
 --        end
---        engine.core.consolePrint("Catch On")
+--        logger:debug("Catch On")
 --    end
 --end
 
@@ -276,10 +316,10 @@ function skullsManager.skullBerserk(restore)
     end
     if restore then
         skullsManager.skulls.berserk = false
-        engine.core.consolePrint("Berserk Off")
+        logger:debug("Berserk Off")
     else
         skullsManager.skulls.berserk = true
-        engine.core.consolePrint("Berserk On")
+        logger:debug("Berserk On")
     end
 end
 
@@ -330,10 +370,10 @@ function skullsManager.skullKnucklehead(restore)
     end
     if restore then
         skullsManager.skulls.knuckehead = false
-        engine.core.consolePrint("Knucklehead Off")
+        logger:debug("Knucklehead Off")
     else
         skullsManager.skulls.knuckehead = true
-        engine.core.consolePrint("Knucklehead On")
+        logger:debug("Knucklehead On")
     end
 end
 
@@ -355,10 +395,10 @@ function skullsManager.skullBanger(restore)
     end
     if restore then
         skullsManager.skulls.banger = false
-        engine.core.consolePrint("Banger Off")
+        logger:debug("Banger Off")
     else
         skullsManager.skulls.banger = true
-        engine.core.consolePrint("Banger On")
+        logger:debug("Banger On")
     end
 end
 
@@ -379,10 +419,10 @@ function skullsManager.skullDoubleDown(restore)
     end
     if restore then
         skullsManager.skulls.dobledown = false
-        engine.core.consolePrint("Double Down Off")
+        logger:debug("Double Down Off")
     else
         skullsManager.skulls.dobledown = true
-        engine.core.consolePrint("Double Down On")
+        logger:debug("Double Down On")
     end
 end
 
@@ -420,10 +460,10 @@ function skullsManager.skullEyePatch(restore)
     end
     if restore then
         skullsManager.skulls.eyepatch = false
-        engine.core.consolePrint("Eye Patch Off")
+        logger:debug("Eye Patch Off")
     else
         skullsManager.skulls.eyepatch = true
-        engine.core.consolePrint("Eye Patch On")
+        logger:debug("Eye Patch On")
     end
 end
 
@@ -452,10 +492,10 @@ function skullsManager.skullTriggerSwitch(restore)
     end
     if restore then
         skullsManager.skulls.triggerswitch = false
-        engine.core.consolePrint("Trigger Switch Off")
+        logger:debug("Trigger Switch Off")
     else
         skullsManager.skulls.triggerswitch = true
-        engine.core.consolePrint("Trigger Switch On")
+        logger:debug("Trigger Switch On")
     end
 end
 
@@ -482,12 +522,11 @@ function skullsManager.skullSlayer(restore)
     end
     if restore then
         skullsManager.skulls.slayer = false
-        engine.core.consolePrint("Slayer Off")
+        logger:debug("Slayer Off")
     else
         skullsManager.skulls.slayer = true
-        engine.core.consolePrint("Slayer On")
+        logger:debug("Slayer On")
     end
 end
-
 
 return skullsManager
