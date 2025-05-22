@@ -130,7 +130,7 @@ function skullsManager.impactDamagesFiltered()
     assert(projectileTagEntries)
     local impactDamages
     for index, tagEntry in ipairs(projectileTagEntries) do
-        impactDamages = tagEntry.data.impactDamage.tagHandle.value
+        impactDamages = tagEntry.path
     end
     local impactDamagesFiltered = engine.tag.findTags(impactDamages, engine.tag.classes.projectile)
     return impactDamagesFiltered
