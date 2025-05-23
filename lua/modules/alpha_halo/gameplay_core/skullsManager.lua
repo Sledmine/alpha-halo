@@ -5,7 +5,7 @@ local skullsManager = {}
 local inspect = require "inspect"
 
 function skullsManager.silverSkulls()
-    local selectedSkull = math.random(8, 8)
+    local selectedSkull = math.random(3, 3)
     -- Aquí debería enumerar las calaveras.
     -- Escoger una según lo que salgan en selected skull.
     if selectedSkull == 1 then
@@ -123,19 +123,6 @@ function skullsManager.actorVariantsFiltered()
     end)
     return actorVariantEntriesFiltered
 end
-
--- Ejemplo
-function skullsManager.impactDamagesFiltered()
-    local projectileTagEntries = engine.tag.findTags("", engine.tag.classes.projectile)
-    assert(projectileTagEntries)
-    local impactDamages
-    for index, tagEntry in ipairs(projectileTagEntries) do
-        impactDamages = tagEntry.path
-    end
-    local impactDamagesFiltered = engine.tag.findTags(impactDamages, engine.tag.classes.projectile)
-    return impactDamagesFiltered
-end
--- Y luego hago cosas con el impactDamagesFiltered
 
 -- Blind: Hides HUD and duplicates AI error.
 function skullsManager.skullBlind(restore)
@@ -351,7 +338,28 @@ function skullsManager.collisionsFiltered()
     return modelCollisionEntriesFiltered
 end
 
--- Knucklehead: Multiplies damage to the head x10. Divides damage to the body by /10.
+-- We look for all impact damages referenced in the projectiles.
+function skullsManager.impactDamageFiltered()
+    local projectileTagEntries = engine.tag.findTags("", engine.tag.classes.projectile)
+    assert(projectileTagEntries)
+    local damageEffectTagEntries = engine.tag.findTags("", engine.tag.classes.damageEffect)
+    assert(damageEffectTagEntries)
+    local impactDamageFiltered = table.filter(damageEffectTagEntries, function (tagEntry)
+        for _, impactValue in ipairs(projectileTagEntries) do
+            if tagEntry.handle.value == impactValue.data.impactDamage.tagHandle.value then
+                return true
+            end
+        end
+        return false
+    end)
+    --local impactDamageFiltered
+    --for _, tagEntry in ipairs(projectileTagEntries) do
+    --    impactDamageFiltered = tagEntry.data.impactDamage.tagHandle.value
+    --end
+    return impactDamageFiltered
+end
+
+-- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
 function skullsManager.skullKnucklehead(restore)
     for index, tagEntry in ipairs(skullsManager.collisionsFiltered()) do
         for i = 1, tagEntry.data.materials.count do
@@ -361,24 +369,37 @@ function skullsManager.skullKnucklehead(restore)
             if not tagEntry.path:includes("hunter") then
                 if restore then
                     if material.flags:head() then
-                        shield = shield * 0.1
-                        body = body * 0.1
-                    else
-                        shield = shield * 5
-                        body = body * 5
+                        shield = shield * 0.02
+                        body = body * 0.02
                     end
                 else
                     if material.flags:head() then
-                        shield = shield * 10
-                        body = body * 10
-                    else
-                        shield = shield * 0.2
-                        body = body * 0.2
+                        shield = shield * 50
+                        body = body * 50
                     end
                 end
             end
             material.shieldDamageMultiplier = shield
             material.bodyDamageMultiplier = body
+        end
+    end
+    for index, tagEntry in ipairs(skullsManager.impactDamageFiltered()) do
+        if restore then
+            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 5
+            tagEntry.data.damageUpperBound[1] = tagEntry.data.damageUpperBound[1] * 5
+            tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] * 5
+            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 0.2
+            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 0.2
+            tagEntry.data.humanArmor = tagEntry.data.humanArmor * 0.2
+            tagEntry.data.humanSkin = tagEntry.data.humanSkin * 0.2
+        else
+            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 0.2
+            tagEntry.data.damageUpperBound[1] = tagEntry.data.damageUpperBound[1] * 0.2
+            tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] * 0.2
+            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 5
+            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 5
+            tagEntry.data.humanArmor = tagEntry.data.humanArmor * 5
+            tagEntry.data.humanSkin = tagEntry.data.humanSkin * 5
         end
     end
     if restore then
