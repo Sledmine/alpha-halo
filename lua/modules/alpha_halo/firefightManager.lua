@@ -275,17 +275,17 @@ function firefightManager.GhostLoader()
     selectedGhostB = ghostTemplate:format(randomGhost, 2)
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
     selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
-    -- hsc.objectCreateANew(selectedGhost)
+    hsc.objectCreateANew(selectedGhost)
 
-    -- Ghost is now spawned dynamically
-    local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
-    -- All of the following HSC commands must be replaced by Balltze alternatives, anywhere where the hsc.objectCreate calls were replaced by pigPen module calls
-    if ghostObjectHandle then
-        local ghostObject = engine.gameState.getObject(ghostObjectHandle, engine.tag.objectType.vehicle)
-        -- We need to get the ghost driver unit (biped) object handle somehow to use it here. And look up the seat index from Guerilla:
-        -- engine.gameState.unitEnterVehicle(, ghostObjectHandle, )
-        
-    end
+    ---- Ghost is now spawned dynamically
+    --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
+    ---- All of the following HSC commands must be replaced by Balltze alternatives, anywhere where the hsc.objectCreate calls were replaced by pigPen module calls
+    --if ghostObjectHandle then
+    --    local ghostObject = engine.gameState.getObject(ghostObjectHandle, engine.tag.objectType.vehicle)
+    --    -- We need to get the ghost driver unit (biped) object handle somehow to use it here. And look up the seat index from Guerilla:
+    --    -- engine.gameState.unitEnterVehicle(, ghostObjectHandle, )
+    --    
+    --end
 
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.aiSpawn(1, selectedGhostPilot)

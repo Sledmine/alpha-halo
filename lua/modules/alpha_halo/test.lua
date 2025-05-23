@@ -29,7 +29,7 @@ function test.AllegianceSet()
         hsc.aiState(2, "Flood_Firing_Positions/platoon_a", 1)
         hsc.aiState(2, "Covenant_Banshee/Covenant_Banshee", 1)
         theyChill = true
-        logger:debug("STOOOOP FIGHTIIIIIIIING!!!")
+        --logger:debug("STOOOOP FIGHTIIIIIIIING!!!")
     elseif (theyChill == true) then
         --hsc.aiState(2, "Covenant_Firing_Positions/platoon_a", 2)
         hsc.aiState(2, "UNSC_Firing_Positions", 2)
