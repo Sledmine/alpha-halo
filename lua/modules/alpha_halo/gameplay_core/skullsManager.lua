@@ -108,7 +108,7 @@ end
 
 -- We look for all weapons in the map.
 function skullsManager.weaponsFiltered()
-    local weaponTagEntries = engine.tag.findTags("", engine.tag.classes.weapon)[1]
+    local weaponTagEntries = engine.tag.findTags("", engine.tag.classes.weapon)
     assert(weaponTagEntries)
     return weaponTagEntries
 end
@@ -454,6 +454,8 @@ function skullsManager.skullSlayer(restore)
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 0.5
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 0.5
             end
+        skullsManager.skulls.slayer = false
+        -- logger:debug("Slayer Off")
         else
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -462,15 +464,11 @@ function skullsManager.skullSlayer(restore)
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
             end
+        skullsManager.skulls.slayer = true
+        -- logger:debug("Slayer On")            
         end
     end
-    if restore == true then
-        skullsManager.skulls.slayer = false
-        -- logger:debug("Slayer Off")
-    else
-        skullsManager.skulls.slayer = true
-        -- logger:debug("Slayer On")
-    end
+
 end
 
 local activateOnTick
