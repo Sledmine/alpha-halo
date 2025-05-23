@@ -1,6 +1,7 @@
 local balltze = Balltze
 local engine = Engine
 local dispatchScripts = require "script".dispatch
+math.randomseed(os.clock())
 
 --Project modules
 local firefightManager = require "alpha_halo.firefightManager"
@@ -33,6 +34,7 @@ function OnTick()
     healthManager.eachTick()
     eventsManager.eachTick()
     skullsManager.skullAssassinOnTick()
+    skullsManager.skullBlindOnTick()
     vehiclePositionLoader.vehiclePositionLoader()
     math.randomseed(engine.core.getTickCount())
     dispatchScripts()
