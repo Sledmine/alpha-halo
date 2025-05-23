@@ -3,6 +3,7 @@
 -- Module imports
 local engine = Engine
 local balltze = Balltze
+DebugMode = false
 
 local pigPen = {}
 
@@ -15,25 +16,25 @@ function pigPen.getNamedScenarioVehicles()
     -- Get count using count field, not through table length operator (#); iterate using this count provided by the engine, not the table length
     local scenarioVehiclesCount = scenarioVehicles.count
     local scenarioVehiclesElements = scenarioVehicles.elements
-    logger:debug(scenarioVehicles.count.." vehicles found in map")
+    --logger:debug(scenarioVehicles.count.." vehicles found in map")
     local scenarioObjectNames = scenarioTagHandle.data.objectNames
     local scenarioObjectNamesElements = scenarioObjectNames.elements
     for i = -1, scenarioVehiclesCount, 1 do
         local scenarioVehicle = scenarioVehiclesElements[i]
         if (scenarioVehicle == nil) then
-            logger:debug("Check #0 failed for vehicle #"..i..", is nil")
+            --logger:debug("Check #0 failed for vehicle #"..i..", is nil")
             goto continue -- Skip to the next iteration, but do not break the whole thing (goto statements are local to the entire block where they are defined)
         end
         -- Note: this index is collected from the game engine in base zero, but it must be adjusted to base one to fit with Lua base one indeces, otherwise things break
         local scenarioVehicleObjectNameIndex = scenarioVehicle.name + 1
         if (scenarioVehicleObjectNameIndex == nil) then -- Not-nil check
-            logger:debug("Check #1 failed for vehicle #"..i.." of type "..scenarioVehicle.type)
+            --logger:debug("Check #1 failed for vehicle #"..i.." of type "..scenarioVehicle.type)
             goto continue -- Skip to the next iteration, but do not break the whole thing (goto statements are local to the entire block where they are defined)
         end
         local scenarioVehicleObjectName = scenarioObjectNamesElements[scenarioVehicleObjectNameIndex]
         -- Unnamed vehicles fall into this check after doing the base zero to base one fix
         if (scenarioVehicleObjectName == nil) then -- Not-nil check
-            logger:debug("Check #2 failed for vehicle #"..i.." of type "..scenarioVehicle.type)
+            --logger:debug("Check #2 failed for vehicle #"..i.." of type "..scenarioVehicle.type)
             goto continue -- Skip to the next iteration, but do not break the whole thing
         end
         -- Not confirmed: Unnamed vehicles (or object without an assigned name in the map vehicle list) have a default name composed of a single [END OF TEXT] character, or decimal 3 in  ASCII
@@ -43,7 +44,7 @@ function pigPen.getNamedScenarioVehicles()
         -- end
         table.insert(namedScenarioVehicles, scenarioVehicle)
         -- Print the "name" field only if the object name object is not nil
-        logger:debug("Vehicle #"..i.." is "..scenarioVehicleObjectName.name..", object name index is "..scenarioVehicleObjectNameIndex..", type is "..scenarioVehicle.type)
+        --logger:debug("Vehicle #"..i.." is "..scenarioVehicleObjectName.name..", object name index is "..scenarioVehicleObjectNameIndex..", type is "..scenarioVehicle.type)
         -- logger:debug("Table size is: "..#namedScenarioVehicles)
         ::continue::
     end
