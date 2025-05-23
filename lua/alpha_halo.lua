@@ -79,15 +79,21 @@ function PluginLoad()
         return true
     end)
 
+    balltze.command.registerCommand("resetSilverSkulls", "debug", "description", nil, false, 0, 0,
+                                    true, false, function(args)
+        skullsManager.resetSilverSkulls()
+        return true
+    end)
+
     balltze.command.registerCommand("goldenSkulls", "debug", "description", nil, false, 0, 0, true,
                                     false, function(args)
         skullsManager.goldenSkulls()
         return true
     end)
 
-    balltze.command.registerCommand("resetSilverSkulls", "debug", "description", nil, false, 0, 0,
-                                    true, false, function(args)
-        skullsManager.resetSilverSkulls()
+    balltze.command.registerCommand("resetGoldenSkulls", "debug", "description", nil, false, 0, 0, true,
+                                    false, function(args)
+        skullsManager.resetGoldenSkulls()
         return true
     end)
 
