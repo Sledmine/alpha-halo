@@ -6,12 +6,10 @@ package.loaded["luna"] = nil
 require "luna"
 
 local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
---local firefightManager = require "alpha_halo.firefightManager"
+-- local firefightManager = require "alpha_halo.firefightManager"
 
---local main
-local loadWhenIn = {
-    "alpha_halo"
-}
+-- local main
+local loadWhenIn = {"alpha_halo"}
 
 loadWhenIn = table.extend(loadWhenIn, table.map(loadWhenIn, function(map)
     return map .. "_dev"
@@ -58,6 +56,16 @@ end
 
 local main
 
+function PluginFirstTick()
+    balltze.event.tick.subscribe(function(event)
+        if event.time == "before" then
+            if not main then
+                main = require "alpha_halo.main"
+            end
+        end
+    end)
+end
+
 function PluginLoad()
     logger = balltze.logger.createLogger("Alpha Halo") -- this means Alpha Firefight
     logger:muteDebug(not DebugMode)
@@ -66,44 +74,34 @@ function PluginLoad()
 
     -- Commands for Alpha Firefight
     balltze.command.registerCommand("silverSkulls", "debug", "description", nil, false, 0, 0, true,
-            false, function(args)
-                skullsManager.silverSkulls()
+                                    false, function(args)
+        skullsManager.silverSkulls()
         return true
     end)
 
     balltze.command.registerCommand("goldenSkulls", "debug", "description", nil, false, 0, 0, true,
-            false, function(args)
-                skullsManager.goldenSkulls()
+                                    false, function(args)
+        skullsManager.goldenSkulls()
         return true
     end)
 
-    balltze.command.registerCommand("resetSilverSkulls", "debug", "description", nil, false, 0, 0, true,
-            false, function(args)
-                skullsManager.resetSilverSkulls()
+    balltze.command.registerCommand("resetSilverSkulls", "debug", "description", nil, false, 0, 0,
+                                    true, false, function(args)
+        skullsManager.resetSilverSkulls()
         return true
     end)
-
 
     balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,
-            false, function(args)
-                --firefightManager.debugCovenantTeam()
+                                    false, function(args)
+        -- firefightManager.debugCovenantTeam()
         return true
     end)
 
     balltze.command.registerCommand("flood_team", "debug", "description", nil, false, 0, 0, true,
-            false, function(args)
-                --firefightManager.debugFloodTeam()
+                                    false, function(args)
+        -- firefightManager.debugFloodTeam()
         return true
     end)
-
-    balltze.event.tick.subscribe(function(event)
-        if event.time == "before" then
-            if not main then
-                main = require "alpha_halo.main"
-            end
-        end
-    end)
-
     return true
 end
 
