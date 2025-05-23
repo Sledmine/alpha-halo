@@ -1,7 +1,7 @@
 local balltze = Balltze
 local engine = Engine
 local dispatchScripts = require "script".dispatch
-math.randomseed(os.time())
+math.randomseed(os.clock())
 
 --Project modules
 local firefightManager = require "alpha_halo.firefightManager"
