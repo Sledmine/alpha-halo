@@ -29,7 +29,9 @@ constants.sounds = {
     roundCompleted = findTags("survival_end_round", engine.tag.classes.sound)[1],
     fiveLivesLeft = findTags("survival_5_lives_left", engine.tag.classes.sound)[1],
     oneLiveLeft = findTags("survival_1_life_left", engine.tag.classes.sound)[1],
-    noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1]
+    noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1],
+    skullOn = findTags("skull_on", engine.tag.classes.sound)[1],
+    skullsReset = findTags("skulls_reset", engine.tag.classes.sound)[1]
 }
 
 constants.bipeds = {
