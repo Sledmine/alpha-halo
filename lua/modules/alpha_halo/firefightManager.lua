@@ -148,10 +148,12 @@ function firefightManager.eachTick()
                 firefightManager.WaveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
-                --playSound(const.sounds.roundComplete.handle)
+                skullsManager.resetSilverSkulls()
+                playSound(const.sounds.roundCompleted.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
                 waveCooldownStart = true
+                playSound(const.sounds.skullsReset.handle)
                 waveCooldownCounter = roundCooldownTimer
                 firefightManager.WaveProgression()
             end
@@ -185,6 +187,7 @@ function firefightManager.WaveProgression()
             currentRound = 1
             currentSet = currentSet + 1
             skullsManager.resetSilverSkulls()
+            playSound(const.sounds.skullsReset.handle)
         end
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
@@ -217,9 +220,14 @@ function firefightManager.WaveCooldown()
             playSound(const.sounds.roundStart.handle)
         end
         -- Si recién iniciamos una ronda, encendemos una calavera plateada.
-        if currentWave == 1 then
+        if currentWave > 1 and currentWave < 6 then
             skullsManager.silverSkulls()
+            playSound(const.sounds.skullOn.handle)
         end
+        --if currentRound > 1 and currentWave == 1 then
+        --    skullsManager.resetSilverSkulls()
+        --    playSound(const.sounds.skullsReset.handle)
+        --end
         -- Si recién iniciamos un nuevo set, encendemos una calavera dorada.
         if currentRound == 1 and currentSet > 1 then
             skullsManager.goldenSkulls()
