@@ -3,10 +3,11 @@ local engine = Engine
 local balltze = Balltze
 local objectTypes = Engine.tag.objectType
 local tagClasses = Engine.tag.classes
+local findTags = Engine.tag.findTags
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 local inspect = require "inspect"
-
+local tagEntries = require "alpha_halo.constants.tagEntries"
 
 local skullsManager = {}
 
@@ -29,8 +30,8 @@ skullsManager.skulls = {
     assassin = false
 }
 
--- These keywords help separate the tags needed.
-local keywords = {
+-------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
+local allUnits = {
     "flood",
     "elite",
     "grunt",
@@ -38,87 +39,18 @@ local keywords = {
     "hunter",
     "odst"
 }
-
--- We look for all actor_variants in the map.
-function skullsManager.actorVariantsFiltered()
-    local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
-    assert(actorVariantTagEntries)
-    local actorVariantEntriesFiltered = table.filter(actorVariantTagEntries, function(tagEntry)
-        for _, keyword in pairs(keywords) do
-            if tagEntry.path:includes(keyword) then
-                return true
-            end
-        end
-        return false
-    end)
-    return actorVariantEntriesFiltered
-end
-
--- We look for all actors in the map.
-function skullsManager.actorsFiltered()
-    local actorTagEntries = engine.tag.findTags("", engine.tag.classes.actor)
-    assert(actorTagEntries)
-    local actorEntriesFiltered = table.filter(actorTagEntries, function(tagEntry)
-        for _, keyword in pairs(keywords) do
-            if tagEntry.path:includes(keyword) then
-                return true
-            end
-        end
-        return false
-    end)
-    return actorEntriesFiltered
-end
-
--- We look for all collisions in the map.
-function skullsManager.collisionsFiltered()
-    local modelCollisionTagEntries = engine.tag.findTags("",
-                                                         engine.tag.classes.modelCollisionGeometry)
-    assert(modelCollisionTagEntries)
-    local modelCollisionEntriesFiltered = table.filter(modelCollisionTagEntries, function(tagEntry)
-        for _, keyword in pairs(keywords) do
-            if tagEntry.path:includes(keyword) then
-                return true
-            end
-        end
-        return false
-    end)
-    return modelCollisionEntriesFiltered
-end
-
--- We look for all impact damages referenced in the projectiles.
-function skullsManager.impactDamageFiltered()
-    local projectileTagEntries = engine.tag.findTags("", engine.tag.classes.projectile)
-    assert(projectileTagEntries)
-    local damageEffectTagEntries = engine.tag.findTags("", engine.tag.classes.damageEffect)
-    assert(damageEffectTagEntries)
-    local impactDamageFiltered = table.filter(damageEffectTagEntries, function(tagEntry)
-        for _, impactValue in ipairs(projectileTagEntries) do
-            if tagEntry.handle.value == impactValue.data.impactDamage.tagHandle.value then
-                return true
-            end
-        end
-        return false
-    end)
-    -- local impactDamageFiltered
-    -- for _, tagEntry in ipairs(projectileTagEntries) do
-    --    impactDamageFiltered = tagEntry.data.impactDamage.tagHandle.value
-    -- end
-    return impactDamageFiltered
-end
-
--- We look for all weapons in the map.
-function skullsManager.weaponsFiltered()
-    local weaponTagEntries = engine.tag.findTags("", engine.tag.classes.weapon)
-    assert(weaponTagEntries)
-    return weaponTagEntries
-end
-
--------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
-
 -- Hunger: Makes the AI drop half the ammo.
 ---@param restore boolean
 function skullsManager.skullHunger(restore)
-    for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+    local hungerTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
+        for _, keyword in pairs(allUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(hungerTagsFiltered) do
         if restore == true then
             tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 2
             tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 2
@@ -145,7 +77,15 @@ end
 -- Mythic: AI gets double body & shield vitality, while player gets x1.5 boost.
 ---@param restore boolean
 function skullsManager.skullMythic(restore)
-    for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+    local mythicTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
+        for _, keyword in pairs(allUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(mythicTagsFiltered) do
         if restore == true then
             tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 0.5
             tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 0.5
@@ -154,8 +94,7 @@ function skullsManager.skullMythic(restore)
             tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
         end
     end
-    local playerCollisionTagEntry = engine.tag.findTags("marine_mp",
-                                                        engine.tag.classes.modelCollisionGeometry)
+    local playerCollisionTagEntry = findTags("marine_mp", tagClasses.modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
@@ -179,6 +118,14 @@ end
 local OnTick
 ---@param restore boolean
 function skullsManager.skullBlind(restore)
+    local blindTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
+        for _, keyword in pairs(allUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
     if restore == true then
         skullsManager.skulls.blind = false
         --logger:debug("Blind Off")
@@ -187,11 +134,11 @@ function skullsManager.skullBlind(restore)
         --logger:debug("Blind On")
     end
     if restore == true then
-        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+        for _, tagEntry in ipairs(blindTagsFiltered) do
             tagEntry.data.projectileError = tagEntry.data.projectileError * 0.5
         end
     else
-        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+        for _, tagEntry in ipairs(blindTagsFiltered) do
             tagEntry.data.projectileError = tagEntry.data.projectileError * 2
         end
         OnTick = true
@@ -221,7 +168,7 @@ end
 ---- Catch: Makes the AI launch grenades a fuck lot. CURRENTLY NOT WORKING.
 -- function skullsManager.skullCatch(restore)
 --    if skullsManager.skulls.catch then
---        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+--        for index, tagEntry in ipairs(tagEntries.actorVariant()) do
 --            if restore then
 --                tagEntry.data.flags:hasUnlimitedGrenades(false)
 --                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(1) -- This doesn't work.
@@ -247,17 +194,29 @@ end
 ---Berserk: Makes the AI enter in constant Berserk state.
 ---@param restore boolean
 function skullsManager.skullBerserk(restore)
-    for _, tagEntry in ipairs(skullsManager.actorsFiltered()) do
-        if tagEntry.path:includes("elite") or tagEntry.path:includes("hunter") then
-            if restore == true then
-                tagEntry.data.flags:alwaysChargeAtEnemies(false)
-                tagEntry.data.flags:alwaysBerserkInAttackingMode(false)
-                tagEntry.data.flags:alwaysChargeInAttackingMode(false)
-            else
-                tagEntry.data.flags:alwaysChargeAtEnemies(true)
-                tagEntry.data.flags:alwaysBerserkInAttackingMode(true)
-                tagEntry.data.flags:alwaysChargeInAttackingMode(true)
+    local berserkUnits = {
+        "flood",
+        "elite",
+        "hunter",
+        "odst"
+    }
+    local berserkTagsFiltered = table.filter(tagEntries.actor(), function(tagEntry)
+        for _, keyword in pairs(berserkUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
             end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(berserkTagsFiltered) do
+        if restore == true then
+            tagEntry.data.flags:alwaysChargeAtEnemies(false)
+            tagEntry.data.flags:alwaysBerserkInAttackingMode(false)
+            tagEntry.data.flags:alwaysChargeInAttackingMode(false)
+        else
+            tagEntry.data.flags:alwaysChargeAtEnemies(true)
+            tagEntry.data.flags:alwaysBerserkInAttackingMode(true)
+            tagEntry.data.flags:alwaysChargeInAttackingMode(true)
         end
     end
     if restore == true then
@@ -272,45 +231,51 @@ end
 -- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
 ---@param restore boolean
 function skullsManager.skullKnucklehead(restore)
-    for _, tagEntry in ipairs(skullsManager.collisionsFiltered()) do
+    local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(), function(tagEntry)
+        for _, keyword in pairs(allUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(knuckleheadTagsFiltered) do
         for i = 1, tagEntry.data.materials.count do
             local material = tagEntry.data.materials.elements[i]
             local shield = material.shieldDamageMultiplier
             local body = material.bodyDamageMultiplier
-            if not tagEntry.path:includes("hunter") then
-                if restore == true then
-                    if material.flags:head() then
-                        shield = shield * 0.02
-                        body = body * 0.02
-                    end
-                else
-                    if material.flags:head() then
-                        shield = shield * 50
-                        body = body * 50
-                    end
+            if restore == true then
+                if material.flags:head() then
+                    shield = shield * 0.02
+                    body = body * 0.02
+                end
+            else
+                if material.flags:head() then
+                    shield = shield * 25
+                    body = body * 25
                 end
             end
             material.shieldDamageMultiplier = shield
             material.bodyDamageMultiplier = body
         end
     end
-    for _, tagEntry in ipairs(skullsManager.impactDamageFiltered()) do
+    for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
         if restore == true then
-            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 5
-            tagEntry.data.damageUpperBound[1] = tagEntry.data.damageUpperBound[1] * 5
-            tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] * 5
-            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 0.2
-            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 0.2
-            tagEntry.data.humanArmor = tagEntry.data.humanArmor * 0.2
-            tagEntry.data.humanSkin = tagEntry.data.humanSkin * 0.2
+            tagEntry.data.grunt = tagEntry.data.grunt * 5
+            tagEntry.data.jackal = tagEntry.data.jackal * 5
+            tagEntry.data.elite = tagEntry.data.elite * 5
+            tagEntry.data.eliteEnergyShield = tagEntry.data.eliteEnergyShield * 5
+            tagEntry.data.floodCarrierForm = tagEntry.data.floodCarrierForm * 5
+            tagEntry.data.floodCombatForm = tagEntry.data.floodCombatForm * 5
+            tagEntry.data.hunterSkin = tagEntry.data.hunterSkin * 0.5
         else
-            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 0.2
-            tagEntry.data.damageUpperBound[1] = tagEntry.data.damageUpperBound[1] * 0.2
-            tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] * 0.2
-            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 5
-            tagEntry.data.cyborgArmor = tagEntry.data.cyborgArmor * 5
-            tagEntry.data.humanArmor = tagEntry.data.humanArmor * 5
-            tagEntry.data.humanSkin = tagEntry.data.humanSkin * 5
+            tagEntry.data.grunt = tagEntry.data.grunt * 0.2
+            tagEntry.data.jackal = tagEntry.data.jackal * 0.2
+            tagEntry.data.elite = tagEntry.data.elite * 0.2
+            tagEntry.data.eliteEnergyShield = tagEntry.data.eliteEnergyShield * 0.2
+            tagEntry.data.floodCarrierForm = tagEntry.data.floodCarrierForm * 0.2
+            tagEntry.data.floodCombatForm = tagEntry.data.floodCombatForm * 0.2
+            tagEntry.data.hunterSkin = tagEntry.data.hunterSkin * 2
         end
     end
     if restore == true then
@@ -322,13 +287,12 @@ function skullsManager.skullKnucklehead(restore)
     end
 end
 
----Banger: Makes Grunts explode after dying.
+---Banger: Makes Grunts and Human Floods explode after dying.
 ---@param restore boolean
 function skullsManager.skullBanger(restore)
-    for _, tagEntry in ipairs(skullsManager.collisionsFiltered()) do
-        local findTags = engine.tag.findTags
-        local plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion",
-                                         engine.tag.classes.effect)[1]
+    local plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion", tagClasses.effect)[1]
+    local floodExplosion = findTags("characters\\floodcarrier\\effects\\body destroyed", tagClasses.effect)[1]
+    for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
         if tagEntry.path:includes("grunt") then
             if restore == true then
                 tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold - 0.1
@@ -336,6 +300,14 @@ function skullsManager.skullBanger(restore)
             else
                 tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold + 0.1
                 tagEntry.data.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
+            end
+        elseif tagEntry.path:includes("floodcombat_human") then
+            if restore == true then
+                tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold - 0.1
+                tagEntry.data.bodyDepletedEffect.tagHandle.value = nullHandle
+            else
+                tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold + 0.1
+                tagEntry.data.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
             end
         end
     end
@@ -351,8 +323,7 @@ end
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param restore boolean
 function skullsManager.skullDoubleDown(restore)
-    local playerCollisionTagEntry = engine.tag.findTags("marine_mp",
-                                                        engine.tag.classes.modelCollisionGeometry)[1]
+    local playerCollisionTagEntry = findTags("marine_mp", tagClasses.modelCollisionGeometry)[1]
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
@@ -377,7 +348,7 @@ end
 -- Eye Patch: Eliminates weapons assistances & initial error.
 ---@param restore boolean
 function skullsManager.skullEyePatch(restore)
-    for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+    for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
             tagEntry.data.autoaimAngle = tagEntry.data.autoaimAngle * 100
             tagEntry.data.autoaimRange = tagEntry.data.autoaimRange * 100
@@ -412,7 +383,7 @@ end
 -- Trigger Switch: Auto weapons became semi-auto and vice versa.
 ---@param restore boolean
 function skullsManager.skullTriggerSwitch(restore)
-    for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+    for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -445,7 +416,7 @@ end
 -- Slayer: Weapons shoot doble rounds and waste double ammo.
 ---@param restore boolean
 function skullsManager.skullSlayer(restore)
-    for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+    for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -475,44 +446,47 @@ local activateOnTick
 -- Assassin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
 ---@param restore boolean
 function skullsManager.skullAssassin(restore)
-    if restore == true then
-        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+    local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
+        for _, keyword in pairs(allUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(assassinTagsFiltered) do
+        if restore == true then
             if not tagEntry.path:includes("stealth") then
                 tagEntry.data.flags:activeCamouflage(false)
             end
-        end
-        for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
-            tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 0.5
-            tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 2
-        end
-    else
-        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+        else
             if not tagEntry.path:includes("stealth") then
-                tagEntry.data.flags:activeCamouflage(true)
+                    tagEntry.data.flags:activeCamouflage(true)
             end
         end
-        for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+    end
+    for _, tagEntry in ipairs(tagEntries.weapon()) do
+        if restore == true then
+            tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 0.5
+            tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 2
+        else
             tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 2
             tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 0.5
-            -- for i = 1, tagEntry.data.triggers.count do -- Need to find out how to access a child tag from a parent tag.
-            --    local trigger = tagEntry.data.triggers.elements[i]
-            --    trigger.projectile.impactDamage.damageActiveCamouflageDamage = wololooo
-            -- end
         end
-        activateOnTick = true
     end
     if restore == true then
         skullsManager.skulls.assassin = false
         -- logger:debug("Assassin Off")
     else
         skullsManager.skulls.assassin = true
+        activateOnTick = true -- This is needed to turn off skullAssassinOnTick
         -- logger:debug("Assassin On")
     end
 end
 
 -- Assassin OnTick
 function skullsManager.skullAssassinOnTick()
-        if activateOnTick == true then
+    if activateOnTick == true then
         local player = getPlayer()
         if not player then
             return
@@ -530,7 +504,7 @@ function skullsManager.skullAssassinOnTick()
             end
         else
             blamBiped.isCamoActive = false
-            activateOnTick = false
+            activateOnTick = false -- This makes so this function turns off one tick after Assassin gets turned off.
         end
     end
 end
@@ -542,41 +516,41 @@ function skullsManager.silverSkulls()
             active = skullsManager.skulls.berserk,
             func = skullsManager.skullBerserk
         },
-        {
-            name = "Knucklehead",
-            active = skullsManager.skulls.knucklehead,
-            func = skullsManager.skullKnucklehead
-        },
-        {
-            name = "Banger",
-            active = skullsManager.skulls.banger,
-            func = skullsManager.skullBanger
-        },
-        {
-            name = "Double Down",
-            active = skullsManager.skulls.doubleDown,
-            func = skullsManager.skullDoubleDown
-        },
-        {
-            name = "Eye Patch",
-            active = skullsManager.skulls.eyePatch,
-            func = skullsManager.skullEyePatch
-        },
-        {
-            name = "Trigger Switch",
-            active = skullsManager.skulls.triggerSwitch,
-            func = skullsManager.skullTriggerSwitch
-        },
-        {
-            name = "Slayer",
-            active = skullsManager.skulls.slayer,
-            func = skullsManager.skullSlayer
-        },
-        {
-            name = "Assassin",
-            active = skullsManager.skulls.assassin,
-            func = skullsManager.skullAssassin
-        }
+        --{
+        --    name = "Knucklehead",
+        --    active = skullsManager.skulls.knucklehead,
+        --    func = skullsManager.skullKnucklehead
+        --},
+        --{
+        --    name = "Banger",
+        --    active = skullsManager.skulls.banger,
+        --    func = skullsManager.skullBanger
+        --},
+        --{
+        --    name = "Double Down",
+        --    active = skullsManager.skulls.doubleDown,
+        --    func = skullsManager.skullDoubleDown
+        --},
+        --{
+        --    name = "Eye Patch",
+        --    active = skullsManager.skulls.eyePatch,
+        --    func = skullsManager.skullEyePatch
+        --},
+        --{
+        --    name = "Trigger Switch",
+        --    active = skullsManager.skulls.triggerSwitch,
+        --    func = skullsManager.skullTriggerSwitch
+        --},
+        --{
+        --    name = "Slayer",
+        --    active = skullsManager.skulls.slayer,
+        --    func = skullsManager.skullSlayer
+        --},
+        --{
+        --    name = "Assassin",
+        --    active = skullsManager.skulls.assassin,
+        --    func = skullsManager.skullAssassin
+        --}
         -- You can add more skulls if you want
     }
 
@@ -756,19 +730,5 @@ function skullsManager.resetGoldenSkulls()
     end
 
 end
-
--- Mejor llamar directamente la calavera con el argumento false o true segun sea el caso en el firefightManager.lua o proponer otra manera
---local currentSet = 1
---function skullsManager.goldenSkulls()
---    currentSet = currentSet + 1
---    if currentSet == 2 then
---        skullsManager.skullHunger(false)
---    elseif currentSet == 3 then
---        skullsManager.skullMythic(false)
---    elseif currentSet == 4 then
---        skullsManager.skullBlind(false)
---    end
---    -- skullsManager.skullCatch()
---end
 
 return skullsManager
