@@ -22,6 +22,12 @@ function tagEntries.actorVariant()
     return actorVariantTagEntries
 end
 
+function tagEntries.biped()
+    local bipedTagEntries = findTags("", tagClasses.biped)
+    assert(bipedTagEntries)
+    return bipedTagEntries
+end
+
 function tagEntries.damageEffect()
     local damageEffectTagEntries = findTags("", tagClasses.damageEffect)
     assert(damageEffectTagEntries)
@@ -42,6 +48,17 @@ function tagEntries.impactDamageEffect()
     return impactDamageEffect
 end
 
+function tagEntries.meleeDamageEffect()
+    local meleeDamageEffect = table.filter(tagEntries.meleeDamageEffect(), function(tagEntry)
+        if tagEntry.path:includes("melee") then
+            return true
+        end
+        return false
+    end)
+    assert(meleeDamageEffect)
+    return meleeDamageEffect
+end
+
 function tagEntries.effect()
     local effectTagEntries = findTags("", tagClasses.effect)
     assert(effectTagEntries)
@@ -58,6 +75,12 @@ function tagEntries.projectile()
     local projectileTagEntries = findTags("", tagClasses.projectile)
     assert(projectileTagEntries)
     return projectileTagEntries
+end
+
+function tagEntries.vehicle()
+    local vehicleTagEntries = findTags("", tagClasses.vehicle)
+    assert(vehicleTagEntries)
+    return vehicleTagEntries
 end
 
 function tagEntries.weapon()
