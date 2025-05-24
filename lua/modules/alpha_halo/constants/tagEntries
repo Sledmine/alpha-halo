@@ -1,0 +1,68 @@
+local blam = require "blam"
+local engine = Engine
+local balltze = Balltze
+local objectTypes = Engine.tag.objectType
+local tagClasses = Engine.tag.classes
+local findTags = Engine.tag.findTags
+local getObject = Engine.gameState.getObject
+local getPlayer = Engine.gameState.getPlayer
+local inspect = require "inspect"
+
+local tagEntries = {}
+
+function tagEntries.actor()
+    local actorTagEntries = engine.tag.findTags("", engine.tag.classes.actor)
+    assert(actorTagEntries)
+    return actorTagEntries
+end
+
+function tagEntries.actorVariant()
+    local actorVariantTagEntries = engine.tag.findTags("", engine.tag.classes.actorVariant)
+    assert(actorVariantTagEntries)
+    return actorVariantTagEntries
+end
+
+function tagEntries.damageEffect()
+    local damageEffectTagEntries = engine.tag.findTags("", engine.tag.classes.damageEffect)
+    assert(damageEffectTagEntries)
+    return damageEffectTagEntries
+end
+
+function tagEntries.impactDamageEffect()
+    local impactDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
+        for _, impactValue in ipairs(tagEntries.projectile()) do
+            if tagEntry.handle.value == impactValue.data.impactDamage.tagHandle.value then
+                return true
+            end
+        end
+        return false
+    end)
+    assert(impactDamageEffect)
+    return impactDamageEffect
+end
+
+function tagEntries.effect()
+    local effectTagEntries = engine.tag.findTags("", engine.tag.classes.effect)
+    assert(effectTagEntries)
+    return effectTagEntries
+end
+
+function tagEntries.modelCollisionGeometry()
+    local modelCollisionTagEntries = engine.tag.findTags("", engine.tag.classes.modelCollisionGeometry)
+    assert(modelCollisionTagEntries)
+    return modelCollisionTagEntries
+end
+
+function tagEntries.projectile()
+    local projectileTagEntries = engine.tag.findTags("", engine.tag.classes.projectile)
+    assert(projectileTagEntries)
+    return projectileTagEntries
+end
+
+function tagEntries.weapon()
+    local weaponTagEntries = engine.tag.findTags("", engine.tag.classes.weapon)
+    assert(weaponTagEntries)
+    return weaponTagEntries
+end
+
+return tagEntries
