@@ -73,7 +73,7 @@ function PluginLoad()
     loadChimeraCompatibility()
 
     -- Commands for Alpha Firefight
-    balltze.command.registerCommand("silverSkulls", "debug", "description", nil, false, 0, 0, true,
+    balltze.command.registerCommand("silverSkullsAll", "debug", "description", nil, false, 0, 0, true,
                                     false, function(args)
         skullsManager.silverSkulls()
         skullsManager.silverSkulls()
@@ -86,13 +86,13 @@ function PluginLoad()
         return true
     end)
 
-    balltze.command.registerCommand("resetSilverSkulls", "debug", "description", nil, false, 0, 0,
+    balltze.command.registerCommand("resetSilverSkullsAll", "debug", "description", nil, false, 0, 0,
                                     true, false, function(args)
         skullsManager.resetSilverSkulls()
         return true
     end)
 
-    balltze.command.registerCommand("goldenSkulls", "debug", "description", nil, false, 0, 0, true,
+    balltze.command.registerCommand("goldenSkullsAll", "debug", "description", nil, false, 0, 0, true,
                                     false, function(args)
         skullsManager.goldenSkulls()
         skullsManager.goldenSkulls()
@@ -100,23 +100,23 @@ function PluginLoad()
         return true
     end)
 
-    balltze.command.registerCommand("resetGoldenSkulls", "debug", "description", nil, false, 0, 0, true,
+    balltze.command.registerCommand("resetGoldenSkullsAll", "debug", "description", nil, false, 0, 0, true,
                                     false, function(args)
         skullsManager.resetGoldenSkulls()
         return true
     end)
 
-    balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,
-                                    false, function(args)
-        -- firefightManager.debugCovenantTeam()
-        return true
-    end)
-
-    balltze.command.registerCommand("flood_team", "debug", "description", nil, false, 0, 0, true,
-                                    false, function(args)
-        -- firefightManager.debugFloodTeam()
-        return true
-    end)
+    --balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,
+    --                                false, function(args)
+    --    -- firefightManager.debugCovenantTeam()
+    --    return true
+    --end)
+--
+    --balltze.command.registerCommand("flood_team", "debug", "description", nil, false, 0, 0, true,
+    --                                false, function(args)
+    --    -- firefightManager.debugFloodTeam()
+    --    return true
+    --end)
     return true
 end
 
