@@ -1,6 +1,0 @@
-ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
-
--- La creación de vehículos está buggeadísima.
--- Arreglar la randomización de los peligros aleatorios.
--- Crash muy extraño que ocurre cuando los Centinelas aparecen al iniciar un set ???
--- Implementar calaveras.

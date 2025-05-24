@@ -1,0 +1,22 @@
+ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
+
+-- Hay un leak de memoria al usar  findTag.
+-- Hay que actualizar todas las funciones de hsc al transpilador.
+-- Arreglar la iteración de objetos player.
+-- Arreglar el health regen y el magic sight.
+-- Arreglar pigPen.
+-- Optimizar el código de las calaveras (ifs, findTags, etc).
+-- Arreglar el cagadero de Tilt.
+-- Implementar Havok y Cencerro.
+-- Revisar Banshees chocando contra el cielo.
+
+---- Revisar las siguientes calaveras;
+- Berserk
+- Tough Luck
+- Fog
+- Cowbell
+- Havok
+- Heavy Hitter
+- Slayer
+- Assassin
+- Ciego
