@@ -16,12 +16,17 @@ local nullHandle = 0xFFFFFFFF
 
 -- These flags indicates if a skull is On or Off.
 skullsManager.skulls = {
-    hunger = false,
+    famine = false,
     mythic = false,
     blind = false,
     --catch = false,
     berserk = false,
+    toughLuck = false,
+    fog = false,
     knucklehead = false,
+    cowbell = false,
+    havok = false,
+    heavyHitter = false,
     tilt = false,
     banger = false,
     doubleDown = false,
@@ -30,6 +35,26 @@ skullsManager.skulls = {
     slayer = false,
     assassin = false
 }
+
+local player
+local biped
+local blamBiped
+-- This function is called each tick and it's needed for some skulls.
+function skullsManager.eachTick()
+    player = getPlayer()
+    if not player then
+        return
+    end
+    biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
+    blamBiped = blam.biped(get_object(player.objectHandle.value))
+    assert(blamBiped, "Biped tag must exist")
+    skullsManager.skullFogOnTick()
+    skullsManager.skullBlindOnTick()
+    skullsManager.skullAssassinOnTick()
+end
 
 -------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
 local allUnits = {
@@ -40,10 +65,10 @@ local allUnits = {
     "hunter",
     "odst"
 }
--- Hunger: Makes the AI drop half the ammo.
+-- Famine: Makes the AI drop half the ammo.
 ---@param restore boolean
-function skullsManager.skullHunger(restore)
-    local hungerTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
+function skullsManager.skullFamine(restore)
+    local famineTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
                 return true
@@ -51,7 +76,7 @@ function skullsManager.skullHunger(restore)
         end
         return false
     end)
-    for _, tagEntry in ipairs(hungerTagsFiltered) do
+    for _, tagEntry in ipairs(famineTagsFiltered) do
         if restore == true then
             tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 2
             tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 2
@@ -67,11 +92,11 @@ function skullsManager.skullHunger(restore)
         end
     end
     if restore == true then
-        skullsManager.skulls.hunger = false
-        --logger:debug("Hunger Off")
+        skullsManager.skulls.famine = false
+        --logger:debug("Famine Off")
     else
-        skullsManager.skulls.hunger = true
-        --logger:debug("Hunger On")
+        skullsManager.skulls.famine = true
+        --logger:debug("Famine On")
     end
 end
 
@@ -95,7 +120,7 @@ function skullsManager.skullMythic(restore)
             tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
         end
     end
-    local playerCollisionTagEntry = findTags("marine_mp", tagClasses.modelCollisionGeometry)
+    local playerCollisionTagEntry = findTags("spartan_mp", tagClasses.modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
@@ -115,8 +140,8 @@ function skullsManager.skullMythic(restore)
     end
 end
 
--- Blind: Hides HUD and duplicates AI error.
-local OnTick
+-- Blind: Hides HUD and duplicates AI burst origin radius.
+local blindOnTick
 ---@param restore boolean
 function skullsManager.skullBlind(restore)
     local blindTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
@@ -128,40 +153,27 @@ function skullsManager.skullBlind(restore)
         return false
     end)
     if restore == true then
+        for _, tagEntry in ipairs(blindTagsFiltered) do
+            tagEntry.data.burstOriginRadius = tagEntry.data.burstOriginRadius * 0.5
+        end
         skullsManager.skulls.blind = false
-        --logger:debug("Blind Off")
     else
+        for _, tagEntry in ipairs(blindTagsFiltered) do
+            tagEntry.data.burstOriginRadius = tagEntry.data.burstOriginRadius * 2
+        end
         skullsManager.skulls.blind = true
-        --logger:debug("Blind On")
-    end
-    if restore == true then
-        for _, tagEntry in ipairs(blindTagsFiltered) do
-            tagEntry.data.projectileError = tagEntry.data.projectileError * 0.5
-        end
-    else
-        for _, tagEntry in ipairs(blindTagsFiltered) do
-            tagEntry.data.projectileError = tagEntry.data.projectileError * 2
-        end
-        OnTick = true
+        blindOnTick = true
     end
 end
 
 -- Blind OnTick
 function skullsManager.skullBlindOnTick()
-    if OnTick == true then
-        local player = getPlayer()
-        if not player then
-            return
-        end
-        local biped = getObject(player.objectHandle, objectTypes.biped)
-        if not biped then
-            return
-        end
+    if blindOnTick == true then
         if skullsManager.skulls.blind == true then
             execute_script("show_hud 0")
         else
             execute_script("show_hud 1")
-            OnTick = false
+            blindOnTick = false
         end
     end
 end
@@ -201,7 +213,7 @@ function skullsManager.skullBerserk(restore)
         "hunter",
         "odst"
     }
-    local berserkTagsFiltered = table.filter(tagEntries.actor(), function(tagEntry)
+    local berserkActorsFiltered = table.filter(tagEntries.actor(), function(tagEntry)
         for _, keyword in pairs(berserkUnits) do
             if tagEntry.path:includes(keyword) then
                 return true
@@ -209,32 +221,110 @@ function skullsManager.skullBerserk(restore)
         end
         return false
     end)
-    local berserkFlagFiltered = table.filter(berserkTagsFiltered, function(tagEntry)
-        if tagEntry.data.flags:alwaysChargeAtEnemies() == false then
-            return true
-        end
-        return false
-    end)
-    for _, tagEntry in ipairs(berserkTagsFiltered) do
+    for _, tagEntry in ipairs(berserkActorsFiltered) do
         if restore == true then
+            tagEntry.data.meleeAttackDelay = tagEntry.data.meleeAttackDelay * 100
+            tagEntry.data.meleeChargeTime = tagEntry.data.meleeChargeTime - 100
+            tagEntry.data.meleeLeapRange[1] = tagEntry.data.meleeLeapRange[1] - 1.5
+            tagEntry.data.meleeLeapRange[2] = tagEntry.data.meleeLeapRange[2] - 10
+            tagEntry.data.meleeLeapVelocity = tagEntry.data.meleeLeapVelocity - 0.5
+            tagEntry.data.meleeLeapChance = tagEntry.data.meleeLeapChance - 1
+            tagEntry.data.meleeLeapBallistic = tagEntry.data.meleeLeapBallistic - 0.5
             tagEntry.data.berserkProximity = tagEntry.data.berserkProximity - 50
+            tagEntry.data.berserkGrenadeChance = tagEntry.data.berserkGrenadeChance - 1
+            tagEntry.data.moreFlags:pathfindingIgnoresDanger(false)
         else
+            tagEntry.data.meleeAttackDelay = tagEntry.data.meleeAttackDelay * 0.01
+            tagEntry.data.meleeChargeTime = tagEntry.data.meleeChargeTime + 100
+            tagEntry.data.meleeLeapRange[1] = tagEntry.data.meleeLeapRange[1] + 1.5
+            tagEntry.data.meleeLeapRange[2] = tagEntry.data.meleeLeapRange[2] + 10
+            tagEntry.data.meleeLeapVelocity = tagEntry.data.meleeLeapVelocity + 0.5
+            tagEntry.data.meleeLeapChance = tagEntry.data.meleeLeapChance + 1
+            tagEntry.data.meleeLeapBallistic = tagEntry.data.meleeLeapBallistic + 0.5
             tagEntry.data.berserkProximity = tagEntry.data.berserkProximity + 50
+            tagEntry.data.berserkGrenadeChance = tagEntry.data.berserkGrenadeChance + 1
+            tagEntry.data.moreFlags:pathfindingIgnoresDanger(true)
         end
     end
-    for _, tagEntry in ipairs(berserkFlagFiltered) do
-        if restore == true then
-            tagEntry.data.flags:alwaysChargeAtEnemies(false)
-        else
-            tagEntry.data.flags:alwaysChargeAtEnemies(true)
-        end
-    end
+-- This down here will fail, bc when we call this as Restore, it will take all tags with this flag off,
+-- thus making the filter useless. We have to make a table that doesn't change when Restore is called.
+    --local pathfindingFlagFiltered = table.filter(berserkActorsFiltered, function(tagEntry)
+    --    if tagEntry.data.moreFlags:pathfindingIgnoresDanger() == false then
+    --        return true
+    --    end
+    --    return false
+    --end)
+    --for _, tagEntry in ipairs(pathfindingFlagFiltered) do
+    --    if restore == true then
+    --        tagEntry.data.moreFlags:pathfindingIgnoresDanger(false)
+    --    else
+    --        tagEntry.data.moreFlags:pathfindingIgnoresDanger(true)
+    --    end
+    --end
     if restore == true then
         skullsManager.skulls.berserk = false
         -- logger:debug("Berserk Off")
     else
         skullsManager.skulls.berserk = true
         -- logger:debug("Berserk On")
+    end
+end
+
+---Tough Luck: Makes AI react to everything.
+---@param restore boolean
+function skullsManager.skullToughLuck(restore)
+    for _, tagEntry in ipairs(tagEntries.actor()) do
+        if restore then
+            tagEntry.data.noticeProjectileChance = tagEntry.data.noticeProjectileChance - 1
+            tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance - 1
+            tagEntry.data.diveFromGrenadeChance = tagEntry.data.diveFromGrenadeChance - 1
+            tagEntry.data.diveIntoCoverChance = tagEntry.data.diveIntoCoverChance - 1
+        else
+            tagEntry.data.noticeProjectileChance = tagEntry.data.noticeProjectileChance + 1
+            tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance + 1
+            tagEntry.data.diveFromGrenadeChance = tagEntry.data.diveFromGrenadeChance + 1
+            tagEntry.data.diveIntoCoverChance = tagEntry.data.diveIntoCoverChance + 1
+        end
+    end
+        if restore == true then
+        skullsManager.skulls.toughLuck = false
+        -- logger:debug("Tough Luck Off")
+    else
+        skullsManager.skulls.toughLuck = true
+        -- logger:debug("Tough Luck On")
+    end
+end
+
+local fogOnTick
+---Fog: Turns off motion tracker & aguments AI surprise distance.
+---@param restore boolean
+function skullsManager.skullFog(restore)
+    for _, tagEntry in ipairs(tagEntries.actor()) do
+        if restore then
+            tagEntry.data.surpriseDistance = tagEntry.data.surpriseDistance - 10
+        else
+            tagEntry.data.surpriseDistance = tagEntry.data.surpriseDistance + 10
+        end
+    end
+        if restore == true then
+        skullsManager.skulls.fog = false
+        -- logger:debug("Tough Luck Off")
+    else
+        skullsManager.skulls.fog = true
+        fogOnTick = true
+        -- logger:debug("Tough Luck On")
+    end
+end
+
+-- Fog OnTick
+function skullsManager.skullFogOnTick()
+    if fogOnTick == true then
+        if skullsManager.skulls.fog == true then
+            execute_script("hud_show_motion_sensor 0")
+        else
+            execute_script("hud_show_motion_sensor 1")
+            fogOnTick = false
+        end
     end
 end
 
@@ -294,6 +384,72 @@ function skullsManager.skullKnucklehead(restore)
     else
         skullsManager.skulls.knucklehead = true
         -- logger:debug("Knucklehead On")
+    end
+end
+
+---Cowbell: Doubles bipeds & vehicles accelerationScale.
+---@param restore boolean
+function skullsManager.skullCowbell(restore)
+    for _, tagEntry in ipairs(tagEntries.biped()) do
+        if restore then
+            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+        else
+            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+        end
+    end
+    for _, tagEntry in ipairs(tagEntries.vehicle()) do
+        if restore then
+            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+        else
+            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+        end
+    end
+    if restore == true then
+        skullsManager.skulls.cowbell = false
+        -- logger:debug("Cowbell Off")
+    else
+        skullsManager.skulls.cowbell = true
+        -- logger:debug("Cowbell On")
+    end
+end
+
+---Havok: Doubles all damage_effect's damage radius, and it scales properly.
+---@param restore boolean
+function skullsManager.skullHavok(restore)
+    for _, tagEntry in ipairs(tagEntries.damageEffect()) do
+        if restore then
+            tagEntry.data.radius[2] = tagEntry.data.radius[2] * 0.5
+            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 2
+        else
+            tagEntry.data.radius[2] = tagEntry.data.radius[2] * 2
+            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 0.5
+        end
+    end
+        if restore == true then
+        skullsManager.skulls.havok = false
+        -- logger:debug("Havok Off")
+    else
+        skullsManager.skulls.havok = true
+        -- logger:debug("Havok On")
+    end
+end
+
+---Heavy Hitter: Augments instant acceleration for melee damages.
+---@param restore boolean
+function skullsManager.skullHeavyHitter(restore)
+    for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
+        if restore then
+            tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i - 5
+        else
+            tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i + 5
+        end
+    end
+        if restore == true then
+        skullsManager.skulls.heavyHitter = false
+        -- logger:debug("Heavy Hitter Off")
+    else
+        skullsManager.skulls.heavyHitter = true
+        -- logger:debug("Heavy Hitter On")
     end
 end
 
@@ -489,7 +645,7 @@ end
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param restore boolean
 function skullsManager.skullDoubleDown(restore)
-    local playerCollisionTagEntry = findTags("marine_mp", tagClasses.modelCollisionGeometry)[1]
+    local playerCollisionTagEntry = findTags("spartan_mp", tagClasses.modelCollisionGeometry)[1]
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
@@ -591,8 +747,6 @@ function skullsManager.skullSlayer(restore)
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 0.5
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 0.5
             end
-        skullsManager.skulls.slayer = false
-        -- logger:debug("Slayer Off")
         else
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -601,21 +755,25 @@ function skullsManager.skullSlayer(restore)
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
             end
-        skullsManager.skulls.slayer = true
-        -- logger:debug("Slayer On")            
         end
     end
-
+    if restore then
+        skullsManager.skulls.slayer = false
+        -- logger:debug("Slayer Off")
+    else
+        skullsManager.skulls.slayer = true
+        -- logger:debug("Slayer On") 
+    end
 end
 
-local activateOnTick
+local assassinOnTick
 -- Assassin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
 ---@param restore boolean
 function skullsManager.skullAssassin(restore)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
-                if tagEntry.data.flags:activeCamouflage() == false then
+                if not tagEntry.path:includes("stealth") then
                     return true
                 end
             end
@@ -643,32 +801,22 @@ function skullsManager.skullAssassin(restore)
         -- logger:debug("Assassin Off")
     else
         skullsManager.skulls.assassin = true
-        activateOnTick = true -- This is needed to turn off skullAssassinOnTick
+        assassinOnTick = true -- This is needed to turn off skullAssassinOnTick
         -- logger:debug("Assassin On")
     end
 end
 
 -- Assassin OnTick
 function skullsManager.skullAssassinOnTick()
-    if activateOnTick == true then
-        local player = getPlayer()
-        if not player then
-            return
-        end
-        local biped = getObject(player.objectHandle, objectTypes.biped)
-        if not biped then
-            return
-        end
-        local blamBiped = blam.biped(get_object(player.objectHandle.value))
-        assert(blamBiped, "Biped tag must exist")
+    if assassinOnTick == true then
         if skullsManager.skulls.assassin == true then
             blamBiped.isCamoActive = true
-            if blamBiped.meleeKey then
+            if blamBiped.meleeKey or blamBiped.grenadeHold then
                 blamBiped.camoScale = 0
             end
         else
             blamBiped.isCamoActive = false
-            activateOnTick = false -- This makes so this function turns off one tick after Assassin gets turned off.
+            assassinOnTick = false -- This makes so this function turns off one tick after Assassin gets turned off.
         end
     end
 end
@@ -681,15 +829,40 @@ function skullsManager.silverSkulls()
         --    func = skullsManager.skullBerserk
         --},
         --{
+        --    name = "Tough Luck",
+        --    active = skullsManager.skulls.toughLuck,
+        --    func = skullsManager.skullToughLuck
+        --},
+        --{
+        --    name = "Fog",
+        --    active = skullsManager.skulls.fog,
+        --    func = skullsManager.skullFog
+        --},
+        --{
         --    name = "Knucklehead",
         --    active = skullsManager.skulls.knucklehead,
         --    func = skullsManager.skullKnucklehead
         --},
-        {
-            name = "Tilt",
-            active = skullsManager.skulls.tilt,
-            func = skullsManager.skullTilt
-        },
+        --{
+        --    name = "Cowbell",
+        --    active = skullsManager.skulls.cowbell,
+        --    func = skullsManager.skullCowbell
+        --},
+        --{
+        --    name = "Havok",
+        --    active = skullsManager.skulls.havok,
+        --    func = skullsManager.skullHavok
+        --},
+        --{
+        --    name = "Heavy Hitter",
+        --    active = skullsManager.skulls.heavyHitter,
+        --    func = skullsManager.skullHeavyHitter
+        --},
+        --{
+        --    name = "Tilt",
+        --    active = skullsManager.skulls.tilt,
+        --    func = skullsManager.skullTilt
+        --},
         --{
         --    name = "Banger",
         --    active = skullsManager.skulls.banger,
@@ -759,9 +932,34 @@ function skullsManager.resetSilverSkulls()
             func = skullsManager.skullBerserk
         },
         {
+            name = "Tough Luck",
+            active = skullsManager.skulls.toughLuck,
+            func = skullsManager.skullToughLuck
+        },
+        {
+            name = "Fog",
+            active = skullsManager.skulls.fog,
+            func = skullsManager.skullFog
+        },
+        {
             name = "Knucklehead",
             active = skullsManager.skulls.knucklehead,
             func = skullsManager.skullKnucklehead
+        },
+        {
+            name = "Cowbell",
+            active = skullsManager.skulls.cowbell,
+            func = skullsManager.skullCowbell
+        },
+        {
+            name = "Havok",
+            active = skullsManager.skulls.havok,
+            func = skullsManager.skullHavok
+        },
+        {
+            name = "Heavy Hitter",
+            active = skullsManager.skulls.heavyHitter,
+            func = skullsManager.skullHeavyHitter
         },
         {
             name = "Tilt",
@@ -818,9 +1016,9 @@ end
 function skullsManager.goldenSkulls()
     local skullList = {
             {
-            name = "Hunger",
-            active = skullsManager.skulls.hunger,
-            func = skullsManager.skullHunger
+            name = "Famine",
+            active = skullsManager.skulls.famine,
+            func = skullsManager.skullFamine
         },
             {
             name = "Mythic",
@@ -868,9 +1066,9 @@ end
 function skullsManager.resetGoldenSkulls()
     local skullList = {
             {
-            name = "Hunger",
-            active = skullsManager.skulls.hunger,
-            func = skullsManager.skullHunger
+            name = "Famine",
+            active = skullsManager.skulls.famine,
+            func = skullsManager.skullFamine
         },
             {
             name = "Mythic",

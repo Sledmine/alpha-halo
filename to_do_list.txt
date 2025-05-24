@@ -19,4 +19,5 @@ ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
 - Heavy Hitter
 - Slayer
 - Assassin
-- Ciego
+- Famine
+- Blind
