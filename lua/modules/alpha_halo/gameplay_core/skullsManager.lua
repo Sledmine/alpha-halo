@@ -198,18 +198,18 @@ function skullsManager.skullBlind(restore)
     end
 end
 
----@param playerIndex? number
-function skullsManager.skullBlindOnTick(playerIndex)
-    local player
-    --local activateOnTick
+-- Blind OnTick
+function skullsManager.skullBlindOnTick()
     if OnTick == true then
+        local player = getPlayer()
+        if not player then
+            return
+        end
+        local biped = getObject(player.objectHandle, objectTypes.biped)
+        if not biped then
+            return
+        end
         if skullsManager.skulls.blind == true then
-            if playerIndex then
-                player = blam.biped(get_dynamic_player(playerIndex))
-            else
-                player = blam.biped(get_dynamic_player())
-            end
-            assert(player)
             execute_script("show_hud 0")
         else
             execute_script("show_hud 1")
@@ -510,25 +510,26 @@ function skullsManager.skullAssassin(restore)
     end
 end
 
----@param playerIndex? number
-function skullsManager.skullAssassinOnTick(playerIndex)
-    local player
-    if activateOnTick == true then
+-- Assassin OnTick
+function skullsManager.skullAssassinOnTick()
+        if activateOnTick == true then
+        local player = getPlayer()
+        if not player then
+            return
+        end
+        local biped = getObject(player.objectHandle, objectTypes.biped)
+        if not biped then
+            return
+        end
+        local blamBiped = blam.biped(get_object(player.objectHandle.value))
+        assert(blamBiped, "Biped tag must exist")
         if skullsManager.skulls.assassin == true then
-            if playerIndex then
-                player = blam.biped(get_dynamic_player(playerIndex))
-            else
-                player = blam.biped(get_dynamic_player())
-            end
-            assert(player)
-            if player then
-                player.isCamoActive = true
-            end
-            if player.meleeKey then
-                player.camoScale = 0
+            blamBiped.isCamoActive = true
+            if blamBiped.meleeKey then
+                blamBiped.camoScale = 0
             end
         else
-            player.isCamoActive = false
+            blamBiped.isCamoActive = false
             activateOnTick = false
         end
     end
