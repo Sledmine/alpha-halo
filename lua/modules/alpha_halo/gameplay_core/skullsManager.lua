@@ -22,6 +22,7 @@ skullsManager.skulls = {
     --catch = false,
     berserk = false,
     knucklehead = false,
+    tilt = false,
     banger = false,
     doubleDown = false,
     eyePatch = false,
@@ -208,15 +209,24 @@ function skullsManager.skullBerserk(restore)
         end
         return false
     end)
+    local berserkFlagFiltered = table.filter(berserkTagsFiltered, function(tagEntry)
+        if tagEntry.data.flags:alwaysChargeAtEnemies() == false then
+            return true
+        end
+        return false
+    end)
     for _, tagEntry in ipairs(berserkTagsFiltered) do
         if restore == true then
+            tagEntry.data.berserkProximity = tagEntry.data.berserkProximity - 50
+        else
+            tagEntry.data.berserkProximity = tagEntry.data.berserkProximity + 50
+        end
+    end
+    for _, tagEntry in ipairs(berserkFlagFiltered) do
+        if restore == true then
             tagEntry.data.flags:alwaysChargeAtEnemies(false)
-            tagEntry.data.flags:alwaysBerserkInAttackingMode(false)
-            tagEntry.data.flags:alwaysChargeInAttackingMode(false)
         else
             tagEntry.data.flags:alwaysChargeAtEnemies(true)
-            tagEntry.data.flags:alwaysBerserkInAttackingMode(true)
-            tagEntry.data.flags:alwaysChargeInAttackingMode(true)
         end
     end
     if restore == true then
@@ -284,6 +294,162 @@ function skullsManager.skullKnucklehead(restore)
     else
         skullsManager.skulls.knucklehead = true
         -- logger:debug("Knucklehead On")
+    end
+end
+
+---Tilt: Doubles strenghts and weakenesses.
+---@param restore boolean
+function skullsManager.skullTilt(restore)
+    local energyWeapons = {
+        "beam_rifle",
+        "brute_plasma_rifle",
+        "carbine",
+        "energy_sword",
+        "fuel_rod",
+        "plasma_cannon",
+        "plasma_pistol",
+        "plasma_rifle",
+        "ghost",
+        "wraith",
+        "banshee",
+        "spirit",
+        "shade",
+        "hunter"
+    }
+    local kineticWeapons = {
+        "assault_rifle",
+        "battle_rifle",
+        "frag_grenade",
+        "needler",
+        "pistol",
+        "rocket_launcher",
+        "shotgun",
+        "smg",
+        "sniper_gauss",
+        "sniper_rifle",
+        "m90_short",
+        "warthog",
+        "scorpion"
+    }
+    local energyDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
+        for _, keyword in pairs(energyWeapons) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    local kineticDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
+        for _, keyword in pairs(kineticWeapons) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(energyDamageEffect) do
+        local d = tagEntry.data
+        if restore == true then
+            d.metalHollow = d. metalHollow * 2
+            d.metalThick = d. metalThick * 2
+            d.metalThin = d. metalThin * 2
+            d.forceField = d.forceField * 0.5
+            d.grunt = d.grunt * 2
+            d.hunterArmor = d.hunterArmor * 2
+            d.hunterSkin = d.hunterSkin * 2
+            d.elite = d.elite * 2
+            d.eliteEnergyShield = d.eliteEnergyShield * 0.5
+            d.jackal = d.jackal * 2
+            d.jackalEnergyShield = d.jackalEnergyShield * 0.5
+            d.engineerSkin = d.engineerSkin * 2
+            d.engineerForceField = d.engineerForceField * 0.5
+            d.floodCombatForm = d.floodCombatForm * 2
+            d.floodCarrierForm = d.floodCarrierForm * 2
+            d.cyborgArmor = d.cyborgArmor * 2
+            d.cyborgEnergyShield = d.cyborgEnergyShield * 0.5
+            d.humanArmor = d.humanArmor * 2
+            d.humanSkin = d.humanSkin * 2
+            d.sentinel = d.sentinel * 0.5
+            d.monitor = d.monitor * 0.5
+        else
+            d.metalHollow = d. metalHollow * 0.5
+            d.metalThick = d. metalThick * 0.5
+            d.metalThin = d. metalThin * 0.5
+            d.forceField = d.forceField * 2
+            d.grunt = d.grunt * 0.5
+            d.hunterArmor = d.hunterArmor * 0.5
+            d.hunterSkin = d.hunterSkin * 0.5
+            d.elite = d.elite * 0.5
+            d.eliteEnergyShield = d.eliteEnergyShield * 2
+            d.jackal = d.jackal * 0.5
+            d.jackalEnergyShield = d.jackalEnergyShield * 2
+            d.engineerSkin = d.engineerSkin * 0.5
+            d.engineerForceField = d.engineerForceField * 2
+            d.floodCombatForm = d.floodCombatForm * 0.5
+            d.floodCarrierForm = d.floodCarrierForm * 0.5
+            d.cyborgArmor = d.cyborgArmor * 0.5
+            d.cyborgEnergyShield = d.cyborgEnergyShield * 2
+            d.humanArmor = d.humanArmor * 0.5
+            d.humanSkin = d.humanSkin * 0.5
+            d.sentinel = d.sentinel * 2
+            d.monitor = d.monitor * 2
+        end
+    end
+    for _, tagEntry in ipairs(kineticDamageEffect) do
+        local d = tagEntry.data
+        if restore == true then
+            d.metalHollow = d. metalHollow * 0.5
+            d.metalThick = d. metalThick * 0.5
+            d.metalThin = d. metalThin * 0.5
+            d.forceField = d.forceField * 2
+            d.grunt = d.grunt * 0.5
+            d.hunterArmor = d.hunterArmor * 0.5
+            d.hunterSkin = d.hunterSkin * 0.5
+            d.elite = d.elite * 0.5
+            d.eliteEnergyShield = d.eliteEnergyShield * 2
+            d.jackal = d.jackal * 0.5
+            d.jackalEnergyShield = d.jackalEnergyShield * 2
+            d.engineerSkin = d.engineerSkin * 0.5
+            d.engineerForceField = d.engineerForceField * 2
+            d.floodCombatForm = d.floodCombatForm * 0.5
+            d.floodCarrierForm = d.floodCarrierForm * 0.5
+            d.cyborgArmor = d.cyborgArmor * 0.5
+            d.cyborgEnergyShield = d.cyborgEnergyShield * 2
+            d.humanArmor = d.humanArmor * 0.5
+            d.humanSkin = d.humanSkin * 0.5
+            d.sentinel = d.sentinel * 2
+            d.monitor = d.monitor * 2
+        else
+            d.metalHollow = d. metalHollow * 2
+            d.metalThick = d. metalThick * 2
+            d.metalThin = d. metalThin * 2
+            d.forceField = d.forceField * 0.5
+            d.grunt = d.grunt * 2
+            d.hunterArmor = d.hunterArmor * 2
+            d.hunterSkin = d.hunterSkin * 2
+            d.elite = d.elite * 2
+            d.eliteEnergyShield = d.eliteEnergyShield * 0.5
+            d.jackal = d.jackal * 2
+            d.jackalEnergyShield = d.jackalEnergyShield * 0.5
+            d.engineerSkin = d.engineerSkin * 2
+            d.engineerForceField = d.engineerForceField * 0.5
+            d.floodCombatForm = d.floodCombatForm * 2
+            d.floodCarrierForm = d.floodCarrierForm * 2
+            d.cyborgArmor = d.cyborgArmor * 2
+            d.cyborgEnergyShield = d.cyborgEnergyShield * 0.5
+            d.humanArmor = d.humanArmor * 2
+            d.humanSkin = d.humanSkin * 2
+            d.sentinel = d.sentinel * 0.5
+            d.monitor = d.monitor * 0.5
+            logger:debug("Cyborg multiplier: {}", d.grunt)
+        end
+    end
+    if restore == true then
+        skullsManager.skulls.tilt = false
+        -- logger:debug("Tilt Off")
+    else
+        skullsManager.skulls.tilt = true
+        -- logger:debug("Tilt On")
     end
 end
 
@@ -449,20 +615,18 @@ function skullsManager.skullAssassin(restore)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
-                return true
+                if tagEntry.data.flags:activeCamouflage() == false then
+                    return true
+                end
             end
         end
         return false
     end)
     for _, tagEntry in ipairs(assassinTagsFiltered) do
         if restore == true then
-            if not tagEntry.path:includes("stealth") then
-                tagEntry.data.flags:activeCamouflage(false)
-            end
+            tagEntry.data.flags:activeCamouflage(false)
         else
-            if not tagEntry.path:includes("stealth") then
-                    tagEntry.data.flags:activeCamouflage(true)
-            end
+            tagEntry.data.flags:activeCamouflage(true)
         end
     end
     for _, tagEntry in ipairs(tagEntries.weapon()) do
@@ -511,16 +675,21 @@ end
 
 function skullsManager.silverSkulls()
     local skullList = {
-        {
-            name = "Berserk",
-            active = skullsManager.skulls.berserk,
-            func = skullsManager.skullBerserk
-        },
+        --{
+        --    name = "Berserk",
+        --    active = skullsManager.skulls.berserk,
+        --    func = skullsManager.skullBerserk
+        --},
         --{
         --    name = "Knucklehead",
         --    active = skullsManager.skulls.knucklehead,
         --    func = skullsManager.skullKnucklehead
         --},
+        {
+            name = "Tilt",
+            active = skullsManager.skulls.tilt,
+            func = skullsManager.skullTilt
+        },
         --{
         --    name = "Banger",
         --    active = skullsManager.skulls.banger,
@@ -593,6 +762,11 @@ function skullsManager.resetSilverSkulls()
             name = "Knucklehead",
             active = skullsManager.skulls.knucklehead,
             func = skullsManager.skullKnucklehead
+        },
+        {
+            name = "Tilt",
+            active = skullsManager.skulls.tilt,
+            func = skullsManager.skullTilt
         },
         {
             name = "Banger",
