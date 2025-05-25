@@ -3,7 +3,6 @@ local hscLegacy = require "hscLegacy"
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
-local scriptBlock = require "scriptLegacy".block
 
 local bansheeLivingCount
 local snipersLivingCount

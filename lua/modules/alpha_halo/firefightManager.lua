@@ -2,7 +2,6 @@ local hscLegacy = require "hscLegacy"
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
-local scriptBlock = require "scriptLegacy".block
 local const = require "alpha_halo.constants"
 local pigPen = require "alpha_halo.pigPen"
 local healthManager = require "alpha_halo.gameplay_core.healthManager"
