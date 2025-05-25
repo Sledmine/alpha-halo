@@ -49,7 +49,7 @@ function tagEntries.impactDamageEffect()
 end
 
 function tagEntries.meleeDamageEffect()
-    local meleeDamageEffect = table.filter(tagEntries.meleeDamageEffect(), function(tagEntry)
+    local meleeDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
         if tagEntry.path:includes("melee") then
             return true
         end
@@ -57,6 +57,17 @@ function tagEntries.meleeDamageEffect()
     end)
     assert(meleeDamageEffect)
     return meleeDamageEffect
+end
+
+function tagEntries.explosionDamageEffect()
+    local explosionDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
+        if tagEntry.data.radius[2] > 0 then
+            return true
+        end
+        return false
+    end)
+    assert(explosionDamageEffect)
+    return explosionDamageEffect
 end
 
 function tagEntries.effect()

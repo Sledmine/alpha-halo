@@ -11,9 +11,15 @@ ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
 -- Revisar Banshees chocando contra el cielo.
 
 ---- Revisar las siguientes calaveras;
-- Havok
-- Heavy Hitter
-- Slayer
-- Assassin
 - Famine
 - Blind
+
+-- HAY UN BUGSOTE CON LOS BOUNDS
+-- USARLOS CAUSA ERRORES BIEN COCHINOS
+-- LAS CALAVERAS QUE LOS USAN SON:
+---- Famine
+---- Berserk
+---- Havok
+---- Heavy Hitter
+---- Eye Patch
+---- Slayer

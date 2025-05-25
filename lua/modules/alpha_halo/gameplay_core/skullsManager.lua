@@ -420,7 +420,7 @@ end
 ---Havok: Doubles all damage_effect's damage radius, and it scales properly.
 ---@param restore boolean
 function skullsManager.skullHavok(restore)
-    for _, tagEntry in ipairs(tagEntries.damageEffect()) do
+    for _, tagEntry in ipairs(tagEntries.explosionDamageEffect()) do
         if restore then
             tagEntry.data.radius[2] = tagEntry.data.radius[2] / 1.5
             tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 2
@@ -444,8 +444,14 @@ function skullsManager.skullHeavyHitter(restore)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
         if restore then
             tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i - 5
+            if tagEntry.path:includes("response") then
+                tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] - 1
+            end
         else
             tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i + 5
+            if tagEntry.path:includes("response") then
+                tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] + 1
+            end
         end
     end
         if restore == true then
@@ -852,11 +858,11 @@ function skullsManager.silverSkulls()
         --    active = skullsManager.skulls.cowbell,
         --    func = skullsManager.skullCowbell
         --},
-        {
-            name = "Havok",
-            active = skullsManager.skulls.havok,
-            func = skullsManager.skullHavok
-        },
+        --{
+        --    name = "Havok",
+        --    active = skullsManager.skulls.havok,
+        --    func = skullsManager.skullHavok
+        --},
         --{
         --    name = "Heavy Hitter",
         --    active = skullsManager.skulls.heavyHitter,
@@ -1019,22 +1025,22 @@ end
 
 function skullsManager.goldenSkulls()
     local skullList = {
-            {
+        {
             name = "Famine",
             active = skullsManager.skulls.famine,
             func = skullsManager.skullFamine
         },
-            {
+        {
             name = "Mythic",
             active = skullsManager.skulls.mythic,
             func = skullsManager.skullMythic
         },
-            {
+        {
             name = "Blind",
             active = skullsManager.skulls.blind,
             func = skullsManager.skullBlind
         },
-        --    {
+        --{ -- Currently not working.
         --    name = "Catch",
         --    active = skullsManager.skulls.catch,
         --    func = skullsManager.skullCatch

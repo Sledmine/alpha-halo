@@ -76,13 +76,13 @@ function PluginLoad()
     balltze.command.registerCommand("silverSkullsAll", "debug", "description", nil, false, 0, 0, true,
                                     false, function(args)
         skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
-        skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
+        --skullsManager.silverSkulls()
         return true
     end)
 
@@ -95,8 +95,8 @@ function PluginLoad()
     balltze.command.registerCommand("goldenSkullsAll", "debug", "description", nil, false, 0, 0, true,
                                     false, function(args)
         skullsManager.goldenSkulls()
-        skullsManager.goldenSkulls()
-        skullsManager.goldenSkulls()
+        --skullsManager.goldenSkulls()
+        --skullsManager.goldenSkulls()
         return true
     end)
 
