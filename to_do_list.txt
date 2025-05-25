@@ -11,10 +11,6 @@ ALFA FIREFIGHT v1 // LISTA DE PENDIENTES
 -- Revisar Banshees chocando contra el cielo.
 
 ---- Revisar las siguientes calaveras;
-- Berserk
-- Tough Luck
-- Fog
-- Cowbell
 - Havok
 - Heavy Hitter
 - Slayer

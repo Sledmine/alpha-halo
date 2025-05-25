@@ -270,7 +270,7 @@ function skullsManager.skullBerserk(restore)
     end
 end
 
----Tough Luck: Makes AI react to everything.
+---Tough Luck: Makes AI react to everything and enhances their senses.
 ---@param restore boolean
 function skullsManager.skullToughLuck(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
@@ -279,11 +279,15 @@ function skullsManager.skullToughLuck(restore)
             tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance - 1
             tagEntry.data.diveFromGrenadeChance = tagEntry.data.diveFromGrenadeChance - 1
             tagEntry.data.diveIntoCoverChance = tagEntry.data.diveIntoCoverChance - 1
+            tagEntry.data.combatPerceptionTime = tagEntry.data.combatPerceptionTime * 4
         else
             tagEntry.data.noticeProjectileChance = tagEntry.data.noticeProjectileChance + 1
             tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance + 1
             tagEntry.data.diveFromGrenadeChance = tagEntry.data.diveFromGrenadeChance + 1
             tagEntry.data.diveIntoCoverChance = tagEntry.data.diveIntoCoverChance + 1
+            tagEntry.data.peripheralDistance = tagEntry.data.peripheralDistance * 3
+            tagEntry.data.peripheralVisionAngle = tagEntry.data.peripheralVisionAngle * 3
+            tagEntry.data.combatPerceptionTime = tagEntry.data.combatPerceptionTime * 0.25
         end
     end
         if restore == true then
@@ -308,11 +312,11 @@ function skullsManager.skullFog(restore)
     end
         if restore == true then
         skullsManager.skulls.fog = false
-        -- logger:debug("Tough Luck Off")
+        -- logger:debug("Fog Off")
     else
         skullsManager.skulls.fog = true
         fogOnTick = true
-        -- logger:debug("Tough Luck On")
+        -- logger:debug("Fog On")
     end
 end
 
@@ -392,14 +396,14 @@ end
 function skullsManager.skullCowbell(restore)
     for _, tagEntry in ipairs(tagEntries.biped()) do
         if restore then
-            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 0.5
         else
             tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
         end
     end
     for _, tagEntry in ipairs(tagEntries.vehicle()) do
         if restore then
-            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 0.5
         else
             tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
         end
@@ -418,10 +422,10 @@ end
 function skullsManager.skullHavok(restore)
     for _, tagEntry in ipairs(tagEntries.damageEffect()) do
         if restore then
-            tagEntry.data.radius[2] = tagEntry.data.radius[2] * 0.5
+            tagEntry.data.radius[2] = tagEntry.data.radius[2] / 1.5
             tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 2
         else
-            tagEntry.data.radius[2] = tagEntry.data.radius[2] * 2
+            tagEntry.data.radius[2] = tagEntry.data.radius[2] * 1.5
             tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 0.5
         end
     end
@@ -848,11 +852,11 @@ function skullsManager.silverSkulls()
         --    active = skullsManager.skulls.cowbell,
         --    func = skullsManager.skullCowbell
         --},
-        --{
-        --    name = "Havok",
-        --    active = skullsManager.skulls.havok,
-        --    func = skullsManager.skullHavok
-        --},
+        {
+            name = "Havok",
+            active = skullsManager.skulls.havok,
+            func = skullsManager.skullHavok
+        },
         --{
         --    name = "Heavy Hitter",
         --    active = skullsManager.skulls.heavyHitter,
