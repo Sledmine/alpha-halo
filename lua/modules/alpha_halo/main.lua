@@ -1,6 +1,6 @@
 local balltze = Balltze
 local engine = Engine
-local dispatchScripts = require "script".dispatch
+local dispatchScripts = require "scriptLegacy".dispatch
 math.randomseed(os.clock())
 
 --Project modules

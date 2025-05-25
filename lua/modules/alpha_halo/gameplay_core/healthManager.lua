@@ -3,7 +3,7 @@ local healthManager = {}
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
-local scriptBlock = require "script".block
+local scriptBlock = require "scriptLegacy".block
 local const = require "alpha_halo.constants"
 
 -- VARIABLES DE LA FUNCIÓN healthManager.whenMapLoads
