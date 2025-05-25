@@ -4,7 +4,7 @@ local balltze = require "mods.balltze"
 local isNull = blam.isNull
 local luna = require "luna"
 
-local hsc = require "hsc"
+local hscLegacy = require "hscLegacy"
 local test = require "alpha_halo.test"
 
 clua_version = 2.056
@@ -24,7 +24,7 @@ local armorLockAnimations = {
 
 function OnMapLoad()
     console_out("Loading alpha_halo.lua...")
-    hsc.AllegianceSet("player", "human")
+    hscLegacy.AllegianceSet("player", "human")
 end
 
 local function findArmorLock()

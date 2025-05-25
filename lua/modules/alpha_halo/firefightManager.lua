@@ -1,4 +1,4 @@
-local hsc = require "hsc"
+local hscLegacy = require "hscLegacy"
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
@@ -117,8 +117,8 @@ function firefightManager.whenMapLoads()
     firefightManager.WaveProgression()
     waveCooldownStart = true
     waveCooldownCounter = roundCooldownTimer
-    --hsc.objectCreateANew("mortar_1")
-    --hsc.objectCreateANew("mortar_2")
+    --hscLegacy.objectCreateANew("mortar_1")
+    --hscLegacy.objectCreateANew("mortar_2")
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -240,12 +240,12 @@ function firefightManager.DropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    hsc.objectCreateANew(selectedDropship)
+    hscLegacy.objectCreateANew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
-    hsc.aiSpawn(1, selectedDropshipGunner)
-    hsc.vehicleLoadMagic(selectedDropship, "gunseat", selectedDropshipGunner)
-    hsc.aiMigrate(selectedDropshipGunner, currentSupportType)
+    hscLegacy.aiSpawn(1, selectedDropshipGunner)
+    hscLegacy.vehicleLoadMagic(selectedDropship, "gunseat", selectedDropshipGunner)
+    hscLegacy.aiMigrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
     -- Si es una Boss Wave, la Dropship 1 carga el Boss Squad y los Ghost.
@@ -264,12 +264,12 @@ function firefightManager.DropshipDeployer()
             selectedSquad = selectedBossSquad
         end
     end
-    hsc.aiSpawn(1, selectedSquad)
+    hscLegacy.aiSpawn(1, selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
-    hsc.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
-    hsc.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
+    hscLegacy.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
+    hscLegacy.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
-    hsc.aiMigrate(selectedSquad, currentWaveType)
+    hscLegacy.aiMigrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
     dropshipsLeft = dropshipsLeft - 1
     dropshipCountdownStart = true
@@ -283,11 +283,11 @@ function firefightManager.GhostLoader()
     selectedGhostB = ghostTemplate:format(randomGhost, 2)
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
     selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
-    hsc.objectCreateANew(selectedGhost)
+    hscLegacy.objectCreateANew(selectedGhost)
 
     ---- Ghost is now spawned dynamically
     --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
-    ---- All of the following HSC commands must be replaced by Balltze alternatives, anywhere where the hsc.objectCreate calls were replaced by pigPen module calls
+    ---- All of the following hscLegacy commands must be replaced by Balltze alternatives, anywhere where the hscLegacy.objectCreate calls were replaced by pigPen module calls
     --if ghostObjectHandle then
     --    local ghostObject = engine.gameState.getObject(ghostObjectHandle, engine.tag.objectType.vehicle)
     --    -- We need to get the ghost driver unit (biped) object handle somehow to use it here. And look up the seat index from Guerilla:
@@ -296,10 +296,10 @@ function firefightManager.GhostLoader()
     --end
 
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
-    hsc.aiSpawn(1, selectedGhostPilot)
-    hsc.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
-    hsc.aiMigrate(selectedGhostPilot, currentSupportType)
-    hsc.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
+    hscLegacy.aiSpawn(1, selectedGhostPilot)
+    hscLegacy.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
+    hscLegacy.aiMigrate(selectedGhostPilot, currentSupportType)
+    hscLegacy.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
 end
 
 -- Esta función es llamada por tick cuando sus condiciones son activadas por el DropshipDeployer.
@@ -307,10 +307,10 @@ function firefightManager.DropshipCountdown()
     if dropshipCountdownStart == true and dropshipCountdownCounter > 0 then
         dropshipCountdownCounter = dropshipCountdownCounter - 1
     elseif dropshipCountdownStart == true and dropshipCountdownCounter <= 0 then
-        hsc.aiExitVehicle(currentWaveType)
-        hsc.unitExitVehicle(selectedGhostA)
-        hsc.unitExitVehicle(selectedGhostC)
-        hsc.unitExitVehicle(selectedGhostB)
+        hscLegacy.aiExitVehicle(currentWaveType)
+        hscLegacy.unitExitVehicle(selectedGhostA)
+        hscLegacy.unitExitVehicle(selectedGhostC)
+        hscLegacy.unitExitVehicle(selectedGhostB)
         dropshipCountdownStart = false
         dropshipCountdownCounter = 0
     end
@@ -343,7 +343,7 @@ function firefightManager.SentinelChance()
         logger:debug("Here come Sentinels!")
         randomSentinelSquad = math.random(1, 6)
         selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
-        hsc.aiSpawn(1, selectedSentinelSquad)
+        hscLegacy.aiSpawn(1, selectedSentinelSquad)
         sentinelCooldown = 0
         sentinelChance = 0
         sentinelRandomMath = 0
@@ -354,45 +354,45 @@ end
 function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     healthManager.livesGained()
-    hsc.aiSpawn(1, "Human_Team/ODSTs")
+    hscLegacy.aiSpawn(1, "Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
-    hsc.objectCreateANewContaining("assist_warthog")
+    hscLegacy.objectCreateANewContaining("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     randomGhost = math.random (1, 3)
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
-    -- hsc.objectCreateANew(selectedAssistGhost)
+    -- hscLegacy.objectCreateANew(selectedAssistGhost)
     -- Ghost is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
-    --hsc.objectTeleport(selectedAssistGhost, "Selected_Ghost")
+    --hscLegacy.objectTeleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     randomWarthog = math.random (1, 3)
     selectedWarthog = warthogTemplate:format(randomWarthog)
-    -- hsc.objectCreateANew(selectedWarthog)
+    -- hscLegacy.objectCreateANew(selectedWarthog)
     -- Warthog is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedWarthog)
-    --hsc.objectTeleport(selectedWarthog, "Selected_Warthog")
+    --hscLegacy.objectTeleport(selectedWarthog, "Selected_Warthog")
 end
 
 -- Esto parcha horriblemente el problema del Ghost en el Spirit.
 function firefightManager.GetOutOfGhost()
     if bossWaveCooldown == true then
-        hsc.vehicleUnload(selectedGhostA, "driver")
-        hsc.vehicleUnload(selectedGhostB, "driver")
-        hsc.vehicleUnload(selectedGhostC, "driver")
-        hsc.unitEnterable(selectedGhostA, 0)
-        hsc.unitEnterable(selectedGhostB, 0)
-        hsc.unitEnterable(selectedGhostC, 0)
-        hsc.aiVehicleEntrableDistance(selectedGhostA, 0)
-        hsc.aiVehicleEntrableDistance(selectedGhostB, 0)
-        hsc.aiVehicleEntrableDistance(selectedGhostC, 0)
+        hscLegacy.vehicleUnload(selectedGhostA, "driver")
+        hscLegacy.vehicleUnload(selectedGhostB, "driver")
+        hscLegacy.vehicleUnload(selectedGhostC, "driver")
+        hscLegacy.unitEnterable(selectedGhostA, 0)
+        hscLegacy.unitEnterable(selectedGhostB, 0)
+        hscLegacy.unitEnterable(selectedGhostC, 0)
+        hscLegacy.aiVehicleEntrableDistance(selectedGhostA, 0)
+        hscLegacy.aiVehicleEntrableDistance(selectedGhostB, 0)
+        hscLegacy.aiVehicleEntrableDistance(selectedGhostC, 0)
     elseif bossWaveCooldown == false then
-        hsc.unitEnterable(selectedGhostA, 1)
-        hsc.unitEnterable(selectedGhostB, 1)
-        hsc.unitEnterable(selectedGhostC, 1)
-        hsc.aiVehicleEntrableDistance(selectedGhostA, 20.0)
-        hsc.aiVehicleEntrableDistance(selectedGhostB, 20.0)
-        hsc.aiVehicleEntrableDistance(selectedGhostC, 20.0)
+        hscLegacy.unitEnterable(selectedGhostA, 1)
+        hscLegacy.unitEnterable(selectedGhostB, 1)
+        hscLegacy.unitEnterable(selectedGhostC, 1)
+        hscLegacy.aiVehicleEntrableDistance(selectedGhostA, 20.0)
+        hscLegacy.aiVehicleEntrableDistance(selectedGhostB, 20.0)
+        hscLegacy.aiVehicleEntrableDistance(selectedGhostC, 20.0)
     end
 end
 
@@ -400,10 +400,10 @@ end
 function firefightManager.aiNavpoint()
     if waveIsOn == false or bossWave == true then
         if waveLivingCount <= 4 then
-            hsc.navpointEnemy("(player0)", currentWaveType, 0)
-            hsc.navpointEnemy("(player0)", currentWaveType, 1)
-            hsc.navpointEnemy("(player0)", currentWaveType, 2)
-            hsc.navpointEnemy("(player0)", currentWaveType, 3)
+            hscLegacy.navpointEnemy("(player0)", currentWaveType, 0)
+            hscLegacy.navpointEnemy("(player0)", currentWaveType, 1)
+            hscLegacy.navpointEnemy("(player0)", currentWaveType, 2)
+            hscLegacy.navpointEnemy("(player0)", currentWaveType, 3)
         end
     end
 end
@@ -416,25 +416,25 @@ end
 local magicalSightCounter = 300
 local magicalSightTimer = 0
 function firefightManager.AiCheck()
-    waveLivingCount = hsc.aiLivingCount("Covenant_Wave", "covenant_living_count") + hsc.aiLivingCount("Flood_Wave", "flood_living_count")
-    hsc.aiAction(1, "Covenant_Support")
-    hsc.aiAction(1, "Flood_Support")
-    hsc.aiAction(1, "Covenant_Wave")
-    hsc.aiAction(1, "Flood_Wave")
-    hsc.aiAction(1, "Sentinel_Team")
-    hsc.aiAction(1, "Human_Team")
-    hsc.aiMagicallySeePlayers("Human_Team")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Wave")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Support")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Flood_Wave")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Flood_Support")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Sentinel_Team")
-    hsc.aiMagicallySee("encounter", "Covenant_Wave", "Human_Team")
-    hsc.aiMagicallySee("encounter", "Covenant_Support", "Human_Team")
-    hsc.aiMagicallySee("encounter", "Flood_Wave", "Human_Team")
-    hsc.aiMagicallySee("encounter", "Flood_Support", "Human_Team")
-    hsc.aiMagicallySee("encounter", "Sentinel_Team", "Human_Team")
-    hsc.aiVehicleEntrableDistance(selectedAssistGhost, 20.0)
+    waveLivingCount = hscLegacy.aiLivingCount("Covenant_Wave", "covenant_living_count") + hscLegacy.aiLivingCount("Flood_Wave", "flood_living_count")
+    hscLegacy.aiAction(1, "Covenant_Support")
+    hscLegacy.aiAction(1, "Flood_Support")
+    hscLegacy.aiAction(1, "Covenant_Wave")
+    hscLegacy.aiAction(1, "Flood_Wave")
+    hscLegacy.aiAction(1, "Sentinel_Team")
+    hscLegacy.aiAction(1, "Human_Team")
+    hscLegacy.aiMagicallySeePlayers("Human_Team")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Wave")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Support")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Flood_Wave")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Flood_Support")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Sentinel_Team")
+    hscLegacy.aiMagicallySee("encounter", "Covenant_Wave", "Human_Team")
+    hscLegacy.aiMagicallySee("encounter", "Covenant_Support", "Human_Team")
+    hscLegacy.aiMagicallySee("encounter", "Flood_Wave", "Human_Team")
+    hscLegacy.aiMagicallySee("encounter", "Flood_Support", "Human_Team")
+    hscLegacy.aiMagicallySee("encounter", "Sentinel_Team", "Human_Team")
+    hscLegacy.aiVehicleEntrableDistance(selectedAssistGhost, 20.0)
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -454,11 +454,11 @@ function firefightManager.AiSight(playerIndex)
     end
     if player then
         if player.isCamoActive == false then -- attempt to concatenate a table value (local 'targetObj')
-            --hsc.aiMagicallySee("unit", "Covenant_Wave", player)
-            --hsc.aiMagicallySee("unit", "Covenant_Support", player)
-            --hsc.aiMagicallySee("unit", "Flood_Wave", player)
-            --hsc.aiMagicallySee("unit", "Flood_Support", player)
-            --hsc.aiMagicallySee("unit", "Sentinel_Team", player)
+            --hscLegacy.aiMagicallySee("unit", "Covenant_Wave", player)
+            --hscLegacy.aiMagicallySee("unit", "Covenant_Support", player)
+            --hscLegacy.aiMagicallySee("unit", "Flood_Wave", player)
+            --hscLegacy.aiMagicallySee("unit", "Flood_Support", player)
+            --hscLegacy.aiMagicallySee("unit", "Sentinel_Team", player)
         end
     end
 end

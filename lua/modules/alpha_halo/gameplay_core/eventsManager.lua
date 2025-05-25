@@ -1,5 +1,5 @@
 local eventsManager = {}
-local hsc = require "hsc"
+local hscLegacy = require "hscLegacy"
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
@@ -45,13 +45,13 @@ end
 function eventsManager.bansheeEvent()
     if bansheeLivingCount == 0 then
         logger:debug("Banshee event!")
-        hsc.aiSpawn(1, "Covenant_Banshees")
-        hsc.objectCreateANew("banshee_1")
-        hsc.objectCreateANew("banshee_2")
-        hsc.vehicleLoadMagic("banshee_1", "B-driver", "Covenant_Banshees/banshee_a")
-        hsc.vehicleLoadMagic("banshee_2", "B-driver", "Covenant_Banshees/banshee_b")
-        hsc.objectTeleport("banshee_1", "Banshee_1")
-        hsc.objectTeleport("banshee_2", "Banshee_2")
+        hscLegacy.aiSpawn(1, "Covenant_Banshees")
+        hscLegacy.objectCreateANew("banshee_1")
+        hscLegacy.objectCreateANew("banshee_2")
+        hscLegacy.vehicleLoadMagic("banshee_1", "B-driver", "Covenant_Banshees/banshee_a")
+        hscLegacy.vehicleLoadMagic("banshee_2", "B-driver", "Covenant_Banshees/banshee_b")
+        hscLegacy.objectTeleport("banshee_1", "Banshee_1")
+        hscLegacy.objectTeleport("banshee_2", "Banshee_2")
     else
         eventsManager.randomEventGenerator()
     end
@@ -61,7 +61,7 @@ end
 function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
         logger:debug("Sniper event!")
-        hsc.aiSpawn(1, "Covenant_Snipers")
+        hscLegacy.aiSpawn(1, "Covenant_Snipers")
     else
         eventsManager.randomEventGenerator()
     end
@@ -72,9 +72,9 @@ end
 --function eventsManager.mortarEvent()
 --    if mortarLivingCount == 0 then
 --        logger:debug("Mortar event!")
---        hsc.aiSpawn(1, "Covenant_Mortars")
---        hsc.vehicleLoadMagic("mortar_1", "W-gunner", "Covenant_Mortars/mortar_a")
---        hsc.vehicleLoadMagic("mortar_2", "W-gunner", "Covenant_Mortars/mortar_b")
+--        hscLegacy.aiSpawn(1, "Covenant_Mortars")
+--        hscLegacy.vehicleLoadMagic("mortar_1", "W-gunner", "Covenant_Mortars/mortar_a")
+--        hscLegacy.vehicleLoadMagic("mortar_2", "W-gunner", "Covenant_Mortars/mortar_b")
 --    else
 --        eventsManager.randomEventGenerator()
 --    end
@@ -84,12 +84,12 @@ end
 local magicalSightCounter = 300
 local magicalSightTimer = 0
 function eventsManager.aiCheck()
-    bansheeLivingCount = hsc.aiLivingCount("Covenant_Banshees", "banshees_living_count")
-    snipersLivingCount = hsc.aiLivingCount("Covenant_Snipers", "snipers_living_count")
-    hsc.aiAction(1, "Covenant_Snipers")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Banshees")
-    hsc.aiMagicallySee("encounter", "Human_Team", "Covenant_Snipers")
-    hsc.aiMagicallySeePlayers("Covenant_Snipers")
+    bansheeLivingCount = hscLegacy.aiLivingCount("Covenant_Banshees", "banshees_living_count")
+    snipersLivingCount = hscLegacy.aiLivingCount("Covenant_Snipers", "snipers_living_count")
+    hscLegacy.aiAction(1, "Covenant_Snipers")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Banshees")
+    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Snipers")
+    hscLegacy.aiMagicallySeePlayers("Covenant_Snipers")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -109,8 +109,8 @@ function eventsManager.AiSight(playerIndex)
     end
     if player then
         if player.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
-            --hsc.aiMagicallySee("unit", "Covenant_Banshees", player)
-            --hsc.aiMagicallySee("unit", "Covenant_Snipers", player)
+            --hscLegacy.aiMagicallySee("unit", "Covenant_Banshees", player)
+            --hscLegacy.aiMagicallySee("unit", "Covenant_Snipers", player)
         end
     end
 end

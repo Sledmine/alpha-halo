@@ -169,19 +169,19 @@ end
 -- Blind: Hides HUD and duplicates AI error.
 ---@param restore boolean
 function skullsManager.skullBlind(restore)
-    local hsc = require "hsc"
+    local hscLegacy = require "hscLegacy"
     if restore == true then
         for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             tagEntry.data.projectileError = tagEntry.data.projectileError * 0.5
         end
-        hsc.showHud(1)
+        hscLegacy.showHud(1)
         skullsManager.skulls.blind = false
         logger:debug("Blind Off")
     else
         for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             tagEntry.data.projectileError = tagEntry.data.projectileError * 2
         end
-        hsc.showHud(0)
+        hscLegacy.showHud(0)
         skullsManager.skulls.blind = true
         logger:debug("Blind On")
     end
