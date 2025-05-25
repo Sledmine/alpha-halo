@@ -16,7 +16,7 @@ local fmod = math.fmod
 local rad = math.rad
 local deg = math.deg
 
-local blam = {_VERSION = "1.12.3"}
+local blam = {_VERSION = "1.15.1"}
 
 ------------------------------------------------------------------------------
 -- Useful functions for internal usage
@@ -114,7 +114,7 @@ local addressList = {
     gamePaused = 0x004ACA79,
     gameOnMenus = 0x00622058,
     joystickInput = 0x64D998, -- from aLTis
-    firstPerson = 0x40000EB8 + 0x8, -- from aLTis
+    firstPerson = 0x40000EB8, -- from aLTis
     objectTable = 0x400506B4,
     deviceGroupsTable = 0x00816110,
     widgetsInstance = 0x6B401C,
@@ -122,7 +122,8 @@ local addressList = {
     syncedNetworkObjects = 0x006226F0, -- pointer, from Vulpes
     screenResolution = 0x637CF0,
     currentWidgetIdAddress = 0x6B401C,
-    cinematicGlobals = 0x0068c83c
+    cinematicGlobals = 0x0068c83c,
+    gameStateGlobals = 0x0064bab0
 }
 
 -- Server side addresses adjustment
@@ -131,6 +132,8 @@ if blam.isGameSAPP() then
     addressList.objectTable = 0x4005062C
     addressList.syncedNetworkObjects = 0x00598020 -- not pointer cause cheat engine sucks
     addressList.cinematicGlobals = 0x005f506c
+    addressList.gameStateGlobals = 0x005bd890
+    addressList.hscGlobals = 0x6e144c
 end
 
 -- Tag classes values
@@ -332,6 +335,13 @@ local joystickInputs = {
     startButton = 9,
     leftStick = 10,
     rightStick = 11,
+    rightStick2 = 12,
+    -- TODO Add joys axis
+    leftStickUp = 30,
+    leftStickDown = 32,
+    rightStickUp = 34,
+    rightStickDown = 36,
+    triggers = 38,
     -- Multiple values on the same offset, check dPadValues table
     dPad = 96,
     -- Non zero values
@@ -343,8 +353,6 @@ local joystickInputs = {
     dPadDownRight = 103,
     dPadUpLeft = 107,
     dPadDownLeft = 105
-    -- TODO Add joys axis
-    -- rightJoystick = 30,
 }
 
 -- Values for the possible dPad values from the joystick inputs
@@ -436,6 +444,16 @@ backupFunctions.file_exists = _G.file_exists
 ---@param z number
 ---@return number? objectId
 function spawn_object(tagClass, tagPath, x, y, z)
+    if type(tagClass) == "number" then
+        local x = tagPath --[[@as number]]
+        local y = x
+        local z = y
+        local tag = blam.getTag(tagClass)
+        if tag then
+            return backupFunctions.spawn_object(tag.class, tag.path, x, y, z)
+        end
+    end
+    return backupFunctions.spawn_object(tagClass, tagPath, x, y, z)
 end
 
 ---Attempt to get the address of a player unit object given player index, returning nil on failure.<br>
@@ -445,7 +463,6 @@ end
 function get_dynamic_player(playerIndex)
 end
 
-spawn_object = backupFunctions.spawn_object
 get_dynamic_player = backupFunctions.get_dynamic_player
 
 ------------------------------------------------------------------------------
@@ -609,9 +626,8 @@ end
 ---@param red? number
 ---@param green? number
 ---@param blue? number
-function console_out(message, red, green, blue)
-    -- TODO Add color printing to this function on SAPP
-    cprint(message)
+function console_out(...)
+    cprint(...)
 end
 
 ---Output text to console as debug message.
@@ -632,10 +648,40 @@ end
 
 ---Get the value of a Halo scripting global.\
 ---An error will be triggered if the global is not found
----@param name string Name of the global variable to get from hsc
+---@param globalName string Name of the  global variable to get from hsc
 ---@return boolean | number
-function get_global(name)
-    error("SAPP can not retrieve global variables as Chimera does.. yet!")
+function get_global(globalName)
+    if addressList.hscGlobals then
+        local hsGlobals = addressList.hscGlobals
+        --local firstGlobal = read_dword(addressList.hscGlobals + 1)
+        local firstGlobal = 0x00001ec
+        local hsGlobalsTable = read_dword(hsGlobals)
+        local hsTable = read_dword(hsGlobalsTable + 0x34)
+
+        local scenarioTag = blam.getTag(0).data
+        local globalsCount = read_dword(scenarioTag + 0x4A8)
+        local globalsAddress = read_dword(scenarioTag + 0x4A8 + 4)
+
+        for i = 0, globalsCount - 1 do
+            local global = globalsAddress + i * 92
+            if read_string(global) == globalName then
+                local globalType = read_word(global + 0x20)
+                local location = hsTable + (i + firstGlobal) * 8
+                if globalType == 5 then
+                    return read_byte(location + 4) == 1
+                elseif globalType == 6 then
+                    return read_float(location + 4)
+                elseif globalType == 7 then
+                    return read_short(location + 4)
+                elseif globalType == 8 then
+                    return read_int(location + 4)
+                else
+                    return read_int(location + 4)
+                end
+            end
+        end
+    end
+    error("Global not found: " .. globalName)
 end
 
 ---Print message to player HUD.\
@@ -1259,7 +1305,6 @@ local deviceGroupsTableStructure = {
 ---@field address number
 ---@field tagId number Object tag ID
 ---@field networkRoleClass number Object network role class
----@field isNotMoving boolean TESTING
 ---@field isGhost boolean Set object in some type of ghost mode
 ---@field isOnGround boolean Is the object touching ground
 ---@field isNotAffectedByGravity boolean Enable/disable object gravity
@@ -1340,15 +1385,12 @@ local deviceGroupsTableStructure = {
 ---@field regionPermutation7 number
 ---@field regionPermutation8 number
 ---@field parentObjectId number
----@field animationReplacementIndex number
----@field animationReplacementFrame number
 
 -- blamObject structure
 local objectStructure = {
     tagId = {type = "dword", offset = 0x0},
     networkRoleClass = {type = "dword", offset = 0x4},
     isNotMoving = {type = "bit", offset = 0x8, bitLevel = 0},
-    shouldForceBaselineUpdate = {type = "bit", offset = 0x8, bitLevel = 8},
     existanceTime = {type = "dword", offset = 0xC},
     isGhost = {type = "bit", offset = 0x10, bitLevel = 0},
     isOnGround = {type = "bit", offset = 0x10, bitLevel = 1},
@@ -1419,7 +1461,6 @@ local objectStructure = {
     pitchVel = {type = "float", offset = 0x90},
     rollVel = {type = "float", offset = 0x94},
     locationId = {type = "dword", offset = 0x98},
-    clusterId = {type = "word", offset = 0x9C},
     boundingRadius = {type = "float", offset = 0xAC},
     ---@deprecated
     type = {type = "word", offset = 0xB4},
@@ -1447,20 +1488,15 @@ local objectStructure = {
     regionPermutation6 = {type = "byte", offset = 0x185},
     regionPermutation7 = {type = "byte", offset = 0x186},
     regionPermutation8 = {type = "byte", offset = 0x187},
-    parentObjectId = {type = "dword", offset = 0x11C},
-    animationReplacementIndex = {type = "word", offset = 0x2AA},
-    animationReplacementFrame = {type = "word", offset = 0x2AC}
+    parentObjectId = {type = "dword", offset = 0x11C}
 }
 
 local unitStructure = extendStructure(objectStructure, {
-    isActive = {type = "bit", offset = 0x204, bitLevel = 0},
     ---@deprecated
     invisible = {type = "bit", offset = 0x204, bitLevel = 4},
     isCamoActive = {type = "bit", offset = 0x204, bitLevel = 4},
     isControllable = {type = "bit", offset = 0x204, bitLevel = 5},
-    isCurrentlyControllable = {type = "bit", offset = 0x204, bitLevel = 6},
     isPlayerNotAllowedToEntry = {type = "bit", offset = 0x204, bitLevel = 16},
-    isSuspended = {type = "bit", offset = 0x204, bitLevel = 24},
     parentSeatIndex = {type = "word", offset = 0x2F0},
     weaponAnimationTypeIndex = {type = "byte", offset = 0x2A1},
     weaponSlot = {type = "byte", offset = 0x2F2},
@@ -1475,8 +1511,6 @@ local unitStructure = extendStructure(objectStructure, {
 ---@field isCamoActive boolean Unit camo state
 ---@field isControllable boolean Unit controllable state
 ---@field isPlayerNotAllowedToEntry boolean Unit player not allowed to entry
----@field isActive boolean TESTING
----@field isSuspended boolean TESTING
 ---@field parentSeatIndex number Unit parent seat index
 ---@field weaponAnimationTypeIndex number Unit weapon animation type index
 ---@field weaponSlot number Current unit weapon slot
@@ -1771,10 +1805,30 @@ local bitmapStructure = {
 ---@field type number Type of widget
 ---@field controllerIndex number Index of the player controller
 ---@field name string Name of the widget
+---@field top number Top bound of the widget
+---@field left number Left bound of the widget
+---@field bottom number Bottom bound of the widget
+---@field right number Right bound of the widget
 ---@field boundsY number Top bound of the widget
 ---@field boundsX number Left bound of the widget
 ---@field height number Bottom bound of the widget
 ---@field width number Right bound of the widget
+---@field passUnhandleEventsToFocusedChild boolean Pass unhandled events to focused child
+---@field pauseGameTime boolean Pause game time
+---@field flashBackgroundBitmap boolean Flash background bitmap
+---@field dpadUpDownTabsThruChildren boolean Dpad up down tabs thru children
+---@field dpadLeftRightTabsThruChildren boolean Dpad left right tabs thru children
+---@field dpadUpDownTabsThruListItems boolean Dpad up down tabs thru list items
+---@field dpadLeftRightTabsThruListItems boolean Dpad left right tabs thru list items
+---@field dontFocusSpecificChildWidget boolean Don't focus specific child widget
+---@field passUnhandledEventsToAllChildren boolean Pass unhandled events to all children
+---@field renderRegardlessOfControllerIndex boolean Render regardless of controller index
+---@field passHandledEventsToAllChildren boolean Pass handled events to all children
+---@field returnToMainMenuIfNoHistory boolean Return to main menu if no history
+---@field alwaysUseTagControllerIndex boolean Always use tag controller index
+---@field alwaysUseNiftyRenderFx boolean Always use nifty render fx
+---@field dontPushHistory boolean Don't push history
+---@field forceHandleMouse boolean Force handle mouse
 ---@field backgroundBitmap number Tag ID of the background bitmap
 ---@field eventHandlers uiWidgetDefinitionEventHandler[] tag ID list of the child widgets
 ---@field unicodeStringListTag number Tag ID of the unicodeStringList from this widget
@@ -1790,10 +1844,30 @@ local uiWidgetDefinitionStructure = {
     type = {type = "word", offset = 0x0},
     controllerIndex = {type = "word", offset = 0x2},
     name = {type = "string", offset = 0x4},
+    top = {type = "short", offset = 0x24},
+    left = {type = "short", offset = 0x26},
+    bottom = {type = "short", offset = 0x28},
+    right = {type = "short", offset = 0x2A},
     boundsY = {type = "short", offset = 0x24},
     boundsX = {type = "short", offset = 0x26},
     height = {type = "short", offset = 0x28},
     width = {type = "short", offset = 0x2A},
+    passUnhandleEventsToFocusedChild = {type = "bit", offset = 0x2C, bitLevel = 0},
+    pauseGameTime = {type = "bit", offset = 0x2C, bitLevel = 1},
+    flashBackgroundBitmap = {type = "bit", offset = 0x2C, bitLevel = 2},
+    dpadUpDownTabsThruChildren = {type = "bit", offset = 0x2C, bitLevel = 3},
+    dpadLeftRightTabsThruChildren = {type = "bit", offset = 0x2C, bitLevel = 4},
+    dpadUpDownTabsThruListItems = {type = "bit", offset = 0x2C, bitLevel = 5},
+    dpadLeftRightTabsThruListItems = {type = "bit", offset = 0x2C, bitLevel = 6},
+    dontFocusSpecificChildWidget = {type = "bit", offset = 0x2C, bitLevel = 7},
+    passUnhandledEventsToAllChildren = {type = "bit", offset = 0x2C, bitLevel = 8},
+    renderRegardlessOfControllerIndex = {type = "bit", offset = 0x2C, bitLevel = 9},
+    passHandledEventsToAllChildren = {type = "bit", offset = 0x2C, bitLevel = 10},
+    returnToMainMenuIfNoHistory = {type = "bit", offset = 0x2C, bitLevel = 11},
+    alwaysUseTagControllerIndex = {type = "bit", offset = 0x2C, bitLevel = 12},
+    alwaysUseNiftyRenderFx = {type = "bit", offset = 0x2C, bitLevel = 13},
+    dontPushHistory = {type = "bit", offset = 0x2C, bitLevel = 14},
+    forceHandleMouse = {type = "bit", offset = 0x2C, bitLevel = 15},
     backgroundBitmap = {type = "word", offset = 0x44},
     eventHandlers = {
         type = "table",
@@ -2441,14 +2515,12 @@ local firstPersonStructure = {weaponObjectId = {type = "dword", offset = 0x10}}
 
 ---@class bipedTag
 ---@field model number Gbxmodel tag Id of this biped tag
----@field animationGraph number Animation graph tag Id of this biped tag
 ---@field disableCollision boolean Disable collision of this biped tag
 ---@field weaponCount number Number of weapons of this biped
 ---@field weaponList tagId[] List of weapons of this biped
 
 local bipedTagStructure = {
     model = {type = "dword", offset = 0x34},
-    animationGraph = {type = "dword", offset = 68},
     disableCollision = {type = "bit", offset = 0x2F4, bitLevel = 5},
     weaponCount = {type = "byte", offset = 0x02D8},
     weaponList = {type = "list", offset = 0x02D8 + 0x4, jump = 0x24, elementsType = "dword"}
@@ -2578,7 +2650,7 @@ function blam.getJoystickInput(joystickOffset)
     joystickOffset = joystickOffset or 0
     -- Nothing is pressed by default
     ---@type boolean | number
-    local inputValue = false
+    local inputValue = 0
     -- Look for every input from every joystick available
     for controllerId = 0, 3 do
         local inputAddress = addressList.joystickInput + controllerId * 0xA0
@@ -2590,6 +2662,8 @@ function blam.getJoystickInput(joystickOffset)
             local tempValue = read_word(inputAddress + 96)
             if (tempValue == joystickOffset - 100) then
                 inputValue = true
+            else
+                inputValue = false
             end
         else
             inputValue = inputValue + read_byte(inputAddress + joystickOffset)
@@ -3406,6 +3480,13 @@ end
 ---@return cinematicGlobals
 function blam.cinematicGlobals()
     return createBindTable(read_dword(addressList.cinematicGlobals), cinematicGlobalsStructure)
+end
+
+--- Returns current game difficulty index
+---@return number
+function blam.getGameDifficultyIndex()
+    local hscGlobals = read_dword(addressList.gameStateGlobals)
+    return read_byte(hscGlobals + 0xe)
 end
 
 return blam
