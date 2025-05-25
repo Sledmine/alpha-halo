@@ -26,8 +26,8 @@ skullsManager.skulls = {
     knucklehead = false,
     cowbell = false,
     havok = false,
-    heavyHitter = false,
-    tilt = false,
+    newton = false,
+    --tilt = false,
     banger = false,
     doubleDown = false,
     eyePatch = false,
@@ -438,9 +438,9 @@ function skullsManager.skullHavok(restore)
     end
 end
 
----Heavy Hitter: Augments instant acceleration for melee damages.
+---Newton: Augments instant acceleration for melee damages.
 ---@param restore boolean
-function skullsManager.skullHeavyHitter(restore)
+function skullsManager.skullNewton(restore)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
         if restore then
             tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i - 5
@@ -455,11 +455,11 @@ function skullsManager.skullHeavyHitter(restore)
         end
     end
         if restore == true then
-        skullsManager.skulls.heavyHitter = false
-        -- logger:debug("Heavy Hitter Off")
+        skullsManager.skulls.newton = false
+        -- logger:debug("Newton Off")
     else
-        skullsManager.skulls.heavyHitter = true
-        -- logger:debug("Heavy Hitter On")
+        skullsManager.skulls.newton = true
+        -- logger:debug("Newton On")
     end
 end
 
@@ -864,15 +864,15 @@ function skullsManager.silverSkulls()
         --    func = skullsManager.skullHavok
         --},
         --{
-        --    name = "Heavy Hitter",
-        --    active = skullsManager.skulls.heavyHitter,
-        --    func = skullsManager.skullHeavyHitter
+        --    name = "Newton",
+        --    active = skullsManager.skulls.newton,
+        --    func = skullsManager.skullNewton
         --},
-        --{
-        --    name = "Tilt",
-        --    active = skullsManager.skulls.tilt,
-        --    func = skullsManager.skullTilt
-        --},
+        {
+            name = "Tilt",
+            active = skullsManager.skulls.tilt,
+            func = skullsManager.skullTilt
+        },
         --{
         --    name = "Banger",
         --    active = skullsManager.skulls.banger,
@@ -967,9 +967,9 @@ function skullsManager.resetSilverSkulls()
             func = skullsManager.skullHavok
         },
         {
-            name = "Heavy Hitter",
-            active = skullsManager.skulls.heavyHitter,
-            func = skullsManager.skullHeavyHitter
+            name = "Newton",
+            active = skullsManager.skulls.newton,
+            func = skullsManager.skullNewton
         },
         {
             name = "Tilt",
