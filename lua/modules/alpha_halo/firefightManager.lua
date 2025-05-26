@@ -1,4 +1,5 @@
 local hscLegacy = require "hscLegacy"
+local hsc = require "hsc"
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
@@ -116,8 +117,8 @@ function firefightManager.whenMapLoads()
     firefightManager.WaveProgression()
     waveCooldownStart = true
     waveCooldownCounter = roundCooldownTimer
-    --hscLegacy.objectCreateANew("mortar_1")
-    --hscLegacy.objectCreateANew("mortar_2")
+    --hsc.object_create_anew("mortar_1")
+    --hsc.object_create_anew("mortar_2")
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -239,7 +240,7 @@ function firefightManager.DropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    hscLegacy.objectCreateANew(selectedDropship)
+    hsc.object_create_anew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hscLegacy.aiSpawn(1, selectedDropshipGunner)
@@ -282,7 +283,7 @@ function firefightManager.GhostLoader()
     selectedGhostB = ghostTemplate:format(randomGhost, 2)
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
     selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
-    hscLegacy.objectCreateANew(selectedGhost)
+    hsc.object_create_anew(selectedGhost)
 
     ---- Ghost is now spawned dynamically
     --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
@@ -356,21 +357,21 @@ function firefightManager.GameAssists()
     hscLegacy.aiSpawn(1, "Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
-    hscLegacy.objectCreateANewContaining("assist_warthog")
+    hsc.object_create_anew_containing("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     randomGhost = math.random (1, 3)
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
-    -- hscLegacy.objectCreateANew(selectedAssistGhost)
+    -- hsc.object_create_anew(selectedAssistGhost)
     -- Ghost is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
-    --hscLegacy.objectTeleport(selectedAssistGhost, "Selected_Ghost")
+    --hsc.object_teleporteleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     randomWarthog = math.random (1, 3)
     selectedWarthog = warthogTemplate:format(randomWarthog)
-    -- hscLegacy.objectCreateANew(selectedWarthog)
+    -- hsc.object_create_anew(selectedWarthog)
     -- Warthog is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedWarthog)
-    --hscLegacy.objectTeleport(selectedWarthog, "Selected_Warthog")
+    --hsc.object_teleporteleport(selectedWarthog, "Selected_Warthog")
 end
 
 -- Esto parcha horriblemente el problema del Ghost en el Spirit.

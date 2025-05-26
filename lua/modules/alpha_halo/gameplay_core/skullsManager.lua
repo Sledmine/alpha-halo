@@ -19,7 +19,7 @@ skullsManager.skulls = {
     famine = false,
     mythic = false,
     blind = false,
-    --catch = false,
+    catch = false,
     berserk = false,
     toughLuck = false,
     fog = false,
@@ -178,29 +178,41 @@ function skullsManager.skullBlindOnTick()
     end
 end
 
----- Catch: Makes the AI launch grenades a fuck lot. CURRENTLY NOT WORKING.
--- function skullsManager.skullCatch(restore)
---    if skullsManager.skulls.catch then
---        for index, tagEntry in ipairs(tagEntries.actorVariant()) do
---            if restore then
---                tagEntry.data.flags:hasUnlimitedGrenades(false)
---                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(1) -- This doesn't work.
---                tagEntry.data.grenadeChance = tagEntry.data.grenadeChance - 1
---                tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 10
---                tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 100
---                tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 10
---            else
---                tagEntry.data.flags:hasUnlimitedGrenades(true)
---                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(2) -- This doesn't work.
---                tagEntry.data.grenadeChance = tagEntry.data.grenadeChance + 1
---                tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 0.1
---                tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 0.01
---                tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 0.1
---            end
---        end
---        logger:debug("Catch On")
---    end
--- end
+-- Catch: Makes the AI launch grenades a fuck lot.
+function skullsManager.skullCatch(restore)
+    local catchTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
+        for _, keyword in pairs(allUnits) do
+            if tagEntry.path:includes(keyword) then
+                return true
+            end
+        end
+        return false
+    end)
+    for index, tagEntry in ipairs(catchTagsFiltered) do
+        if restore then
+            --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(1) -- This doesn't work.
+            tagEntry.data.flags:hasUnlimitedGrenades(false)
+            tagEntry.data.grenadeChance = tagEntry.data.grenadeChance - 1
+            tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 10
+            tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 100
+            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 10
+        else
+            --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(2) -- This doesn't work.
+            tagEntry.data.flags:hasUnlimitedGrenades(true)
+            tagEntry.data.grenadeChance = tagEntry.data.grenadeChance + 1
+            tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 0.1
+            tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 0.01
+            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 0.1
+        end
+    end
+    if restore == true then
+        skullsManager.skulls.catcg = false
+        -- logger:debug("Catch Off")
+    else
+        skullsManager.skulls.catch = true
+        -- logger:debug("Catch On")
+    end
+end
 
 -------------------------------------------------------------- Silver Skulls ----------------------------------------------------------------------------
 
@@ -470,11 +482,11 @@ function skullsManager.skullTilt(restore)
         "beam_rifle",
         "brute_plasma_rifle",
         "carbine",
-        "energy_sword",
-        "fuel_rod",
+        "energy sword",
+        "fuel rod gun",
         "plasma_cannon",
-        "plasma_pistol",
-        "plasma_rifle",
+        "plasma pistol",
+        "plasma rifle",
         "ghost",
         "wraith",
         "banshee",
@@ -483,16 +495,16 @@ function skullsManager.skullTilt(restore)
         "hunter"
     }
     local kineticWeapons = {
-        "assault_rifle",
+        "assault rifle",
         "battle_rifle",
-        "frag_grenade",
+        "frag grenade",
         "needler",
         "pistol",
-        "rocket_launcher",
+        "rocket launcher",
         "shotgun",
         "smg",
         "sniper_gauss",
-        "sniper_rifle",
+        "sniper rifle",
         "m90_short",
         "warthog",
         "scorpion"
@@ -512,102 +524,69 @@ function skullsManager.skullTilt(restore)
             end
         end
         return false
-    end)
+    end) -- This is a kinda nuttered version of Tilt, in hopes to reduce the load on the game.
     for _, tagEntry in ipairs(energyDamageEffect) do
-        local d = tagEntry.data
-        if restore == true then
-            d.metalHollow = d. metalHollow * 2
-            d.metalThick = d. metalThick * 2
-            d.metalThin = d. metalThin * 2
-            d.forceField = d.forceField * 0.5
-            d.grunt = d.grunt * 2
-            d.hunterArmor = d.hunterArmor * 2
-            d.hunterSkin = d.hunterSkin * 2
-            d.elite = d.elite * 2
-            d.eliteEnergyShield = d.eliteEnergyShield * 0.5
-            d.jackal = d.jackal * 2
-            d.jackalEnergyShield = d.jackalEnergyShield * 0.5
-            d.engineerSkin = d.engineerSkin * 2
-            d.engineerForceField = d.engineerForceField * 0.5
-            d.floodCombatForm = d.floodCombatForm * 2
-            d.floodCarrierForm = d.floodCarrierForm * 2
-            d.cyborgArmor = d.cyborgArmor * 2
-            d.cyborgEnergyShield = d.cyborgEnergyShield * 0.5
-            d.humanArmor = d.humanArmor * 2
-            d.humanSkin = d.humanSkin * 2
-            d.sentinel = d.sentinel * 0.5
-            d.monitor = d.monitor * 0.5
-        else
-            d.metalHollow = d. metalHollow * 0.5
-            d.metalThick = d. metalThick * 0.5
-            d.metalThin = d. metalThin * 0.5
-            d.forceField = d.forceField * 2
-            d.grunt = d.grunt * 0.5
-            d.hunterArmor = d.hunterArmor * 0.5
-            d.hunterSkin = d.hunterSkin * 0.5
-            d.elite = d.elite * 0.5
-            d.eliteEnergyShield = d.eliteEnergyShield * 2
-            d.jackal = d.jackal * 0.5
-            d.jackalEnergyShield = d.jackalEnergyShield * 2
-            d.engineerSkin = d.engineerSkin * 0.5
-            d.engineerForceField = d.engineerForceField * 2
-            d.floodCombatForm = d.floodCombatForm * 0.5
-            d.floodCarrierForm = d.floodCarrierForm * 0.5
-            d.cyborgArmor = d.cyborgArmor * 0.5
-            d.cyborgEnergyShield = d.cyborgEnergyShield * 2
-            d.humanArmor = d.humanArmor * 0.5
-            d.humanSkin = d.humanSkin * 0.5
-            d.sentinel = d.sentinel * 2
-            d.monitor = d.monitor * 2
+        if not tagEntry.path:includes("melee") then
+            local d = tagEntry.data
+            if restore == true then
+                d.metalHollow = d. metalHollow * 2
+                d.metalThick = d. metalThick * 2
+                d.metalThin = d. metalThin * 2
+                d.grunt = d.grunt * 2
+                d.hunterArmor = d.hunterArmor * 2
+                d.hunterSkin = d.hunterSkin * 2
+                d.elite = d.elite * 2
+                d.eliteEnergyShield = d.eliteEnergyShield * 0.5
+                d.jackal = d.jackal * 2
+                d.jackalEnergyShield = d.jackalEnergyShield * 0.5
+                d.floodCombatForm = d.floodCombatForm * 2
+                d.floodCarrierForm = d.floodCarrierForm * 2
+            else
+                d.metalHollow = d. metalHollow * 0.5
+                d.metalThick = d. metalThick * 0.5
+                d.metalThin = d. metalThin * 0.5
+                d.grunt = d.grunt * 0.5
+                d.hunterArmor = d.hunterArmor * 0.5
+                d.hunterSkin = d.hunterSkin * 0.5
+                d.elite = d.elite * 0.5
+                d.eliteEnergyShield = d.eliteEnergyShield * 2
+                d.jackal = d.jackal * 0.5
+                d.jackalEnergyShield = d.jackalEnergyShield * 2
+                d.floodCombatForm = d.floodCombatForm * 0.5
+                d.floodCarrierForm = d.floodCarrierForm * 0.5
+            end
         end
     end
     for _, tagEntry in ipairs(kineticDamageEffect) do
-        local d = tagEntry.data
-        if restore == true then
-            d.metalHollow = d. metalHollow * 0.5
-            d.metalThick = d. metalThick * 0.5
-            d.metalThin = d. metalThin * 0.5
-            d.forceField = d.forceField * 2
-            d.grunt = d.grunt * 0.5
-            d.hunterArmor = d.hunterArmor * 0.5
-            d.hunterSkin = d.hunterSkin * 0.5
-            d.elite = d.elite * 0.5
-            d.eliteEnergyShield = d.eliteEnergyShield * 2
-            d.jackal = d.jackal * 0.5
-            d.jackalEnergyShield = d.jackalEnergyShield * 2
-            d.engineerSkin = d.engineerSkin * 0.5
-            d.engineerForceField = d.engineerForceField * 2
-            d.floodCombatForm = d.floodCombatForm * 0.5
-            d.floodCarrierForm = d.floodCarrierForm * 0.5
-            d.cyborgArmor = d.cyborgArmor * 0.5
-            d.cyborgEnergyShield = d.cyborgEnergyShield * 2
-            d.humanArmor = d.humanArmor * 0.5
-            d.humanSkin = d.humanSkin * 0.5
-            d.sentinel = d.sentinel * 2
-            d.monitor = d.monitor * 2
-        else
-            d.metalHollow = d. metalHollow * 2
-            d.metalThick = d. metalThick * 2
-            d.metalThin = d. metalThin * 2
-            d.forceField = d.forceField * 0.5
-            d.grunt = d.grunt * 2
-            d.hunterArmor = d.hunterArmor * 2
-            d.hunterSkin = d.hunterSkin * 2
-            d.elite = d.elite * 2
-            d.eliteEnergyShield = d.eliteEnergyShield * 0.5
-            d.jackal = d.jackal * 2
-            d.jackalEnergyShield = d.jackalEnergyShield * 0.5
-            d.engineerSkin = d.engineerSkin * 2
-            d.engineerForceField = d.engineerForceField * 0.5
-            d.floodCombatForm = d.floodCombatForm * 2
-            d.floodCarrierForm = d.floodCarrierForm * 2
-            d.cyborgArmor = d.cyborgArmor * 2
-            d.cyborgEnergyShield = d.cyborgEnergyShield * 0.5
-            d.humanArmor = d.humanArmor * 2
-            d.humanSkin = d.humanSkin * 2
-            d.sentinel = d.sentinel * 0.5
-            d.monitor = d.monitor * 0.5
-            logger:debug("Cyborg multiplier: {}", d.grunt)
+        if not tagEntry.path:includes("melee") then
+            local d = tagEntry.data
+            if restore == true then
+                d.metalHollow = d. metalHollow * 0.5
+                d.metalThick = d. metalThick * 0.5
+                d.metalThin = d. metalThin * 0.5
+                d.grunt = d.grunt * 0.5
+                d.hunterArmor = d.hunterArmor * 0.5
+                d.hunterSkin = d.hunterSkin * 0.5
+                d.elite = d.elite * 0.5
+                d.eliteEnergyShield = d.eliteEnergyShield * 2
+                d.jackal = d.jackal * 0.5
+                d.jackalEnergyShield = d.jackalEnergyShield * 2
+                d.floodCombatForm = d.floodCombatForm * 0.5
+                d.floodCarrierForm = d.floodCarrierForm * 0.5
+            else
+                d.metalHollow = d. metalHollow * 2
+                d.metalThick = d. metalThick * 2
+                d.metalThin = d. metalThin * 2
+                d.grunt = d.grunt * 2
+                d.hunterArmor = d.hunterArmor * 2
+                d.hunterSkin = d.hunterSkin * 2
+                d.elite = d.elite * 2
+                d.eliteEnergyShield = d.eliteEnergyShield * 0.5
+                d.jackal = d.jackal * 2
+                d.jackalEnergyShield = d.jackalEnergyShield * 0.5
+                d.floodCombatForm = d.floodCombatForm * 2
+                d.floodCarrierForm = d.floodCarrierForm * 2
+            end
         end
     end
     if restore == true then
@@ -655,7 +634,7 @@ end
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param restore boolean
 function skullsManager.skullDoubleDown(restore)
-    local playerCollisionTagEntry = findTags("spartan_mp", tagClasses.modelCollisionGeometry)[1]
+    local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp", tagClasses.modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
@@ -833,76 +812,76 @@ end
 
 function skullsManager.silverSkulls()
     local skullList = {
-        --{
-        --    name = "Berserk",
-        --    active = skullsManager.skulls.berserk,
-        --    func = skullsManager.skullBerserk
-        --},
-        --{
-        --    name = "Tough Luck",
-        --    active = skullsManager.skulls.toughLuck,
-        --    func = skullsManager.skullToughLuck
-        --},
-        --{
-        --    name = "Fog",
-        --    active = skullsManager.skulls.fog,
-        --    func = skullsManager.skullFog
-        --},
-        --{
-        --    name = "Knucklehead",
-        --    active = skullsManager.skulls.knucklehead,
-        --    func = skullsManager.skullKnucklehead
-        --},
-        --{
-        --    name = "Cowbell",
-        --    active = skullsManager.skulls.cowbell,
-        --    func = skullsManager.skullCowbell
-        --},
-        --{
-        --    name = "Havok",
-        --    active = skullsManager.skulls.havok,
-        --    func = skullsManager.skullHavok
-        --},
-        --{
-        --    name = "Newton",
-        --    active = skullsManager.skulls.newton,
-        --    func = skullsManager.skullNewton
-        --},
+        {
+            name = "Berserk",
+            active = skullsManager.skulls.berserk,
+            func = skullsManager.skullBerserk
+        },
+        {
+            name = "Tough Luck",
+            active = skullsManager.skulls.toughLuck,
+            func = skullsManager.skullToughLuck
+        },
+        {
+            name = "Fog",
+            active = skullsManager.skulls.fog,
+            func = skullsManager.skullFog
+        },
+        {
+            name = "Knucklehead",
+            active = skullsManager.skulls.knucklehead,
+            func = skullsManager.skullKnucklehead
+        },
+        {
+            name = "Cowbell",
+            active = skullsManager.skulls.cowbell,
+            func = skullsManager.skullCowbell
+        },
+        {
+            name = "Havok",
+            active = skullsManager.skulls.havok,
+            func = skullsManager.skullHavok
+        },
+        {
+            name = "Newton",
+            active = skullsManager.skulls.newton,
+            func = skullsManager.skullNewton
+        },
         {
             name = "Tilt",
             active = skullsManager.skulls.tilt,
             func = skullsManager.skullTilt
         },
-        --{
-        --    name = "Banger",
-        --    active = skullsManager.skulls.banger,
-        --    func = skullsManager.skullBanger
-        --},
-        --{
-        --    name = "Double Down",
-        --    active = skullsManager.skulls.doubleDown,
-        --    func = skullsManager.skullDoubleDown
-        --},
-        --{
-        --    name = "Eye Patch",
-        --    active = skullsManager.skulls.eyePatch,
-        --    func = skullsManager.skullEyePatch
-        --},
-        --{
-        --    name = "Trigger Switch",
-        --    active = skullsManager.skulls.triggerSwitch,
-        --    func = skullsManager.skullTriggerSwitch
-        --},
-        --{
-        --    name = "Slayer",
-        --    active = skullsManager.skulls.slayer,
-        --    func = skullsManager.skullSlayer
-        --},
-        --{
-        --    name = "Assassin",
-        --    active = skullsManager.skulls.assassin,
-        --    func = skullsManager.skullAssassin
-        --}
+        {
+            name = "Banger",
+            active = skullsManager.skulls.banger,
+            func = skullsManager.skullBanger
+        },
+        {
+            name = "Double Down",
+            active = skullsManager.skulls.doubleDown,
+            func = skullsManager.skullDoubleDown
+        },
+        {
+            name = "Eye Patch",
+            active = skullsManager.skulls.eyePatch,
+            func = skullsManager.skullEyePatch
+        },
+        {
+            name = "Trigger Switch",
+            active = skullsManager.skulls.triggerSwitch,
+            func = skullsManager.skullTriggerSwitch
+        },
+        {
+            name = "Slayer",
+            active = skullsManager.skulls.slayer,
+            func = skullsManager.skullSlayer
+        },
+        {
+            name = "Assassin",
+            active = skullsManager.skulls.assassin,
+            func = skullsManager.skullAssassin
+        }
         -- You can add more skulls if you want
     }
 
@@ -1040,11 +1019,11 @@ function skullsManager.goldenSkulls()
             active = skullsManager.skulls.blind,
             func = skullsManager.skullBlind
         },
-        --{ -- Currently not working.
-        --    name = "Catch",
-        --    active = skullsManager.skulls.catch,
-        --    func = skullsManager.skullCatch
-        --},
+        { -- This one might cause problems.
+            name = "Catch",
+            active = skullsManager.skulls.catch,
+            func = skullsManager.skullCatch
+        },
     }
 
     -- Empty table for skulls that are not activated yet
@@ -1075,26 +1054,26 @@ end
 
 function skullsManager.resetGoldenSkulls()
     local skullList = {
-            {
+        {
             name = "Famine",
             active = skullsManager.skulls.famine,
             func = skullsManager.skullFamine
         },
-            {
+        {
             name = "Mythic",
             active = skullsManager.skulls.mythic,
             func = skullsManager.skullMythic
         },
-            {
+        {
             name = "Blind",
             active = skullsManager.skulls.blind,
             func = skullsManager.skullBlind
         },
-        --    {
-        --    name = "Catch",
-        --    active = skullsManager.skulls.catch,
-        --    func = skullsManager.skullCatch
-        --},
+        {
+            name = "Catch",
+            active = skullsManager.skulls.catch,
+            func = skullsManager.skullCatch
+        },
     }
 
     local anyDeactivated = false

@@ -93,9 +93,9 @@ function eventsManager.aiCheck()
     -- hsc.ai_living_count("Covenant_Banshees")
     snipersLivingCount = hscLegacy.aiLivingCount("Covenant_Snipers", "snipers_living_count")
     -- hsc.ai_living_count("Covenant_Snipers")
-    hsc.ai_follow_target_players("Covenant_Snipers")
-    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Banshees")
-    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Snipers")
+    --hsc.ai_follow_target_players("Covenant_Snipers")
+    --hsc.ai_magically_see_encounter("Human_Team", "Covenant_Banshees")
+    --hsc.ai_magically_see_encounter("Human_Team", "Covenant_Snipers")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -121,8 +121,8 @@ function eventsManager.AiSight()
     assert(blamBiped, "Biped tag must exist")
     if player then
         if blamBiped.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
-            hsc.ai_magically_see_players("Covenant_Banshees")
-            hsc.ai_magically_see_players("Covenant_Snipers")
+            --hsc.ai_magically_see_players("Covenant_Banshees")
+            --hsc.ai_magically_see_players("Covenant_Snipers")
         end
     end
 end
