@@ -243,7 +243,7 @@ function firefightManager.DropshipDeployer()
     hsc.object_create_anew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
-    hscLegacy.aiSpawn(1, selectedDropshipGunner)
+    hsc.ai_place(selectedDropshipGunner)
     hscLegacy.vehicleLoadMagic(selectedDropship, "gunseat", selectedDropshipGunner)
     hscLegacy.aiMigrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
@@ -264,7 +264,7 @@ function firefightManager.DropshipDeployer()
             selectedSquad = selectedBossSquad
         end
     end
-    hscLegacy.aiSpawn(1, selectedSquad)
+    hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
     hscLegacy.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
     hscLegacy.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
@@ -296,7 +296,7 @@ function firefightManager.GhostLoader()
     --end
 
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
-    hscLegacy.aiSpawn(1, selectedGhostPilot)
+    hsc.ai_place(selectedGhostPilot)
     hscLegacy.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
     hscLegacy.aiMigrate(selectedGhostPilot, currentSupportType)
     hscLegacy.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
@@ -343,7 +343,7 @@ function firefightManager.SentinelChance()
         logger:debug("Here come Sentinels!")
         randomSentinelSquad = math.random(1, 6)
         selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
-        hscLegacy.aiSpawn(1, selectedSentinelSquad)
+        hsc.ai_place(selectedSentinelSquad)
         sentinelCooldown = 0
         sentinelChance = 0
         sentinelRandomMath = 0
