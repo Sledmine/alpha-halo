@@ -1,8 +1,12 @@
 local eventsManager = {}
 local hscLegacy = require "hscLegacy"
+local hsc = require "hsc"
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
+local getObject = Engine.gameState.getObject
+local getPlayer = Engine.gameState.getPlayer
+local objectTypes = Engine.tag.objectType
 
 local bansheeLivingCount
 local snipersLivingCount
@@ -44,13 +48,15 @@ end
 function eventsManager.bansheeEvent()
     if bansheeLivingCount == 0 then
         logger:debug("Banshee event!")
-        hscLegacy.aiSpawn(1, "Covenant_Banshees")
-        hscLegacy.objectCreateANew("banshee_1")
-        hscLegacy.objectCreateANew("banshee_2")
+        hsc.ai_place("Covenant_Banshees")
+        hsc.object_create_anew("banshee_1")
+        hsc.object_create_anew("banshee_2")
         hscLegacy.vehicleLoadMagic("banshee_1", "B-driver", "Covenant_Banshees/banshee_a")
         hscLegacy.vehicleLoadMagic("banshee_2", "B-driver", "Covenant_Banshees/banshee_b")
-        hscLegacy.objectTeleport("banshee_1", "Banshee_1")
-        hscLegacy.objectTeleport("banshee_2", "Banshee_2")
+        --hsc.vehicle_load_magic("banshee_1", "B-driver", "Covenant_Banshees/banshee_b")
+        --hsc.vehicle_load_magic("banshee_2", "B-driver", "Covenant_Banshees/banshee_b")
+        hsc.object_teleport("banshee_1", "Banshee_1")
+        hsc.object_teleport("banshee_2", "Banshee_2")
     else
         eventsManager.randomEventGenerator()
     end
@@ -60,7 +66,7 @@ end
 function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
         logger:debug("Sniper event!")
-        hscLegacy.aiSpawn(1, "Covenant_Snipers")
+        hsc.ai_place("Covenant_Snipers")
     else
         eventsManager.randomEventGenerator()
     end
@@ -71,7 +77,7 @@ end
 --function eventsManager.mortarEvent()
 --    if mortarLivingCount == 0 then
 --        logger:debug("Mortar event!")
---        hscLegacy.aiSpawn(1, "Covenant_Mortars")
+--        hsc.ai_place(1, "Covenant_Mortars")
 --        hscLegacy.vehicleLoadMagic("mortar_1", "W-gunner", "Covenant_Mortars/mortar_a")
 --        hscLegacy.vehicleLoadMagic("mortar_2", "W-gunner", "Covenant_Mortars/mortar_b")
 --    else
@@ -84,11 +90,12 @@ local magicalSightCounter = 300
 local magicalSightTimer = 0
 function eventsManager.aiCheck()
     bansheeLivingCount = hscLegacy.aiLivingCount("Covenant_Banshees", "banshees_living_count")
+    -- hsc.ai_living_count("Covenant_Banshees")
     snipersLivingCount = hscLegacy.aiLivingCount("Covenant_Snipers", "snipers_living_count")
-    hscLegacy.aiAction(1, "Covenant_Snipers")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Banshees")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Snipers")
-    hscLegacy.aiMagicallySeePlayers("Covenant_Snipers")
+    -- hsc.ai_living_count("Covenant_Snipers")
+    hsc.ai_follow_target_players("Covenant_Snipers")
+    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Banshees")
+    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Snipers")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -97,19 +104,25 @@ function eventsManager.aiCheck()
     end
 end
 
--- Each 10 seconds, AI will try to magically see each player if they're not invisible.
 local player
----@param playerIndex? number
-function eventsManager.AiSight(playerIndex)
-    if playerIndex then
-        player = blam.biped(get_dynamic_player(playerIndex))
-    else
-        player = blam.biped(get_dynamic_player())
+local biped
+local blamBiped
+-- Each 10 seconds, AI will magically see each player if they exist and are not invisible.
+function eventsManager.AiSight()
+    player = getPlayer()
+    if not player then
+        return
     end
+    biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
+    blamBiped = blam.biped(get_object(player.objectHandle.value))
+    assert(blamBiped, "Biped tag must exist")
     if player then
-        if player.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
-            --hscLegacy.aiMagicallySee("unit", "Covenant_Banshees", player)
-            --hscLegacy.aiMagicallySee("unit", "Covenant_Snipers", player)
+        if blamBiped.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
+            hsc.ai_magically_see_players("Covenant_Banshees")
+            hsc.ai_magically_see_players("Covenant_Snipers")
         end
     end
 end
