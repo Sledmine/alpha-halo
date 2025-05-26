@@ -15,7 +15,7 @@ local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.eachTick
 local waveIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveProgression
-local currentWave = 0
+local currentWave = 4
 local currentRound = 0
 local currentSet = 0
 local waveTemplate = "Wave %s, Round %s, Set %s."
@@ -74,6 +74,7 @@ local ghostAssistTemplate = "reward_ghost_var%s"
 local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GetOutOfGhost()
 local bossWaveCooldown = false
+local getOutOfGhost = false
 local playSound = engine.userInterface.playSound
 
 local function getRandomTeamWave()
@@ -152,6 +153,7 @@ function firefightManager.eachTick()
                 playSound(const.sounds.roundCompleted.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
+                getOutOfGhost = true
                 waveCooldownStart = true
                 playSound(const.sounds.skullsReset.handle)
                 waveCooldownCounter = roundCooldownTimer
@@ -284,7 +286,7 @@ function firefightManager.GhostLoader()
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
     selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
     hsc.object_create_anew(selectedGhost)
-
+    firefightManager.SetGhostEntrable()
     ---- Ghost is now spawned dynamically
     --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
     ---- All of the following hscLegacy commands must be replaced by Balltze alternatives, anywhere where the hscLegacy.objectCreate calls were replaced by pigPen module calls
@@ -294,7 +296,6 @@ function firefightManager.GhostLoader()
     --    -- engine.gameState.unitEnterVehicle(, ghostObjectHandle, )
     --    
     --end
-
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.ai_place(selectedGhostPilot)
     hscLegacy.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
@@ -364,6 +365,7 @@ function firefightManager.GameAssists()
     -- hsc.object_create_anew(selectedAssistGhost)
     -- Ghost is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
+    hsc.ai_vehicle_enterable_distance(selectedAssistGhost, 20.0)
     --hsc.object_teleporteleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     randomWarthog = math.random (1, 3)
@@ -371,29 +373,37 @@ function firefightManager.GameAssists()
     -- hsc.object_create_anew(selectedWarthog)
     -- Warthog is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedWarthog)
+    hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
     --hsc.object_teleporteleport(selectedWarthog, "Selected_Warthog")
 end
 
 -- Esto parcha horriblemente el problema del Ghost en el Spirit.
 function firefightManager.GetOutOfGhost()
-    if bossWaveCooldown == true then
-        hscLegacy.vehicleUnload(selectedGhostA, "driver")
-        hscLegacy.vehicleUnload(selectedGhostB, "driver")
-        hscLegacy.vehicleUnload(selectedGhostC, "driver")
-        hscLegacy.unitEnterable(selectedGhostA, 0)
-        hscLegacy.unitEnterable(selectedGhostB, 0)
-        hscLegacy.unitEnterable(selectedGhostC, 0)
-        hscLegacy.aiVehicleEntrableDistance(selectedGhostA, 0)
-        hscLegacy.aiVehicleEntrableDistance(selectedGhostB, 0)
-        hscLegacy.aiVehicleEntrableDistance(selectedGhostC, 0)
-    elseif bossWaveCooldown == false then
-        hscLegacy.unitEnterable(selectedGhostA, 1)
-        hscLegacy.unitEnterable(selectedGhostB, 1)
-        hscLegacy.unitEnterable(selectedGhostC, 1)
-        hscLegacy.aiVehicleEntrableDistance(selectedGhostA, 20.0)
-        hscLegacy.aiVehicleEntrableDistance(selectedGhostB, 20.0)
-        hscLegacy.aiVehicleEntrableDistance(selectedGhostC, 20.0)
+    if getOutOfGhost == true then
+        if bossWaveCooldown == true then
+            hscLegacy.vehicleUnload(selectedGhostA, "driver")
+            hscLegacy.vehicleUnload(selectedGhostB, "driver")
+            hscLegacy.vehicleUnload(selectedGhostC, "driver")
+            hsc.unit_set_enterable_by_player(selectedGhostA, 0)
+            hsc.unit_set_enterable_by_player(selectedGhostB, 0)
+            hsc.unit_set_enterable_by_player(selectedGhostC, 0)
+            hsc.ai_vehicle_enterable_distance(selectedGhostA, 0)
+            hsc.ai_vehicle_enterable_distance(selectedGhostB, 0)
+            hsc.ai_vehicle_enterable_distance(selectedGhostC, 0)
+        elseif bossWaveCooldown == false then
+            firefightManager.SetGhostEntrable()
+            getOutOfGhost = false
+        end
     end
+end
+
+function firefightManager.SetGhostEntrable()
+    hsc.unit_set_enterable_by_player(selectedGhostA, 1)
+    hsc.unit_set_enterable_by_player(selectedGhostB, 1)
+    hsc.unit_set_enterable_by_player(selectedGhostC, 1)
+    hsc.ai_vehicle_enterable_distance(selectedGhostA, 20.0)
+    hsc.ai_vehicle_enterable_distance(selectedGhostB, 20.0)
+    hsc.ai_vehicle_enterable_distance(selectedGhostC, 20.0)
 end
 
 -- Esto genera un navpoint en las unidades resagadas.
@@ -434,7 +444,6 @@ function firefightManager.AiCheck()
     hscLegacy.aiMagicallySee("encounter", "Flood_Wave", "Human_Team")
     hscLegacy.aiMagicallySee("encounter", "Flood_Support", "Human_Team")
     hscLegacy.aiMagicallySee("encounter", "Sentinel_Team", "Human_Team")
-    hscLegacy.aiVehicleEntrableDistance(selectedAssistGhost, 20.0)
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
