@@ -1492,6 +1492,7 @@ local objectStructure = {
 }
 
 local unitStructure = extendStructure(objectStructure, {
+    isActive = {type = "bit", offset = 0x204, bitLevel = 0},
     ---@deprecated
     invisible = {type = "bit", offset = 0x204, bitLevel = 4},
     isCamoActive = {type = "bit", offset = 0x204, bitLevel = 4},
@@ -1508,6 +1509,7 @@ local unitStructure = extendStructure(objectStructure, {
 })
 
 ---@class unit : blamObject
+---@field isActive boolean TESTING
 ---@field isCamoActive boolean Unit camo state
 ---@field isControllable boolean Unit controllable state
 ---@field isPlayerNotAllowedToEntry boolean Unit player not allowed to entry

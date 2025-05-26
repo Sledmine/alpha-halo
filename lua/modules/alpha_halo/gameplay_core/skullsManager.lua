@@ -78,11 +78,7 @@ function skullsManager.skullFamine(restore)
     end)
     for _, tagEntry in ipairs(famineTagsFiltered) do
         if restore == true then
-            tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 2
-            tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 2
-            tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] * 2
-            tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] * 2
-            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 100
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 0.5
             tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 0.5
@@ -113,8 +109,7 @@ function skullsManager.skullMythic(restore)
     end)
     for _, tagEntry in ipairs(mythicTagsFiltered) do
         if restore == true then
-            tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 0.5
-            tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 0.5
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 2
             tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
@@ -124,8 +119,7 @@ function skullsManager.skullMythic(restore)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
-            tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality / 1.5
-            tagEntry.data.maximumBodyVitality = tagEntry.data.maximumBodyVitality / 1.5
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 1.5
             tagEntry.data.maximumBodyVitality = tagEntry.data.maximumBodyVitality * 1.5
@@ -152,17 +146,20 @@ function skullsManager.skullBlind(restore)
         end
         return false
     end)
-    if restore == true then
-        for _, tagEntry in ipairs(blindTagsFiltered) do
-            tagEntry.data.burstOriginRadius = tagEntry.data.burstOriginRadius * 0.5
-        end
-        skullsManager.skulls.blind = false
-    else
-        for _, tagEntry in ipairs(blindTagsFiltered) do
+    for _, tagEntry in ipairs(blindTagsFiltered) do
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
+        else
             tagEntry.data.burstOriginRadius = tagEntry.data.burstOriginRadius * 2
         end
+    end
+    if restore == true then
+        skullsManager.skulls.blind = false
+        --logger:debug("Blind Off")
+    else
         skullsManager.skulls.blind = true
-        blindOnTick = true
+        blindOnTick = true -- This is needed to turn off OnTick function one tick after the skull.
+        --logger:debug("Blind On")
     end
 end
 
@@ -188,14 +185,9 @@ function skullsManager.skullCatch(restore)
         end
         return false
     end)
-    for index, tagEntry in ipairs(catchTagsFiltered) do
+    for _, tagEntry in ipairs(catchTagsFiltered) do
         if restore then
-            --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(1) -- This doesn't work.
-            tagEntry.data.flags:hasUnlimitedGrenades(false)
-            tagEntry.data.grenadeChance = tagEntry.data.grenadeChance - 1
-            tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 10
-            tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 100
-            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 10
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(2) -- This doesn't work.
             tagEntry.data.flags:hasUnlimitedGrenades(true)
@@ -235,16 +227,7 @@ function skullsManager.skullBerserk(restore)
     end)
     for _, tagEntry in ipairs(berserkActorsFiltered) do
         if restore == true then
-            tagEntry.data.meleeAttackDelay = tagEntry.data.meleeAttackDelay * 100
-            tagEntry.data.meleeChargeTime = tagEntry.data.meleeChargeTime - 100
-            tagEntry.data.meleeLeapRange[1] = tagEntry.data.meleeLeapRange[1] - 1.5
-            tagEntry.data.meleeLeapRange[2] = tagEntry.data.meleeLeapRange[2] - 10
-            tagEntry.data.meleeLeapVelocity = tagEntry.data.meleeLeapVelocity - 0.5
-            tagEntry.data.meleeLeapChance = tagEntry.data.meleeLeapChance - 1
-            tagEntry.data.meleeLeapBallistic = tagEntry.data.meleeLeapBallistic - 0.5
-            tagEntry.data.berserkProximity = tagEntry.data.berserkProximity - 50
-            tagEntry.data.berserkGrenadeChance = tagEntry.data.berserkGrenadeChance - 1
-            tagEntry.data.moreFlags:pathfindingIgnoresDanger(false)
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.meleeAttackDelay = tagEntry.data.meleeAttackDelay * 0.01
             tagEntry.data.meleeChargeTime = tagEntry.data.meleeChargeTime + 100
@@ -258,21 +241,6 @@ function skullsManager.skullBerserk(restore)
             tagEntry.data.moreFlags:pathfindingIgnoresDanger(true)
         end
     end
--- This down here will fail, bc when we call this as Restore, it will take all tags with this flag off,
--- thus making the filter useless. We have to make a table that doesn't change when Restore is called.
-    --local pathfindingFlagFiltered = table.filter(berserkActorsFiltered, function(tagEntry)
-    --    if tagEntry.data.moreFlags:pathfindingIgnoresDanger() == false then
-    --        return true
-    --    end
-    --    return false
-    --end)
-    --for _, tagEntry in ipairs(pathfindingFlagFiltered) do
-    --    if restore == true then
-    --        tagEntry.data.moreFlags:pathfindingIgnoresDanger(false)
-    --    else
-    --        tagEntry.data.moreFlags:pathfindingIgnoresDanger(true)
-    --    end
-    --end
     if restore == true then
         skullsManager.skulls.berserk = false
         -- logger:debug("Berserk Off")
@@ -286,12 +254,8 @@ end
 ---@param restore boolean
 function skullsManager.skullToughLuck(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
-        if restore then
-            tagEntry.data.noticeProjectileChance = tagEntry.data.noticeProjectileChance - 1
-            tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance - 1
-            tagEntry.data.diveFromGrenadeChance = tagEntry.data.diveFromGrenadeChance - 1
-            tagEntry.data.diveIntoCoverChance = tagEntry.data.diveIntoCoverChance - 1
-            tagEntry.data.combatPerceptionTime = tagEntry.data.combatPerceptionTime * 4
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.noticeProjectileChance = tagEntry.data.noticeProjectileChance + 1
             tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance + 1
@@ -316,8 +280,8 @@ local fogOnTick
 ---@param restore boolean
 function skullsManager.skullFog(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
-        if restore then
-            tagEntry.data.surpriseDistance = tagEntry.data.surpriseDistance - 10
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.surpriseDistance = tagEntry.data.surpriseDistance + 10
         end
@@ -327,7 +291,7 @@ function skullsManager.skullFog(restore)
         -- logger:debug("Fog Off")
     else
         skullsManager.skulls.fog = true
-        fogOnTick = true
+        fogOnTick = true -- This is needed to turn off OnTick function one tick after the skull.
         -- logger:debug("Fog On")
     end
 end
@@ -361,10 +325,7 @@ function skullsManager.skullKnucklehead(restore)
             local shield = material.shieldDamageMultiplier
             local body = material.bodyDamageMultiplier
             if restore == true then
-                if material.flags:head() then
-                    shield = shield * 0.02
-                    body = body * 0.02
-                end
+                Balltze.features.reloadTagData(tagEntry.handle)
             else
                 if material.flags:head() then
                     shield = shield * 25
@@ -377,13 +338,7 @@ function skullsManager.skullKnucklehead(restore)
     end
     for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
         if restore == true then
-            tagEntry.data.grunt = tagEntry.data.grunt * 5
-            tagEntry.data.jackal = tagEntry.data.jackal * 5
-            tagEntry.data.elite = tagEntry.data.elite * 5
-            tagEntry.data.eliteEnergyShield = tagEntry.data.eliteEnergyShield * 5
-            tagEntry.data.floodCarrierForm = tagEntry.data.floodCarrierForm * 5
-            tagEntry.data.floodCombatForm = tagEntry.data.floodCombatForm * 5
-            tagEntry.data.hunterSkin = tagEntry.data.hunterSkin * 0.5
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.grunt = tagEntry.data.grunt * 0.2
             tagEntry.data.jackal = tagEntry.data.jackal * 0.2
@@ -407,15 +362,15 @@ end
 ---@param restore boolean
 function skullsManager.skullCowbell(restore)
     for _, tagEntry in ipairs(tagEntries.biped()) do
-        if restore then
-            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 0.5
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
         end
     end
     for _, tagEntry in ipairs(tagEntries.vehicle()) do
-        if restore then
-            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 0.5
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
         end
@@ -433,9 +388,8 @@ end
 ---@param restore boolean
 function skullsManager.skullHavok(restore)
     for _, tagEntry in ipairs(tagEntries.explosionDamageEffect()) do
-        if restore then
-            tagEntry.data.radius[2] = tagEntry.data.radius[2] / 1.5
-            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 2
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.radius[2] = tagEntry.data.radius[2] * 1.5
             tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 0.5
@@ -454,11 +408,8 @@ end
 ---@param restore boolean
 function skullsManager.skullNewton(restore)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
-        if restore then
-            tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i - 5
-            if tagEntry.path:includes("response") then
-                tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] - 1
-            end
+        if restore == true then
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i + 5
             if tagEntry.path:includes("response") then
@@ -529,18 +480,7 @@ function skullsManager.skullTilt(restore)
         if not tagEntry.path:includes("melee") then
             local d = tagEntry.data
             if restore == true then
-                d.metalHollow = d. metalHollow * 2
-                d.metalThick = d. metalThick * 2
-                d.metalThin = d. metalThin * 2
-                d.grunt = d.grunt * 2
-                d.hunterArmor = d.hunterArmor * 2
-                d.hunterSkin = d.hunterSkin * 2
-                d.elite = d.elite * 2
-                d.eliteEnergyShield = d.eliteEnergyShield * 0.5
-                d.jackal = d.jackal * 2
-                d.jackalEnergyShield = d.jackalEnergyShield * 0.5
-                d.floodCombatForm = d.floodCombatForm * 2
-                d.floodCarrierForm = d.floodCarrierForm * 2
+                Balltze.features.reloadTagData(tagEntry.handle)
             else
                 d.metalHollow = d. metalHollow * 0.5
                 d.metalThick = d. metalThick * 0.5
@@ -561,18 +501,7 @@ function skullsManager.skullTilt(restore)
         if not tagEntry.path:includes("melee") then
             local d = tagEntry.data
             if restore == true then
-                d.metalHollow = d. metalHollow * 0.5
-                d.metalThick = d. metalThick * 0.5
-                d.metalThin = d. metalThin * 0.5
-                d.grunt = d.grunt * 0.5
-                d.hunterArmor = d.hunterArmor * 0.5
-                d.hunterSkin = d.hunterSkin * 0.5
-                d.elite = d.elite * 0.5
-                d.eliteEnergyShield = d.eliteEnergyShield * 2
-                d.jackal = d.jackal * 0.5
-                d.jackalEnergyShield = d.jackalEnergyShield * 2
-                d.floodCombatForm = d.floodCombatForm * 0.5
-                d.floodCarrierForm = d.floodCarrierForm * 0.5
+                Balltze.features.reloadTagData(tagEntry.handle)
             else
                 d.metalHollow = d. metalHollow * 2
                 d.metalThick = d. metalThick * 2
@@ -606,16 +535,14 @@ function skullsManager.skullBanger(restore)
     for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
         if tagEntry.path:includes("grunt") then
             if restore == true then
-                tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold - 0.1
-                tagEntry.data.bodyDepletedEffect.tagHandle.value = nullHandle
+                Balltze.features.reloadTagData(tagEntry.handle)
             else
                 tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold + 0.1
                 tagEntry.data.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
             end
         elseif tagEntry.path:includes("floodcombat_human") then
             if restore == true then
-                tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold - 0.1
-                tagEntry.data.bodyDepletedEffect.tagHandle.value = nullHandle
+                Balltze.features.reloadTagData(tagEntry.handle)
             else
                 tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold + 0.1
                 tagEntry.data.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
@@ -638,9 +565,7 @@ function skullsManager.skullDoubleDown(restore)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         if restore == true then
-            tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 0.5
-            tagEntry.data.stunTime = tagEntry.data.stunTime * 0.5
-            tagEntry.data.rechargeTime = tagEntry.data.rechargeTime * 0.5
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 2
             tagEntry.data.stunTime = tagEntry.data.stunTime * 2
@@ -661,15 +586,7 @@ end
 function skullsManager.skullEyePatch(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
-            tagEntry.data.autoaimAngle = tagEntry.data.autoaimAngle * 100
-            tagEntry.data.autoaimRange = tagEntry.data.autoaimRange * 100
-            tagEntry.data.magnetismAngle = tagEntry.data.magnetismAngle * 100
-            tagEntry.data.magnetismRange = tagEntry.data.magnetismRange * 100
-            for i = 1, tagEntry.data.triggers.count do
-                local trigger = tagEntry.data.triggers.elements[i]
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 100
-                -- trigger.errorAngle[2] = trigger.errorAngle[2] * 2
-            end
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.autoaimAngle = tagEntry.data.autoaimAngle * 0.01
             tagEntry.data.autoaimRange = tagEntry.data.autoaimRange * 0.01
@@ -678,7 +595,6 @@ function skullsManager.skullEyePatch(restore)
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 0.01
-                -- trigger.errorAngle[2] = trigger.errorAngle[2] * 0.5
             end
         end
     end
@@ -696,14 +612,7 @@ end
 function skullsManager.skullTriggerSwitch(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
-            for i = 1, tagEntry.data.triggers.count do
-                local trigger = tagEntry.data.triggers.elements[i]
-                if trigger.flags:doesNotRepeatAutomatically() == false then
-                    trigger.flags:doesNotRepeatAutomatically(true)
-                else
-                    trigger.flags:doesNotRepeatAutomatically(false)
-                end
-            end
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -729,13 +638,7 @@ end
 function skullsManager.skullSlayer(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
-            for i = 1, tagEntry.data.triggers.count do
-                local trigger = tagEntry.data.triggers.elements[i]
-                trigger.roundsPerShot = trigger.roundsPerShot * 0.5
-                trigger.projectilesPerShot = trigger.projectilesPerShot * 0.5
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 0.5
-                trigger.errorAngle[2] = trigger.errorAngle[2] * 0.5
-            end
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -762,7 +665,7 @@ function skullsManager.skullAssassin(restore)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
-                if not tagEntry.path:includes("stealth") then
+                if tagEntry.data.flags:activeCamouflage() == false then
                     return true
                 end
             end
@@ -771,15 +674,14 @@ function skullsManager.skullAssassin(restore)
     end)
     for _, tagEntry in ipairs(assassinTagsFiltered) do
         if restore == true then
-            tagEntry.data.flags:activeCamouflage(false)
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.flags:activeCamouflage(true)
         end
     end
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
-            tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 0.5
-            tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 2
+            Balltze.features.reloadTagData(tagEntry.handle)
         else
             tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 2
             tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 0.5
@@ -790,7 +692,7 @@ function skullsManager.skullAssassin(restore)
         -- logger:debug("Assassin Off")
     else
         skullsManager.skulls.assassin = true
-        assassinOnTick = true -- This is needed to turn off skullAssassinOnTick
+        assassinOnTick = true -- This is needed to turn off OnTick function one tick after the skull.
         -- logger:debug("Assassin On")
     end
 end

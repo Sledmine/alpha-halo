@@ -251,24 +251,24 @@ end
 local activateOnTick
 function skullsManager.skullAssasin() -- (restore)
     if skullsManager.skulls.assasin == true then
-        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if not tagEntry.path:includes("stealth") then
                 tagEntry.data.flags:activeCamouflage(false)
             end
         end
-        for index, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+        for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
             tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 0.5
             tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 2
         end
         skullsManager.skulls.assasin = false
         logger:debug("Assasin Off")
     else
-        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
             if not tagEntry.path:includes("stealth") then
                 tagEntry.data.flags:activeCamouflage(true)
             end
         end
-        for index, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
+        for _, tagEntry in ipairs(skullsManager.weaponsFiltered()) do
             tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 2
             tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 0.5
             -- for i = 1, tagEntry.data.triggers.count do -- Need to find out how to access a child tag from a parent tag.
@@ -309,7 +309,7 @@ end
 ---- Catch: Makes the AI launch grenades a fuck lot. CURRENTLY NOT WORKING.
 -- function skullsManager.skullCatch(restore)
 --    if skullsManager.skulls.catch then
---        for index, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
+--        for _, tagEntry in ipairs(skullsManager.actorVariantsFiltered()) do
 --            if restore then
 --                tagEntry.data.flags:hasUnlimitedGrenades(false)
 --                tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.get(1) -- This doesn't work.

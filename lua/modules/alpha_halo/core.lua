@@ -28,7 +28,7 @@ function core.vehiclePositionLoader()
                         vehicle.x = mainNode.x
                         vehicle.y = mainNode.y
                         vehicle.z = mainNode.z
-                        --vehicle.isActive = true
+                        vehicle.isActive = true
                         vehicle.isHovering = true
                         --vehicle.isCurrentlyControllable = true
                         --vehicle.isControllable = true
