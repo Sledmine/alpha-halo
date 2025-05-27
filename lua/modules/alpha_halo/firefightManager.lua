@@ -153,7 +153,7 @@ function firefightManager.eachTick()
                 firefightManager.waveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
-                skullsManager.resetSilverSkulls()
+                skullsManager.deactivateSilverSkulls()
                 playSound(const.sounds.roundCompleted.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
@@ -416,16 +416,15 @@ function firefightManager.aiNavpoint()
     local navpointType = "default_red"
     local navpointOffset = 0.6
     if waveIsOn == false or bossWave == true then
-        --if waveLivingCount <= 4 then
-        if true then
+        if waveLivingCount <= 4 then
             local playerCount = hsc.list_count(hsc.players())
             for i = 0, playerCount - 1 do
                 local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
                 for actorIndex = 0, 3 do
                     local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentWaveType), actorIndex))
-                    hsc.activate_team_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
-                    hsc.activate_team_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
-                    hsc.activate_team_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
+                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
+                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
+                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
                 end
             end
         end

@@ -77,7 +77,7 @@ function healthManager.maxHealthCap()
 end
 
 -- A player has lost a life. What a looser.
-function healthManager.tryingToRespawn(sleep)
+function healthManager.tryingToRespawn(call, sleep)
     if waitingForRespawn == true and player then
         waitingForRespawn = false
         playerLives = playerLives - 1
@@ -105,7 +105,7 @@ end
 script.continuous(healthManager.tryingToRespawn)
 
 -- This function is called from other modules to add a live to the player.
-function healthManager.livesGained(sleep)
+function healthManager.livesGained(call, sleep)
     logger:debug("Lives added!")
     playerLives = playerLives + 1
     sleep(100)
