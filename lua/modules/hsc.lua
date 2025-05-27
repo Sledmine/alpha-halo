@@ -319,7 +319,7 @@ setmetatable(hsc, {
                 return function(...)
                     local args = getScriptArgs({...})
                     local functionInvokation = getFunctionInvokation(hscFunction, args)
-                    logger:debug("Executing: {}", functionInvokation)
+                    --logger:debug("Executing: {}", functionInvokation)
                     executeScript(functionInvokation, hscFunction.funcName, args)
                 end
             end

@@ -7,6 +7,9 @@ local const = require "alpha_halo.constants"
 local pigPen = require "alpha_halo.pigPen"
 local healthManager = require "alpha_halo.gameplay_core.healthManager"
 local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+local getObject = Engine.gameState.getObject
+local getPlayer = Engine.gameState.getPlayer
+local objectTypes = Engine.tag.objectType
 
 local firefightManager = {}
 
@@ -78,7 +81,7 @@ local getOutOfGhost = false
 local playSound = engine.userInterface.playSound
 
 local function getRandomTeamWave()
-    local randomTeam = math.random(1) -- This should be (1, 2)
+    local randomTeam = math.random(1, 2) -- This should be (1, 2)
     local team
     if randomTeam == 1 then
         team = "Covenant_Wave"
@@ -127,7 +130,7 @@ function firefightManager.eachTick()
     if gameIsOn == true then
         -- Actualizamos constantemente el estado de la IA.
         firefightManager.AiCheck()
-        firefightManager.killStagnateAi()
+        --firefightManager.killStagnateAi()
         -- Revisamos constantemente el countdown de las Dropships.
         firefightManager.DropshipCountdown()
         -- Revisamos constantemente si puedes o no subir al Ghost.
@@ -247,7 +250,7 @@ function firefightManager.DropshipDeployer()
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hsc.ai_place(selectedDropshipGunner)
     hscLegacy.vehicleLoadMagic(selectedDropship, "gunseat", selectedDropshipGunner)
-    hscLegacy.aiMigrate(selectedDropshipGunner, currentSupportType)
+    hsc.ai_migrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
     -- Si es una Boss Wave, la Dropship 1 carga el Boss Squad y los Ghost.
@@ -269,9 +272,9 @@ function firefightManager.DropshipDeployer()
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
     hscLegacy.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
-    hscLegacy.customAnimation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
+    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
-    hscLegacy.aiMigrate(selectedSquad, currentWaveType)
+    hsc.ai_migrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
     dropshipsLeft = dropshipsLeft - 1
     dropshipCountdownStart = true
@@ -289,7 +292,7 @@ function firefightManager.GhostLoader()
     firefightManager.SetGhostEntrable()
     ---- Ghost is now spawned dynamically
     --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
-    ---- All of the following hscLegacy commands must be replaced by Balltze alternatives, anywhere where the hscLegacy.objectCreate calls were replaced by pigPen module calls
+    ---- All of the following hscLegacy commands must be replaced by Balltze alternatives, anywhere where the hsc.objectCreate calls were replaced by pigPen module calls
     --if ghostObjectHandle then
     --    local ghostObject = engine.gameState.getObject(ghostObjectHandle, engine.tag.objectType.vehicle)
     --    -- We need to get the ghost driver unit (biped) object handle somehow to use it here. And look up the seat index from Guerilla:
@@ -299,8 +302,8 @@ function firefightManager.GhostLoader()
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.ai_place(selectedGhostPilot)
     hscLegacy.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
-    hscLegacy.aiMigrate(selectedGhostPilot, currentSupportType)
-    hscLegacy.unitEnterVehicle(selectedGhost, selectedDropship, "cargo_ghost02")
+    hsc.ai_migrate(selectedGhostPilot, currentSupportType)
+    hsc.unit_enter_vehicle(selectedGhost, selectedDropship, "cargo_ghost02")
 end
 
 -- Esta función es llamada por tick cuando sus condiciones son activadas por el DropshipDeployer.
@@ -308,10 +311,10 @@ function firefightManager.DropshipCountdown()
     if dropshipCountdownStart == true and dropshipCountdownCounter > 0 then
         dropshipCountdownCounter = dropshipCountdownCounter - 1
     elseif dropshipCountdownStart == true and dropshipCountdownCounter <= 0 then
-        hscLegacy.aiExitVehicle(currentWaveType)
-        hscLegacy.unitExitVehicle(selectedGhostA)
-        hscLegacy.unitExitVehicle(selectedGhostC)
-        hscLegacy.unitExitVehicle(selectedGhostB)
+        hsc.ai_exit_vehicle(currentWaveType)
+        hsc.unit_exit_vehicle(selectedGhostA)
+        hsc.unit_exit_vehicle(selectedGhostC)
+        hsc.unit_exit_vehicle(selectedGhostB)
         dropshipCountdownStart = false
         dropshipCountdownCounter = 0
     end
@@ -355,7 +358,7 @@ end
 function firefightManager.GameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     healthManager.livesGained()
-    hscLegacy.aiSpawn(1, "Human_Team/ODSTs")
+    hsc.ai_place("Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
     hsc.object_create_anew_containing("assist_warthog")
@@ -381,9 +384,9 @@ end
 function firefightManager.GetOutOfGhost()
     if getOutOfGhost == true then
         if bossWaveCooldown == true then
-            hscLegacy.vehicleUnload(selectedGhostA, "driver")
-            hscLegacy.vehicleUnload(selectedGhostB, "driver")
-            hscLegacy.vehicleUnload(selectedGhostC, "driver")
+            hsc.vehicle_unload(selectedGhostA, "driver")
+            hsc.vehicle_unload(selectedGhostB, "driver")
+            hsc.vehicle_unload(selectedGhostC, "driver")
             hsc.unit_set_enterable_by_player(selectedGhostA, 0)
             hsc.unit_set_enterable_by_player(selectedGhostB, 0)
             hsc.unit_set_enterable_by_player(selectedGhostC, 0)
@@ -418,32 +421,32 @@ function firefightManager.aiNavpoint()
     end
 end
 
-function firefightManager.killStagnateAi()
-    --Here goes super code to kill AI bellow certain z cord on the map.
-end
+--function firefightManager.killStagnateAi()
+--    --Here goes super code to kill AI bellow certain z cord on the map.
+--end
 
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 local magicalSightCounter = 300
 local magicalSightTimer = 0
 function firefightManager.AiCheck()
-    waveLivingCount = hscLegacy.aiLivingCount("Covenant_Wave", "covenant_living_count") + hscLegacy.aiLivingCount("Flood_Wave", "flood_living_count")
-    hscLegacy.aiAction(1, "Covenant_Support")
-    hscLegacy.aiAction(1, "Flood_Support")
-    hscLegacy.aiAction(1, "Covenant_Wave")
-    hscLegacy.aiAction(1, "Flood_Wave")
-    hscLegacy.aiAction(1, "Sentinel_Team")
-    hscLegacy.aiAction(1, "Human_Team")
-    hscLegacy.aiMagicallySeePlayers("Human_Team")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Wave")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Covenant_Support")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Flood_Wave")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Flood_Support")
-    hscLegacy.aiMagicallySee("encounter", "Human_Team", "Sentinel_Team")
-    hscLegacy.aiMagicallySee("encounter", "Covenant_Wave", "Human_Team")
-    hscLegacy.aiMagicallySee("encounter", "Covenant_Support", "Human_Team")
-    hscLegacy.aiMagicallySee("encounter", "Flood_Wave", "Human_Team")
-    hscLegacy.aiMagicallySee("encounter", "Flood_Support", "Human_Team")
-    hscLegacy.aiMagicallySee("encounter", "Sentinel_Team", "Human_Team")
+    waveLivingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave")
+    hsc.ai_follow_target_players("Covenant_Support")
+    hsc.ai_follow_target_players("Flood_Support")
+    hsc.ai_follow_target_players("Covenant_Wave")
+    hsc.ai_follow_target_players("Flood_Wave")
+    hsc.ai_follow_target_players("Sentinel_Team")
+    hsc.ai_follow_target_players("Human_Team")
+    hsc.ai_magically_see_players("Human_Team")
+    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Wave")
+    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Support")
+    hsc.ai_magically_see_encounter("Human_Team", "Flood_Wave")
+    hsc.ai_magically_see_encounter("Human_Team", "Flood_Support")
+    hsc.ai_magically_see_encounter("Human_Team", "Sentinel_Team")
+    hsc.ai_magically_see_encounter("Covenant_Wave", "Human_Team")
+    hsc.ai_magically_see_encounter("Covenant_Support", "Human_Team")
+    hsc.ai_magically_see_encounter("Flood_Wave", "Human_Team")
+    hsc.ai_magically_see_encounter("Flood_Support", "Human_Team")
+    hsc.ai_magically_see_encounter("Sentinel_Team", "Human_Team")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -453,21 +456,31 @@ function firefightManager.AiCheck()
 end
 
 -- Each 10 seconds, AI will try to magically see each player if they're not invisible.
+-- We also dump here Covenant_Banshees and Covenant_Snipers
 local player
----@param playerIndex? number
-function firefightManager.AiSight(playerIndex)
-    if playerIndex then
-        player = blam.biped(get_dynamic_player(playerIndex))
-    else
-        player = blam.biped(get_dynamic_player())
+local biped
+local blamBiped
+-- Each 10 seconds, AI will magically see each player if they exist and are not invisible.
+function firefightManager.AiSight()
+    player = getPlayer()
+    if not player then
+        return
     end
+    biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
+    blamBiped = blam.biped(get_object(player.objectHandle.value))
+    assert(blamBiped, "Biped tag must exist")
     if player then
-        if player.isCamoActive == false then -- attempt to concatenate a table value (local 'targetObj')
-            --hscLegacy.aiMagicallySee("unit", "Covenant_Wave", player)
-            --hscLegacy.aiMagicallySee("unit", "Covenant_Support", player)
-            --hscLegacy.aiMagicallySee("unit", "Flood_Wave", player)
-            --hscLegacy.aiMagicallySee("unit", "Flood_Support", player)
-            --hscLegacy.aiMagicallySee("unit", "Sentinel_Team", player)
+        if blamBiped.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
+            hsc.ai_magically_see_players("Covenant_Wave")
+            hsc.ai_magically_see_players("Covenant_Banshees")
+            hsc.ai_magically_see_players("Covenant_Snipers")
+            hsc.ai_magically_see_players("Covenant_Support")
+            hsc.ai_magically_see_players("Flood_Wave")
+            hsc.ai_magically_see_players("Flood_Support")
+            hsc.ai_magically_see_players("Sentinel_Team")
         end
     end
 end
