@@ -12,7 +12,7 @@ local tagEntries = require "alpha_halo.constants.tagEntries"
 local skullsManager = {}
 
 -- Variable for null handle or empty tag reference
-local nullHandle = 0xFFFFFFFF
+local nullHandleValue = 0xFFFFFFFF
 
 -- These flags indicates if a skull is On or Off.
 skullsManager.skulls = {
@@ -34,6 +34,14 @@ skullsManager.skulls = {
     triggerSwitch = false,
     slayer = false,
     assassin = false
+}
+
+skullsManager.skullsNew = {
+    famine = {
+        name = "Famine",
+        func = skullsManager.skullFamine,
+        active = false
+    },
 }
 
 local player
@@ -65,6 +73,7 @@ local allUnits = {
     "hunter",
     "odst"
 }
+
 -- Famine: Makes the AI drop half the ammo.
 ---@param restore boolean
 function skullsManager.skullFamine(restore)
@@ -77,14 +86,15 @@ function skullsManager.skullFamine(restore)
         return false
     end)
     for _, tagEntry in ipairs(famineTagsFiltered) do
+        local actorVariant = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.dropWeaponLoaded[1] = tagEntry.data.dropWeaponLoaded[1] * 0.5
-            tagEntry.data.dropWeaponLoaded[2] = tagEntry.data.dropWeaponLoaded[2] * 0.5
-            tagEntry.data.dropWeaponAmmo[1] = tagEntry.data.dropWeaponAmmo[1] * 0.5
-            tagEntry.data.dropWeaponAmmo[2] = tagEntry.data.dropWeaponAmmo[2] * 0.5
-            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 0.01
+            actorVariant.dropWeaponLoaded[1] = actorVariant.dropWeaponLoaded[1] * 0.5
+            actorVariant.dropWeaponLoaded[2] = actorVariant.dropWeaponLoaded[2] * 0.5
+            actorVariant.dropWeaponAmmo[1] = actorVariant.dropWeaponAmmo[1] * 0.5
+            actorVariant.dropWeaponAmmo[2] = actorVariant.dropWeaponAmmo[2] * 0.5
+            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.01
         end
     end
     if restore == true then
@@ -108,21 +118,23 @@ function skullsManager.skullMythic(restore)
         return false
     end)
     for _, tagEntry in ipairs(mythicTagsFiltered) do
+        local actorVariant = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.bodyVitality = tagEntry.data.bodyVitality * 2
-            tagEntry.data.shieldVitality = tagEntry.data.shieldVitality * 2
+            actorVariant.bodyVitality = actorVariant.bodyVitality * 2
+            actorVariant.shieldVitality = actorVariant.shieldVitality * 2
         end
     end
     local playerCollisionTagEntry = findTags("spartan_mp", tagClasses.modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
+        local collisionGeometry = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 1.5
-            tagEntry.data.maximumBodyVitality = tagEntry.data.maximumBodyVitality * 1.5
+            collisionGeometry.maximumShieldVitality = collisionGeometry.maximumShieldVitality * 1.5
+            collisionGeometry.maximumBodyVitality = collisionGeometry.maximumBodyVitality * 1.5
         end
     end
     if restore == true then
@@ -147,10 +159,11 @@ function skullsManager.skullBlind(restore)
         return false
     end)
     for _, tagEntry in ipairs(blindTagsFiltered) do
+        local actorVariant = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.burstOriginRadius = tagEntry.data.burstOriginRadius * 2
+            actorVariant.burstOriginRadius = actorVariant.burstOriginRadius * 2
         end
     end
     if restore == true then
@@ -186,15 +199,16 @@ function skullsManager.skullCatch(restore)
         return false
     end)
     for _, tagEntry in ipairs(catchTagsFiltered) do
+        local actorVariant = tagEntry.data
         if restore then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            --tagEntry.data.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(2) -- This doesn't work.
-            tagEntry.data.flags:hasUnlimitedGrenades(true)
-            tagEntry.data.grenadeChance = tagEntry.data.grenadeChance + 1
-            tagEntry.data.grenadeCheckTime = tagEntry.data.grenadeCheckTime * 0.1
-            tagEntry.data.encounterGrenadeTimeout = tagEntry.data.encounterGrenadeTimeout * 0.01
-            tagEntry.data.dontDropGrenadesChance = tagEntry.data.dontDropGrenadesChance * 0.1
+            --actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(2) -- This doesn't work.
+            actorVariant.flags:hasUnlimitedGrenades(true)
+            actorVariant.grenadeChance = actorVariant.grenadeChance + 1
+            actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
+            actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0.01
+            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.1
         end
     end
     if restore == true then
@@ -226,19 +240,20 @@ function skullsManager.skullBerserk(restore)
         return false
     end)
     for _, tagEntry in ipairs(berserkActorsFiltered) do
+        local actor = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.meleeAttackDelay = tagEntry.data.meleeAttackDelay * 0.01
-            tagEntry.data.meleeChargeTime = tagEntry.data.meleeChargeTime + 100
-            tagEntry.data.meleeLeapRange[1] = tagEntry.data.meleeLeapRange[1] + 1.5
-            tagEntry.data.meleeLeapRange[2] = tagEntry.data.meleeLeapRange[2] + 10
-            tagEntry.data.meleeLeapVelocity = tagEntry.data.meleeLeapVelocity + 0.5
-            tagEntry.data.meleeLeapChance = tagEntry.data.meleeLeapChance + 1
-            tagEntry.data.meleeLeapBallistic = tagEntry.data.meleeLeapBallistic + 0.5
-            tagEntry.data.berserkProximity = tagEntry.data.berserkProximity + 50
-            tagEntry.data.berserkGrenadeChance = tagEntry.data.berserkGrenadeChance + 1
-            tagEntry.data.moreFlags:pathfindingIgnoresDanger(true)
+            actor.meleeAttackDelay = actor.meleeAttackDelay * 0.01
+            actor.meleeChargeTime = actor.meleeChargeTime + 100
+            actor.meleeLeapRange[1] = actor.meleeLeapRange[1] + 1.5
+            actor.meleeLeapRange[2] = actor.meleeLeapRange[2] + 10
+            actor.meleeLeapVelocity = actor.meleeLeapVelocity + 0.5
+            actor.meleeLeapChance = actor.meleeLeapChance + 1
+            actor.meleeLeapBallistic = actor.meleeLeapBallistic + 0.5
+            actor.berserkProximity = actor.berserkProximity + 50
+            actor.berserkGrenadeChance = actor.berserkGrenadeChance + 1
+            actor.moreFlags:pathfindingIgnoresDanger(true)
         end
     end
     if restore == true then
@@ -254,19 +269,20 @@ end
 ---@param restore boolean
 function skullsManager.skullToughLuck(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
+        local actor = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.noticeProjectileChance = tagEntry.data.noticeProjectileChance + 1
-            tagEntry.data.noticeVehicleChance = tagEntry.data.noticeVehicleChance + 1
-            tagEntry.data.diveFromGrenadeChance = tagEntry.data.diveFromGrenadeChance + 1
-            tagEntry.data.diveIntoCoverChance = tagEntry.data.diveIntoCoverChance + 1
-            tagEntry.data.peripheralDistance = tagEntry.data.peripheralDistance * 3
-            tagEntry.data.peripheralVisionAngle = tagEntry.data.peripheralVisionAngle * 3
-            tagEntry.data.combatPerceptionTime = tagEntry.data.combatPerceptionTime * 0.25
+            actor.noticeProjectileChance = actor.noticeProjectileChance + 1
+            actor.noticeVehicleChance = actor.noticeVehicleChance + 1
+            actor.diveFromGrenadeChance = actor.diveFromGrenadeChance + 1
+            actor.diveIntoCoverChance = actor.diveIntoCoverChance + 1
+            actor.peripheralDistance = actor.peripheralDistance * 3
+            actor.peripheralVisionAngle = actor.peripheralVisionAngle * 3
+            actor.combatPerceptionTime = actor.combatPerceptionTime * 0.25
         end
     end
-        if restore == true then
+    if restore == true then
         skullsManager.skulls.toughLuck = false
         -- logger:debug("Tough Luck Off")
     else
@@ -280,13 +296,14 @@ local fogOnTick
 ---@param restore boolean
 function skullsManager.skullFog(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
+        local actor = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.surpriseDistance = tagEntry.data.surpriseDistance + 10
+            actor.surpriseDistance = actor.surpriseDistance + 10
         end
     end
-        if restore == true then
+    if restore == true then
         skullsManager.skulls.fog = false
         -- logger:debug("Fog Off")
     else
@@ -337,16 +354,17 @@ function skullsManager.skullKnucklehead(restore)
         end
     end
     for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
+        local damageEffectModifier = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.grunt = tagEntry.data.grunt * 0.2
-            tagEntry.data.jackal = tagEntry.data.jackal * 0.2
-            tagEntry.data.elite = tagEntry.data.elite * 0.2
-            tagEntry.data.eliteEnergyShield = tagEntry.data.eliteEnergyShield * 0.2
-            tagEntry.data.floodCarrierForm = tagEntry.data.floodCarrierForm * 0.2
-            tagEntry.data.floodCombatForm = tagEntry.data.floodCombatForm * 0.2
-            tagEntry.data.hunterSkin = tagEntry.data.hunterSkin * 2
+            damageEffectModifier.grunt = damageEffectModifier.grunt * 0.2
+            damageEffectModifier.jackal = damageEffectModifier.jackal * 0.2
+            damageEffectModifier.elite = damageEffectModifier.elite * 0.2
+            damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 0.2
+            damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.2
+            damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.2
+            damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
         end
     end
     if restore == true then
@@ -362,17 +380,19 @@ end
 ---@param restore boolean
 function skullsManager.skullCowbell(restore)
     for _, tagEntry in ipairs(tagEntries.biped()) do
+        local bipedTag = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+            bipedTag.accelerationScale = bipedTag.accelerationScale * 2
         end
     end
     for _, tagEntry in ipairs(tagEntries.vehicle()) do
+        local vehicle = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.accelerationScale = tagEntry.data.accelerationScale * 2
+            vehicle.accelerationScale = vehicle.accelerationScale * 2
         end
     end
     if restore == true then
@@ -388,14 +408,15 @@ end
 ---@param restore boolean
 function skullsManager.skullHavok(restore)
     for _, tagEntry in ipairs(tagEntries.explosionDamageEffect()) do
+        local damageEffect = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.radius[2] = tagEntry.data.radius[2] * 1.5
-            tagEntry.data.damageLowerBound = tagEntry.data.damageLowerBound * 0.5
+            damageEffect.radius[2] = damageEffect.radius[2] * 1.5
+            damageEffect.damageLowerBound = damageEffect.damageLowerBound * 0.5
         end
     end
-        if restore == true then
+    if restore == true then
         skullsManager.skulls.havok = false
         -- logger:debug("Havok Off")
     else
@@ -408,16 +429,17 @@ end
 ---@param restore boolean
 function skullsManager.skullNewton(restore)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
+        local damageEffect = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.damageInstantaneousAcceleration.i = tagEntry.data.damageInstantaneousAcceleration.i + 5
+            damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + 5
             if tagEntry.path:includes("response") then
-                tagEntry.data.damageUpperBound[2] = tagEntry.data.damageUpperBound[2] + 1
+                damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 1
             end
         end
     end
-        if restore == true then
+    if restore == true then
         skullsManager.skulls.newton = false
         -- logger:debug("Newton Off")
     else
@@ -478,43 +500,43 @@ function skullsManager.skullTilt(restore)
     end) -- This is a kinda nuttered version of Tilt, in hopes to reduce the load on the game.
     for _, tagEntry in ipairs(energyDamageEffect) do
         if not tagEntry.path:includes("melee") then
-            local d = tagEntry.data
+            local damageEffectModifier = tagEntry.data
             if restore == true then
                 Balltze.features.reloadTagData(tagEntry.handle)
             else
-                d.metalHollow = d. metalHollow * 0.5
-                d.metalThick = d. metalThick * 0.5
-                d.metalThin = d. metalThin * 0.5
-                d.grunt = d.grunt * 0.5
-                d.hunterArmor = d.hunterArmor * 0.5
-                d.hunterSkin = d.hunterSkin * 0.5
-                d.elite = d.elite * 0.5
-                d.eliteEnergyShield = d.eliteEnergyShield * 2
-                d.jackal = d.jackal * 0.5
-                d.jackalEnergyShield = d.jackalEnergyShield * 2
-                d.floodCombatForm = d.floodCombatForm * 0.5
-                d.floodCarrierForm = d.floodCarrierForm * 0.5
+                damageEffectModifier.metalHollow = damageEffectModifier.metalHollow * 0.5
+                damageEffectModifier.metalThick = damageEffectModifier.metalThick * 0.5
+                damageEffectModifier.metalThin = damageEffectModifier.metalThin * 0.5
+                damageEffectModifier.grunt = damageEffectModifier.grunt * 0.5
+                damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * 0.5
+                damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 0.5
+                damageEffectModifier.elite = damageEffectModifier.elite * 0.5
+                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 2
+                damageEffectModifier.jackal = damageEffectModifier.jackal * 0.5
+                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * 2
+                damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.5
+                damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.5
             end
         end
     end
     for _, tagEntry in ipairs(kineticDamageEffect) do
         if not tagEntry.path:includes("melee") then
-            local d = tagEntry.data
+            local damageEffectModifier = tagEntry.data
             if restore == true then
                 Balltze.features.reloadTagData(tagEntry.handle)
             else
-                d.metalHollow = d. metalHollow * 2
-                d.metalThick = d. metalThick * 2
-                d.metalThin = d. metalThin * 2
-                d.grunt = d.grunt * 2
-                d.hunterArmor = d.hunterArmor * 2
-                d.hunterSkin = d.hunterSkin * 2
-                d.elite = d.elite * 2
-                d.eliteEnergyShield = d.eliteEnergyShield * 0.5
-                d.jackal = d.jackal * 2
-                d.jackalEnergyShield = d.jackalEnergyShield * 0.5
-                d.floodCombatForm = d.floodCombatForm * 2
-                d.floodCarrierForm = d.floodCarrierForm * 2
+                damageEffectModifier.metalHollow = damageEffectModifier.metalHollow * 2
+                damageEffectModifier.metalThick = damageEffectModifier.metalThick * 2
+                damageEffectModifier.metalThin = damageEffectModifier.metalThin * 2
+                damageEffectModifier.grunt = damageEffectModifier.grunt * 2
+                damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * 2
+                damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
+                damageEffectModifier.elite = damageEffectModifier.elite * 2
+                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 0.5
+                damageEffectModifier.jackal = damageEffectModifier.jackal * 2
+                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * 0.5
+                damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 2
+                damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 2
             end
         end
     end
@@ -534,18 +556,20 @@ function skullsManager.skullBanger(restore)
     local floodExplosion = findTags("characters\\floodcarrier\\effects\\body destroyed", tagClasses.effect)[1]
     for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
         if tagEntry.path:includes("grunt") then
+            local collisionGeometry = tagEntry.data
             if restore == true then
                 Balltze.features.reloadTagData(tagEntry.handle)
             else
-                tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold + 0.1
-                tagEntry.data.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
+                collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
             end
         elseif tagEntry.path:includes("floodcombat_human") then
+            local collisionGeometry = tagEntry.data
             if restore == true then
                 Balltze.features.reloadTagData(tagEntry.handle)
             else
-                tagEntry.data.bodyDamagedThreshold = tagEntry.data.bodyDamagedThreshold + 0.1
-                tagEntry.data.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
+                collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
             end
         end
     end
@@ -561,15 +585,17 @@ end
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param restore boolean
 function skullsManager.skullDoubleDown(restore)
-    local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp", tagClasses.modelCollisionGeometry)
+    local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp", tagClasses
+        .modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
+        local collisionGeometry = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.maximumShieldVitality = tagEntry.data.maximumShieldVitality * 2
-            tagEntry.data.stunTime = tagEntry.data.stunTime * 2
-            tagEntry.data.rechargeTime = tagEntry.data.rechargeTime * 2
+            collisionGeometry.maximumShieldVitality = collisionGeometry.maximumShieldVitality * 2
+            collisionGeometry.stunTime = collisionGeometry.stunTime * 2
+            collisionGeometry.rechargeTime = collisionGeometry.rechargeTime * 2
         end
     end
     if restore == true then
@@ -585,13 +611,14 @@ end
 ---@param restore boolean
 function skullsManager.skullEyePatch(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
+        local weapon = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.autoaimAngle = tagEntry.data.autoaimAngle * 0.01
-            tagEntry.data.autoaimRange = tagEntry.data.autoaimRange * 0.01
-            tagEntry.data.magnetismAngle = tagEntry.data.magnetismAngle * 0.01
-            tagEntry.data.magnetismRange = tagEntry.data.magnetismRange * 0.01
+            weapon.autoaimAngle = weapon.autoaimAngle * 0.01
+            weapon.autoaimRange = weapon.autoaimRange * 0.01
+            weapon.magnetismAngle = weapon.magnetismAngle * 0.01
+            weapon.magnetismRange = weapon.magnetismRange * 0.01
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 0.01
@@ -654,7 +681,7 @@ function skullsManager.skullSlayer(restore)
         -- logger:debug("Slayer Off")
     else
         skullsManager.skulls.slayer = true
-        -- logger:debug("Slayer On") 
+        -- logger:debug("Slayer On")
     end
 end
 
@@ -673,18 +700,20 @@ function skullsManager.skullAssassin(restore)
         return false
     end)
     for _, tagEntry in ipairs(assassinTagsFiltered) do
+        local actorVariant = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.flags:activeCamouflage(true)
+            actorVariant.flags:activeCamouflage(true)
         end
     end
     for _, tagEntry in ipairs(tagEntries.weapon()) do
+        local actorVariant = tagEntry.data
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
-            tagEntry.data.activeCamoDing = tagEntry.data.activeCamoDing * 2
-            tagEntry.data.activeCamoRegrowthRate = tagEntry.data.activeCamoRegrowthRate * 0.5
+            actorVariant.activeCamoDing = actorVariant.activeCamoDing * 2
+            actorVariant.activeCamoRegrowthRate = actorVariant.activeCamoRegrowthRate * 0.5
         end
     end
     if restore == true then
@@ -712,186 +741,114 @@ function skullsManager.skullAssassinOnTick()
     end
 end
 
-function skullsManager.silverSkulls()
-    local skullList = {
-        {
-            name = "Berserk",
-            active = skullsManager.skulls.berserk,
-            func = skullsManager.skullBerserk
-        },
-        {
-            name = "Tough Luck",
-            active = skullsManager.skulls.toughLuck,
-            func = skullsManager.skullToughLuck
-        },
-        {
-            name = "Fog",
-            active = skullsManager.skulls.fog,
-            func = skullsManager.skullFog
-        },
-        {
-            name = "Knucklehead",
-            active = skullsManager.skulls.knucklehead,
-            func = skullsManager.skullKnucklehead
-        },
-        {
-            name = "Cowbell",
-            active = skullsManager.skulls.cowbell,
-            func = skullsManager.skullCowbell
-        },
-        {
-            name = "Havok",
-            active = skullsManager.skulls.havok,
-            func = skullsManager.skullHavok
-        },
-        {
-            name = "Newton",
-            active = skullsManager.skulls.newton,
-            func = skullsManager.skullNewton
-        },
-        {
-            name = "Tilt",
-            active = skullsManager.skulls.tilt,
-            func = skullsManager.skullTilt
-        },
-        {
-            name = "Banger",
-            active = skullsManager.skulls.banger,
-            func = skullsManager.skullBanger
-        },
-        {
-            name = "Double Down",
-            active = skullsManager.skulls.doubleDown,
-            func = skullsManager.skullDoubleDown
-        },
-        {
-            name = "Eye Patch",
-            active = skullsManager.skulls.eyePatch,
-            func = skullsManager.skullEyePatch
-        },
-        {
-            name = "Trigger Switch",
-            active = skullsManager.skulls.triggerSwitch,
-            func = skullsManager.skullTriggerSwitch
-        },
-        {
-            name = "Slayer",
-            active = skullsManager.skulls.slayer,
-            func = skullsManager.skullSlayer
-        },
-        {
-            name = "Assassin",
-            active = skullsManager.skulls.assassin,
-            func = skullsManager.skullAssassin
-        }
-        -- You can add more skulls if you want
+-- We should not be using this lol
+local silverSkullList = {
+    {
+        name = "Berserk",
+        func = skullsManager.skullBerserk
+    },
+    {
+        name = "Tough Luck",
+        func = skullsManager.skullToughLuck
+    },
+    {
+        name = "Fog",
+        func = skullsManager.skullFog
+    },
+    {
+        name = "Knucklehead",
+        func = skullsManager.skullKnucklehead
+    },
+    {
+        name = "Cowbell",
+        func = skullsManager.skullCowbell
+    },
+    {
+        name = "Havok",
+        func = skullsManager.skullHavok
+    },
+    {
+        name = "Newton",
+        func = skullsManager.skullNewton
+    },
+    {
+        name = "Tilt",
+        func = skullsManager.skullTilt
+    },
+    {
+        name = "Banger",
+        func = skullsManager.skullBanger
+    },
+    {
+        name = "Double Down",
+        func = skullsManager.skullDoubleDown
+    },
+    {
+        name = "Eye Patch",
+        func = skullsManager.skullEyePatch
+    },
+    {
+        name = "Trigger Switch",
+        func = skullsManager.skullTriggerSwitch
+    },
+    {
+        name = "Slayer",
+        func = skullsManager.skullSlayer
+    },
+    {
+        name = "Assassin",
+        func = skullsManager.skullAssassin
     }
+}
 
-    -- Empty table for skulls that are not activated yet
-    local availableSkulls = {}
+---Activate specified skull
+---@param desiredSkullName string
+function skullsManager.activateSilverSkulls(desiredSkullName)
+    if desiredSkullName and desiredSkullName:lower() == "random" then
+        -- Empty table for skulls that are not activated yet
+        local availableSkulls = table.filter(table.keys(skullsManager.skulls), function(skullName)
+            local searchableSkullName = skullName:lower():replace(" ", "")
+            local isSilverSkull = table.find(silverSkullList, function(skull)
+                return skull.name:lower():replace(" ", "") == searchableSkullName
+            end) ~= nil
+            local isActive = skullsManager.skulls[skullName]
+            return not isActive and isSilverSkull
+        end)
 
-    for _, skull in ipairs(skullList) do
-        if skull.active == false then
-            table.insert(availableSkulls, skull)
+        -- If no skulls are available for activate, stop the execution
+        if #availableSkulls == 0 then
+            logger:debug("All silver skulls are activated.")
+            return
         end
-    end
 
-    -- If no skulls are available for activate, stop the execution
-    if #availableSkulls == 0 then
-        logger:debug("All silver skulls are activated.")
+        -- Selects a random available skull from table and activate it
+        local selectedSkullName = availableSkulls[math.random(1, #availableSkulls)]:lower():replace(" ", "")
+        logger:debug("Selected random skull name {}", selectedSkullName)
+
+        local selectedSkull = table.find(silverSkullList, function(skull)
+            return skull.name:lower():replace(" ", "") == selectedSkullName
+        end)
+        assert(selectedSkull)
+        selectedSkull.func(false) -- Activates the skull
+
+        logger:debug("Silver Skull On: {}", selectedSkull.name)
         return
     end
 
-    -- Selects a random available skull from table and activates it
-    local selectedIndex = math.random(1, #availableSkulls)
-
-    ---@class skullTable
-    ---@field name string
-    ---@field active boolean
-    ---@field func boolean restore
-    local selectedSkull = availableSkulls[selectedIndex]
-
-    selectedSkull.func(false) -- Activates the skull
-    logger:debug("Silver Skull On: {}", selectedSkull.name)
+    for _, skull in ipairs(silverSkullList) do
+        if skull.name:lower():replace(" ", "") == desiredSkullName then
+            skull.func(false)
+            logger:debug("Silver Skull '{}' activated.", desiredSkullName)
+            return
+        end
+    end
+    logger:debug("Skull '{}' not found in the list.", desiredSkullName)
 end
 
-function skullsManager.resetSilverSkulls()
-    local skullList = {
-        {
-            name = "Berserk",
-            active = skullsManager.skulls.berserk,
-            func = skullsManager.skullBerserk
-        },
-        {
-            name = "Tough Luck",
-            active = skullsManager.skulls.toughLuck,
-            func = skullsManager.skullToughLuck
-        },
-        {
-            name = "Fog",
-            active = skullsManager.skulls.fog,
-            func = skullsManager.skullFog
-        },
-        {
-            name = "Knucklehead",
-            active = skullsManager.skulls.knucklehead,
-            func = skullsManager.skullKnucklehead
-        },
-        {
-            name = "Cowbell",
-            active = skullsManager.skulls.cowbell,
-            func = skullsManager.skullCowbell
-        },
-        {
-            name = "Havok",
-            active = skullsManager.skulls.havok,
-            func = skullsManager.skullHavok
-        },
-        {
-            name = "Newton",
-            active = skullsManager.skulls.newton,
-            func = skullsManager.skullNewton
-        },
-        {
-            name = "Tilt",
-            active = skullsManager.skulls.tilt,
-            func = skullsManager.skullTilt
-        },
-        {
-            name = "Banger",
-            active = skullsManager.skulls.banger,
-            func = skullsManager.skullBanger
-        },
-        {
-            name = "Double Down",
-            active = skullsManager.skulls.doubleDown,
-            func = skullsManager.skullDoubleDown
-        },
-        {
-            name = "Eye Patch",
-            active = skullsManager.skulls.eyePatch,
-            func = skullsManager.skullEyePatch
-        },
-        {
-            name = "Trigger Switch",
-            active = skullsManager.skulls.triggerSwitch,
-            func = skullsManager.skullTriggerSwitch
-        },
-        {
-            name = "Slayer",
-            active = skullsManager.skulls.slayer,
-            func = skullsManager.skullSlayer
-        },
-        {
-            name = "Assassin",
-            active = skullsManager.skulls.assassin,
-            func = skullsManager.skullAssassin
-        }
-    }
-
+function skullsManager.deactivateSilverSkulls()
     local anyDeactivated = false
 
-    for _, skull in ipairs(skullList) do
+    for _, skull in ipairs(silverSkullList) do
         if skull.active == true then
             skull.func(true) -- Call to disable skull with restore = true
             logger:debug("Silver Skull Off: {}", skull.name)
@@ -904,34 +861,36 @@ function skullsManager.resetSilverSkulls()
     end
 end
 
-function skullsManager.goldenSkulls()
-    local skullList = {
-        {
-            name = "Famine",
-            active = skullsManager.skulls.famine,
-            func = skullsManager.skullFamine
-        },
-        {
-            name = "Mythic",
-            active = skullsManager.skulls.mythic,
-            func = skullsManager.skullMythic
-        },
-        {
-            name = "Blind",
-            active = skullsManager.skulls.blind,
-            func = skullsManager.skullBlind
-        },
-        { -- This one might cause problems.
-            name = "Catch",
-            active = skullsManager.skulls.catch,
-            func = skullsManager.skullCatch
-        },
-    }
+local goldenSkullList = {
+    {
+        name = "Famine",
+        active = skullsManager.skulls.famine, -- true
+        func = skullsManager.skullFamine
+    },
+    {
+        name = "Mythic",
+        active = skullsManager.skulls.mythic, -- false
+        func = skullsManager.skullMythic
+    },
+    {
+        name = "Blind",
+        active = skullsManager.skulls.blind,
+        func = skullsManager.skullBlind
+    },
+    { -- This one might cause problems.
+        name = "Catch",
+        active = skullsManager.skulls.catch,
+        func = skullsManager.skullCatch
+    },
+}
 
+------------------------------------------
+
+function skullsManager.goldenSkulls()
     -- Empty table for skulls that are not activated yet
     local availableSkulls = {}
 
-    for _, skull in ipairs(skullList) do
+    for _, skull in ipairs(goldenSkullList) do
         if skull.active == false then
             table.insert(availableSkulls, skull)
         end
@@ -951,36 +910,12 @@ function skullsManager.goldenSkulls()
 
     selectedSkull.func(false) -- Activates the skull
     logger:debug("Golden Skull On: {}", selectedSkull.name)
-
 end
 
 function skullsManager.resetGoldenSkulls()
-    local skullList = {
-        {
-            name = "Famine",
-            active = skullsManager.skulls.famine,
-            func = skullsManager.skullFamine
-        },
-        {
-            name = "Mythic",
-            active = skullsManager.skulls.mythic,
-            func = skullsManager.skullMythic
-        },
-        {
-            name = "Blind",
-            active = skullsManager.skulls.blind,
-            func = skullsManager.skullBlind
-        },
-        {
-            name = "Catch",
-            active = skullsManager.skulls.catch,
-            func = skullsManager.skullCatch
-        },
-    }
-
     local anyDeactivated = false
 
-    for _, skull in ipairs(skullList) do
+    for _, skull in ipairs(goldenSkullList) do
         if skull.active == true then
             skull.func(true) -- Call to disable skull with restore = true
             logger:debug("Golden Skull Off: {}", skull.name)
@@ -991,7 +926,6 @@ function skullsManager.resetGoldenSkulls()
     if not anyDeactivated then
         logger:debug("No golden skulls activated to deactivate.")
     end
-
 end
 
 return skullsManager
