@@ -10,7 +10,7 @@ commands = {
         minArgs = 1,
         maxArgs = 1,
         func = function(skullName)
-            skullsManager.activateSilverSkulls(skullName)
+            skullsManager.activateSilverSkull(skullName)
         end
     },
 }

@@ -116,9 +116,9 @@ function firefightManager.whenMapLoads()
     gameIsOn = true
     currentRound = 1
     currentSet = 1
-    firefightManager.GameAssists()
+    firefightManager.gameAssists()
     currentWaveType = getRandomTeamWave()
-    firefightManager.WaveProgression()
+    firefightManager.waveProgression()
     waveCooldownStart = true
     waveCooldownCounter = roundCooldownTimer
     --hsc.object_create_anew("mortar_1")
@@ -129,18 +129,18 @@ end
 function firefightManager.eachTick()
     if gameIsOn == true then
         -- Actualizamos constantemente el estado de la IA.
-        firefightManager.AiCheck()
+        firefightManager.aiCheck()
         --firefightManager.killStagnateAi()
         -- Revisamos constantemente el countdown de las Dropships.
-        firefightManager.DropshipCountdown()
+        firefightManager.dropshipCountdown()
         -- Revisamos constantemente si puedes o no subir al Ghost.
-        firefightManager.GetOutOfGhost()
+        firefightManager.getOutOfGhost()
         -- Revisamos constantemente si puedes o no marcar a los enemigos resagados.
         firefightManager.aiNavpoint()
         -- Si waveIsOn = true, se inician los procesos de la oleaada. Si no, se inicia el cooldown.
         if waveIsOn == true then
             if dropshipsLeft > 0 then
-                firefightManager.DropshipDeployer()
+                firefightManager.dropshipDeployer()
             elseif bossWave == false and waveLivingCount <= 4 then
                 if currentWave > 0 then
                     logger:debug("Reinforcements!")
@@ -149,7 +149,7 @@ function firefightManager.eachTick()
                 waveIsOn = false
                 waveCooldownStart = true
                 waveCooldownCounter = waveCooldownTimer
-                firefightManager.WaveProgression()
+                firefightManager.waveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
                 skullsManager.resetSilverSkulls()
@@ -160,16 +160,16 @@ function firefightManager.eachTick()
                 waveCooldownStart = true
                 playSound(const.sounds.skullsReset.handle)
                 waveCooldownCounter = roundCooldownTimer
-                firefightManager.WaveProgression()
+                firefightManager.waveProgression()
             end
         else
-            firefightManager.WaveCooldown()
+            firefightManager.waveCooldown()
         end
     end
 end
 
 -- Esta función se llama cuando pasas de oleada. Progresa el juego y realiza cambios en base a esto.
-function firefightManager.WaveProgression()
+function firefightManager.waveProgression()
     -- Si la Wave es menor que 5, avanaz una. Si es 5, se reinicia y Round avanza una.
     if (currentWave < 5) then
         currentWave = currentWave + 1
@@ -179,7 +179,7 @@ function firefightManager.WaveProgression()
     elseif currentWave == 5 then
         currentWave = 1
         -- Si la ronda acaba de comenzar, spawneamos las asistencias y randomizamos el team.
-        firefightManager.GameAssists()
+        firefightManager.gameAssists()
         currentWaveType = getRandomTeamWave()
         -- Si el Tier es menor que 3, avanza uno.
         if currentTier < 3 then
@@ -191,7 +191,7 @@ function firefightManager.WaveProgression()
         elseif currentRound == 3 then
             currentRound = 1
             currentSet = currentSet + 1
-            skullsManager.resetSilverSkulls()
+            skullsManager.deactivateSilverSkulls()
             playSound(const.sounds.skullsReset.handle)
         end
     end
@@ -205,11 +205,11 @@ function firefightManager.WaveProgression()
     -- Recibimos el nombre actual de nuestra oleada.
     actualWave = waveTemplate:format(currentWave, currentRound, currentSet)
     -- Aquí llamamos la función de los Sentinelas.
-    firefightManager.SentinelChance()
+    firefightManager.sentinelChance()
 end
 
 -- Esta función se llama cuando waveIsOn = false. Maneja el cooldown de las waves a la espera de iniciar otra.
-function firefightManager.WaveCooldown()
+function firefightManager.waveCooldown()
     if waveCooldownStart == true and waveCooldownCounter > 0 then
         waveCooldownCounter = waveCooldownCounter - 1
     elseif waveCooldownStart == true and waveCooldownCounter <= 0 then
@@ -226,7 +226,7 @@ function firefightManager.WaveCooldown()
         end
         -- Si recién iniciamos una ronda, encendemos una calavera plateada.
         if currentWave > 1 and currentWave < 6 then
-            skullsManager.silverSkulls()
+            skullsManager.activateSilverSkulls("random")
             playSound(const.sounds.skullOn.handle)
         end
         --if currentRound > 1 and currentWave == 1 then
@@ -241,7 +241,7 @@ function firefightManager.WaveCooldown()
 end
 
 -- Esta función es llamada una vez por cada dropship asignada a una oleada. Se encarga de cargar y enviar las dropships.
-function firefightManager.DropshipDeployer()
+function firefightManager.dropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random (1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
@@ -263,7 +263,7 @@ function firefightManager.DropshipDeployer()
         selectedSquad = selectedStartingSquad
     end
     if bossWave == true then
-        firefightManager.GhostLoader()
+        firefightManager.ghostLoader()
         if dropshipsLeft == 1 then
             selectedBossSquad = bossSquadTemplate:format(randomTeamIndex)
             selectedSquad = selectedBossSquad
@@ -282,14 +282,14 @@ function firefightManager.DropshipDeployer()
 end
 
 -- Esto carga al Ghost en la Spirit.
-function firefightManager.GhostLoader()
+function firefightManager.ghostLoader()
     selectedGhost = ghostTemplate:format(randomGhost, dropshipsLeft)
     selectedGhostA = ghostTemplate:format(randomGhost, 1)
     selectedGhostB = ghostTemplate:format(randomGhost, 2)
     selectedGhostC = ghostTemplate:format(randomGhost, 3)
     selectedGhostPilot = ghostPilotTemplate:format(randomTeamIndex)
     hsc.object_create_anew(selectedGhost)
-    firefightManager.SetGhostEntrable()
+    firefightManager.setGhostEntrable()
     ---- Ghost is now spawned dynamically
     --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
     ---- All of the following hscLegacy commands must be replaced by Balltze alternatives, anywhere where the hsc.objectCreate calls were replaced by pigPen module calls
@@ -307,7 +307,7 @@ function firefightManager.GhostLoader()
 end
 
 -- Esta función es llamada por tick cuando sus condiciones son activadas por el DropshipDeployer.
-function firefightManager.DropshipCountdown()
+function firefightManager.dropshipCountdown()
     if dropshipCountdownStart == true and dropshipCountdownCounter > 0 then
         dropshipCountdownCounter = dropshipCountdownCounter - 1
     elseif dropshipCountdownStart == true and dropshipCountdownCounter <= 0 then
@@ -321,7 +321,7 @@ function firefightManager.DropshipCountdown()
 end
 
 -- Esto spawnea a los Centinelas.
-function firefightManager.SentinelChance()
+function firefightManager.sentinelChance()
     -- Aquí progresamos el Cooldown y el Chance de los Sentinels.
     if sentinelCooldown < 5 then
         sentinelCooldown = sentinelCooldown + 1
@@ -355,7 +355,7 @@ function firefightManager.SentinelChance()
 end
 
 -- Esto spawnea las ayudas para el jugador.
-function firefightManager.GameAssists()
+function firefightManager.gameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     healthManager.livesGained()
     hsc.ai_place("Human_Team/ODSTs")
@@ -381,7 +381,7 @@ function firefightManager.GameAssists()
 end
 
 -- Esto parcha horriblemente el problema del Ghost en el Spirit.
-function firefightManager.GetOutOfGhost()
+function firefightManager.getOutOfGhost()
     if getOutOfGhost == true then
         if bossWaveCooldown == true then
             hsc.vehicle_unload(selectedGhostA, "driver")
@@ -394,13 +394,13 @@ function firefightManager.GetOutOfGhost()
             hsc.ai_vehicle_enterable_distance(selectedGhostB, 0)
             hsc.ai_vehicle_enterable_distance(selectedGhostC, 0)
         elseif bossWaveCooldown == false then
-            firefightManager.SetGhostEntrable()
+            firefightManager.setGhostEntrable()
             getOutOfGhost = false
         end
     end
 end
 
-function firefightManager.SetGhostEntrable()
+function firefightManager.setGhostEntrable()
     hsc.unit_set_enterable_by_player(selectedGhostA, 1)
     hsc.unit_set_enterable_by_player(selectedGhostB, 1)
     hsc.unit_set_enterable_by_player(selectedGhostC, 1)
@@ -437,7 +437,7 @@ end
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 local magicalSightCounter = 300
 local magicalSightTimer = 0
-function firefightManager.AiCheck()
+function firefightManager.aiCheck()
     waveLivingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave")
     hsc.ai_follow_target_players("Covenant_Support")
     hsc.ai_follow_target_players("Flood_Support")
@@ -460,7 +460,7 @@ function firefightManager.AiCheck()
         magicalSightTimer = magicalSightTimer - 1
     else
         magicalSightTimer = magicalSightCounter
-        firefightManager.AiSight()
+        firefightManager.aiSight()
     end
 end
 
@@ -470,7 +470,7 @@ local player
 local biped
 local blamBiped
 -- Each 10 seconds, AI will magically see each player if they exist and are not invisible.
-function firefightManager.AiSight()
+function firefightManager.aiSight()
     player = getPlayer()
     if not player then
         return

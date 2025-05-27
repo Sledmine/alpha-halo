@@ -802,8 +802,8 @@ local silverSkullList = {
 }
 
 ---Activate specified skull
----@param desiredSkullName string
-function skullsManager.activateSilverSkulls(desiredSkullName)
+---@param desiredSkullName string | "random"
+function skullsManager.activateSilverSkull(desiredSkullName)
     if desiredSkullName and desiredSkullName:lower() == "random" then
         -- Empty table for skulls that are not activated yet
         local availableSkulls = table.filter(table.keys(skullsManager.skulls), function(skullName)
