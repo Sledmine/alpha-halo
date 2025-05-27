@@ -19,7 +19,7 @@ function eventsManager.eachTick()
 end
 
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
-local randomEventTimer = 3600
+local randomEventTimer = 30
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
     if bansheeLivingCount == 0 or snipersLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
@@ -51,8 +51,8 @@ function eventsManager.bansheeEvent()
         hsc.ai_place("Covenant_Banshees")
         hsc.object_create_anew("banshee_1")
         hsc.object_create_anew("banshee_2")
-        hscLegacy.vehicleLoadMagic("banshee_1", "B-driver", "Covenant_Banshees/banshee_a")
-        hscLegacy.vehicleLoadMagic("banshee_2", "B-driver", "Covenant_Banshees/banshee_b")
+        hsc.vehicle_load_magic("banshee_1", "B-driver", hsc.ai_actors("Covenant_Banshees/banshee_a"))
+        hsc.vehicle_load_magic("banshee_2", "B-driver", hsc.ai_actors("Covenant_Banshees/banshee_b"))
         hsc.object_teleport("banshee_1", "Banshee_1")
         hsc.object_teleport("banshee_2", "Banshee_2")
     else
@@ -76,8 +76,8 @@ end
 --    if mortarLivingCount == 0 then
 --        logger:debug("Mortar event!")
 --        hsc.ai_place(1, "Covenant_Mortars")
---        hscLegacy.vehicleLoadMagic("mortar_1", "W-gunner", "Covenant_Mortars/mortar_a")
---        hscLegacy.vehicleLoadMagic("mortar_2", "W-gunner", "Covenant_Mortars/mortar_b")
+--        hsc.vehicle_load_magic("mortar_1", "W-gunner", "(ai_actors Covenant_Mortars/mortar_b)")
+--        hsc.vehicle_load_magic("mortar_2", "W-gunner", "(ai_actors Covenant_Mortars/mortar_b)")
 --    else
 --        eventsManager.randomEventGenerator()
 --    end

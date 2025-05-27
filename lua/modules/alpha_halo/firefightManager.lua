@@ -249,7 +249,7 @@ function firefightManager.DropshipDeployer()
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hsc.ai_place(selectedDropshipGunner)
-    hscLegacy.vehicleLoadMagic(selectedDropship, "gunseat", selectedDropshipGunner)
+    hsc.vehicle_load_magic(selectedDropship, "gunseat", "(ai_actors " .. selectedDropshipGunner .. ")")
     hsc.ai_migrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
@@ -271,7 +271,7 @@ function firefightManager.DropshipDeployer()
     end
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
-    hscLegacy.vehicleLoadMagic(selectedDropship, "passenger", selectedSquad)
+    hsc.vehicle_load_magic(selectedDropship, "passenger", "(ai_actors " .. selectedSquad .. ")")
     hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
     hsc.ai_migrate(selectedSquad, currentWaveType)
@@ -301,7 +301,7 @@ function firefightManager.GhostLoader()
     --end
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.ai_place(selectedGhostPilot)
-    hscLegacy.vehicleLoadMagic(selectedGhost, "driver", selectedGhostPilot)
+    hsc.vehicle_load_magic(selectedGhost, "driver", "(ai_actors " .. selectedGhostPilot .. ")")
     hsc.ai_migrate(selectedGhostPilot, currentSupportType)
     hsc.unit_enter_vehicle(selectedGhost, selectedDropship, "cargo_ghost02")
 end
