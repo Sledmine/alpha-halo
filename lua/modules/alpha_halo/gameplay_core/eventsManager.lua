@@ -19,7 +19,7 @@ function eventsManager.eachTick()
 end
 
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
-local randomEventTimer = 30
+local randomEventTimer = 3600
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
     if bansheeLivingCount == 0 or snipersLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
