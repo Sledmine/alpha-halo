@@ -155,7 +155,7 @@ function firefightManager.eachTick()
                 logger:debug("Round Complete!")
                 playSound(const.sounds.roundCompleted.handle)
                 skullsManager.deactivateSilverSkulls()
-                skullsManager.resetGoldenSkulls()
+                --skullsManager.resetGoldenSkulls()
                 playSound(const.sounds.skullsReset.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
@@ -226,8 +226,8 @@ function firefightManager.waveCooldown()
         end
         -- La primera oleada encendemos una calavera dorada, en las siguientes una de plata.
         if currentWave == 1 then
-            skullsManager.goldenSkulls()
-            playSound(const.sounds.skullOn.handle)
+            --skullsManager.goldenSkulls()
+            --playSound(const.sounds.skullOn.handle)
         elseif currentWave > 1 then
             skullsManager.activateSilverSkull("random")
             playSound(const.sounds.skullOn.handle)
