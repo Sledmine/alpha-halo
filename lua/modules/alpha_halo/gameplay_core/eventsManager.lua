@@ -55,6 +55,7 @@ function eventsManager.bansheeEvent()
         hsc.vehicle_load_magic("banshee_2", "B-driver", hsc.ai_actors("Covenant_Banshees/banshee_b"))
         hsc.object_teleport("banshee_1", "Banshee_1")
         hsc.object_teleport("banshee_2", "Banshee_2")
+        hsc.ai_magically_see_players("Covenant_Banshees") -- They get to see the players one tick after being created.
     else
         eventsManager.randomEventGenerator()
     end
@@ -65,6 +66,7 @@ function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
         logger:debug("Sniper event!")
         hsc.ai_place("Covenant_Snipers")
+        hsc.ai_magically_see_players("Covenant_Snipers") -- They get to see the players one tick after being created.
     else
         eventsManager.randomEventGenerator()
     end

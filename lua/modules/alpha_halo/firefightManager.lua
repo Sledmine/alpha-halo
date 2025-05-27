@@ -19,7 +19,7 @@ local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.eachTick
 local waveIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveProgression
-local currentWave = 4
+local currentWave = 0
 local currentRound = 0
 local currentSet = 0
 local waveTemplate = "Wave %s, Round %s, Set %s."
@@ -153,13 +153,14 @@ function firefightManager.eachTick()
                 firefightManager.waveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
-                skullsManager.deactivateSilverSkulls()
                 playSound(const.sounds.roundCompleted.handle)
+                skullsManager.deactivateSilverSkulls()
+                skullsManager.resetGoldenSkulls()
+                playSound(const.sounds.skullsReset.handle)
                 waveIsOn = false
                 bossWaveCooldown = true
                 getOutOfGhost = true
                 waveCooldownStart = true
-                playSound(const.sounds.skullsReset.handle)
                 waveCooldownCounter = roundCooldownTimer
                 firefightManager.waveProgression()
             end
@@ -192,8 +193,6 @@ function firefightManager.waveProgression()
         elseif currentRound == 3 then
             currentRound = 1
             currentSet = currentSet + 1
-            skullsManager.deactivateSilverSkulls()
-            playSound(const.sounds.skullsReset.handle)
         end
     end
     -- Si la ronda es 5, entonces es una Boss Wave.
@@ -225,18 +224,13 @@ function firefightManager.waveCooldown()
         elseif currentWave == 1 and currentRound > 1 then
             playSound(const.sounds.roundStart.handle)
         end
-        -- Si recién iniciamos una ronda, encendemos una calavera plateada.
-        if currentWave > 1 and currentWave < 6 then
+        -- La primera oleada encendemos una calavera dorada, en las siguientes una de plata.
+        if currentWave == 1 then
+            skullsManager.goldenSkulls()
+            playSound(const.sounds.skullOn.handle)
+        elseif currentWave > 1 then
             skullsManager.activateSilverSkull("random")
             playSound(const.sounds.skullOn.handle)
-        end
-        --if currentRound > 1 and currentWave == 1 then
-        --    skullsManager.resetSilverSkulls()
-        --    playSound(const.sounds.skullsReset.handle)
-        --end
-        -- Si recién iniciamos un nuevo set, encendemos una calavera dorada.
-        if currentRound == 1 and currentSet > 1 then
-            skullsManager.goldenSkulls()
         end
     end
 end
@@ -446,7 +440,7 @@ function firefightManager.aiCheck()
     hsc.ai_follow_target_players("Flood_Wave")
     hsc.ai_follow_target_players("Sentinel_Team")
     hsc.ai_follow_target_players("Human_Team")
-    hsc.ai_magically_see_players("Human_Team")
+    hsc.ai_magically_see_players("Human_Team") -- Allys are the only ones who see all players all the time.
     hsc.ai_magically_see_encounter("Human_Team", "Covenant_Wave")
     hsc.ai_magically_see_encounter("Human_Team", "Covenant_Support")
     hsc.ai_magically_see_encounter("Human_Team", "Flood_Wave")
@@ -465,32 +459,20 @@ function firefightManager.aiCheck()
     end
 end
 
--- Each 10 seconds, AI will try to magically see each player if they're not invisible.
--- We also dump here Covenant_Banshees and Covenant_Snipers
-local player
-local biped
-local blamBiped
--- Each 10 seconds, AI will magically see each player if they exist and are not invisible.
+-- Each 10 seconds, enemy AI will try to magically see each player if they exist & aren't invisible.
 function firefightManager.aiSight()
-    player = getPlayer()
-    if not player then
-        return
-    end
-    biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    blamBiped = blam.biped(get_object(player.objectHandle.value))
-    assert(blamBiped, "Biped tag must exist")
-    if player then
-        if blamBiped.isCamoActive == false then -- attempt to concatenate a table value (local 'targetObj')
-            hsc.ai_magically_see_players("Covenant_Wave")
-            hsc.ai_magically_see_players("Covenant_Banshees")
-            hsc.ai_magically_see_players("Covenant_Snipers")
-            hsc.ai_magically_see_players("Covenant_Support")
-            hsc.ai_magically_see_players("Flood_Wave")
-            hsc.ai_magically_see_players("Flood_Support")
-            hsc.ai_magically_see_players("Sentinel_Team")
+    local playerCount = hsc.list_count(hsc.players())
+    for i = 0, playerCount - 1 do
+        local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
+        assert(playerUnit)
+        if playerUnit.isCamoActive == false then
+            hsc.ai_magically_see_unit("Covenant_Wave", playerUnit)
+            hsc.ai_magically_see_unit("Covenant_Support", playerUnit)
+            hsc.ai_magically_see_unit("Flood_Wave", playerUnit)
+            hsc.ai_magically_see_unit("Flood_Support", playerUnit)
+            hsc.ai_magically_see_unit("Covenant_Banshees", playerUnit)
+            hsc.ai_magically_see_unit("Covenant_Snipers", playerUnit)
+            hsc.ai_magically_see_unit("Sentinel_Team", playerUnit)
         end
     end
 end
