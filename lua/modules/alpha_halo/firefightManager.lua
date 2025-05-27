@@ -10,6 +10,7 @@ local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 local objectTypes = Engine.tag.objectType
+local script = require "script"
 
 local firefightManager = {}
 
@@ -198,7 +199,7 @@ function firefightManager.waveProgression()
     -- Si la ronda es 5, entonces es una Boss Wave.
     if currentWave == 5 then
         bossWave = true
-        randomGhost = math.random (1, 3)
+        randomGhost = math.random(1, 3)
     else
         bossWave = false
     end
@@ -226,7 +227,7 @@ function firefightManager.waveCooldown()
         end
         -- Si recién iniciamos una ronda, encendemos una calavera plateada.
         if currentWave > 1 and currentWave < 6 then
-            skullsManager.activateSilverSkulls("random")
+            skullsManager.activateSilverSkull("random")
             playSound(const.sounds.skullOn.handle)
         end
         --if currentRound > 1 and currentWave == 1 then
@@ -243,7 +244,7 @@ end
 -- Esta función es llamada una vez por cada dropship asignada a una oleada. Se encarga de cargar y enviar las dropships.
 function firefightManager.dropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
-    randomDropship = math.random (1)
+    randomDropship = math.random(1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
     hsc.object_create_anew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
@@ -255,7 +256,7 @@ function firefightManager.dropshipDeployer()
     -- La Dropship 1 será identica a la Dropship 2.
     -- Si es una Boss Wave, la Dropship 1 carga el Boss Squad y los Ghost.
     if dropshipsLeft > 1 then
-        randomSquad = math.random (1, 6)
+        randomSquad = math.random(1, 6)
     end
     selectedSquad = squadTemplate:format(randomTeamIndex, currentTier, randomSquad)
     if currentWave == 1 then
@@ -272,7 +273,8 @@ function firefightManager.dropshipDeployer()
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
     hsc.vehicle_load_magic(selectedDropship, "passenger", "(ai_actors " .. selectedSquad .. ")")
-    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
+    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
+        selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
     hsc.ai_migrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
@@ -297,7 +299,7 @@ function firefightManager.ghostLoader()
     --    local ghostObject = engine.gameState.getObject(ghostObjectHandle, engine.tag.objectType.vehicle)
     --    -- We need to get the ghost driver unit (biped) object handle somehow to use it here. And look up the seat index from Guerilla:
     --    -- engine.gameState.unitEnterVehicle(, ghostObjectHandle, )
-    --    
+    --
     --end
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.ai_place(selectedGhostPilot)
@@ -357,13 +359,13 @@ end
 -- Esto spawnea las ayudas para el jugador.
 function firefightManager.gameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
-    healthManager.livesGained()
+    script.startup(healthManager.livesGained)
     hsc.ai_place("Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
     hsc.object_create_anew_containing("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
-    randomGhost = math.random (1, 3)
+    randomGhost = math.random(1, 3)
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
     -- hsc.object_create_anew(selectedAssistGhost)
     -- Ghost is now spawned dynamically
@@ -371,7 +373,7 @@ function firefightManager.gameAssists()
     hsc.ai_vehicle_enterable_distance(selectedAssistGhost, 20.0)
     --hsc.object_teleporteleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
-    randomWarthog = math.random (1, 3)
+    randomWarthog = math.random(1, 3)
     selectedWarthog = warthogTemplate:format(randomWarthog)
     -- hsc.object_create_anew(selectedWarthog)
     -- Warthog is now spawned dynamically
@@ -482,7 +484,7 @@ function firefightManager.aiSight()
     blamBiped = blam.biped(get_object(player.objectHandle.value))
     assert(blamBiped, "Biped tag must exist")
     if player then
-        if blamBiped.isCamoActive == false then  -- attempt to concatenate a table value (local 'targetObj')
+        if blamBiped.isCamoActive == false then -- attempt to concatenate a table value (local 'targetObj')
             hsc.ai_magically_see_players("Covenant_Wave")
             hsc.ai_magically_see_players("Covenant_Banshees")
             hsc.ai_magically_see_players("Covenant_Snipers")

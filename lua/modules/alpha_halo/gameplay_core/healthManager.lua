@@ -3,8 +3,8 @@ local healthManager = {}
 local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
-local scriptBlock = require "scriptLegacy".block
 local const = require "alpha_halo.constants"
+local script = require "script"
 
 -- VARIABLES DE LA FUNCIÓN healthManager.whenMapLoads
 local gameIsOn = false
@@ -27,7 +27,6 @@ local playSound = engine.userInterface.playSound
 --- ACTUALMENTE NO HAY NADA HACIENDO LA COMPROBACIÓN. NECESITA ARREGLARSE PARA EVITAR CRASHEOS.
 function healthManager.eachTick()
     healthManager.healthRegen()
-    healthManager.tryingToRespawn()
     healthManager.regenerateAllyHealth()
 end
 
@@ -78,7 +77,7 @@ function healthManager.maxHealthCap()
 end
 
 -- A player has lost a life. What a looser.
-function healthManager.tryingToRespawn()
+function healthManager.tryingToRespawn(sleep)
     if waitingForRespawn == true and player then
         waitingForRespawn = false
         playerLives = playerLives - 1
@@ -86,33 +85,31 @@ function healthManager.tryingToRespawn()
         if playerLives > 0 then
             logger:debug(actualLivesLeft)
         end
-        scriptBlock(function (sleep, sleepUntil)
-            if playerLives == 5 then
-                sleep(10)
-                playSound(const.sounds.fiveLivesLeft.handle)
-            end
-            if playerLives == 1 then
-                sleep(10)
-                playSound(const.sounds.oneLiveLeft.handle)
-            end
-            if playerLives == 0 then
-                logger:debug("No lives left.")
-                logger:debug("You feel a sense of dread crawling up your spine...")
-                sleep(10)
-                playSound(const.sounds.noLivesLeft.handle)
-            end
-        end)()
+        if playerLives == 5 then
+            sleep(10)
+            playSound(const.sounds.fiveLivesLeft.handle)
+        end
+        if playerLives == 1 then
+            sleep(10)
+            playSound(const.sounds.oneLiveLeft.handle)
+        end
+        if playerLives == 0 then
+            logger:debug("No lives left.")
+            logger:debug("You feel a sense of dread crawling up your spine...")
+            sleep(10)
+            playSound(const.sounds.noLivesLeft.handle)
+        end
     end
 end
 
+script.continuous(healthManager.tryingToRespawn)
+
 -- This function is called from other modules to add a live to the player.
-function healthManager.livesGained()
-    scriptBlock(function (sleep, sleepUntil)
-        logger:debug("Lives added!")
-        playerLives = playerLives + 1
-        sleep(100)
-        playSound(const.sounds.livesAdded.handle)
-    end)()
+function healthManager.livesGained(sleep)
+    logger:debug("Lives added!")
+    playerLives = playerLives + 1
+    sleep(100)
+    playSound(const.sounds.livesAdded.handle)
     if player then
         player.health = 1
     end

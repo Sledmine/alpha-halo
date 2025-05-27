@@ -1,7 +1,7 @@
 local balltze = Balltze
 local engine = Engine
-local dispatchScripts = require "scriptLegacy".dispatch
-math.randomseed(os.clock())
+local script = require "script"
+math.randomseed(os.time())
 
 --Project modules
 local firefightManager = require "alpha_halo.firefightManager"
@@ -28,15 +28,13 @@ function OnMapLoad()
 end
 
 local isLoaded = false
-
 function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
     eventsManager.eachTick()
     skullsManager.eachTick()
     vehiclePositionLoader.vehiclePositionLoader()
-    math.randomseed(engine.core.getTickCount())
-    dispatchScripts()
+    script.poll()
     -- Execute the function one time
     if not isLoaded then
         isLoaded = true
