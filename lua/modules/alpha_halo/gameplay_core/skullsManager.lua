@@ -39,9 +39,136 @@ skullsManager.skulls = {
 skullsManager.skullsNew = {
     famine = {
         name = "Famine",
-        func = skullsManager.skullFamine,
-        active = false
+        func = skullsManager.famine,
+        active = false,
+        isStackeable = true
     },
+    mythic = {
+        name = "Mythic",
+        func = skullsManager.mythic,
+        active = false,
+        isStackeable = true
+    },
+    blind = {
+        name = "Blind",
+        func = skullsManager.blind,
+        active = false,
+        isStackeable = false
+    },
+    catch = {
+        name = "Catch",
+        func = skullsManager.catch,
+        active = false,
+        isStackeable = false
+    },
+    berserk = {
+        name = "Berserk",
+        func = skullsManager.berserk,
+        active = false,
+        isStackeable = false
+    },
+    toughluck = {
+        name = "Though Luck",
+        func = skullsManager.toughluck,
+        active = false,
+        isStackeable = false
+    },
+    fog = {
+        name = "Fog",
+        func = skullsManager.fog,
+        active = false,
+        isStackeable = false
+    },
+    knucklehead = {
+        name = "Knucklehead",
+        func = skullsManager.knucklehead,
+        active = false,
+        isStackeable = true
+    },
+    cowbell = {
+        name = "Cowbell",
+        func = skullsManager.cowbell,
+        active = false,
+        isStackeable = true
+    },
+    havok = {
+        name = "Havok",
+        func = skullsManager.havok,
+        active = false,
+        isStackeable = true
+    },
+    newton = {
+        name = "Newton",
+        func = skullsManager.newton,
+        active = false,
+        isStackeable = true
+    },
+    tilt = {
+        name = "Tilt",
+        func = skullsManager.tilt,
+        active = false,
+        isStackeable = true
+    },
+    banger = {
+        name = "Banger",
+        func = skullsManager.banger,
+        active = false,
+        isStackeable = false
+    },
+    doubledown = {
+        name = "Double Down",
+        func = skullsManager.doubledown,
+        active = false,
+        isStackeable = true
+    },
+    eyepatch = {
+        name = "Eye Patch",
+        func = skullsManager.eyepatch,
+        active = false,
+        isStackeable = false
+    },
+    triggerswitch = {
+        name = "Trigger Switch",
+        func = skullsManager.triggerswitch,
+        active = false,
+        isStackeable = false
+    },
+    slayer = {
+        name = "Slayer",
+        func = skullsManager.slayer,
+        active = false,
+        isStackeable = true
+    },
+    assassin = {
+        name = "Assassin",
+        func = skullsManager.assassin,
+        active = false,
+        isStackeable = false
+    }
+}
+
+local isGoldenSkull = {
+    skullsManager.skullsNew.famine,
+    skullsManager.skullsNew.mythic,
+    skullsManager.skullsNew.blind,
+    skullsManager.skullsNew.catch
+}
+
+local isSilverSkull = {
+    skullsManager.skullsNew.berserk,
+    skullsManager.skullsNew.toughluck,
+    skullsManager.skullsNew.fog,
+    skullsManager.skullsNew.knucklehead,
+    skullsManager.skullsNew.cowbell,
+    skullsManager.skullsNew.havok,
+    skullsManager.skullsNew.newton,
+    skullsManager.skullsNew.tilt,
+    skullsManager.skullsNew.banger,
+    skullsManager.skullsNew.doubledown,
+    skullsManager.skullsNew.eyepatch,
+    skullsManager.skullsNew.triggerswitch,
+    skullsManager.skullsNew.slayer,
+    skullsManager.skullsNew.assassin
 }
 
 local player
@@ -75,11 +202,11 @@ local allUnits = {
 }
 
 -- Famine: Makes the AI drop half the ammo.
----@param restore boolean
-function skullsManager.skullFamine(restore)
+---@param isActive boolean
+function skullsManager.famine(isActive)
     local famineTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
-        for _, keyword in pairs(allUnits) do
-            if tagEntry.path:includes(keyword) then
+        for _, unitName in pairs(allUnits) do
+            if tagEntry.path:includes(unitName) then
                 return true
             end
         end
@@ -87,7 +214,7 @@ function skullsManager.skullFamine(restore)
     end)
     for _, tagEntry in ipairs(famineTagsFiltered) do
         local actorVariant = tagEntry.data
-        if restore == true then
+        if not isActive then
             Balltze.features.reloadTagData(tagEntry.handle)
         else
             actorVariant.dropWeaponLoaded[1] = actorVariant.dropWeaponLoaded[1] * 0.5
@@ -97,18 +224,18 @@ function skullsManager.skullFamine(restore)
             actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.01
         end
     end
-    if restore == true then
-        skullsManager.skulls.famine = false
-        --logger:debug("Famine Off")
-    else
-        skullsManager.skulls.famine = true
+    if isActive then
+        skullsManager.skullsNew.famine.active = true
         --logger:debug("Famine On")
+    else
+        skullsManager.skullsNew.famine.active = false
+        --logger:debug("Famine Off")
     end
 end
 
 -- Mythic: AI gets double body & shield vitality, while player gets x1.5 boost.
 ---@param restore boolean
-function skullsManager.skullMythic(restore)
+function skullsManager.mythic(restore)
     local mythicTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
@@ -146,10 +273,10 @@ function skullsManager.skullMythic(restore)
     end
 end
 
--- Blind: Hides HUD and duplicates AI burst origin radius.
 local blindOnTick
+-- Blind: Hides HUD and duplicates AI burst origin radius.
 ---@param restore boolean
-function skullsManager.skullBlind(restore)
+function skullsManager.blind(restore)
     local blindTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
@@ -189,7 +316,8 @@ function skullsManager.skullBlindOnTick()
 end
 
 -- Catch: Makes the AI launch grenades a fuck lot.
-function skullsManager.skullCatch(restore)
+---@param restore boolean
+function skullsManager.catch(restore)
     local catchTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
@@ -224,7 +352,7 @@ end
 
 ---Berserk: Makes the AI enter in constant Berserk state.
 ---@param restore boolean
-function skullsManager.skullBerserk(restore)
+function skullsManager.berserk(restore)
     local berserkUnits = {
         "flood",
         "elite",
@@ -232,8 +360,8 @@ function skullsManager.skullBerserk(restore)
         "odst"
     }
     local berserkActorsFiltered = table.filter(tagEntries.actor(), function(tagEntry)
-        for _, keyword in pairs(berserkUnits) do
-            if tagEntry.path:includes(keyword) then
+        for _, unitName in pairs(berserkUnits) do
+            if tagEntry.path:includes(unitName) then
                 return true
             end
         end
@@ -267,7 +395,7 @@ end
 
 ---Tough Luck: Makes AI react to everything and enhances their senses.
 ---@param restore boolean
-function skullsManager.skullToughLuck(restore)
+function skullsManager.toughluck(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
         local actor = tagEntry.data
         if restore == true then
@@ -294,7 +422,7 @@ end
 local fogOnTick
 ---Fog: Turns off motion tracker & aguments AI surprise distance.
 ---@param restore boolean
-function skullsManager.skullFog(restore)
+function skullsManager.fog(restore)
     for _, tagEntry in ipairs(tagEntries.actor()) do
         local actor = tagEntry.data
         if restore == true then
@@ -327,7 +455,7 @@ end
 
 -- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
 ---@param restore boolean
-function skullsManager.skullKnucklehead(restore)
+function skullsManager.knucklehead(restore)
     local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
@@ -378,7 +506,7 @@ end
 
 ---Cowbell: Doubles bipeds & vehicles accelerationScale.
 ---@param restore boolean
-function skullsManager.skullCowbell(restore)
+function skullsManager.cowbell(restore)
     for _, tagEntry in ipairs(tagEntries.biped()) do
         local bipedTag = tagEntry.data
         if restore == true then
@@ -406,7 +534,7 @@ end
 
 ---Havok: Doubles all damage_effect's damage radius, and it scales properly.
 ---@param restore boolean
-function skullsManager.skullHavok(restore)
+function skullsManager.havok(restore)
     for _, tagEntry in ipairs(tagEntries.explosionDamageEffect()) do
         local damageEffect = tagEntry.data
         if restore == true then
@@ -427,7 +555,7 @@ end
 
 ---Newton: Augments instant acceleration for melee damages.
 ---@param restore boolean
-function skullsManager.skullNewton(restore)
+function skullsManager.newton(restore)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
         local damageEffect = tagEntry.data
         if restore == true then
@@ -450,7 +578,7 @@ end
 
 ---Tilt: Doubles strenghts and weakenesses.
 ---@param restore boolean
-function skullsManager.skullTilt(restore)
+function skullsManager.tilt(restore)
     local energyWeapons = {
         "beam_rifle",
         "brute_plasma_rifle",
@@ -551,7 +679,7 @@ end
 
 ---Banger: Makes Grunts and Human Floods explode after dying.
 ---@param restore boolean
-function skullsManager.skullBanger(restore)
+function skullsManager.banger(restore)
     local plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion", tagClasses.effect)[1]
     local floodExplosion = findTags("characters\\floodcarrier\\effects\\body destroyed", tagClasses.effect)[1]
     for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
@@ -584,7 +712,7 @@ end
 
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param restore boolean
-function skullsManager.skullDoubleDown(restore)
+function skullsManager.doubledown(restore)
     local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp", tagClasses
         .modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
@@ -609,7 +737,7 @@ end
 
 -- Eye Patch: Eliminates weapons assistances & initial error.
 ---@param restore boolean
-function skullsManager.skullEyePatch(restore)
+function skullsManager.eyepatch(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         local weapon = tagEntry.data
         if restore == true then
@@ -636,7 +764,7 @@ end
 
 -- Trigger Switch: Auto weapons became semi-auto and vice versa.
 ---@param restore boolean
-function skullsManager.skullTriggerSwitch(restore)
+function skullsManager.triggerswitch(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
@@ -662,7 +790,7 @@ end
 
 -- Slayer: Weapons shoot doble rounds and waste double ammo.
 ---@param restore boolean
-function skullsManager.skullSlayer(restore)
+function skullsManager.slayer(restore)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if restore == true then
             Balltze.features.reloadTagData(tagEntry.handle)
@@ -688,7 +816,7 @@ end
 local assassinOnTick
 -- Assassin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
 ---@param restore boolean
-function skullsManager.skullAssassin(restore)
+function skullsManager.assassin(restore)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, keyword in pairs(allUnits) do
             if tagEntry.path:includes(keyword) then
@@ -806,13 +934,13 @@ local silverSkullList = {
 function skullsManager.activateSilverSkull(desiredSkullName)
     if desiredSkullName and desiredSkullName:lower() == "random" then
         -- Empty table for skulls that are not activated yet
-        local availableSkulls = table.filter(table.keys(skullsManager.skulls), function(skullName)
+        local availableSkulls = table.filter(table.keys(skullsManager.skullsNew), function(skullName)
             local searchableSkullName = skullName:lower():replace(" ", "")
-            local isSilverSkull = table.find(silverSkullList, function(skull)
-                return skull.name:lower():replace(" ", "") == searchableSkullName
+            local isSilverSkull = table.find(skullsManager.skullsNew, function(skullsNew)
+                return skullsNew.name:lower():replace(" ", "") == searchableSkullName
             end) ~= nil
-            local isActive = skullsManager.skulls[skullName]
-            return not isActive and isSilverSkull
+            local isActive = skullsManager.skullsNew[skullName]
+            return isActive and isSilverSkull
         end)
 
         -- If no skulls are available for activate, stop the execution
@@ -825,19 +953,19 @@ function skullsManager.activateSilverSkull(desiredSkullName)
         local selectedSkullName = availableSkulls[math.random(1, #availableSkulls)]:lower():replace(" ", "")
         logger:debug("Selected random skull name {}", selectedSkullName)
 
-        local selectedSkull = table.find(silverSkullList, function(skull)
+        local selectedSkull = table.find(skullsManager.skullsNew, function(skull)
             return skull.name:lower():replace(" ", "") == selectedSkullName
         end)
         assert(selectedSkull)
-        selectedSkull.func(false) -- Activates the skull
+        selectedSkull.func(true) -- Activates the skull
 
         logger:debug("Silver Skull On: {}", selectedSkull.name)
         return
     end
 
-    for _, skull in ipairs(silverSkullList) do
+    for _, skull in pairs(skullsManager.skullsNew) do
         if skull.name:lower():replace(" ", "") == desiredSkullName then
-            skull.func(false)
+            skull.func(true)
             logger:debug("Silver Skull '{}' activated.", desiredSkullName)
             return
         end
