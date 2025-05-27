@@ -5,7 +5,8 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
-local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+--local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+local commands = require "alpha_halo.commands"
 -- local firefightManager = require "alpha_halo.firefightManager"
 
 -- local main
@@ -73,50 +74,17 @@ function PluginLoad()
     loadChimeraCompatibility()
 
     -- Commands for Alpha Firefight
-    balltze.command.registerCommand("silverSkullsAll", "debug", "description", nil, false, 0, 0, true,
-                                    false, function(args)
-        skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        --skullsManager.silverSkulls()
-        return true
-    end)
+    for command, data in pairs(commands) do
+        --local command = command:replace("debug_", "")
+        balltze.command.registerCommand(command, command, data.description, data.help,
+                                        data.save or false, data.minArgs or 0, data.maxArgs or 0,
+                                        false, true, function(...)
+            data.func(table.unpack(...))
+            return true
+        end)
+    end
+    balltze.command.loadSettings()
 
-    balltze.command.registerCommand("resetSilverSkullsAll", "debug", "description", nil, false, 0, 0,
-                                    true, false, function(args)
-        skullsManager.resetSilverSkulls()
-        return true
-    end)
-
-    balltze.command.registerCommand("goldenSkullsAll", "debug", "description", nil, false, 0, 0, true,
-                                    false, function(args)
-        skullsManager.goldenSkulls()
-        --skullsManager.goldenSkulls()
-        --skullsManager.goldenSkulls()
-        return true
-    end)
-
-    balltze.command.registerCommand("resetGoldenSkullsAll", "debug", "description", nil, false, 0, 0, true,
-                                    false, function(args)
-        skullsManager.resetGoldenSkulls()
-        return true
-    end)
-
-    --balltze.command.registerCommand("covenant_team", "debug", "description", nil, false, 0, 0, true,
-    --                                false, function(args)
-    --    -- firefightManager.debugCovenantTeam()
-    --    return true
-    --end)
---
-    --balltze.command.registerCommand("flood_team", "debug", "description", nil, false, 0, 0, true,
-    --                                false, function(args)
-    --    -- firefightManager.debugFloodTeam()
-    --    return true
-    --end)
     return true
 end
 
