@@ -18,7 +18,7 @@ end))
 
 function PluginMetadata()
     return {
-        name = "Alpha Halo Firefight",
+        name = "Alpha Halo",
         author = "El Dream Team",
         version = "1.0.0",
         targetApi = "1.0.0",
