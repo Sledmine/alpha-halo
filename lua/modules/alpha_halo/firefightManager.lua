@@ -11,6 +11,7 @@ local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 local objectTypes = Engine.tag.objectType
 local script = require "script"
+local announcer = require "alpha_halo.announcer"
 
 local firefightManager = {}
 
@@ -79,7 +80,7 @@ local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
 -- VARIABLES DE LA FUNCIÓN firefightManager.GetOutOfGhost()
 local bossWaveCooldown = false
 local getOutOfGhost = false
-local playSound = engine.userInterface.playSound
+
 
 local function getRandomTeamWave()
     local randomTeam = math.random(1, 2) -- This should be (1, 2)
@@ -122,8 +123,8 @@ function firefightManager.whenMapLoads()
     firefightManager.waveProgression()
     waveCooldownStart = true
     waveCooldownCounter = roundCooldownTimer
-    --hsc.object_create_anew("mortar_1")
-    --hsc.object_create_anew("mortar_2")
+    -- hsc.object_create_anew("mortar_1")
+    -- hsc.object_create_anew("mortar_2")
 end
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
@@ -131,7 +132,7 @@ function firefightManager.eachTick()
     if gameIsOn == true then
         -- Actualizamos constantemente el estado de la IA.
         firefightManager.aiCheck()
-        --firefightManager.killStagnateAi()
+        -- firefightManager.killStagnateAi()
         -- Revisamos constantemente el countdown de las Dropships.
         firefightManager.dropshipCountdown()
         -- Revisamos constantemente si puedes o no subir al Ghost.
@@ -145,7 +146,7 @@ function firefightManager.eachTick()
             elseif bossWave == false and waveLivingCount <= 4 then
                 if currentWave > 0 then
                     logger:debug("Reinforcements!")
-                    playSound(const.sounds.reinforcements.handle)
+                    script.startup(announcer.reinforcements)
                 end
                 waveIsOn = false
                 waveCooldownStart = true
@@ -153,10 +154,9 @@ function firefightManager.eachTick()
                 firefightManager.waveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
-                playSound(const.sounds.roundCompleted.handle)
-                skullsManager.deactivateSilverSkulls()
-                --skullsManager.resetGoldenSkulls()
-                playSound(const.sounds.skullsReset.handle)
+                script.startup(announcer.roundCompleted)
+                skullsManager.disableSkull("silver", "is_active")
+                script.startup(announcer.skullsResetDelay)
                 waveIsOn = false
                 bossWaveCooldown = true
                 getOutOfGhost = true
@@ -220,17 +220,21 @@ function firefightManager.waveCooldown()
         waveCooldownStart = false
         waveCooldownCounter = 0
         if currentWave == 1 and currentRound == 1 then
-            playSound(const.sounds.setStart.handle)
+            script.startup(announcer.setStart)
         elseif currentWave == 1 and currentRound > 1 then
-            playSound(const.sounds.roundStart.handle)
+            script.startup(announcer.roundStart)
         end
-        -- La primera oleada encendemos una calavera dorada, en las siguientes una de plata.
-        if currentWave == 1 then
-            --skullsManager.goldenSkulls()
-            --playSound(const.sounds.skullOn.handle)
-        elseif currentWave > 1 then
-            skullsManager.activateSilverSkull("random")
-            playSound(const.sounds.skullOn.handle)
+        -- Si recién iniciamos una ronda, encendemos una calavera plateada.
+        if currentWave > 1 and currentWave < 6 then
+            skullsManager.enableSkull("silver", "random")
+            script.startup(announcer.skullOn)
+        end
+        if currentWave == 1 and currentRound > 1 then
+           skullsManager.enableSkull("golden","random")
+           script.startup(announcer.skullOnDelay)
+        elseif currentSet > 1 and currentRound == 1 and currentWave == 1 then
+            skullsManager.disableSkull("golden", "is_active")
+            script.startup(announcer.skullsResetDelay)
         end
     end
 end
@@ -244,7 +248,8 @@ function firefightManager.dropshipDeployer()
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hsc.ai_place(selectedDropshipGunner)
-    hsc.vehicle_load_magic(selectedDropship, "gunseat", "(ai_actors " .. selectedDropshipGunner .. ")")
+    hsc.vehicle_load_magic(selectedDropship, "gunseat",
+                           "(ai_actors " .. selectedDropshipGunner .. ")")
     hsc.ai_migrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
@@ -267,8 +272,9 @@ function firefightManager.dropshipDeployer()
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
     hsc.vehicle_load_magic(selectedDropship, "passenger", "(ai_actors " .. selectedSquad .. ")")
-    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
-        selectedDropship, "false")
+    hsc.custom_animation(selectedDropship,
+                         "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
+                         selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
     hsc.ai_migrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
@@ -287,14 +293,14 @@ function firefightManager.ghostLoader()
     hsc.object_create_anew(selectedGhost)
     firefightManager.setGhostEntrable()
     ---- Ghost is now spawned dynamically
-    --local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
+    -- local ghostObjectHandle = pigPen.compactSpawnNamedVehicle(selectedGhost)
     ---- All of the following hscLegacy commands must be replaced by Balltze alternatives, anywhere where the hsc.objectCreate calls were replaced by pigPen module calls
-    --if ghostObjectHandle then
+    -- if ghostObjectHandle then
     --    local ghostObject = engine.gameState.getObject(ghostObjectHandle, engine.tag.objectType.vehicle)
     --    -- We need to get the ghost driver unit (biped) object handle somehow to use it here. And look up the seat index from Guerilla:
     --    -- engine.gameState.unitEnterVehicle(, ghostObjectHandle, )
     --
-    --end
+    -- end
     -- Esto POSIBLEMENTE de segmentation. Se necesitan más pruebas. No funciona con el Flood.
     hsc.ai_place(selectedGhostPilot)
     hsc.vehicle_load_magic(selectedGhost, "driver", "(ai_actors " .. selectedGhostPilot .. ")")
@@ -365,7 +371,7 @@ function firefightManager.gameAssists()
     -- Ghost is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
     hsc.ai_vehicle_enterable_distance(selectedAssistGhost, 20.0)
-    --hsc.object_teleporteleport(selectedAssistGhost, "Selected_Ghost")
+    -- hsc.object_teleporteleport(selectedAssistGhost, "Selected_Ghost")
     -- Aca hacemos el mambo para spawnear el SuperHog en turno.
     randomWarthog = math.random(1, 3)
     selectedWarthog = warthogTemplate:format(randomWarthog)
@@ -373,7 +379,7 @@ function firefightManager.gameAssists()
     -- Warthog is now spawned dynamically
     pigPen.compactSpawnNamedVehicle(selectedWarthog)
     hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
-    --hsc.object_teleporteleport(selectedWarthog, "Selected_Warthog")
+    -- hsc.object_teleporteleport(selectedWarthog, "Selected_Warthog")
 end
 
 -- Esto parcha horriblemente el problema del Ghost en el Spirit.
@@ -415,19 +421,19 @@ function firefightManager.aiNavpoint()
             for i = 0, playerCount - 1 do
                 local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
                 for actorIndex = 0, 3 do
-                    local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentWaveType), actorIndex))
-                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
-                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
-                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
+                    local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentWaveType),
+                                                            actorIndex))
+                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit,
+                                                  navpointOffset)
                 end
             end
         end
     end
 end
 
---function firefightManager.killStagnateAi()
+-- function firefightManager.killStagnateAi()
 --    --Here goes super code to kill AI bellow certain z cord on the map.
---end
+-- end
 
 -- Esta función es llamada cada tick si gameIsOn = true. Revisa y gestiona los actores en tiempo real.
 local magicalSightCounter = 300
@@ -476,5 +482,6 @@ function firefightManager.aiSight()
         end
     end
 end
+
 
 return firefightManager
