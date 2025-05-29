@@ -9,16 +9,15 @@ local objectTypes = Engine.tag.objectType
 local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
 
-local bansheeLivingCount
-local snipersLivingCount
---local mortarLivingCount
-
 -- Esta función es llamada cada tick, desde el firefightManager. Se encarga de llamar otras funciones.
 function eventsManager.eachTick()
     eventsManager.randomEventTimer()
     eventsManager.aiCheck()
 end
 
+local bansheeLivingCount
+local snipersLivingCount
+--local mortarLivingCount
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
 local randomEventTimer = 3600
 local randomEventCountdown = randomEventTimer

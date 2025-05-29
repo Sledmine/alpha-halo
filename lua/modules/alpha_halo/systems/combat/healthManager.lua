@@ -6,27 +6,17 @@ local balltze = Balltze
 local const = require "alpha_halo.systems.core.constants"
 local script = require "script"
 
--- VARIABLES DE LA FUNCIÓN healthManager.healthRegen(playerIndex)
-local player
-local playerIsDead = false
-local waitingForRespawn = false
-
--- VARIABLES DE LA FUNCIÓN healthRegenSP.maxHealthCap
-local maxHealth = 1
-
--- VARIALBES DE LA FUNCIÓN healthRegenSP.respawnAndDeath
-local playerLives = 6
-local livesLeftTemplate = "Lives left... %s"
-local actualLivesLeft = livesLeftTemplate:format(playerLives)
-local playSound = engine.userInterface.playSound
-
 --- Cada tick. Aquí llamamos al resto de funciones si inició el juego & existe el jugador.
---- ACTUALMENTE NO HAY NADA HACIENDO LA COMPROBACIÓN. NECESITA ARREGLARSE PARA EVITAR CRASHEOS.
 function healthManager.eachTick()
     healthManager.healthRegen()
     healthManager.regenerateAllyHealth()
 end
 
+local player
+local playerLives = 6
+local playerIsDead = false
+local waitingForRespawn = false
+local maxHealth = 1
 --- Regenerate players health using game ticks
 ---@param playerIndex? number
 function healthManager.healthRegen(playerIndex)
@@ -73,6 +63,9 @@ function healthManager.maxHealthCap()
     end
 end
 
+local livesLeftTemplate = "Lives left... %s"
+local actualLivesLeft = livesLeftTemplate:format(playerLives)
+local playSound = engine.userInterface.playSound
 -- A player has lost a life. What a looser.
 function healthManager.tryingToRespawn(call, sleep)
     if waitingForRespawn == true and player then
