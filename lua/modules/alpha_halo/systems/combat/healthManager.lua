@@ -64,12 +64,12 @@ end
 
 -- We cap max health regen according to current player's health.
 function healthManager.maxHealthCap()
-    if player.health >= 0.655 then
+    if player.health >= 0.605 then
         maxHealth = 1
-    elseif player.health < 0.655 and player.health >= 0.305 then
-        maxHealth = 0.65
+    elseif player.health < 0.605 and player.health >= 0.305 then
+        maxHealth = 0.6
     elseif player.health < 0.305 then
-        maxHealth = 0.30
+        maxHealth = 0.3
     end
 end
 
