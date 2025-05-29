@@ -7,17 +7,17 @@ local playSound = engine.userInterface.playSound
 local announcer = {}
 
 function announcer.setStart(call, sleep)
-    sleep(1)
+    --sleep(1)
     playSound(const.sounds.setStart.handle)
 end
 
 function announcer.roundStart(call, sleep)
-    sleep(1)
+    --sleep(1)
     playSound(const.sounds.roundStart.handle)
 end
 
 function announcer.reinforcements(call, sleep)
-    sleep(1)
+    --sleep(1)
     playSound(const.sounds.reinforcements.handle)
 end
 
