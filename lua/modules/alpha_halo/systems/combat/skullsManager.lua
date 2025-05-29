@@ -582,11 +582,9 @@ end
 ---@param isActive boolean
 function skullsManager.assassin(isActive)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
-        for _, keyword in pairs(allUnits) do
-            if tagEntry.path:includes(keyword) then
-                if tagEntry.data.flags:activeCamouflage() == false then
-                    return true
-                end
+        for _, unitName in pairs(allUnits) do
+            if tagEntry.path:includes(unitName) then
+                return true
             end
         end
         return false
@@ -625,7 +623,6 @@ function skullsManager.skullAssassinOnTick(isActive)
         blamBiped.isCamoActive = false
     end
 end
-
 
 -------------------------------------------------------------------- Tables ------------------------------------------------------------------
 
