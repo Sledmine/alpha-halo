@@ -51,6 +51,18 @@ function announcer.skullOnDelay(call, sleep)
     playSound(const.sounds.skullOn.handle)
 end
 
+-- This function is called when multiple skulls are activated
+function announcer.skullsOn(call, sleep)
+    sleep(1)
+    playSound(const.sounds.skullsOn.handle)
+end
+
+-- This function is called when multiple skulls are activated after a delay
+function announcer.skullsOnDelay(call, sleep)
+    sleep(70) -- Wait for 120 ticks before playing the sound
+    playSound(const.sounds.skullsOn.handle)
+end
+
 function announcer.skullsReset(call, sleep)
     sleep(1)
     playSound(const.sounds.skullsReset.handle)
