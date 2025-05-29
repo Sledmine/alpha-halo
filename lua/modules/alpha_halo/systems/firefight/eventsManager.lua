@@ -1,5 +1,4 @@
 local eventsManager = {}
-local hscLegacy = require "hscLegacy"
 local hsc = require "hsc"
 local blam = require "blam"
 local engine = Engine
@@ -7,6 +6,8 @@ local balltze = Balltze
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 local objectTypes = Engine.tag.objectType
+local announcer = require "alpha_halo.systems.combat.announcer"
+local script = require "script"
 
 local bansheeLivingCount
 local snipersLivingCount
@@ -47,6 +48,7 @@ end
 -- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covennat Banshee.
 function eventsManager.bansheeEvent()
     if bansheeLivingCount == 0 then
+        script.startup(announcer.enemyIncoming)
         logger:debug("Banshee event!")
         hsc.ai_place("Covenant_Banshees")
         hsc.object_create_anew("banshee_1")
@@ -64,6 +66,7 @@ end
 -- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Sniper.
 function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
+        script.startup(announcer.enemySniper)
         logger:debug("Sniper event!")
         hsc.ai_place("Covenant_Snipers")
         hsc.ai_magically_see_players("Covenant_Snipers") -- They get to see the players one tick after being created.

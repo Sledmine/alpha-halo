@@ -1,17 +1,12 @@
-local hscLegacy = require "hscLegacy"
-local hsc = require "hsc"
-local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
-local const = require "alpha_halo.constants"
-local pigPen = require "alpha_halo.pigPen"
-local healthManager = require "alpha_halo.gameplay_core.healthManager"
-local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
-local getObject = Engine.gameState.getObject
-local getPlayer = Engine.gameState.getPlayer
-local objectTypes = Engine.tag.objectType
+local blam = require "blam"
+local pigPen = require "alpha_halo.systems.core.pigPen"
+local healthManager = require "alpha_halo.systems.combat.healthManager"
+local skullsManager = require "alpha_halo.systems.combat.skullsManager"
+local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
-local announcer = require "alpha_halo.announcer"
+local hsc = require "hsc"
 
 local firefightManager = {}
 
@@ -83,7 +78,7 @@ local getOutOfGhost = false
 
 
 local function getRandomTeamWave()
-    local randomTeam = math.random(1, 2) -- This should be (1, 2)
+    local randomTeam = math.random(1, 1) -- This should be (1, 2)
     local team
     if randomTeam == 1 then
         team = "Covenant_Wave"
@@ -231,7 +226,7 @@ function firefightManager.waveCooldown()
         end
         if currentWave == 1 and currentRound > 1 then
            skullsManager.enableSkull("golden","random")
-           script.startup(announcer.skullOnDelay)
+           script.startup(announcer.goldenSkullOnDelay)
         elseif currentSet > 1 and currentRound == 1 and currentWave == 1 then
             skullsManager.disableSkull("golden", "is_active")
             script.startup(announcer.skullsResetDelay)

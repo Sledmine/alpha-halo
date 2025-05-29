@@ -31,21 +31,14 @@ constants.sounds = {
     oneLiveLeft = findTags("survival_1_life_left", engine.tag.classes.sound)[1],
     noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1],
     skullOn = findTags("skull_on", engine.tag.classes.sound)[1],
-    skullsReset = findTags("skulls_reset", engine.tag.classes.sound)[1]
+    skullsReset = findTags("skulls_reset", engine.tag.classes.sound)[1],
+    goldenSkullOn = findTags("skull_golden_on", engine.tag.classes.sound)[1],
+    enemySniper = findTags("survival_enemy_sniper_incoming", engine.tag.classes.sound)[1],
+    enemyIncoming = findTags("survival_enemy_incoming", engine.tag.classes.sound)[1]
 }
 
 constants.bipeds = {
     odstAllyTag = findTags("mrchromed\\halo_2\\characters\\marine\\odst\\odst_h2", engine.tag.classes.biped)[1]
-}
-
-constants.vehicles = {
-    ghostNormal = blam.findTag("gdd_ghost", tagClasses.vehicle).path,
-    ghostFuelRod = blam.findTag("gdd_ghost_fuel_rod", tagClasses.vehicle).path,
-    ghostNeedler = blam.findTag("gdd_ghost_needler", tagClasses.vehicle).path
-}
-
-constants.effect = {
-    plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion", engine.tag.classes.effect)[1]
 }
 
 return constants

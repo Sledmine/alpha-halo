@@ -1,9 +1,10 @@
 local blam = require "blam"
 
 
-local core = {}
+local vehiclePosition = {}
 
-function core.vehiclePositionLoader()
+-- Function to get the position of a node from a vehicleObjectHandle 
+function vehiclePosition.positionUpdater()
     for objectHandle in pairs(blam.getObjects()) do
         local object = blam.getObject(objectHandle)
         if object and object.class == blam.objectClasses.vehicle then
@@ -55,4 +56,4 @@ function core.vehiclePositionLoader()
     end
 end
 
-return core
+return vehiclePosition

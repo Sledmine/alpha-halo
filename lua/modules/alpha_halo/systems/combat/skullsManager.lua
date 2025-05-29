@@ -1,4 +1,3 @@
-local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
 local objectTypes = Engine.tag.objectType
@@ -6,11 +5,11 @@ local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
-local tagEntries = require "alpha_halo.constants.tagEntries"
+local blam = require "blam"
+local tagEntries = require "alpha_halo.systems.core.tagEntries"
+
 
 local skullsManager = {}
-
--- These flags indicates if a skull is On or Off.
 
 local player
 local biped
@@ -33,7 +32,14 @@ function skullsManager.eachTick()
 end
 
 -------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
-local allUnits = {"flood", "elite", "grunt", "jackal", "hunter", "odst"}
+local allUnits = {
+    "flood",
+    "elite",
+    "grunt",
+    "jackal",
+    "hunter",
+    "odst"
+}
 
 -- Famine: Makes the AI drop half the ammo.
 ---@param isActive boolean
@@ -144,9 +150,19 @@ function skullsManager.catch(isActive)
     end)
     for _, tagEntry in ipairs(catchTagsFiltered) do
         local actorVariant = tagEntry.data
+        if not tagEntry.path:includes("odst") then
+            if isActive then
+            actorVariant.flags:hasUnlimitedGrenades(true)
+            actorVariant.grenadeChance = actorVariant.grenadeChance + 1
+            actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
+            actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0.01
+            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.1
+            end
+        end
         if isActive then
             -- actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(2) -- This doesn't work.
             actorVariant.flags:hasUnlimitedGrenades(true)
+            actorVariant.grenadeVelocity = actorVariant.grenadeVelocity * 3
             actorVariant.grenadeChance = actorVariant.grenadeChance + 1
             actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
             actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0.01
@@ -207,6 +223,8 @@ function skullsManager.toughluck(isActive)
             actor.peripheralDistance = actor.peripheralDistance * 3
             actor.peripheralVisionAngle = actor.peripheralVisionAngle * 3
             actor.combatPerceptionTime = actor.combatPerceptionTime * 0.25
+            actor.leaderKilledPanicChance = 0
+            actor.friendKilledPanicChance = 0
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end

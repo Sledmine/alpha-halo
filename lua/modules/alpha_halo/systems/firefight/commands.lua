@@ -1,10 +1,9 @@
-local luna = require "luna"
-local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 
 local commands = {}
 
 commands = {
-    activate_skull = {
+    enable_skull = {
         description = "Activate a skull by <type> and <arg>.",
         category = "debug",
         help = "Usage: activate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> ]",
@@ -14,7 +13,7 @@ commands = {
             skullsManager.enableSkull(type, skullName)
         end
     },
-    deactivate_skull = {
+    disable_skull = {
         description = "Deactivate a skull by <type> and <arg>.",
         category = "debug",
         help = "Usage: deactivate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> | <is_active> ]",

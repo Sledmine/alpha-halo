@@ -4,11 +4,11 @@ local script = require "script"
 math.randomseed(os.time())
 
 --Project modules
-local firefightManager = require "alpha_halo.firefightManager"
-local healthManager = require "alpha_halo.gameplay_core.healthManager"
-local eventsManager = require "alpha_halo.gameplay_core.eventsManager"
-local vehiclePositionLoader = require "alpha_halo.core"
-local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+local firefightManager = require "alpha_halo.systems.firefightManager"
+local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
+local healthManager = require "alpha_halo.systems.combat.healthManager"
+local skullsManager = require "alpha_halo.systems.combat.skullsManager"
+local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 
 -- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
 -- TRUST ME, I'M SLED DA FOKIN GOAT
@@ -33,7 +33,7 @@ function OnTick()
     healthManager.eachTick()
     eventsManager.eachTick()
     skullsManager.eachTick()
-    vehiclePositionLoader.vehiclePositionLoader()
+    vehiclePosition.positionUpdater()
     script.poll()
     -- Execute the function one time
     if not isLoaded then

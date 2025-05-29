@@ -1,7 +1,7 @@
 local engine = Engine
 local balltze = Balltze
 local script = require "script"
-local const = require "alpha_halo.constants"
+local const = require "alpha_halo.systems.core.constants"
 local playSound = engine.userInterface.playSound
 
 local announcer = {}
@@ -59,6 +59,27 @@ end
 function announcer.skullsResetDelay(call, sleep)
     sleep(150) -- Wait for 120 ticks before playing the sound
     playSound(const.sounds.skullsReset.handle)
+end
+
+function announcer.goldenSkullOn(call, sleep)
+    sleep(1)
+    playSound(const.sounds.goldenSkullOn.handle)
+end
+
+function announcer.goldenSkullOnDelay(call, sleep)
+    sleep(70) -- Wait for 120 ticks before playing the sound
+    playSound(const.sounds.goldenSkullOn.handle)
+end
+
+function announcer.enemySniper(call, sleep)
+    sleep(1)
+    playSound(const.sounds.enemySniper.handle)
+end
+
+-- This function is called when a surprise enemy is incoming (banshee or wraith/mortar)
+function announcer.enemyIncoming(call, sleep)
+    sleep(1)
+    playSound(const.sounds.enemyIncoming.handle)
 end
 
 return announcer
