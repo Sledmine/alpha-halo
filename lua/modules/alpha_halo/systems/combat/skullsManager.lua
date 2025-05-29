@@ -11,9 +11,9 @@ local tagEntries = require "alpha_halo.systems.core.tagEntries"
 
 local skullsManager = {}
 
-local player
-local biped
-local blamBiped
+    local player
+    local biped
+    local blamBiped
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
     player = getPlayer()
@@ -26,6 +26,7 @@ function skullsManager.eachTick()
     end
     blamBiped = blam.biped(get_object(player.objectHandle.value))
     assert(blamBiped, "Biped tag must exist")
+
     skullsManager.skullFogOnTick(false)
     skullsManager.skullBlindOnTick(false)
     skullsManager.skullAssassinOnTick(false)
@@ -130,9 +131,9 @@ end
 -- Blind OnTick
 ---@param isActive boolean
 function skullsManager.skullBlindOnTick(isActive)
-    if not isActive and skullsManager.skulls.blind.active == true then
+    if not isActive and skullsManager.skulls.blind.active then
         execute_script("show_hud 0")
-    else
+    elseif isActive and not skullsManager.skulls.blind.active then
         execute_script("show_hud 1")
     end
 end
@@ -252,9 +253,9 @@ end
 -- Fog OnTick
 ---@param isActive boolean
 function skullsManager.skullFogOnTick(isActive)
-    if not isActive and skullsManager.skulls.fog.active == true then
+    if not isActive and skullsManager.skulls.fog.active then
         execute_script("hud_show_motion_sensor 0")
-    else
+    elseif isActive and not skullsManager.skulls.fog.active then
         execute_script("hud_show_motion_sensor 1")
     end
 end
@@ -284,6 +285,8 @@ function skullsManager.knucklehead(isActive)
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
             end
+            material.shieldDamageMultiplier = shield
+            material.bodyDamageMultiplier = body
         end
     end
     for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
