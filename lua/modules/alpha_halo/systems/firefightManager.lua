@@ -141,7 +141,7 @@ function firefightManager.eachTick()
             elseif bossWave == false and waveLivingCount <= 4 then
                 if currentWave > 0 then
                     logger:debug("Reinforcements!")
-                    script.startup(announcer.reinforcements)
+                    script.wake(announcer.reinforcements)
                 end
                 waveIsOn = false
                 waveCooldownStart = true
@@ -149,9 +149,13 @@ function firefightManager.eachTick()
                 firefightManager.waveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
-                script.startup(announcer.roundCompleted)
+                script.wake(announcer.roundCompleted)
                 skullsManager.disableSkull("silver", "is_active")
-                script.startup(announcer.skullsResetDelay)
+                script.wake(announcer.skullsResetDelay)
+                if currentRound >= 2 then
+                    skullsManager.disableSkull("golden", "is_active")
+                    script.wake(announcer.skullsResetDelay)
+                end
                 waveIsOn = false
                 bossWaveCooldown = true
                 getOutOfGhost = true
@@ -214,23 +218,29 @@ function firefightManager.waveCooldown()
         dropshipsLeft = dropshipsAsigned
         waveCooldownStart = false
         waveCooldownCounter = 0
-        if currentWave == 1 and currentRound == 1 then
-            script.startup(announcer.setStart)
+        if currentWave == 1 and currentRound == 1 and currentSet >= 1 then
+            script.wake(announcer.setStart)
         elseif currentWave == 1 and currentRound > 1 then
-            script.startup(announcer.roundStart)
+            script.wake(announcer.roundStart)
         end
-        -- Si recién iniciamos una ronda, encendemos una calavera plateada.
+        -- Si recién iniciamos una ronda, encendemos una calavera plateada y una dorada
+        if currentWave == 1 and currentRound >= 1 then
+            skullsManager.enableSkull("silver", "random")
+            skullsManager.enableSkull("golden","random")
+            script.wake(announcer.skullsOnDelay)
+        end
         if currentWave > 1 and currentWave < 6 then
             skullsManager.enableSkull("silver", "random")
-            script.startup(announcer.skullOn)
+            script.wake(announcer.skullOn)
         end
-        if currentWave == 1 and currentRound > 1 then
-           skullsManager.enableSkull("golden","random")
-           script.startup(announcer.goldenSkullOnDelay)
-        elseif currentSet > 1 and currentRound == 1 and currentWave == 1 then
-            skullsManager.disableSkull("golden", "is_active")
-            script.startup(announcer.skullsResetDelay)
-        end
+        ---- Debug para calaveras
+        --if currentWave == 1 or currentWave == 3 then
+        --    skullsManager.enableSkull("silver", "assassin")
+        --    script.startup(announcer.skullOnDelay)
+        --else
+        --    skullsManager.disableSkull("silver", "is_active")
+        --    script.startup(announcer.skullsReset)
+        --end
     end
 end
 
@@ -342,6 +352,7 @@ function firefightManager.sentinelChance()
     -- Aquí spawneamos el squad random de Sentinelas y reiniciamos todo.
     if sentinelRandomMath == 1 then
         logger:debug("Here come Sentinels!")
+        script.wake(announcer.enemyIncoming)
         randomSentinelSquad = math.random(1, 6)
         selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
         hsc.ai_place(selectedSentinelSquad)
