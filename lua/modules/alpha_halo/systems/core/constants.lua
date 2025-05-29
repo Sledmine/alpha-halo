@@ -31,6 +31,7 @@ constants.sounds = {
     oneLiveLeft = findTags("survival_1_life_left", engine.tag.classes.sound)[1],
     noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1],
     skullOn = findTags("skull_on", engine.tag.classes.sound)[1],
+    skullsOn = findTags("skulls_on", engine.tag.classes.sound)[1],
     skullsReset = findTags("skulls_reset", engine.tag.classes.sound)[1],
     goldenSkullOn = findTags("skull_golden_on", engine.tag.classes.sound)[1],
     enemySniper = findTags("survival_enemy_sniper_incoming", engine.tag.classes.sound)[1],
