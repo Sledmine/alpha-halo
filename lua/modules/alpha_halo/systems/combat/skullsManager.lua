@@ -560,18 +560,17 @@ end
 ---@param isActive boolean
 function skullsManager.slayer(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
-        if not tagEntry.path:includes("warthog_gauss") and not tagEntry.path:includes("warthog_rocket") then
-            if isActive then
-                for i = 1, tagEntry.data.triggers.count do
-                    local trigger = tagEntry.data.triggers.elements[i]
-                    trigger.roundsPerShot = trigger.roundsPerShot * 2
-                    trigger.projectilesPerShot = trigger.projectilesPerShot * 2
-                    trigger.errorAngle[1] = trigger.errorAngle[1] * 2
-                    trigger.errorAngle[2] = trigger.errorAngle[2] * 2
-                end
-            else
-                Balltze.features.reloadTagData(tagEntry.handle)
+        if isActive then
+            for i = 1, tagEntry.data.triggers.count do
+                local trigger = tagEntry.data.triggers.elements[i]
+                trigger.roundsPerShot = trigger.roundsPerShot * 2
+                trigger.projectilesPerShot = trigger.projectilesPerShot * 2
+                trigger.errorAngle[1] = trigger.errorAngle[1] * 2
+                trigger.errorAngle[2] = trigger.errorAngle[2] * 2
+                trigger.flags:canFireWithPartialAmmo(true)
             end
+        else
+            Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
     skullsManager.skulls.slayer.active = isActive
