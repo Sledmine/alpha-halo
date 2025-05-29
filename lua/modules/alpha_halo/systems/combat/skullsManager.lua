@@ -284,8 +284,6 @@ function skullsManager.knucklehead(isActive)
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
             end
-            material.shieldDamageMultiplier = shield
-            material.bodyDamageMultiplier = body
         end
     end
     for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
@@ -428,7 +426,7 @@ function skullsManager.tilt(isActive)
                 damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 2
                 damageEffectModifier.jackal = damageEffectModifier.jackal * 0.5
                 damageEffectModifier.jackalEnergyShield =
-                    damageEffectModifier.jackalEnergyShield * 2
+                damageEffectModifier.jackalEnergyShield * 2
                 damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.5
                 damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.5
             else
@@ -466,16 +464,14 @@ end
 ---Banger: Makes Grunts and Human Floods explode after dying.
 ---@param isActive boolean
 function skullsManager.banger(isActive)
-    local plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion",
-                                     tagClasses.effect)[1]
-    local floodExplosion = findTags("characters\\floodcarrier\\effects\\body destroyed",
-                                    tagClasses.effect)[1]
+    local plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion", tagClasses.effect)[1]
+    local floodExplosion = findTags("characters\\floodcarrier\\effects\\body destroyed", tagClasses.effect)[1]
     for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
         if tagEntry.path:includes("grunt") then
             local collisionGeometry = tagEntry.data
             if isActive then
                 collisionGeometry.bodyDamagedThreshold =
-                    collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDamagedThreshold + 0.1
                 collisionGeometry.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -484,7 +480,7 @@ function skullsManager.banger(isActive)
             local collisionGeometry = tagEntry.data
             if isActive then
                 collisionGeometry.bodyDamagedThreshold =
-                    collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDamagedThreshold + 0.1
                 collisionGeometry.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -498,8 +494,7 @@ end
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param isActive boolean
 function skullsManager.doubledown(isActive)
-    local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp",
-                                             tagClasses.modelCollisionGeometry)
+    local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp", tagClasses.modelCollisionGeometry)
     assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         local collisionGeometry = tagEntry.data
@@ -562,16 +557,18 @@ end
 ---@param isActive boolean
 function skullsManager.slayer(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
-        if isActive then
-            for i = 1, tagEntry.data.triggers.count do
-                local trigger = tagEntry.data.triggers.elements[i]
-                trigger.roundsPerShot = trigger.roundsPerShot * 2
-                trigger.projectilesPerShot = trigger.projectilesPerShot * 2
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 2
-                trigger.errorAngle[2] = trigger.errorAngle[2] * 2
+        if not tagEntry.path:includes("warthog_gauss") and not tagEntry.path:includes("warthog_rocket") then
+            if isActive then
+                for i = 1, tagEntry.data.triggers.count do
+                    local trigger = tagEntry.data.triggers.elements[i]
+                    trigger.roundsPerShot = trigger.roundsPerShot * 2
+                    trigger.projectilesPerShot = trigger.projectilesPerShot * 2
+                    trigger.errorAngle[1] = trigger.errorAngle[1] * 2
+                    trigger.errorAngle[2] = trigger.errorAngle[2] * 2
+                end
+            else
+                Balltze.features.reloadTagData(tagEntry.handle)
             end
-        else
-            Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
     skullsManager.skulls.slayer.active = isActive
@@ -598,10 +595,10 @@ function skullsManager.assassin(isActive)
         end
     end
     for _, tagEntry in ipairs(tagEntries.weapon()) do
-        local actorVariant = tagEntry.data
+        local weapon = tagEntry.data
         if isActive then
-            actorVariant.activeCamoDing = actorVariant.activeCamoDing * 2
-            actorVariant.activeCamoRegrowthRate = actorVariant.activeCamoRegrowthRate * 0.5
+            weapon.activeCamoDing = weapon.activeCamoDing * 2
+            weapon.activeCamoRegrowthRate = weapon.activeCamoRegrowthRate * 0.5
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
