@@ -10,17 +10,6 @@ local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 
--- THIS IS PROBABLY NOT ACCURATE, BUT WORKS
--- TRUST ME, I'M SLED DA FOKIN GOAT
-function getNodePosition(address)
-    --x = read_float(address + 0x28)
-    --y = read_float(address + 0x2C)
-    x = read_float(address + 0x30)
-    y = read_float(address + 0x34)
-    z = read_float(address + 0x38)
-    return {x = x, y = y, z = z}
-end
-
 -- Encapsular Funcion
 function OnMapLoad()
     firefightManager.whenMapLoads()
