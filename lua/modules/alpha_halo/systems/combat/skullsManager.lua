@@ -5,28 +5,16 @@ local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
-local blam = require "blam"
+--local blam = require "blam"
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
 
 
 local skullsManager = {}
 
-    local player
-    local biped
-    local blamBiped
+local player
+local biped
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
-    player = getPlayer()
-    if not player then
-        return
-    end
-    biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    blamBiped = blam.biped(get_object(player.objectHandle.value))
-    assert(blamBiped, "Biped tag must exist")
-
     skullsManager.skullFogOnTick(false)
     skullsManager.skullBlindOnTick(false)
     skullsManager.skullAssassinOnTick(false)
@@ -613,14 +601,45 @@ end
 -- Assassin OnTick
 ---@param isActive boolean
 function skullsManager.skullAssassinOnTick(isActive)
+    player = getPlayer()
+    if not player then
+        return
+    end
+    biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
     if not isActive and skullsManager.skulls.assassin.active == true then
-        blamBiped.isCamoActive = true
-        if blamBiped.meleeKey or blamBiped.grenadeHold then
-            blamBiped.camoScale = 0
+        biped.unitFlags:powerUp(true)
+        if biped.unitControlFlags:melee() or biped.unitControlFlags:grenade() and (biped.grenadeCounts[1] > 0 or biped.grenadeCounts[2] > 0) then
+            biped.camoPower = 0
         end
     else
-        blamBiped.isCamoActive = false
+        biped.unitFlags:powerUp(false)
     end
+    -- Proof of concept for biped enemies camo in real time need improvement
+    --for bipedIndex = 0, 4095 do
+    --    local bipedObject = getObject(bipedIndex)
+    --    if not bipedObject then
+    --        return
+    --    end
+    --    if bipedObject.type == objectTypes.biped then
+    --        local bipedEnemy = getObject(bipedIndex, objectTypes.biped)
+    --        assert(bipedEnemy, "Failed to get biped object")
+    --        local bipedEnemyTag = engine.tag.getTag(bipedObject.tagHandle.value, tagClasses.biped)
+    --        assert(bipedEnemyTag, "Biped tag must exist")
+    --        for _, bipedName in pairs(allUnits) do
+    --            if bipedEnemyTag.path:includes(bipedName) then
+    --                bipedEnemy.tagHandle.value = bipedEnemyTag.handle.value
+    --                if not isActive and skullsManager.skulls.assassin.active == true then
+    --                    bipedEnemy.unitFlags:powerUp(true)
+    --                else
+    --                    bipedEnemy.unitFlags:powerUp(false)
+    --                end
+    --            end
+    --        end
+    --    end
+    --end
 end
 
 -------------------------------------------------------------------- Tables ------------------------------------------------------------------
