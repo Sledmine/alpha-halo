@@ -1,3 +1,4 @@
+---@class hsc
 local hsc = {}
 
 local luna = require "luna"
