@@ -1,6 +1,6 @@
 local engine = Engine
 local balltze = Balltze
-local blam = require "blam"
+--local blam = require "blam"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
@@ -232,6 +232,7 @@ function firefightManager.waveCooldown()
         if currentWave > 1 and currentWave < 6 then
             skullsManager.enableSkull("silver", "random")
             script.wake(announcer.skullOn)
+            hsc.ai_erase(currentSupportType) -- Erase duplicated cd gun turret gunner with each wave
         end
         ---- Debug para calaveras
         --if currentWave == 1 or currentWave == 3 then
@@ -249,12 +250,11 @@ function firefightManager.dropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random(1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    hsc.object_create_anew(selectedDropship)
+    --hsc.object_create_anew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hsc.ai_place(selectedDropshipGunner)
-    hsc.vehicle_load_magic(selectedDropship, "gunseat",
-                           "(ai_actors " .. selectedDropshipGunner .. ")")
+    hsc.vehicle_load_magic(selectedDropship, "gunseat", "(ai_actors " .. selectedDropshipGunner .. ")")
     hsc.ai_migrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
@@ -277,9 +277,7 @@ function firefightManager.dropshipDeployer()
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
     hsc.vehicle_load_magic(selectedDropship, "passenger", "(ai_actors " .. selectedSquad .. ")")
-    hsc.custom_animation(selectedDropship,
-                         "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
-                         selectedDropship, "false")
+    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
     -- Dependiendo del team, lo migramos a su respectivo encounter.
     hsc.ai_migrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
