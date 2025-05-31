@@ -1,6 +1,5 @@
 local eventsManager = {}
 local hsc = require "hsc"
-local blam = require "blam"
 local engine = Engine
 local balltze = Balltze
 local getObject = Engine.gameState.getObject
@@ -19,7 +18,7 @@ local bansheeLivingCount
 local snipersLivingCount
 --local mortarLivingCount
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
-local randomEventTimer = 3600
+local randomEventTimer = 4200
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
     if bansheeLivingCount == 0 or snipersLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
