@@ -36,7 +36,7 @@ Engine.gameState = {}
 
 -- Get an object of the current game
 ---@param handle EngineObjectHandle|integer Handle of the object
----@param type EngineTagDataObjectType Type of the object
+---@param type EngineTagDataObjectType? Type of the object
 ---@overload fun(handle: EngineObjectHandle|integer, type: EngineTagDataObjectTypeBiped): MetaEngineBipedObject|nil
 ---@overload fun(handle: EngineObjectHandle|integer, type: EngineTagDataObjectTypeVehicle): MetaEngineVehicleObject|nil
 ---@overload fun(handle: EngineObjectHandle|integer, type: EngineTagDataObjectTypeGarbage): MetaEngineGarbageObject|nil
