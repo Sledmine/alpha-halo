@@ -1,0 +1,908 @@
+-- SPDX-License-Identifier: GPL-3.0-only
+-- This file is used to document the Lua plugins engine API. It should not be included.
+
+---@meta _
+---@diagnostic disable: missing-return 
+---@diagnostic disable: unused-local 
+--
+---@class lol
+--
+-----@field != fun(arg1:any, arg2:any): boolean
+-----@field * fun(arg1:number): number
+-----@field + fun(arg1:number): number
+-----@field - fun(arg1:number, arg2:number): number
+-----@field / fun(arg1:number, arg2:number): number
+-----@field < fun(arg1:number, arg2:number): boolean
+-----@field <= fun(arg1:number, arg2:number): boolean
+-----@field = fun(arg1:any, arg2:any): boolean
+-----@field > fun(arg1:number, arg2:number): boolean
+-----@field >= fun(arg1:number, arg2:number): boolean
+---@field abs_integer fun(arg1:number): number
+---@field abs_real fun(arg1:number): number
+---@field activate_nav_point_flag fun(arg1:any, arg2:any, arg3:any, arg4:number): void
+---@field activate_nav_point_object fun(arg1:any, arg2:any, arg3:any, arg4:number): void
+---@field activate_team_nav_point_flag fun(arg1:any, arg2:any, arg3:any, arg4:number): void
+---@field activate_team_nav_point_object fun(arg1:any, arg2:any, arg3:any, arg4:number): void
+---@field ai fun(arg1:boolean): void
+---@field ai_actors fun(arg1:any): any
+---@field ai_allegiance fun(arg1:any, arg2:any): void
+---@field ai_allegiance_broken fun(arg1:any, arg2:any): boolean
+---@field ai_allegiance_remove fun(arg1:any, arg2:any): void
+---@field ai_allow_charge fun(arg1:any, arg2:boolean): void
+---@field ai_allow_dormant fun(arg1:any, arg2:boolean): void
+---@field ai_attach fun(arg1:any, arg2:any): void
+---@field ai_attach_free fun(arg1:any, arg2:any): void
+---@field ai_attack fun(arg1:any): void
+---@field ai_automatic_migration_target fun(arg1:any, arg2:boolean): void
+---@field ai_berserk fun(arg1:any, arg2:boolean): void
+---@field ai_braindead fun(arg1:any, arg2:boolean): void
+---@field ai_braindead_by_unit fun(arg1:any, arg2:boolean): void
+---@field ai_command_list fun(arg1:any, arg2:any): void
+---@field ai_command_list_advance fun(arg1:any): void
+---@field ai_command_list_advance_by_unit fun(arg1:any): void
+---@field ai_command_list_by_unit fun(arg1:any, arg2:any): void
+---@field ai_command_list_status fun(arg1:any): number
+---@field ai_conversation fun(arg1:any): boolean
+---@field ai_conversation_advance fun(arg1:any): void
+---@field ai_conversation_line fun(arg1:any): number
+---@field ai_conversation_status fun(arg1:any): number
+---@field ai_conversation_stop fun(arg1:any): void
+---@field ai_debug_ballistic_lineoffire_freeze fun(): boolean
+---@field ai_debug_blind fun(): boolean
+---@field ai_debug_communication_focus fun(arg1:string): void
+---@field ai_debug_communication_focus_enable fun(): boolean
+---@field ai_debug_communication_ignore fun(arg1:string): void
+---@field ai_debug_communication_random_disabled fun(): boolean
+---@field ai_debug_communication_suppress fun(arg1:string): void
+---@field ai_debug_communication_timeout_disabled fun(): boolean
+---@field ai_debug_communication_unit_repeat_disabled fun(): boolean
+---@field ai_debug_deaf fun(): boolean
+---@field ai_debug_disable_wounded_sounds fun(): boolean
+---@field ai_debug_evaluate_all_positions fun(): boolean
+---@field ai_debug_fast_los fun(): boolean
+---@field ai_debug_flee_always fun(): boolean
+---@field ai_debug_force_all_active fun(): boolean
+---@field ai_debug_force_crouch fun(): boolean
+---@field ai_debug_force_vocalizations fun(): boolean
+---@field ai_debug_ignore_player fun(): boolean
+---@field ai_debug_invisible_player fun(): boolean
+---@field ai_debug_oversteer_disable fun(): boolean
+---@field ai_debug_path fun(): boolean
+---@field ai_debug_path_accept_radius fun(): number
+---@field ai_debug_path_attractor fun(): boolean
+---@field ai_debug_path_attractor_radius fun(): number
+---@field ai_debug_path_attractor_weight fun(): number
+---@field ai_debug_path_disable_obstacle_avoidance fun(): boolean
+---@field ai_debug_path_disable_smoothing fun(): boolean
+---@field ai_debug_path_end_freeze fun(): boolean
+---@field ai_debug_path_flood fun(): boolean
+---@field ai_debug_path_maximum_radius fun(): number
+---@field ai_debug_path_start_freeze fun(): boolean
+---@field ai_debug_sound_point_set fun(): void
+---@field ai_debug_speak fun(arg1:string): void
+---@field ai_debug_speak_list fun(arg1:string): void
+---@field ai_debug_teleport_to fun(arg1:any): void
+---@field ai_debug_vocalize fun(arg1:string, arg2:string): void
+---@field ai_defend fun(arg1:any): void
+---@field ai_deselect fun(): void
+---@field ai_detach fun(arg1:any): void
+---@field ai_dialogue_triggers fun(arg1:boolean): void
+---@field ai_disregard fun(arg1:any, arg2:boolean): void
+---@field ai_erase fun(encounteSquadName:any): void Erases the specified encounter and/or squad.
+---@field ai_erase_all fun(): void Erases all AI.
+---@field ai_exit_vehicle fun(encounter_squad:any): void Tells a group of actors from encounter/squad? to get out of any vehicles that they are in. Usage: hsc.ai_exit_vehicle("ext_c_cov/ghost_a ") or hsc.ai_exit_vehicle("ext_c_cov")
+---@field ai_fix_actor_variants fun(): boolean
+---@field ai_fix_defending_guard_firing_positions fun(): boolean
+---@field ai_follow_distance fun(arg1:any, arg2:number): void
+---@field ai_follow_target_ai fun(arg1:any, arg2:any): void
+---@field ai_follow_target_disable fun(arg1:any): void
+---@field ai_follow_target_players fun(encounterName:string): void Sets the follow target for an encounter to be the closest player
+---@field ai_follow_target_unit fun(arg1:any, arg2:any): void
+---@field ai_force_active fun(arg1:any, arg2:boolean): void
+---@field ai_force_active_by_unit fun(arg1:any, arg2:boolean): void
+---@field ai_free fun(arg1:any): void
+---@field ai_free_units fun(arg1:any): void
+---@field ai_go_to_vehicle fun(arg1:any, arg2:any, arg3:string): void
+---@field ai_go_to_vehicle_override fun(arg1:any, arg2:any, arg3:string): void
+---@field ai_going_to_vehicle fun(arg1:any): number
+---@field ai_grenades fun(arg1:boolean): void
+---@field ai_is_attacking fun(arg1:any): boolean
+---@field ai_kill fun(arg1:any): void
+---@field ai_kill_silent fun(arg1:any): void
+---@field ai_lines fun(): void
+---@field ai_link_activation fun(arg1:any, arg2:any): void
+---@field ai_living_count fun(encounterSquadName:string): number Return the number of living actors in the specified encounter and/or squad.
+---@field ai_living_fraction fun(arg1:any): number
+---@field ai_look_at_object fun(arg1:any, arg2:any): void
+---@field ai_magically_see_encounter fun(encounterName:string, encounterName:string): void Makes one encounter magically aware of another.
+---@field ai_magically_see_players fun(arg1:any): void
+---@field ai_magically_see_unit fun(encounterName:string, unitName:any): void Makes an encounter magically aware of the specified unit.
+---@field ai_maneuver fun(arg1:any): void
+---@field ai_maneuver_enable fun(arg1:any, arg2:boolean): void
+---@field ai_migrate fun(encounterSquadName:string, encounterSquadName:string): void Makes a named vehicle or group of units move from one encounter to another. Usage: hsc.ai_migrate(airlock_1/main airlock_1/advance). Note: *Also you can type just the encounter name and migrate all inside it.
+---@field ai_migrate_and_speak fun(arg1:any, arg2:any, arg3:string): void
+---@field ai_migrate_by_unit fun(arg1:any, arg2:any): void
+---@field ai_nonswarm_count fun(arg1:any): number
+---@field ai_place fun(encounterSquadName:string): void Places the specified encounter and/or squad on the map. Usage: hsc.ai_place("rocks/elites_2")
+---@field ai_playfight fun(arg1:any, arg2:boolean): void
+---@field ai_prefer_target fun(arg1:any, arg2:boolean): void
+---@field ai_print_acknowledgement fun(): boolean
+---@field ai_print_allegiance fun(): boolean
+---@field ai_print_automatic_migration fun(): boolean
+---@field ai_print_bsp_transition fun(): boolean
+---@field ai_print_command_lists fun(): boolean
+---@field ai_print_communication fun(): boolean
+---@field ai_print_communication_player fun(): boolean
+---@field ai_print_conversations fun(): boolean
+---@field ai_print_damage_modifiers fun(): boolean
+---@field ai_print_evaluation_statistics fun(): boolean
+---@field ai_print_killing_sprees fun(): boolean
+---@field ai_print_lost_speech fun(): boolean
+---@field ai_print_major_upgrade fun(): boolean
+---@field ai_print_migration fun(): boolean
+---@field ai_print_oversteer fun(): boolean
+---@field ai_print_placement fun(): boolean
+---@field ai_print_pursuit_checks fun(): boolean
+---@field ai_print_respawn fun(): boolean
+---@field ai_print_rule_values fun(): boolean
+---@field ai_print_rules fun(): boolean
+---@field ai_print_scripting fun(): boolean
+---@field ai_print_secondary_looking fun(): boolean
+---@field ai_print_speech fun(): boolean
+---@field ai_print_speech_timers fun(): boolean
+---@field ai_print_surprise fun(): boolean
+---@field ai_print_uncovering fun(): boolean
+---@field ai_print_unfinished_paths fun(): boolean
+---@field ai_print_vocalizations fun(): boolean
+---@field ai_profile_disable fun(): boolean
+---@field ai_profile_random fun(): boolean
+---@field ai_reconnect fun(): void
+---@field ai_render fun(): boolean
+---@field ai_render_activation fun(): boolean
+---@field ai_render_active_cover_seeking fun(): boolean
+---@field ai_render_aiming_validity fun(): boolean
+---@field ai_render_aiming_vectors fun(): boolean
+---@field ai_render_all_actors fun(): boolean
+---@field ai_render_audibility fun(): boolean
+---@field ai_render_ballistic_lineoffire fun(): boolean
+---@field ai_render_burst_geometry fun(): boolean
+---@field ai_render_charge_decisions fun(): boolean
+---@field ai_render_control fun(): boolean
+---@field ai_render_current_state fun(): boolean
+---@field ai_render_danger_zones fun(): boolean
+---@field ai_render_detailed_state fun(): boolean
+---@field ai_render_dialogue_variants fun(): boolean
+---@field ai_render_emotions fun(): boolean
+---@field ai_render_encounter_activeregion fun(): boolean
+---@field ai_render_evaluations fun(): boolean
+---@field ai_render_firing_positions fun(): boolean
+---@field ai_render_grenade_decisions fun(): boolean
+---@field ai_render_gun_positions fun(): boolean
+---@field ai_render_idle_look fun(): boolean
+---@field ai_render_inactive_actors fun(): boolean
+---@field ai_render_lineoffire fun(): boolean
+---@field ai_render_lineoffire_crouching fun(): boolean
+---@field ai_render_lineofsight fun(): boolean
+---@field ai_render_melee_check fun(): boolean
+---@field ai_render_paths fun(): boolean
+---@field ai_render_paths_avoidance_obstacles fun(): boolean
+---@field ai_render_paths_avoidance_search fun(): boolean
+---@field ai_render_paths_avoidance_segment fun(): number
+---@field ai_render_paths_avoided fun(): boolean
+---@field ai_render_paths_current fun(): boolean
+---@field ai_render_paths_destination fun(): boolean
+---@field ai_render_paths_failed fun(): boolean
+---@field ai_render_paths_nodes fun(): boolean
+---@field ai_render_paths_nodes_all fun(): boolean
+---@field ai_render_paths_nodes_closest fun(): boolean
+---@field ai_render_paths_nodes_costs fun(): boolean
+---@field ai_render_paths_nodes_polygons fun(): boolean
+---@field ai_render_paths_raw fun(): boolean
+---@field ai_render_paths_selected_only fun(): boolean
+---@field ai_render_paths_smoothed fun(): boolean
+---@field ai_render_player_aiming_blocked fun(): boolean
+---@field ai_render_player_ratings fun(): boolean
+---@field ai_render_postcombat fun(): boolean
+---@field ai_render_projectile_aiming fun(): boolean
+---@field ai_render_props fun(): boolean
+---@field ai_render_props_no_friends fun(): boolean
+---@field ai_render_props_target_weight fun(): boolean
+---@field ai_render_props_unopposable fun(): boolean
+---@field ai_render_props_unreachable fun(): boolean
+---@field ai_render_props_web fun(): boolean
+---@field ai_render_pursuit fun(): boolean
+---@field ai_render_recent_damage fun(): boolean
+---@field ai_render_secondary_looking fun(): boolean
+---@field ai_render_shooting fun(): boolean
+---@field ai_render_spatial_effects fun(): boolean
+---@field ai_render_speech fun(): boolean
+---@field ai_render_states fun(): boolean
+---@field ai_render_support_surfaces fun(): boolean
+---@field ai_render_targets fun(): boolean
+---@field ai_render_targets_last_visible fun(): boolean
+---@field ai_render_teams fun(): boolean
+---@field ai_render_threats fun(): boolean
+---@field ai_render_trigger fun(): boolean
+---@field ai_render_vector_avoidance fun(): boolean
+---@field ai_render_vector_avoidance_avoid_t fun(): boolean
+---@field ai_render_vector_avoidance_clear_time fun(): boolean
+---@field ai_render_vector_avoidance_intermediate fun(): boolean
+---@field ai_render_vector_avoidance_objects fun(): boolean
+---@field ai_render_vector_avoidance_rays fun(): boolean
+---@field ai_render_vector_avoidance_sense_t fun(): boolean
+---@field ai_render_vector_avoidance_weights fun(): boolean
+---@field ai_render_vehicle_avoidance fun(): boolean
+---@field ai_render_vehicles_enterable fun(): boolean
+---@field ai_render_vision_cones fun(): boolean
+---@field ai_render_vitality fun(): boolean
+---@field ai_renew fun(arg1:any): void
+---@field ai_retreat fun(arg1:any): void
+---@field ai_select fun(arg1:any): void
+---@field ai_set_blind fun(arg1:any, arg2:boolean): void
+---@field ai_set_current_state fun(arg1:any, arg2:any): void
+---@field ai_set_deaf fun(arg1:any, arg2:boolean): void
+---@field ai_set_respawn fun(arg1:any, arg2:boolean): void
+---@field ai_set_return_state fun(arg1:any, arg2:any): void
+---@field ai_set_team fun(arg1:any, arg2:any): void
+---@field ai_show fun(): boolean
+---@field ai_show_actors fun(): boolean
+---@field ai_show_line_of_sight fun(): boolean
+---@field ai_show_paths fun(): boolean
+---@field ai_show_prop_types fun(): boolean
+---@field ai_show_sound_distance fun(): boolean
+---@field ai_show_stats fun(): boolean
+---@field ai_show_swarms fun(): boolean
+---@field ai_spawn_actor fun(arg1:any): void
+---@field ai_status fun(arg1:any): number
+---@field ai_stop_looking fun(arg1:any): void
+---@field ai_strength fun(arg1:any): number
+---@field ai_swarm_count fun(arg1:any): number
+---@field ai_teleport_to_starting_location fun(arg1:any): void
+---@field ai_teleport_to_starting_location_if_unsupported fun(arg1:any): void
+---@field ai_timer_expire fun(arg1:any): void
+---@field ai_timer_start fun(arg1:any): void
+---@field ai_try_to_fight fun(arg1:any, arg2:any): void
+---@field ai_try_to_fight_nothing fun(arg1:any): void
+---@field ai_try_to_fight_player fun(arg1:any): void
+---@field ai_vehicle_encounter fun(arg1:any, arg2:any): void
+---@field ai_vehicle_enterable_actor_type fun(arg1:any, arg2:any): void
+---@field ai_vehicle_enterable_actors fun(arg1:any, arg2:any): void
+---@field ai_vehicle_enterable_disable fun(arg1:any): void
+---@field ai_vehicle_enterable_distance fun(unitName:string, decimalValue:number): void Sets a vehicle as being impulsively enterable for actors within a certain distance. Usage: hsc.ai_vehicle_enterable_distance("banshee_lz", 18.55) 
+---@field ai_vehicle_enterable_team fun(arg1:any, arg2:any): void
+---@field allow_out_of_sync fun(): boolean
+---@field and fun(arg1:boolean): boolean
+---@field begin fun(arg1:any): any
+---@field begin_random fun(arg1:any): any
+---@field bind fun(arg1:string, arg2:string, arg3:string): void
+---@field bit_test fun(arg1:number, arg2:number): number
+---@field bit_toggle fun(arg1:number, arg2:number, arg3:boolean): number
+---@field bitwise_and fun(arg1:number, arg2:number): number
+---@field bitwise_flags_toggle fun(arg1:number, arg2:number, arg3:boolean): number
+---@field bitwise_left_shift fun(arg1:number, arg2:number): number
+---@field bitwise_or fun(arg1:number, arg2:number): number
+---@field bitwise_right_shift fun(arg1:number, arg2:number): number
+---@field bitwise_xor fun(arg1:number, arg2:number): number
+---@field breakable_surfaces fun(): boolean
+---@field breakable_surfaces_enable fun(arg1:boolean): void
+---@field breakable_surfaces_reset fun(): void
+---@field camera_control fun(arg1:boolean): void
+---@field camera_set fun(arg1:any, arg2:number): void
+---@field camera_set_animation fun(arg1:any, arg2:string): void
+---@field camera_set_dead fun(arg1:any): void
+---@field camera_set_first_person fun(arg1:any): void
+---@field camera_set_relative fun(arg1:any, arg2:number, arg3:any): void
+---@field camera_time fun(): number
+---@field cheat_active_camouflage fun(): void
+---@field cheat_active_camouflage_local_player fun(arg1:number): void
+---@field cheat_all_powerups fun(): void
+---@field cheat_all_vehicles fun(): void
+---@field cheat_all_weapons fun(): void
+---@field cheat_bottomless_clip fun(): boolean
+---@field cheat_bump_possession fun(): boolean
+---@field cheat_controller fun(): boolean
+---@field cheat_deathless_player fun(): boolean
+---@field cheat_infinite_ammo fun(): boolean
+---@field cheat_jetpack fun(): boolean
+---@field cheat_medusa fun(): boolean
+---@field cheat_omnipotent fun(): boolean
+---@field cheat_reflexive_damage_effects fun(): boolean
+---@field cheat_spawn_warthog fun(): void
+---@field cheat_super_jump fun(): boolean
+---@field cheat_teleport_to_camera fun(): void
+---@field cheats_load fun(): void
+---@field checkpoint_load fun(arg1:string): void
+---@field checkpoint_save fun(): void
+---@field cinematic_abort fun(): void
+---@field cinematic_screen_effect_set_convolution fun(bias:integer, blurType:integer, startingBlurPercent:number, endigBlurPercent:number, transitionTicks:number): void Sets the convolution effect. Bias: higher values smoother image, worst framerate. | blurType: 0 = no blur, 1 = radial blur, 2 = gaussian blur. | startingBlur: starting blur percent. | endigBlur: ending blur percent. | transitionTime: number of ticks to transition from startingBlurPercent to endigBlurPercent.
+---@field cinematic_screen_effect_set_filter fun(arg1:number, arg2:number, arg3:number, arg4:number, arg5:boolean, arg6:number): void
+---@field cinematic_screen_effect_set_filter_desaturation_tint fun(arg1:number, arg2:number, arg3:number): void
+---@field cinematic_screen_effect_set_video fun(arg1:number, arg2:number): void
+---@field cinematic_screen_effect_start fun(arg1:boolean): void
+---@field cinematic_screen_effect_stop fun(): void
+---@field cinematic_set_near_clip_distance fun(arg1:number): void
+---@field cinematic_set_title fun(arg1:any): void
+---@field cinematic_set_title_delayed fun(arg1:any, arg2:number): void
+---@field cinematic_show_letterbox fun(arg1:boolean): void
+---@field cinematic_skip_start_internal fun() --void
+---@field cinematic_skip_stop_internal fun() --void
+---@field cinematic_start fun(): void
+---@field cinematic_stop fun(): void
+---@field cinematic_suppress_bsp_object_creation fun(arg1:boolean): void
+---@field cls fun(): void
+---@field collision_debug fun(): boolean
+---@field collision_debug_features fun(): boolean
+---@field collision_debug_flag_back_facing_surfaces fun(): boolean
+---@field collision_debug_flag_front_facing_surfaces fun(): boolean
+---@field collision_debug_flag_ignore_breakable_surfaces fun(): boolean
+---@field collision_debug_flag_ignore_invisible_surfaces fun(): boolean
+---@field collision_debug_flag_ignore_two_sided_surfaces fun(): boolean
+---@field collision_debug_flag_media fun(): boolean
+---@field collision_debug_flag_objects fun(): boolean
+---@field collision_debug_flag_objects_bipeds fun(): boolean
+---@field collision_debug_flag_objects_controls fun(): boolean
+---@field collision_debug_flag_objects_equipment fun(): boolean
+---@field collision_debug_flag_objects_light_fixtures fun(): boolean
+---@field collision_debug_flag_objects_machines fun(): boolean
+---@field collision_debug_flag_objects_placeholders fun(): boolean
+---@field collision_debug_flag_objects_projectiles fun(): boolean
+---@field collision_debug_flag_objects_scenery fun(): boolean
+---@field collision_debug_flag_objects_vehicles fun(): boolean
+---@field collision_debug_flag_objects_weapons fun(): boolean
+---@field collision_debug_flag_skip_passthrough_bipeds fun(): boolean
+---@field collision_debug_flag_structure fun(): boolean
+---@field collision_debug_flag_try_to_keep_location_valid fun(): boolean
+---@field collision_debug_flag_use_vehicle_physics fun(): boolean
+---@field collision_debug_height fun(): number
+---@field collision_debug_length fun(): number
+---@field collision_debug_phantom_bsp fun(): boolean
+---@field collision_debug_point_x fun(): number
+---@field collision_debug_point_y fun(): number
+---@field collision_debug_point_z fun(): number
+---@field collision_debug_repeat fun(): boolean
+---@field collision_debug_spray fun(): boolean
+---@field collision_debug_vector_i fun(): number
+---@field collision_debug_vector_j fun(): number
+---@field collision_debug_vector_k fun(): number
+---@field collision_debug_width fun(): number
+---@field collision_log_detailed fun(): boolean
+---@field collision_log_extended fun(): boolean
+---@field collision_log_render fun(): boolean
+---@field collision_log_time fun(): boolean
+---@field collision_log_totals_only fun(): boolean
+---@field cond fun(arg1:any, arg2:any, arg3:any, arg4:any, arg5:any): any
+---@field controls_enable_crouch fun(): boolean
+---@field controls_enable_doubled_spin fun(): boolean
+---@field controls_swap_doubled_spin_state fun(): boolean
+---@field controls_swapped fun(): boolean
+---@field core_load fun(): void
+---@field core_load_at_startup fun(): void
+---@field core_load_name fun(arg1:string): void
+---@field core_load_name_at_startup fun(arg1:string): void
+---@field core_save fun(): void
+---@field core_save_name fun(arg1:string): boolean
+---@field crash fun(arg1:string): void
+---@field custom_animation fun(unitName:string, animationTagPath:string, animationName:string, interpolate: integer | boolean): boolean Starts a custom animation playing on a unit (interpolates into animation if last parameter is TRUE). Usage: hsc.custom_animation(unitNameOnScenario, my/animation/tag, animationNameInsideTag, "true/false")
+---@field custom_animation_list fun(arg1:any, arg2:any, arg3:string, arg4:boolean): boolean
+---@field damage_new fun(arg1:any, arg2:any): void
+---@field damage_object fun(arg1:any, arg2:any): void
+---@field deactivate_nav_point_flag fun(arg1:any, arg2:any): void
+---@field deactivate_nav_point_object fun(arg1:any, arg2:any): void
+---@field deactivate_team_nav_point_flag fun(arg1:any, arg2:any): void
+---@field deactivate_team_nav_point_object fun(arg1:any, arg2:any): void
+---@field debug_biped_limp_body_disable fun(): boolean
+---@field debug_biped_physics fun(): boolean
+---@field debug_biped_skip_collision fun(): boolean
+---@field debug_biped_skip_update fun(): boolean
+---@field debug_bsp fun(): boolean
+---@field debug_camera fun(): boolean
+---@field debug_camera_load fun(): void
+---@field debug_camera_load_name fun(arg1:string): void
+---@field debug_camera_load_simple_name fun(arg1:string): void
+---@field debug_camera_load_text fun(arg1:string): void
+---@field debug_camera_save fun(): void
+---@field debug_camera_save_name fun(arg1:string): void
+---@field debug_camera_save_simple_name fun(arg1:string): void
+---@field debug_collision_skip_objects fun(): boolean
+---@field debug_collision_skip_vectors fun(): boolean
+---@field debug_damage fun(): boolean
+---@field debug_damage_taken fun(): boolean
+---@field debug_decals fun(): boolean
+---@field debug_detail_objects fun(): boolean
+---@field debug_fog_planes fun(): boolean
+---@field debug_framerate fun(): boolean
+---@field debug_frustum fun(): boolean
+---@field debug_game_save fun() --boolean
+---@field debug_inactive_objects fun(): boolean
+---@field debug_input fun(): boolean
+---@field debug_leaf_index fun(): number
+---@field debug_leaf_portal_index fun(): number
+---@field debug_leaf_portals fun(): boolean
+---@field debug_lights fun(): boolean
+---@field debug_looping_sound fun(): boolean
+---@field debug_material_effects fun(): boolean
+---@field debug_motion_sensor_draw_all_units fun(): boolean
+---@field debug_no_frustum_clip fun(): boolean
+---@field debug_object_garbage_collection fun(): boolean
+---@field debug_object_lights fun(): boolean
+---@field debug_objects fun(): boolean
+---@field debug_objects_biped_autoaim_pills fun(): boolean
+---@field debug_objects_biped_physics_pills fun(): boolean
+---@field debug_objects_bounding_spheres fun(): boolean
+---@field debug_objects_collision_models fun(): boolean
+---@field debug_objects_devices fun(): boolean
+---@field debug_objects_names fun(): boolean
+---@field debug_objects_pathfinding_spheres fun(): boolean
+---@field debug_objects_physics fun(): boolean
+---@field debug_objects_position_velocity fun(): boolean
+---@field debug_objects_root_node fun(): boolean
+---@field debug_objects_unit_mouth_apeture fun(): boolean
+---@field debug_objects_unit_seats fun(): boolean
+---@field debug_objects_unit_vectors fun(): boolean
+---@field debug_objects_vehicle_powered_mass_points fun(): boolean
+---@field debug_obstacle_path fun(): boolean
+---@field debug_obstacle_path_goal_point_x fun(): number
+---@field debug_obstacle_path_goal_point_y fun(): number
+---@field debug_obstacle_path_goal_surface_index fun(): number
+---@field debug_obstacle_path_on_failure fun(): boolean
+---@field debug_obstacle_path_start_point_x fun(): number
+---@field debug_obstacle_path_start_point_y fun(): number
+---@field debug_obstacle_path_start_surface_index fun(): number
+---@field debug_permanent_decals fun(): boolean
+---@field debug_physics_disable_penetration_freeze fun(): boolean
+---@field debug_player fun(): boolean
+---@field debug_player_teleport fun(): boolean
+---@field debug_point_physics fun(): boolean
+---@field debug_portals fun(): boolean
+---@field debug_pvs fun(arg1:boolean): void
+---@field debug_recording fun(): boolean
+---@field debug_recording_newlines fun(): number
+---@field debug_render_freeze fun(): boolean
+---@field debug_score fun(): number
+---@field debug_scripting fun(): boolean
+---@field debug_sound fun(): boolean
+---@field debug_sound_cache fun(): boolean
+---@field debug_sound_cache_graph fun(): boolean
+---@field debug_sound_channels fun(): boolean
+---@field debug_sound_channels_detail fun(): boolean
+---@field debug_sound_hardware fun(): boolean
+---@field debug_sounds_enable fun(arg1:string, arg2:boolean): void
+---@field debug_sprites fun(): boolean
+---@field debug_structure fun(): boolean
+---@field debug_structure_automatic fun(): boolean
+---@field debug_tags fun(): void
+---@field debug_teleport_player fun(arg1:number, arg2:number): void
+---@field debug_texture_cache fun(): boolean
+---@field debug_trigger_volumes fun(): boolean
+---@field debug_unit_all_animations fun(): boolean
+---@field debug_unit_animations fun(): boolean
+---@field decals fun(): boolean
+---@field developer_mode fun(): number
+---@field device_get_position fun(arg1:any): number
+---@field device_get_power fun(arg1:any): number
+---@field device_group_change_only_once_more_set fun(arg1:any, arg2:boolean): void
+---@field device_group_get fun(arg1:any): number
+---@field device_group_set fun(arg1:any, arg2:number): boolean
+---@field device_group_set_immediate fun(arg1:any, arg2:number): void
+---@field device_one_sided_set fun(arg1:any, arg2:boolean): void
+---@field device_operates_automatically_set fun(arg1:any, arg2:boolean): void
+---@field device_set_never_appears_locked fun(arg1:any, arg2:boolean): void
+---@field device_set_position fun(arg1:any, arg2:number): boolean
+---@field device_set_position_immediate fun(arg1:any, arg2:number): void
+---@field device_set_power fun(arg1:any, arg2:number): void
+---@field director_camera_switch_fast fun(): boolean
+---@field director_camera_switching fun(): boolean
+---@field display_framerate fun(): boolean
+---@field display_scenario_help fun(arg1:number): void
+---@field effect_new fun(arg1:any, arg2:any): void
+---@field effect_new_on_object_marker fun(arg1:any, arg2:any, arg3:string): void
+---@field effects_corpse_nonviolent fun(): boolean
+---@field enable_hud_help_flash fun(arg1:boolean): void
+---@field error_overflow_suppression fun(arg1:boolean): void
+---@field error_suppress_all fun(): boolean
+---@field f0 fun(): number
+---@field f1 fun(): number
+---@field f2 fun(): number
+---@field f3 fun(): number
+---@field f4 fun(): number
+---@field f5 fun(): number
+---@field fade_in fun(arg1:number, arg2:number, arg3:number, arg4:number): void
+---@field fade_out fun(arg1:number, arg2:number, arg3:number, arg4:number): void
+---@field find_all_fucked_up_shit fun(): boolean
+---@field force_all_player_views_to_default_player fun(): boolean
+---@field framerate_lock fun(): boolean
+---@field framerate_throttle fun(): boolean
+---@field freeze_flying_camera fun(): number
+---@field game_all_quiet fun(): boolean
+---@field game_difficulty_get fun(): any
+---@field game_difficulty_get_real fun(): any
+---@field game_difficulty_set fun(arg1:any): void
+---@field game_is_authoritative fun(): boolean
+---@field game_is_cooperative fun(): boolean
+---@field game_lost fun(): void
+---@field game_revert fun(): void
+---@field game_reverted fun(): boolean
+---@field game_safe_to_save fun(): boolean
+---@field game_safe_to_speak fun(): boolean
+---@field game_save fun() --void
+---@field game_save_cancel fun(): void
+---@field game_save_no_timeout fun() --void
+---@field game_save_totally_unsafe fun() --void
+---@field game_saving fun(): boolean
+---@field game_skip_ticks fun(arg1:number): void
+---@field game_speed fun(arg1:number): void
+---@field game_time fun(): number
+---@field game_variant fun(arg1:string): void
+---@field game_won fun() --void
+---@field garbage_collect_now fun(): void Causes all garbage objects except those visible to a player to be collected immediately.
+---@field get_pitch_rate fun(arg1:number): number
+---@field get_yaw_rate fun(arg1:number): number
+---@field global_connection_dont_timeout fun(): boolean
+---@field help fun(arg1:string): void Prints a description of the named function.
+---@field hud_blink_health fun(boolean:boolean | integer): void Starts/stops manual blinking of the health panel.
+---@field hud_blink_motion_sensor fun(boolean:boolean | integer): void  Starts/stops manual blinking of the motion sensor panel.
+---@field hud_blink_shield fun(boolean:boolean | integer): void Starts/stops manual blinking of the shield panel.
+---@field hud_clear_messages fun(): void Clears all non-state messages on the hud.
+---@field hud_get_timer_ticks fun(): number Returns the ticks left on the hud timer.
+---@field hud_help_flash_restart fun(): void Resets the timer for the help text flashing.
+---@field hud_set_help_text fun(message:string): void Displays <message> as the help text from "hud_message_text" tag inside scenario. 
+---@field hud_set_objective_text fun(message:string): void Sets <message> as the current objective from "hud_message_text" tag insise scenario.
+---@field hud_set_timer_position fun(offsetX:number, offsetY:number, hudPosition:string): void Sets the timer on <offsetX> <offsetY> for <hudPosition> (top_left | top_right | bottom_left | bottom_right | center).
+---@field hud_set_timer_time fun(minutes:number, seconds:number): void Sets the time for the timer to <minutes> and <seconds>, and starts and displays timer.
+---@field hud_set_timer_warning_time fun(minutes:number, seconds:number): void Sets the warning time for the timer to <minutes> and <seconds> .
+---@field hud_show_crosshair fun(boolean:boolean | integer): void Hides/shows the weapon crosshair.
+---@field hud_show_health fun(boolean:boolean | integer): void Hides/shows the health panel.
+---@field hud_show_motion_sensor fun(boolean:boolean | integer): void Hides/shows the motion sensor panel.
+---@field hud_show_shield fun(boolean:boolean | integer): void Hides/shows the shield panel.
+---@field if fun(arg1:boolean, arg2:any, arg3:any): any
+---@field inspect fun(arg1:any): void
+---@field list_count fun(arg1:any): number
+---@field list_count_not_dead fun(arg1:any): number
+---@field list_get fun(arg1:any, arg2:number): any
+---@field local_players fun(): any
+---@field log_print fun(arg1:string) --void
+---@field loud_dialog_hack fun(): boolean
+---@field magic_melee_attack fun(): void
+---@field magic_seat_name fun(arg1:string): void
+---@field map_name fun(arg1:string): void
+---@field map_reset fun(): void
+---@field max fun(arg1:number): number
+---@field mcc_mission_segment fun(arg1:string): boolean
+---@field min fun(arg1:number): number
+---@field model_animation_bullshit0 fun(): number
+---@field model_animation_bullshit1 fun(): number
+---@field model_animation_bullshit2 fun(): number
+---@field model_animation_bullshit3 fun(): number
+---@field model_animation_compression fun(): boolean
+---@field model_animation_data_compressed_size fun(): number
+---@field model_animation_data_compression_savings_in_bytes fun(): number
+---@field model_animation_data_compression_savings_in_bytes_at_import fun(): number
+---@field model_animation_data_compression_savings_in_percent fun(): number
+---@field model_animation_data_uncompressed_size fun(): number
+---@field mouse_acceleration fun(): number
+---@field multiplayer_map_name fun(arg1:string): void
+---@field not fun(arg1:boolean): boolean
+---@field numeric_countdown_timer_get fun(arg1:number): number
+---@field numeric_countdown_timer_restart fun(): void
+---@field numeric_countdown_timer_set fun(arg1:number, arg2:boolean): void
+---@field numeric_countdown_timer_stop fun(): void
+---@field object_beautify fun(arg1:any, arg2:boolean): void
+---@field object_can_take_damage fun(arg1:any): void
+---@field object_cannot_take_damage fun(arg1:any): void
+---@field object_create fun(objectName:string): void Creates an object from the scenario.
+---@field object_create_anew fun(objectName:string) Creates an object, destroying it first if it already exists.
+---@field object_create_anew_containing fun(nameKeyword:string): void Creates anew all objects from the scenario whose names contain the given substring. Usage: hsc.object_create_anew_containing("trees_").
+---@field object_create_containing fun(nameKeyword:string): void Creates all objects from the scenario whose names contain the given substring.
+---@field object_destroy fun(objectName:string): void Destroys an object by given name.
+---@field object_destroy_all fun(): void Destroys all non player objects.
+---@field object_destroy_containing fun(nameKeyword:string): void Destroys all objects from the scenario whose names contain the given substring.
+---@field object_light_ambient_base fun(): number
+---@field object_light_ambient_scale fun(): number
+---@field object_light_interpolate fun(): boolean
+---@field object_light_secondary_scale fun(): number
+---@field object_prediction fun(): boolean
+---@field object_pvs_activate fun(arg1:any): void
+---@field object_pvs_clear fun(): void
+---@field object_pvs_set_camera fun(arg1:any): void
+---@field object_pvs_set_object fun(arg1:any): void
+---@field object_set_collideable fun(arg1:any, arg2:boolean): void
+---@field object_set_facing fun(arg1:any, arg2:any): void
+---@field object_set_melee_attack_inhibited fun(arg1:any, arg2:boolean): void
+---@field object_set_permutation fun(arg1:any, arg2:string, arg3:string): void
+---@field object_set_ranged_attack_inhibited fun(arg1:any, arg2:boolean): void
+---@field object_set_scale fun(objectName:any, scale:number, frames:number): void Sets the scale for a given object and interpolates over the given number of frames to achieve that scale
+---@field object_set_shield fun(arg1:any, arg2:number): void
+---@field object_teleport fun(objectName:string, netgameFlag:string): void Moves the specified object to the specified flag.
+---@field object_type_predict fun(arg1:any): void
+---@field objects_attach fun(firstObjectName:string, firstObjectMarkerName:string, secondObjectName:string, secondObjectMarkerName:string): void Attaches the second object to the first with a designated name markers or root bone/frame if a marker string is empty. Usage: hsc.objects_attach("chief", "hand", "assault_rifle", "").
+---@field objects_can_see_flag fun(arg1:any, arg2:any, arg3:number): boolean
+---@field objects_can_see_object fun(arg1:any, arg2:any, arg3:number): boolean
+---@field objects_delete_by_definition fun(arg1:any): void
+---@field objects_detach fun(firstObjectName:string, secondObjectName:string): void Detaches the second object to the first. Usage: hsc.objects_detach("chief", "assault_rifle").
+---@field objects_distance_to_flag fun(arg1:any, arg2:any): number
+---@field objects_distance_to_object fun(arg1:any, arg2:any): number
+---@field objects_dump_memory fun(): void
+---@field objects_predict fun(arg1:any): void
+---@field or fun(arg1:boolean): boolean
+---@field pad3 fun(): number
+---@field pad3_scale fun(): number
+---@field pause_hud_timer fun(arg1:boolean): void
+---@field physics_constants_reset fun(): void
+---@field physics_get_gravity fun(): number
+---@field physics_set_gravity fun(arg1:number): void
+---@field pin fun(arg1:number, arg2:number, arg3:number): number
+---@field playback fun(): void
+---@field player0_joystick_set_is_normal fun(): boolean
+---@field player0_look_invert_pitch fun(arg1:boolean): void
+---@field player0_look_pitch_is_inverted fun(): boolean
+---@field player_action_test_accept fun(): boolean
+---@field player_action_test_action fun(): boolean
+---@field player_action_test_back fun(): boolean
+---@field player_action_test_grenade_trigger fun(): boolean
+---@field player_action_test_jump fun(): boolean
+---@field player_action_test_look_relative_all_directions fun(): boolean
+---@field player_action_test_look_relative_down fun(): boolean
+---@field player_action_test_look_relative_left fun(): boolean
+---@field player_action_test_look_relative_right fun(): boolean
+---@field player_action_test_look_relative_up fun(): boolean
+---@field player_action_test_move_relative_all_directions fun(): boolean
+---@field player_action_test_primary_trigger fun(): boolean
+---@field player_action_test_reset fun(): void
+---@field player_action_test_zoom fun(): boolean
+---@field player_add_equipment fun(arg1:any, arg2:any, arg3:boolean): void
+---@field player_autoaim fun(): boolean
+---@field player_camera_control fun(arg1:boolean): boolean
+---@field player_effect_set_max_rotation fun(arg1:number, arg2:number, arg3:number): void
+---@field player_effect_set_max_rumble fun(arg1:number, arg2:number): void
+---@field player_effect_set_max_translation fun(arg1:number, arg2:number, arg3:number): void
+---@field player_effect_set_max_vibrate fun(arg1:number, arg2:number): void
+---@field player_effect_start fun(arg1:number, arg2:number): void
+---@field player_effect_stop fun(arg1:number): void
+---@field player_enable_input fun(arg1:boolean): void
+---@field player_magnetism fun(): boolean
+---@field player_spawn_count fun(): number
+---@field players fun(): any
+---@field players_on_multiplayer_team fun(arg1:number): any
+---@field players_unzoom_all fun(): void
+---@field print fun(arg1:string) --void
+---@field print_binds fun(): void
+---@field print_if fun(arg1:boolean, arg2:string) --void
+---@field profile_activate fun(arg1:string): void
+---@field profile_deactivate fun(arg1:string): void
+---@field profile_display fun(): boolean
+---@field profile_dump fun(arg1:string): void
+---@field profile_dump_frames fun(): boolean
+---@field profile_dump_lost_frames fun(): boolean
+---@field profile_graph fun(): boolean
+---@field profile_graph_toggle fun(arg1:string): void
+---@field profile_load fun(arg1:string): void
+---@field profile_reset fun(): void
+---@field profile_timebase_ticks fun(): boolean
+---@field quit fun(): void
+---@field radiosity_debug_point fun(): void
+---@field radiosity_lines fun(): boolean
+---@field radiosity_normals fun(): boolean
+---@field radiosity_quality fun(): number
+---@field radiosity_save fun(): void
+---@field radiosity_start fun(): void
+---@field radiosity_step_count fun(): number
+---@field random_range fun(arg1:number, arg2:number): number
+---@field rasterizer_active_camouflage fun(): boolean
+---@field rasterizer_active_camouflage_multipass fun(): boolean
+---@field rasterizer_bump_mapping fun(): boolean
+---@field rasterizer_debug_geometry fun(): boolean
+---@field rasterizer_debug_geometry_multipass fun(): boolean
+---@field rasterizer_debug_meter_shader fun(): boolean
+---@field rasterizer_debug_model_lod fun(): number
+---@field rasterizer_debug_model_vertices fun(): boolean
+---@field rasterizer_debug_transparents fun(): boolean
+---@field rasterizer_decals_flush fun(): void
+---@field rasterizer_detail_objects fun(): boolean
+---@field rasterizer_detail_objects_offset_multiplier fun(): number
+---@field rasterizer_draw_first_person_weapon_first fun(): boolean
+---@field rasterizer_dynamic_lit_geometry fun(): boolean
+---@field rasterizer_dynamic_screen_geometry fun(): boolean
+---@field rasterizer_dynamic_unlit_geometry fun(): boolean
+---@field rasterizer_effects_level fun(): number
+---@field rasterizer_environment fun(): boolean
+---@field rasterizer_environment_alpha_testing fun(): boolean
+---@field rasterizer_environment_decals fun(): boolean
+---@field rasterizer_environment_diffuse_lights fun(): boolean
+---@field rasterizer_environment_diffuse_textures fun(): boolean
+---@field rasterizer_environment_fog fun(): boolean
+---@field rasterizer_environment_fog_screen fun(): boolean
+---@field rasterizer_environment_lightmaps fun(): boolean
+---@field rasterizer_environment_reflection_lightmap_mask fun(): boolean
+---@field rasterizer_environment_reflection_mirrors fun(): boolean
+---@field rasterizer_environment_reflections fun(): boolean
+---@field rasterizer_environment_shadows fun(): boolean
+---@field rasterizer_environment_specular_lightmaps fun(): boolean
+---@field rasterizer_environment_specular_lights fun(): boolean
+---@field rasterizer_environment_specular_mask fun(): boolean
+---@field rasterizer_environment_transparents fun(): boolean
+---@field rasterizer_far_clip_distance fun(): number
+---@field rasterizer_filthy_decal_fog_hack fun(): boolean
+---@field rasterizer_first_person_weapon_far_clip_distance fun(): number
+---@field rasterizer_first_person_weapon_near_clip_distance fun(): number
+---@field rasterizer_floating_point_zbuffer fun(): boolean
+---@field rasterizer_fog_atmosphere fun(): boolean
+---@field rasterizer_fog_plane fun(): boolean
+---@field rasterizer_fps fun(): boolean
+---@field rasterizer_fps_accumulate fun(): void
+---@field rasterizer_frame_bounds_bottom fun(): number
+---@field rasterizer_frame_bounds_left fun(): number
+---@field rasterizer_frame_bounds_right fun(): number
+---@field rasterizer_frame_bounds_top fun(): number
+---@field rasterizer_framerate_stabilization fun(): boolean
+---@field rasterizer_framerate_throttle fun(): boolean
+---@field rasterizer_hud_motion_sensor fun(): boolean
+---@field rasterizer_lens_flares fun(): boolean
+---@field rasterizer_lens_flares_occlusion fun(): boolean
+---@field rasterizer_lens_flares_occlusion_debug fun(): boolean
+---@field rasterizer_lightmap_ambient fun(): number
+---@field rasterizer_lightmap_mode fun(): number
+---@field rasterizer_lightmaps_filtering fun(): boolean
+---@field rasterizer_lightmaps_incident_radiosity fun(): boolean
+---@field rasterizer_lights_reset_for_new_map fun(): void
+---@field rasterizer_mode fun(): number
+---@field rasterizer_model_ambient_reflection_tint fun(arg1:number, arg2:number, arg3:number, arg4:number): void
+---@field rasterizer_model_lighting_ambient fun(): number
+---@field rasterizer_model_transparents fun(): boolean
+---@field rasterizer_models fun(): boolean
+---@field rasterizer_near_clip_distance fun(): number
+---@field rasterizer_plasma_energy fun(): boolean
+---@field rasterizer_profile_log fun(): boolean
+---@field rasterizer_ray_of_buddha fun(): boolean
+---@field rasterizer_refresh_rate fun(): number
+---@field rasterizer_reload_effects fun(): void
+---@field rasterizer_safe_frame_bounds fun(): boolean
+---@field rasterizer_screen_effects fun(): boolean
+---@field rasterizer_screen_flashes fun(): boolean
+---@field rasterizer_shadows_convolution fun(): boolean
+---@field rasterizer_shadows_debug fun(): boolean
+---@field rasterizer_smart fun(): boolean
+---@field rasterizer_stats fun(): number
+---@field rasterizer_stencil_mask fun(): boolean
+---@field rasterizer_water fun(): boolean
+---@field rasterizer_water_mipmapping fun(): boolean
+---@field rasterizer_wireframe fun(): boolean
+---@field rasterizer_zbias fun(): number
+---@field rasterizer_zoffset fun(): number
+---@field rasterizer_zsprites fun(): boolean
+---@field real_random_range fun(arg1:number, arg2:number): number
+---@field recording_kill fun(arg1:any): void
+---@field recording_play fun(arg1:any, arg2:any): boolean
+---@field recording_play_and_delete fun(arg1:any, arg2:any): boolean
+---@field recording_play_and_hover fun(arg1:any, arg2:any): boolean
+---@field recording_time fun(arg1:any): number
+---@field recover_saved_games_hack fun(): boolean
+---@field reload_shader_transparent_chicago fun(): void
+---@field render_contrails fun(): boolean
+---@field render_effects fun(arg1:boolean): void
+---@field render_lights fun(arg1:boolean): boolean
+---@field render_model_index_counts fun(): boolean
+---@field render_model_markers fun(): boolean
+---@field render_model_no_geometry fun(): boolean
+---@field render_model_nodes fun(): boolean
+---@field render_model_vertex_counts fun(): boolean
+---@field render_particles fun(): boolean
+---@field render_psystems fun(): boolean
+---@field render_shadows fun(): boolean
+---@field render_wsystems fun(): boolean
+---@field rider_ejection fun(): boolean
+---@field run_game_scripts fun(): boolean
+---@field scenery_animation_start fun(arg1:any, arg2:any, arg3:string): void
+---@field scenery_animation_start_at_frame fun(arg1:any, arg2:any, arg3:string, arg4:number): void
+---@field scenery_get_animation_time fun(arg1:any): number
+---@field screenshot_count fun(): number
+---@field screenshot_size fun(): number
+---@field script_doc fun(): void
+---@field script_recompile fun(): void
+---@field script_screen_effect_set_value fun(arg1:number, arg2:number): void
+---@field set fun(arg1:any, arg2:any, arg3:any): any
+---@field set_pitch_rate fun(arg1:number, arg2:number): void
+---@field set_yaw_rate fun(arg1:number, arg2:number): void
+---@field show_hud fun(arg1:boolean): boolean
+---@field show_hud_help_text fun(arg1:boolean): boolean
+---@field show_hud_timer fun(arg1:boolean): void
+---@field sleep fun(arg1:number, arg2:fun():void): void
+---@field sleep_until fun(arg1:boolean, arg2:number): void
+---@field slow_server_startup_safety_zone_in_seconds fun(): number
+---@field sound_cache_dump_to_file fun(): void
+---@field sound_cache_flush fun(): void
+---@field sound_class_set_gain fun(arg1:string, arg2:number, arg3:number): void
+---@field sound_eax_enabled fun(): boolean
+---@field sound_enable fun(arg1:boolean): void
+---@field sound_enable_eax fun(arg1:boolean): void
+---@field sound_enable_hardware fun(arg1:boolean, arg2:boolean): void
+---@field sound_gain_under_dialog fun(): number
+---@field sound_get_effects_gain fun(): number
+---@field sound_get_gain fun(arg1:string): number
+---@field sound_get_master_gain fun(): number
+---@field sound_get_music_gain fun(): number
+---@field sound_get_supplementary_buffers fun(): number
+---@field sound_impulse_predict fun(arg1:any, arg2:boolean): void
+---@field sound_impulse_start fun(arg1:any, arg2:any, arg3:number): void
+---@field sound_impulse_stop fun(arg1:any): void
+---@field sound_impulse_time fun(arg1:any): number
+---@field sound_looping_predict fun(arg1:any): void
+---@field sound_looping_set_alternate fun(arg1:any, arg2:boolean): void
+---@field sound_looping_set_scale fun(arg1:any, arg2:number): void
+---@field sound_looping_start fun(arg1:any, arg2:any, arg3:number): void
+---@field sound_looping_stop fun(arg1:any): void
+---@field sound_obstruction_ratio fun(): number
+---@field sound_set_effects_gain fun(arg1:number): void
+---@field sound_set_env fun(arg1:number): void
+---@field sound_set_factor fun(arg1:number): void
+---@field sound_set_gain fun(arg1:string, arg2:number): void
+---@field sound_set_master_gain fun(arg1:number): void
+---@field sound_set_music_gain fun(arg1:number): void
+---@field sound_set_rolloff fun(arg1:number): void
+---@field sound_set_supplementary_buffers fun(arg1:number, arg2:boolean): void
+---@field structure_bsp_index fun(): number
+---@field structure_lens_flares_place fun(): void
+---@field structures_use_pvs_for_vs fun(): boolean
+---@field stun_enable fun(): boolean
+---@field sv_map fun(arg1:string, arg2:string): void
+---@field switch_bsp fun(arg1:number): void
+---@field temporary_hud fun(): boolean
+---@field terminal_render fun(): boolean
+---@field TestPrintBool fun(arg1:string, arg2:boolean): void
+---@field TestPrintReal fun(arg1:string, arg2:number): void
+---@field texture_cache_flush fun(): void
+---@field texture_cache_graph fun(): boolean
+---@field texture_cache_list fun(): boolean
+---@field time_code_reset fun(): void
+---@field time_code_show fun(arg1:boolean): void
+---@field time_code_start fun(arg1:boolean): void
+---@field ui_widget_show_path fun(arg1:boolean): void
+---@field unbind fun(arg1:string, arg2:string): void
+---@field unit fun(arg1:any): any
+---@field unit_aim_without_turning fun(arg1:any, arg2:boolean): void
+---@field unit_can_blink fun(arg1:any, arg2:boolean): void
+---@field unit_close fun(arg1:any): void
+---@field unit_custom_animation_at_frame fun(arg1:any, arg2:any, arg3:string, arg4:boolean, arg5:number): boolean
+---@field unit_doesnt_drop_items fun(arg1:any): void
+---@field unit_enter_vehicle fun(unitName:string, vehicleName:string, vehicleSeatName:string): void Puts the specified unit in the specified vehicle (in the named seat). Usage: hsc.unit_enter_vehicle(marine_support_2, gausshog_3, "W-driver")
+---@field unit_exit_vehicle fun(arg1:any): void
+---@field unit_get_current_flashlight_state fun(arg1:any): boolean
+---@field unit_get_custom_animation_time fun(arg1:any): number
+---@field unit_get_health fun(arg1:any): number
+---@field unit_get_shield fun(arg1:any): number
+---@field unit_get_total_grenade_count fun(arg1:any): number
+---@field unit_has_weapon fun(arg1:any, arg2:any): boolean
+---@field unit_has_weapon_readied fun(arg1:any, arg2:any): boolean
+---@field unit_impervious fun(arg1:any, arg2:boolean): void
+---@field unit_is_playing_custom_animation fun(arg1:any): boolean
+---@field unit_kill fun(arg1:any): void
+---@field unit_kill_silent fun(arg1:any): void
+---@field unit_open fun(arg1:any): void
+---@field unit_set_current_vitality fun(arg1:any, arg2:number, arg3:number): void
+---@field unit_set_desired_flashlight_state fun(arg1:any, arg2:boolean): void
+---@field unit_set_emotion fun(arg1:any, arg2:number): void
+---@field unit_set_emotion_animation fun(arg1:any, arg2:string): void
+---@field unit_set_enterable_by_player fun(unitName:string, boolean:boolean | integer): void Can be used to prevent the player from entering a vehicle
+---@field unit_set_maximum_vitality fun(arg1:any, arg2:number, arg3:number): void
+---@field unit_set_seat fun(arg1:any, arg2:string): void
+---@field unit_solo_player_integrated_night_vision_is_active fun(): boolean
+---@field unit_stop_custom_animation fun(arg1:any): void
+---@field unit_suspended fun(arg1:any, arg2:boolean): void
+---@field units_set_current_vitality fun(arg1:any, arg2:number, arg3:number): void
+---@field units_set_desired_flashlight_state fun(arg1:any, arg2:boolean): void
+---@field units_set_maximum_vitality fun(arg1:any, arg2:number, arg3:number): void
+---@field vehicle_driver fun(arg1:any): any
+---@field vehicle_gunner fun(arg1:any): any
+---@field vehicle_hover fun(arg1:any, arg2:boolean): void
+---@field vehicle_load_magic fun(unitName:string, unitSeatName:string, encounterSquadName:string): number Makes a list of units (named or by encounter) magically get into a vehicle, Usage: hsc.vehicle_load_magic(warthog_1, "W-driver" (ai_actors my_encounter/my_squad)). Note: *Use "ai_actors" before your encounter/squad to converts an AI reference to an object list.
+---@field vehicle_riders fun(arg1:any): any
+---@field vehicle_test_seat fun(arg1:any, arg2:string, arg3:any): boolean
+---@field vehicle_test_seat_list fun(arg1:any, arg2:string, arg3:any): boolean
+---@field vehicle_unload fun(unitName:string, unitSeatName:string): number Makes units get out of a vehicle from the substring-specified seats. Usage: hsc.vehicle_unload("warthog_b", "W-driver"). Note: empty string matches all seats
+---@field version fun(): void
+---@field volume_teleport_players_not_inside fun(arg1:any, arg2:any): void
+---@field volume_test_object fun(arg1:any, arg2:any): boolean
+---@field volume_test_objects fun(arg1:any, arg2:any): boolean
+---@field volume_test_objects_all fun(arg1:any, arg2:any): boolean
+---@field wake fun(arg1:fun():void, arg2:any): void
+---@field weather fun(): boolean
+

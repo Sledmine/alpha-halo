@@ -20,6 +20,22 @@ local cacheHscGlobals = {
     unit = "lua_unit"
 }
 
+---@enum ai_default_state
+hsc.aiDefaultState = {
+    none = 0,
+    sleeping = 1,
+    alert = 2,
+    RepeatSamePosition = 3,
+    Loop = 4,
+    LoopBackAndForth = 5,
+    loopRandomly = 6,
+    randomly = 7,
+    guarding = 8,
+    guardingAtGuardPosition = 9,
+    searching = 10,
+    fleeing = 11,
+}
+
 local function getScriptArgs(args)
     return table.map(args, function(v, k)
         if type(v) == "string" then
@@ -52,9 +68,10 @@ local function getVariable(varName)
     return get_global(varName)
 end
 
--- Reimplement HSC functions with Lua
-
-function hsc.begin(functions)
+---Reimplement HSC functions with LuaBlam
+---@param ... function | function[]
+---@return any
+function hsc.begin(...)
     for i, func in ipairs(functions) do
         if type(func) == "function" then
             -- Return last evaluated function
@@ -85,7 +102,10 @@ function hsc.begin_random(functions)
     return result
 end
 
+---@param ... function | function[]
+---@return boolean
 function hsc.cond(...)
+    ---@type any
     local functions = {...}
     if type(functions[1]) == "table" then
         -- If the first argument is a table, treat it as a list of functions
