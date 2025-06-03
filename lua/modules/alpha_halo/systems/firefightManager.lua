@@ -5,7 +5,6 @@ local pigPen = require "alpha_halo.systems.core.pigPen"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
-local sleeping = require "alpha_halo.systems.combat.sleep"
 local script = require "script"
 local hsc = require "hsc"
 
@@ -41,7 +40,7 @@ local selectedBossSquad = bossSquadTemplate:format(randomTeamIndex)
 local startingSquadTemplate = "Enemy_Team_%s/Starting_Wave"
 local selectedStartingSquad = startingSquadTemplate:format(randomTeamIndex)
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Vehicle.
-local dropshipsAsigned = 1 -- set to 3
+local dropshipsAsigned = 3 -- set to 3
 local dropshipsLeft = 0 -- set to 1 or 0
 local randomDropship = 1
 local dropshipTemplate = "dropship_%s_%s"
@@ -242,25 +241,21 @@ function firefightManager.waveCooldown()
             script.startup(firefightManager.pelicanDeployer)
             logger:debug("Here comes the help!")
         end
-        ---- Debug para calaveras
-        -- if currentWave == 1 or currentWave == 3 then
-        --    skullsManager.enableSkull("silver", "assassin")
-        --    script.startup(announcer.skullOnDelay)
-        -- else
-        --    skullsManager.disableSkull("silver", "is_active")
-        --    script.startup(announcer.skullsReset)
-        -- end
     end
 end
 
-
--- Esta función es llamada una vez por cada dropship asignada a una oleada. Se encarga de cargar y enviar las dropships.
-function firefightManager.dropshipDeployer()
-    -- Randomizamos la dropship cada que esta función es llamada.
+---@deprecated
+function firefightManager.dropshipFlags()
     --hsc.object_create_anew(selectedDropship)
     local dropshipFlag = dropshipFlagTemplate:format(dropshipsLeft, randomDropship)
     hsc.object_teleport(selectedDropship, dropshipFlag)
     logger:debug("Dropship '{}' teleported to '{}' : ", selectedDropship, dropshipFlag)
+end
+
+-- Esta función es llamada una vez por cada dropship asignada a una oleada. Se encarga de cargar y enviar las dropships.
+function firefightManager.dropshipDeployer()
+    -- Randomizamos la dropship cada que esta función es llamada.
+    --firefightManager.dropshipFlags()
     randomDropship = math.random(1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
@@ -288,7 +283,7 @@ function firefightManager.dropshipDeployer()
     end
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
-    hsc.vehicle_load_magic(selectedDropship, "passenger", "(ai_actors " .. selectedSquad .. ")")
+    hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors(selectedSquad))
     hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
     -- Dependiendo del team, lo migramos a su respectivo encounter.
     hsc.ai_migrate(selectedSquad, currentWaveType)
@@ -300,7 +295,7 @@ end
 
 
 function firefightManager.pelicanDeployer(call, sleep)
-    sleep(800)
+    sleep(700)
     hsc.ai_place("Human_Team/ODSTs")
     hsc.ai_place("human_support/pelican_pilot")
     hsc.object_create_anew("foehammer_cliff")
@@ -409,8 +404,6 @@ function firefightManager.gameAssists()
     --hsc.ai_place("Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
-    -----@deprecated
-    --hsc.object_create_anew_containing("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     randomGhost = math.random(1, 3)
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
