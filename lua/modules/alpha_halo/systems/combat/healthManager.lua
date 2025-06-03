@@ -15,9 +15,6 @@ local maxHealth = 1
 
 -- VARIALBES DE LA FUNCIÓN healthRegenSP.respawnAndDeath
 local playerLives = 6
-local livesLeftTemplate = "Lives left... %s"
-local actualLivesLeft = livesLeftTemplate:format(playerLives)
-local playSound = engine.userInterface.playSound
 
 function healthManager.eachTick()
     healthManager.healthRegen()

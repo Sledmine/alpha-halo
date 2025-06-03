@@ -1,6 +1,5 @@
 local engine = Engine
 local balltze = Balltze
-local script = require "script"
 local const = require "alpha_halo.systems.core.constants"
 local playSound = engine.userInterface.playSound
 

@@ -1,12 +1,13 @@
 local engine = Engine
 local balltze = Balltze
---local blam = require "blam"
+-- local blam = require "blam"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
 local hsc = require "hsc"
+
 
 local firefightManager = {}
 
@@ -76,7 +77,6 @@ local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
 local bossWaveCooldown = false
 local getOutOfGhost = false
 
-
 local function getRandomTeamWave()
     local randomTeam = math.random(1, 1) -- This should be (1, 2)
     local team
@@ -141,7 +141,7 @@ function firefightManager.eachTick()
             elseif bossWave == false and waveLivingCount <= 4 then
                 if currentWave > 0 then
                     logger:debug("Reinforcements!")
-                    script.wake(announcer.reinforcements)
+                    script.thread(announcer.reinforcements)()
                 end
                 waveIsOn = false
                 waveCooldownStart = true
@@ -149,12 +149,12 @@ function firefightManager.eachTick()
                 firefightManager.waveProgression()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
-                script.wake(announcer.roundCompleted)
+                script.thread(announcer.roundCompleted)()
                 skullsManager.disableSkull("silver", "is_active")
-                script.wake(announcer.skullsResetDelay)
+                script.thread(announcer.skullsResetDelay)()
                 if currentRound >= 2 then
                     skullsManager.disableSkull("golden", "is_active")
-                    script.wake(announcer.skullsResetDelay)
+                    script.thread(announcer.skullsResetDelay)()
                 end
                 waveIsOn = false
                 bossWaveCooldown = true
@@ -219,29 +219,30 @@ function firefightManager.waveCooldown()
         waveCooldownStart = false
         waveCooldownCounter = 0
         if currentWave == 1 and currentRound == 1 and currentSet >= 1 then
-            script.wake(announcer.setStart)
+            script.thread(announcer.setStart)()
+            hsc.object_create_anew("cyborg")
         elseif currentWave == 1 and currentRound > 1 then
-            script.wake(announcer.roundStart)
+            script.thread(announcer.roundStart)()
         end
         -- Si recién iniciamos una ronda, encendemos una calavera plateada y una dorada
         if currentWave == 1 and currentRound >= 1 then
             skullsManager.enableSkull("silver", "random")
-            skullsManager.enableSkull("golden","random")
-            script.wake(announcer.skullsOnDelay)
+            skullsManager.enableSkull("golden", "random")
+            script.thread(announcer.skullsOnDelay)()
         end
         if currentWave > 1 and currentWave < 6 then
             skullsManager.enableSkull("silver", "random")
-            script.wake(announcer.skullOn)
+            script.thread(announcer.skullOn)()
             hsc.ai_erase(currentSupportType) -- Erase duplicated cd gun turret gunner with each wave
         end
         ---- Debug para calaveras
-        --if currentWave == 1 or currentWave == 3 then
+        -- if currentWave == 1 or currentWave == 3 then
         --    skullsManager.enableSkull("silver", "assassin")
         --    script.startup(announcer.skullOnDelay)
-        --else
+        -- else
         --    skullsManager.disableSkull("silver", "is_active")
         --    script.startup(announcer.skullsReset)
-        --end
+        -- end
     end
 end
 
@@ -250,11 +251,11 @@ function firefightManager.dropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
     randomDropship = math.random(1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    --hsc.object_create_anew(selectedDropship)
+    -- hsc.object_create_anew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hsc.ai_place(selectedDropshipGunner)
-    hsc.vehicle_load_magic(selectedDropship, "gunseat", "(ai_actors " .. selectedDropshipGunner .. ")")
+    hsc.vehicle_load_magic(selectedDropship, "gunseat", hsc.ai_actors(selectedDropshipGunner))
     hsc.ai_migrate(selectedDropshipGunner, currentSupportType)
     -- Randomizamos el squad cada que esta función es llamada.
     -- La Dropship 1 será identica a la Dropship 2.
@@ -277,7 +278,7 @@ function firefightManager.dropshipDeployer()
     hsc.ai_place(selectedSquad)
     -- Cargamos a los squads en sus respectivas dropships y los migramos a sus encounters.
     hsc.vehicle_load_magic(selectedDropship, "passenger", "(ai_actors " .. selectedSquad .. ")")
-    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, "false")
+    hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
     -- Dependiendo del team, lo migramos a su respectivo encounter.
     hsc.ai_migrate(selectedSquad, currentWaveType)
     -- Iniciamos los contadores y vamos extinguiendo el script.
@@ -350,7 +351,7 @@ function firefightManager.sentinelChance()
     -- Aquí spawneamos el squad random de Sentinelas y reiniciamos todo.
     if sentinelRandomMath == 1 then
         logger:debug("Here come Sentinels!")
-        script.wake(announcer.enemyIncoming)
+        script.thread(announcer.enemyIncoming)()
         randomSentinelSquad = math.random(1, 6)
         selectedSentinelSquad = sentinelSquadTemplate:format(randomSentinelSquad)
         hsc.ai_place(selectedSentinelSquad)
@@ -363,11 +364,12 @@ end
 -- Esto spawnea las ayudas para el jugador.
 function firefightManager.gameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
-    script.startup(healthManager.livesGained)
+    script.thread(healthManager.livesGained)()
     hsc.ai_place("Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
-    hsc.object_create_anew_containing("assist_warthog")
+    ---@deprecated
+    --hsc.object_create_anew_containing("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     randomGhost = math.random(1, 3)
     selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
@@ -393,9 +395,9 @@ function firefightManager.getOutOfGhost()
             hsc.vehicle_unload(selectedGhostA, "driver")
             hsc.vehicle_unload(selectedGhostB, "driver")
             hsc.vehicle_unload(selectedGhostC, "driver")
-            hsc.unit_set_enterable_by_player(selectedGhostA, 0)
-            hsc.unit_set_enterable_by_player(selectedGhostB, 0)
-            hsc.unit_set_enterable_by_player(selectedGhostC, 0)
+            hsc.unit_set_enterable_by_player(selectedGhostA, false)
+            hsc.unit_set_enterable_by_player(selectedGhostB, false)
+            hsc.unit_set_enterable_by_player(selectedGhostC, false)
             hsc.ai_vehicle_enterable_distance(selectedGhostA, 0)
             hsc.ai_vehicle_enterable_distance(selectedGhostB, 0)
             hsc.ai_vehicle_enterable_distance(selectedGhostC, 0)
@@ -407,9 +409,9 @@ function firefightManager.getOutOfGhost()
 end
 
 function firefightManager.setGhostEntrable()
-    hsc.unit_set_enterable_by_player(selectedGhostA, 1)
-    hsc.unit_set_enterable_by_player(selectedGhostB, 1)
-    hsc.unit_set_enterable_by_player(selectedGhostC, 1)
+    hsc.unit_set_enterable_by_player(selectedGhostA, true)
+    hsc.unit_set_enterable_by_player(selectedGhostB, true)
+    hsc.unit_set_enterable_by_player(selectedGhostC, true)
     hsc.ai_vehicle_enterable_distance(selectedGhostA, 20.0)
     hsc.ai_vehicle_enterable_distance(selectedGhostB, 20.0)
     hsc.ai_vehicle_enterable_distance(selectedGhostC, 20.0)
@@ -425,15 +427,14 @@ function firefightManager.aiNavpoint()
             for i = 0, playerCount - 1 do
                 local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
                 for actorIndex = 0, 3 do
-                    local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentWaveType),
-                                                            actorIndex))
-                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit,
-                                                  navpointOffset)
+                    local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentWaveType), actorIndex))
+                    hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
                 end
             end
         end
     end
 end
+
 
 -- function firefightManager.killStagnateAi()
 --    --Here goes super code to kill AI bellow certain z cord on the map.
@@ -486,6 +487,5 @@ function firefightManager.aiSight()
         end
     end
 end
-
 
 return firefightManager
