@@ -19,11 +19,18 @@
 ---@alias short integer
 ---@alias long integer
 
----@alias object_list string Reference to an object list
+---@alias strings string wtf is this?
+---@alias object_list string Any object or object
 ---@alias trigger_volume string Name of a trigger volume in the current scenario
 ---@alias cutscene_flag string Name of a cutscene flag in the current scenario
 ---@alias sound_scenery string
 ---@alias actor_variant string
+---@alias object_name string
+---@alias animation_graph string
+---@alias navpoint string
+---@alias effect string
+---@alias damage string
+---@alias object_definition string
 ---@alias object string
 ---@alias item object
 ---@alias weapon item
