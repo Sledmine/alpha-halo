@@ -424,16 +424,20 @@ end
 function hsc.recording_play()
 end
 
----@param arg1 unit
----@param arg2 cutscene_recording
+---make the specified unit run the specified cutscene recording, deletes the unit when the animation finishes.
+---@param unitName unit Name of a unit in "name objects" scenario tag block.
+---@param recAnimsName cutscene_recording Name of a cutscene recording in "Recorded Animations" scenario tag block.
 ---@return boolean
-function hsc.recording_play_and_delete()
+---Example: hsc.recording_play_and_delete("foehammer_cliff", "foehammer_cliff_in")
+function hsc.recording_play_and_delete(unitName, recAnimsName)
 end
 
----@param arg1 vehicle
----@param arg2 cutscene_recording
+---Make the specified vehicle run the specified cutscene recording, hovers the vehicle when the animation finishes.
+---@param vehicleName vehicle Name of a vehicle in "name objects" scenario tag block.
+---@param recAnimsName cutscene_recording Name of a cutscene recording in "Recorded Animations" scenario tag block.
 ---@return boolean
-function hsc.recording_play_and_hover()
+---Example: hsc.recording_play_and_hover("foehammer_cliff", "foehammer_cliff_in")
+function hsc.recording_play_and_hover(vehicleName, recAnimsName)
 end
 
 ---@param arg1 unit
@@ -552,12 +556,16 @@ end
 function hsc.unit_can_blink()
 end
 
----@param arg1 unit
-function hsc.unit_open()
+---Opens the hatches on the given unit.
+---@param unitName unit
+---Example: hsc.unit_open("pelican_2") -- Opens the hatches on the unit named "pelican_2".
+function hsc.unit_open(unitName)
 end
 
----@param arg1 unit
-function hsc.unit_close()
+---Closes the hatches on a given unit.
+---@param unitName unit
+---Example: hsc.unit_close("pelican_2") -- Closes the hatches on the unit named "pelican_2".
+function hsc.unit_close(unitName)
 end
 
 ---@param arg1 unit
@@ -638,11 +646,12 @@ end
 function hsc.unit_enter_vehicle(unitName, vehicleName, seatName)
 end
 
----@param arg1 vehicle
----@param arg2 string
----@param arg3 object_list
+---Tests whether the named seat has an object in the object list
+---@param vehicleName vehicle
+---@param seatName string
+---@param objectList object_list
 ---@return boolean
-function hsc.vehicle_test_seat_list()
+function hsc.vehicle_test_seat_list(vehicleName, seatName, objectList)
 end
 
 ---@param arg1 vehicle
@@ -695,14 +704,16 @@ end
 function hsc.vehicle_load_magic(unitName, seatName, objectList)
 end
 
+---Makes units get out of a vehicle from the substring-specified seats (e.g. CD-passenger... empty string matches all seats)
 ---@param unitName unit Name of a unit in scenario tag.
----@param seatName string
+---@param seatName string Name of the seat in the vehicle. Use "" to match all seats.
 ---@return short
+---Example: hsc.vehicle_unload("passenger") | hsc.vehicle_unload("")
 function hsc.vehicle_unload(unitName, seatName)
 end
 
----@param arg1 string
-function hsc.magic_seat_name()
+---@param seatName string 
+function hsc.magic_seat_name(seatName)
 end
 
 ---@param arg1 unit @Name of a unit in scenario tag.
@@ -1122,10 +1133,9 @@ function hsc.ai_going_to_vehicle()
 end
 
 -- Tells a group of actors from encounter/squad? to get out of any vehicles that they are in. 
----@param encounter ai @Name of the encounter and/or squad, such as "ext_c_cov/ghost_a"
----@return nil
+---@param encounterName ai @Name of the encounter and/or squad, such as "ext_c_cov/ghost_a"
 -- Example: hsc.ai_exit_vehicle("ext_c_cov/ghost_a ") | hsc.ai_exit_vehicle("ext_c_cov")
-function hsc.ai_exit_vehicle(encounter)
+function hsc.ai_exit_vehicle(encounterName)
 end
 
 ---@param arg1 ai
@@ -1133,9 +1143,11 @@ end
 function hsc.ai_braindead()
 end
 
----@param arg1 object_list
----@param arg2 boolean
-function hsc.ai_braindead_by_unit()
+---makes a list of objects braindead, or restores them to life. if you pass in a vehicle index, it makes all actors in that vehicle braindead (including any built-in guns).
+---@param objectList object_list
+---@param isBraindead boolean
+---Example: hsc.ai_braindead_by_unit("encounter", true) -- Makes encounter braindead.
+function hsc.ai_braindead_by_unit(objectList, isBraindead)
 end
 
 ---@param arg1 object_list
@@ -1785,9 +1797,11 @@ end
 function hsc.sound_class_set_gain()
 end
 
----@param arg1 vehicle
----@param arg2 boolean
-function hsc.vehicle_hover()
+---Stops the vehicle from running real physics and runs fake hovering physics instead.
+---@param vehicleName vehicle Name of a vehicle in scenario tag.
+---@param isHovering boolean True to enable hovering physics, false to disable.
+---Example: hsc.vehicle_hover("pelican_1", true)
+function hsc.vehicle_hover(vehicleName, isHovering)
 end
 
 function hsc.players_unzoom_all()

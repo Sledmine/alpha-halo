@@ -27,6 +27,7 @@
 ---@alias actor_variant string
 ---@alias object_name string
 ---@alias animation_graph string
+---@alias cutscene_recording string
 ---@alias navpoint string
 ---@alias effect string
 ---@alias damage string
