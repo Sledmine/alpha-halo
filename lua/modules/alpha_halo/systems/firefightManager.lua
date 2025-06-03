@@ -5,6 +5,7 @@ local pigPen = require "alpha_halo.systems.core.pigPen"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
+local sleeping = require "alpha_halo.systems.combat.sleep"
 local script = require "script"
 local hsc = require "hsc"
 
@@ -16,7 +17,7 @@ local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.eachTick
 local waveIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveProgression
-local currentWave = 0
+local currentWave = 4
 local currentRound = 0
 local currentSet = 0
 local waveTemplate = "Wave %s, Round %s, Set %s."
@@ -40,10 +41,11 @@ local selectedBossSquad = bossSquadTemplate:format(randomTeamIndex)
 local startingSquadTemplate = "Enemy_Team_%s/Starting_Wave"
 local selectedStartingSquad = startingSquadTemplate:format(randomTeamIndex)
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipDeployer relacionadas al Vehicle.
-local dropshipsAsigned = 3
-local dropshipsLeft = 0
+local dropshipsAsigned = 1 -- set to 3
+local dropshipsLeft = 0 -- set to 1 or 0
 local randomDropship = 1
 local dropshipTemplate = "dropship_%s_%s"
+local dropshipFlagTemplate = "dropship_%s_%s_flag"
 local selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
 -- VARIABLES DE LA FUNCIÓN firefightManager.DropshipCountdown
 local dropshipCountdownTimer = 720
@@ -121,6 +123,7 @@ function firefightManager.whenMapLoads()
     -- hsc.object_create_anew("mortar_1")
     -- hsc.object_create_anew("mortar_2")
 end
+
 
 -- Esta función ocurre cada tick. Ejecuta al resto de funciones cuando se dan las condiciones.
 function firefightManager.eachTick()
@@ -235,6 +238,10 @@ function firefightManager.waveCooldown()
             script.thread(announcer.skullOn)()
             hsc.ai_erase(currentSupportType) -- Erase duplicated cd gun turret gunner with each wave
         end
+        if currentWave == 5 then
+            script.startup(firefightManager.pelicanDeployer)
+            logger:debug("Here comes the help!")
+        end
         ---- Debug para calaveras
         -- if currentWave == 1 or currentWave == 3 then
         --    skullsManager.enableSkull("silver", "assassin")
@@ -246,12 +253,16 @@ function firefightManager.waveCooldown()
     end
 end
 
+
 -- Esta función es llamada una vez por cada dropship asignada a una oleada. Se encarga de cargar y enviar las dropships.
 function firefightManager.dropshipDeployer()
     -- Randomizamos la dropship cada que esta función es llamada.
+    --hsc.object_create_anew(selectedDropship)
+    local dropshipFlag = dropshipFlagTemplate:format(dropshipsLeft, randomDropship)
+    hsc.object_teleport(selectedDropship, dropshipFlag)
+    logger:debug("Dropship '{}' teleported to '{}' : ", selectedDropship, dropshipFlag)
     randomDropship = math.random(1)
     selectedDropship = dropshipTemplate:format(dropshipsLeft, randomDropship)
-    -- hsc.object_create_anew(selectedDropship)
     local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
     local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
     hsc.ai_place(selectedDropshipGunner)
@@ -286,6 +297,36 @@ function firefightManager.dropshipDeployer()
     dropshipCountdownStart = true
     dropshipCountdownCounter = dropshipCountdownTimer
 end
+
+
+function firefightManager.pelicanDeployer(call, sleep)
+    sleep(800)
+    hsc.ai_place("Human_Team/ODSTs")
+    hsc.ai_place("human_support/pelican_pilot")
+    hsc.object_create_anew("foehammer_cliff")
+    hsc.vehicle_load_magic("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs"))
+    hsc.vehicle_load_magic("foehammer_cliff", "driver", hsc.ai_actors("human_support/pelican_pilot"))
+    hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
+    --sleep(30)
+    hsc.unit_set_enterable_by_player("foehammer_cliff", false)
+    hsc.unit_close("foehammer_cliff")
+    hsc.object_teleport("foehammer_cliff", "foehammer_cliff_flag")
+    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), true)
+    hsc.recording_play_and_hover( "foehammer_cliff", "foehammer_cliff_in")
+    sleep(1200)
+    hsc.unit_open("foehammer_cliff")
+    sleep(90)
+    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), false)
+    hsc.vehicle_unload("foehammer_cliff", "rider")
+    sleep(120)
+    if not hsc.vehicle_test_seat_list("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs")) then
+        hsc.unit_close("foehammer_cliff")
+        sleep(120)
+        hsc.vehicle_hover("foehammer_cliff", false)
+        hsc.recording_play_and_delete("foehammer_cliff", "foehammer_cliff_out")
+    end
+end
+
 
 -- Esto carga al Ghost en la Spirit.
 function firefightManager.ghostLoader()
@@ -365,10 +406,10 @@ end
 function firefightManager.gameAssists()
     -- Te damos una vida y spawneamos a los aliados & ayudas.
     script.thread(healthManager.livesGained)()
-    hsc.ai_place("Human_Team/ODSTs")
+    --hsc.ai_place("Human_Team/ODSTs")
     -- Le otorgamos los Warthos estandar al jugador.
     -- TODO: create a replacement function to spawn assist_warthog dynamically
-    ---@deprecated
+    -----@deprecated
     --hsc.object_create_anew_containing("assist_warthog")
     -- Spawneamos el Ghost de recompenza.
     randomGhost = math.random(1, 3)
