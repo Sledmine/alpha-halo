@@ -28,12 +28,13 @@ local function setObjectPosition(object, x, y, z)
     local objectName
     for index = 1, scenario.data.objectNames.count do
         local objectNameData = scenario.data.objectNames.elements[index]
-        if index == object.nameListIndex then
+        if index == object.nameListIndex + 1 then
             objectName = objectNameData.name
             break
         end
     end
     assert(objectName, "Failed to get object name to set position")
+    --logger:debug("{}", objectName)
     for index = 1, scenario.data.cutsceneFlags.count do
         local cutsceneFlag = scenario.data.cutsceneFlags.elements[index]
         if cutsceneFlag.name == "generic_flag" then
@@ -63,11 +64,10 @@ function vehiclePosition.positionUpdater()
                     local absoluteNodeY = mainNode.y + (vehicleObject.position.y - mainNode.y)
                     local absoluteNodeZ = mainNode.z + (vehicleObject.position.z - mainNode.z)
                     -- Update the vehicle position
-                    --vehicleObject.position.x = mainNode.x
-                    --vehicleObject.position.y = mainNode.y
-                    --vehicleObject.position.z = mainNode.z
+                    vehicleObject.position.x = mainNode.x
+                    vehicleObject.position.y = mainNode.y
+                    vehicleObject.position.z = mainNode.z
                     setObjectPosition(vehicleObject, mainNode.x, mainNode.y, mainNode.z)
-
                     -- console_out(("x: {x}, y: {y}, z: {z}"):template({
                     --     x = vehicleObject.position.x,
                     --     y = vehicleObject.position.y,
