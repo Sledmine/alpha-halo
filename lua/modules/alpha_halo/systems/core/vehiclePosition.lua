@@ -67,6 +67,8 @@ function vehiclePosition.positionUpdater()
                     vehicleObject.position.x = mainNode.x
                     vehicleObject.position.y = mainNode.y
                     vehicleObject.position.z = mainNode.z
+                    vehicle.hover = 1
+                    vehicle.vehicleFlags.hovering = true
                     setObjectPosition(vehicleObject, mainNode.x, mainNode.y, mainNode.z)
                     -- console_out(("x: {x}, y: {y}, z: {z}"):template({
                     --     x = vehicleObject.position.x,
