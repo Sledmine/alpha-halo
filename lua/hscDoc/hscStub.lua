@@ -485,11 +485,14 @@ end
 function hsc.objects_detach()
 end
 
+---Causes all garbage objects except those visible to a player to be collected immediately.
 function hsc.garbage_collect_now()
 end
 
----@param arg1 object_list
-function hsc.object_cannot_take_damage()
+---Prevents an object from taking damage.
+---@param objectList object_list -- A list of objects (e.g., "players", "enemies", "allies") to prevent from taking damage.
+---Example: hsc.object_cannot_take_damage("players") -- Prevents all players from taking damage.
+function hsc.object_cannot_take_damage(objectList)
 end
 
 ---@param arg1 object_list
@@ -1799,7 +1802,7 @@ end
 
 ---Stops the vehicle from running real physics and runs fake hovering physics instead.
 ---@param vehicleName vehicle Name of a vehicle in scenario tag.
----@param isHovering boolean True to enable hovering physics, false to disable.
+---@param isHovering boolean True to enable fake hovering physics, false to disable.
 ---Example: hsc.vehicle_hover("pelican_1", true)
 function hsc.vehicle_hover(vehicleName, isHovering)
 end
