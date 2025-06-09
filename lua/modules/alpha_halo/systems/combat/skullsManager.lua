@@ -572,12 +572,18 @@ end
 function skullsManager.slayer(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if isActive then
+            for i = 1, tagEntry.data.magazines.count do
+                local magazine = tagEntry.data.magazines.elements[i]
+                if magazine.roundsLoadedMaximum == 1 then
+                    magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum + 1
+                    magazine.roundsReloaded = magazine.roundsReloaded + 1
+                end
+            end
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
-                trigger.flags:canFireWithPartialAmmo(true)
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
