@@ -47,7 +47,7 @@ function skullsManager.famine(isActive)
             actorVariant.dropWeaponLoaded[2] = actorVariant.dropWeaponLoaded[2] * 0.5
             actorVariant.dropWeaponAmmo[1] = actorVariant.dropWeaponAmmo[1] * 0.5
             actorVariant.dropWeaponAmmo[2] = actorVariant.dropWeaponAmmo[2] * 0.5
-            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.01
+            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
@@ -143,8 +143,9 @@ function skullsManager.catch(isActive)
             actorVariant.flags:hasUnlimitedGrenades(true)
             actorVariant.grenadeChance = actorVariant.grenadeChance + 1
             actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
-            actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0.01
-            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.1
+            actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0
+            actorVariant.grenadeCount[1] = actorVariant.grenadeCount[1] + 1
+            actorVariant.grenadeCount[2] = actorVariant.grenadeCount[2] + 1
             if not tagEntry.path:includes("odst") then
                 actorVariant.grenadeVelocity = actorVariant.grenadeVelocity * 2
             end
@@ -161,7 +162,7 @@ end
 ---Berserk: Makes the AI enter in constant Berserk state.
 ---@param isActive boolean
 function skullsManager.berserk(isActive)
-    local berserkUnits = {"flood", "elite", "hunter", "odst"}
+    local berserkUnits = {"flood", "elite", "odst"}
     local berserkActorsFiltered = table.filter(tagEntries.actor(), function(tagEntry)
         for _, unitName in pairs(berserkUnits) do
             if tagEntry.path:includes(unitName) then
@@ -352,7 +353,7 @@ function skullsManager.havok(isActive)
         local damageEffect = tagEntry.data
         if isActive then
             damageEffect.radius[2] = damageEffect.radius[2] * 1.5
-            damageEffect.damageLowerBound = damageEffect.damageLowerBound * 0.5
+            damageEffect.damageLowerBound = damageEffect.damageLowerBound * 0.75
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
@@ -529,13 +530,13 @@ function skullsManager.eyepatch(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         local weapon = tagEntry.data
         if isActive then
-            weapon.autoaimAngle = weapon.autoaimAngle * 0.01
-            weapon.autoaimRange = weapon.autoaimRange * 0.01
-            weapon.magnetismAngle = weapon.magnetismAngle * 0.01
-            weapon.magnetismRange = weapon.magnetismRange * 0.01
+            weapon.autoaimAngle = weapon.autoaimAngle * 0
+            weapon.autoaimRange = weapon.autoaimRange * 0
+            weapon.magnetismAngle = weapon.magnetismAngle * 0
+            weapon.magnetismRange = weapon.magnetismRange * 0
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 0.01
+                trigger.errorAngle[1] = trigger.errorAngle[1] * 0
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
@@ -575,7 +576,6 @@ function skullsManager.slayer(isActive)
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * 2
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
                 trigger.flags:canFireWithPartialAmmo(true)
             end
