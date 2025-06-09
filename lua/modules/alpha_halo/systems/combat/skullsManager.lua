@@ -575,11 +575,7 @@ function skullsManager.slayer(isActive)
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * 2
-                if trigger.errorAngle[1] > 0 then
-                    trigger.errorAngle[1] = trigger.errorAngle[1] * 2
-                else
-                    trigger.errorAngle[1] = trigger.errorAngle[1] + 0.5
-                end
+                trigger.errorAngle[1] = trigger.errorAngle[1] * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
                 trigger.flags:canFireWithPartialAmmo(true)
             end
