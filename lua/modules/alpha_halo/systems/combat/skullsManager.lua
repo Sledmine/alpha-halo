@@ -7,12 +7,11 @@ local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 --local blam = require "blam"
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
-
+local player
+local biped
 
 local skullsManager = {}
 
-local player
-local biped
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
     skullsManager.skullFogOnTick(false)
@@ -215,7 +214,7 @@ function skullsManager.toughluck(isActive)
     -- logger:debug("Tough Luck {}", isActive and "On" or "Off")
 end
 
----Fog: Turns off motion tracker & aguments AI surprise distance.
+---Fog: Turns off a HUD element & aguments AI surprise distance.
 ---@param isActive boolean
 function skullsManager.fog(isActive)
     for _, tagEntry in ipairs(tagEntries.actor()) do
@@ -231,21 +230,56 @@ function skullsManager.fog(isActive)
     -- logger:debug("Fog {}", isActive and "On" or "Off")
 end
 
--- Fog OnTick
+---- Fog Table
+--skullsManager.fogTable = {
+--    motion_sensor = {
+--        name = "Motion Sensor",
+--        func = execute_script("hud_show_motion_sensor 0"),
+--        active = false
+--    },
+--    health = {
+--        name = "Health",
+--        func = execute_script("hud_show_health 0"),
+--        active = false
+--    },
+--    shield = {
+--        name = "Shield",
+--        func = execute_script("hud_show_shield 0"),
+--        active = false
+--    },
+--    crosshair = {
+--        name = "Crosshair",
+--        func = execute_script("hud_show_crosshair 0"),
+--        active = false
+--    }
+--}
+---- Fog OnTick
+--local fogCounter = 0
+--local fogTimer = 300
 ---@param isActive boolean
 function skullsManager.skullFogOnTick(isActive)
     if not isActive and skullsManager.skulls.fog.active then
         execute_script("hud_show_motion_sensor 0")
+        --if fogCounter > 0 then
+        --    fogCounter = fogCounter - 1
+        --    logger:debug("Fog countdown: {}", fogCounter)
+        --else
+        --    execute_script("show_hud 1")
+        --    local fogElements = skullsManager.fogTable
+        --    local randomElement = fogElements[math.random(#fogElements)]
+        --    randomElement.func()
+        --    fogCounter = fogTimer
+        --end
     elseif isActive and not skullsManager.skulls.fog.active then
         execute_script("hud_show_motion_sensor 1")
+        --execute_script("show_hud 1")
     end
 end
 
 -- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
 ---@param isActive boolean
 function skullsManager.knucklehead(isActive)
-    local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(),
-                                                 function(tagEntry)
+    local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
                 return true
@@ -409,8 +443,7 @@ function skullsManager.tilt(isActive)
                 damageEffectModifier.elite = damageEffectModifier.elite * 0.5
                 damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 2
                 damageEffectModifier.jackal = damageEffectModifier.jackal * 0.5
-                damageEffectModifier.jackalEnergyShield =
-                damageEffectModifier.jackalEnergyShield * 2
+                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * 2
                 damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.5
                 damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.5
             else
@@ -429,11 +462,9 @@ function skullsManager.tilt(isActive)
                 damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * 2
                 damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
                 damageEffectModifier.elite = damageEffectModifier.elite * 2
-                damageEffectModifier.eliteEnergyShield =
-                    damageEffectModifier.eliteEnergyShield * 0.5
+                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 0.5
                 damageEffectModifier.jackal = damageEffectModifier.jackal * 2
-                damageEffectModifier.jackalEnergyShield =
-                    damageEffectModifier.jackalEnergyShield * 0.5
+                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * 0.5
                 damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 2
                 damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 2
             else
@@ -448,14 +479,13 @@ end
 ---Banger: Makes Grunts and Human Floods explode after dying.
 ---@param isActive boolean
 function skullsManager.banger(isActive)
-    local plasmaExplosion = findTags("weapons\\plasma grenade\\effects\\explosion", tagClasses.effect)[1]
-    local floodExplosion = findTags("characters\\floodcarrier\\effects\\body destroyed", tagClasses.effect)[1]
+    local plasmaExplosion = findTags("alpha_firefight\\effects\\skull_banger_plasma", tagClasses.effect)[1]
+    local floodExplosion = findTags("alpha_firefight\\effects\\skull_banger_flood", tagClasses.effect)[1]
     for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
         if tagEntry.path:includes("grunt") then
             local collisionGeometry = tagEntry.data
             if isActive then
-                collisionGeometry.bodyDamagedThreshold =
-                collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
                 collisionGeometry.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -463,8 +493,7 @@ function skullsManager.banger(isActive)
         elseif tagEntry.path:includes("floodcombat_human") then
             local collisionGeometry = tagEntry.data
             if isActive then
-                collisionGeometry.bodyDamagedThreshold =
-                collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
                 collisionGeometry.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -546,7 +575,11 @@ function skullsManager.slayer(isActive)
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * 2
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 2
+                if trigger.errorAngle[1] > 0 then
+                    trigger.errorAngle[1] = trigger.errorAngle[1] * 2
+                else
+                    trigger.errorAngle[1] = trigger.errorAngle[1] + 0.5
+                end
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
                 trigger.flags:canFireWithPartialAmmo(true)
             end
@@ -592,10 +625,10 @@ function skullsManager.assassin(isActive)
 end
 
 -- Assassin OnTick
+local activeCammoCounter = 0
+local activeCammoTimer = 150
 ---@param isActive boolean
 function skullsManager.skullAssassinOnTick(isActive)
-    local activeCammoCounter
-    local activeCammoTimer = 150
     player = getPlayer()
     if not player then
         return
@@ -957,7 +990,6 @@ function skullsManager.spawnBaddies1()
     local scenarioTagHandle = engine.tag.getTag(0, engine.tag.classes.scenario) -- Gets the first (and only) .scenario tag from the map
     assert(scenarioTagHandle, "Failed to get scenario tag handle.") -- Assert handle is not nil (or false)
     local actorPaletteIndex0 = scenarioTagHandle.data.actorPalette.elements[0].tagHandle.value
-    local actorPaletteIndex1 = scenarioTagHandle.data.actorPalette.elements[1].tagHandle.value
 end
 
 function skullsManager.spawnBaddies2()
