@@ -139,23 +139,16 @@ function skullsManager.catch(isActive)
     end)
     for _, tagEntry in ipairs(catchTagsFiltered) do
         local actorVariant = tagEntry.data
-        if not tagEntry.path:includes("odst") then
-            if isActive then
-            actorVariant.flags:hasUnlimitedGrenades(true)
-            actorVariant.grenadeChance = actorVariant.grenadeChance + 1
-            actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
-            actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0.01
-            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.1
-            end
-        end
         if isActive then
-            -- actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus(2) -- This doesn't work.
+            actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.visibleTarget
             actorVariant.flags:hasUnlimitedGrenades(true)
-            actorVariant.grenadeVelocity = actorVariant.grenadeVelocity * 3
             actorVariant.grenadeChance = actorVariant.grenadeChance + 1
             actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
             actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0.01
             actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0.1
+            if not tagEntry.path:includes("odst") then
+                actorVariant.grenadeVelocity = actorVariant.grenadeVelocity * 2
+            end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
@@ -601,6 +594,8 @@ end
 -- Assassin OnTick
 ---@param isActive boolean
 function skullsManager.skullAssassinOnTick(isActive)
+    local activeCammoCounter
+    local activeCammoTimer = 150
     player = getPlayer()
     if not player then
         return
@@ -613,6 +608,16 @@ function skullsManager.skullAssassinOnTick(isActive)
         biped.unitFlags:powerUp(true)
         if biped.unitControlFlags:melee() or biped.unitControlFlags:grenade() and (biped.grenadeCounts[1] > 0 or biped.grenadeCounts[2] > 0) then
             biped.camoPower = 0
+        end
+        if biped.camoPower > 0 then
+            if activeCammoCounter > 0 then
+                activeCammoCounter = activeCammoCounter - 1
+            else
+                biped.camoPower = 0
+                activeCammoCounter = activeCammoTimer
+            end
+        else
+            activeCammoCounter = activeCammoTimer
         end
     else
         biped.unitFlags:powerUp(false)
@@ -947,5 +952,21 @@ function skullsManager.disableSkull(skullType, name)
         return s.name:lower()
     end), ", "))
 end
+
+function skullsManager.spawnBaddies1()
+    local scenarioTagHandle = engine.tag.getTag(0, engine.tag.classes.scenario) -- Gets the first (and only) .scenario tag from the map
+    assert(scenarioTagHandle, "Failed to get scenario tag handle.") -- Assert handle is not nil (or false)
+    local actorPaletteIndex0 = scenarioTagHandle.data.actorPalette.elements[0].tagHandle.value
+    local actorPaletteIndex1 = scenarioTagHandle.data.actorPalette.elements[1].tagHandle.value
+end
+
+function skullsManager.spawnBaddies2()
+    
+end
+
+function skullsManager.spawnBaddies3()
+    
+end
+
 
 return skullsManager

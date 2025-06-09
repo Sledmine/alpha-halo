@@ -16,7 +16,7 @@ local gameIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.eachTick
 local waveIsOn = false
 -- VARIABLES DE LA FUNCIÓN firefightManager.WaveProgression
-local currentWave = 4
+local currentWave = 0
 local currentRound = 0
 local currentSet = 0
 local waveTemplate = "Wave %s, Round %s, Set %s."
