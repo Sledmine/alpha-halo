@@ -22,15 +22,14 @@ local time = 150
 
 ---This table holds the initial configuration for the firefight system, 
 ---and could be edited with Insurrection in the future.
+---@enum
 manager.firefight = { --------------
     set = 0,
     round = 0,
     wave = 0,
     maxSet = 3,
     maxWave = 5,
-    maxRound = 3,
-    ---@deprecated
-    randomSkull = false,
+    maxRound = 3
 }
 
 local firefight = manager.firefight
@@ -100,8 +99,8 @@ function manager.startWave(call, sleep)
     manager.progression()
     ---Aquí podemos agregar eventos en OLEADA INICIAL, como las asistencias, entrega de armas, 
     ---calaveras etc.
-    skullsManager.enableSkull("silver", "random")
-    script.wake(announcer.skullOn)
+    --skullsManager.enableSkull("silver", "random")
+    --script.wake(announcer.skullOn)
     cooldown = true
     counter = time ---Función que salta la progresión de oleadas, rondas y sets.
 end
@@ -126,11 +125,11 @@ function manager.progression()
         end
     end
     --- Aquí podemos agregar eventos en alguna oleada en específico ,siguiendo este ejemplo:
-    if firefight.wave == 5 then
-        firefight.wave = firefight.wave
-        logger:debug("Inserte función aquí")
-        --script.wake(unitDeployer.pelicanDeployer)
-    end
+    --if firefight.wave == 5 then
+    --    firefight.wave = firefight.wave
+    --    logger:debug("Inserte función aquí")
+    --    --script.wake(unitDeployer.pelicanDeployer)
+    --end
 end
 
 -------------------------------------------------------

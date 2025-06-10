@@ -22,7 +22,7 @@ local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft
 function unitDeployer.enemySpawner(call, sleep)
     hsc.garbage_collect_now()
     hsc.object_create_anew("dropship_1_1")
-    hsc.vehicle_hover("dropship_1_1", true)
+    --hsc.vehicle_hover("dropship_1_1", true)
     --Deployer.dropshipsLeft = math.random(1, Deployer.dropshipsAsigned)
     --local randomTeamIndex = math.random(1)
     --local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
@@ -33,7 +33,7 @@ function unitDeployer.enemySpawner(call, sleep)
 
     hsc.ai_place("test_encounter/test_squad")
     hsc.vehicle_load_magic("dropship_1_1", "passenger", hsc.ai_actors("test_encounter/test_squad"))
-    hsc.custom_animation("dropship_1_1", "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", "dropship_2_1", false)
+    hsc.custom_animation("dropship_1_1", "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", "dropship_3_1", false)
     hsc.ai_migrate("test_encounter/test_squad", "Covenant_Wave")
     sleep(700)
     hsc.ai_exit_vehicle("Covenant_Wave")
