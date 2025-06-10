@@ -5,6 +5,7 @@ local objectTypes = Engine.tag.objectType
 local tagClasses = Engine.tag.classes
 local blam = require "blam"
 local read_float = balltze.memory.readFloat
+local hsc = require "hsc"
 
 local vehiclePosition = {}
 
@@ -64,12 +65,14 @@ function vehiclePosition.positionUpdater()
                     local absoluteNodeY = mainNode.y + (vehicleObject.position.y - mainNode.y)
                     local absoluteNodeZ = mainNode.z + (vehicleObject.position.z - mainNode.z)
                     -- Update the vehicle position
+                    setObjectPosition(vehicleObject, mainNode.x, mainNode.y, mainNode.z)
                     vehicleObject.position.x = mainNode.x
                     vehicleObject.position.y = mainNode.y
                     vehicleObject.position.z = mainNode.z
                     vehicle.hover = 1
-                    vehicle.vehicleFlags.hovering = true
-                    setObjectPosition(vehicleObject, mainNode.x, mainNode.y, mainNode.z)
+                    --vehicleTag.data.vehicleFlags:aiDoesNotRequireDriver(true)
+                    --vehicleTag.data.vehicleFlags:gunnerPowerWakesPhysics(true)
+                    vehicle.vehicleFlags:hovering(true)
                     -- console_out(("x: {x}, y: {y}, z: {z}"):template({
                     --     x = vehicleObject.position.x,
                     --     y = vehicleObject.position.y,
