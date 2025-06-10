@@ -5,7 +5,7 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
---local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
+-- local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 local commands = require "alpha_halo.systems.firefight.commands"
 -- local firefightManager = require "alpha_halo.firefightManager"
 
@@ -72,10 +72,23 @@ function PluginLoad()
     logger:muteDebug(not DebugMode)
     logger:muteIngame(not DebugMode)
     loadChimeraCompatibility()
+    Balltze.event.frame.subscribe(function(ev)
+        if ev.time == "before" then
+            local font = "smaller"
+            local align = "center"
+            local bounds = {left = 0, top = 400, right = 640, bottom = 480}
+            local textColor = {1.0, 0.45, 0.72, 1.0}
+            local memory = collectgarbage("count")
+            local sizeInMb = memory / 1024
+            local text = string.format("Lua Memory Usage: %.4f MB", sizeInMb)
+            Balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom,
+                                      font, align, table.unpack(textColor))
+        end
+    end)
 
     -- Commands for Alpha Firefight
     for command, data in pairs(commands) do
-        --local command = command:replace("debug_", "")
+        -- local command = command:replace("debug_", "")
         balltze.command.registerCommand(command, command, data.description, data.help,
                                         data.save or false, data.minArgs or 0, data.maxArgs or 0,
                                         false, true, function(...)
