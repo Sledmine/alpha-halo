@@ -152,12 +152,8 @@ function firefightManager.eachTick()
             elseif bossWave == true and waveLivingCount <= 0 then
                 logger:debug("Round Complete!")
                 script.thread(announcer.roundCompleted)()
-                skullsManager.disableSkull("silver", "is_active")
+                skullsManager.disableSkull("silver", "is_spent")
                 script.thread(announcer.skullsResetDelay)()
-                if currentRound >= 2 then
-                    skullsManager.disableSkull("golden", "is_active")
-                    script.thread(announcer.skullsResetDelay)()
-                end
                 waveIsOn = false
                 bossWaveCooldown = true
                 getOutOfGhost = true
@@ -227,16 +223,14 @@ function firefightManager.waveCooldown()
             script.thread(announcer.roundStart)()
         end
         -- Si recién iniciamos una ronda, encendemos una calavera plateada y una dorada
-        if currentWave == 1 and currentRound >= 1 then
-            skullsManager.enableSkull("silver", "random")
+        if currentWave == 1 then
             skullsManager.enableSkull("golden", "random")
-            script.thread(announcer.skullsOnDelay)()
-        end
-        if currentWave > 1 and currentWave < 6 then
+            skullsManager.enableSkull("golden", "restore")
+        elseif currentWave > 1 then
             skullsManager.enableSkull("silver", "random")
-            script.thread(announcer.skullOn)()
-            hsc.ai_erase(currentSupportType) -- Erase duplicated cd gun turret gunner with each wave
         end
+        script.thread(announcer.skullOnDelay)()
+        hsc.ai_erase(currentSupportType)
         if currentWave == 5 then
             script.startup(firefightManager.pelicanDeployer)
             logger:debug("Here comes the help!")
@@ -506,20 +500,29 @@ end
 
 -- Each 10 seconds, enemy AI will try to magically see each player if they exist & aren't invisible.
 function firefightManager.aiSight()
-    local playerCount = hsc.list_count(hsc.players())
-    for i = 0, playerCount - 1 do
-        local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
-        assert(playerUnit)
-        if playerUnit.isCamoActive == false then
-            hsc.ai_magically_see_unit("Covenant_Wave", playerUnit)
-            hsc.ai_magically_see_unit("Covenant_Support", playerUnit)
-            hsc.ai_magically_see_unit("Flood_Wave", playerUnit)
-            hsc.ai_magically_see_unit("Flood_Support", playerUnit)
-            hsc.ai_magically_see_unit("Covenant_Banshees", playerUnit)
-            hsc.ai_magically_see_unit("Covenant_Snipers", playerUnit)
-            hsc.ai_magically_see_unit("Sentinel_Team", playerUnit)
-        end
-    end
+    hsc.ai_magically_see_players("Covenant_Wave")
+    hsc.ai_magically_see_players("Covenant_Support")
+    hsc.ai_magically_see_players("Flood_Wave")
+    hsc.ai_magically_see_players("Flood_Support")
+    hsc.ai_magically_see_players("Covenant_Banshees")
+    hsc.ai_magically_see_players("Covenant_Snipers")
+    hsc.ai_magically_see_players("Sentinel_Team")
+    ----This bellow is not working, but it should be used to magically see players.
+    ----In theory, this should iterate the conditions for each player and units magically seeing them.
+    --local playerCount = hsc.list_count(hsc.players())
+    --for i = 0, playerCount - 1 do
+    --    local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
+    --    assert(playerUnit)
+    --    if playerUnit.isCamoActive == false then
+    --        hsc.ai_magically_see_unit("Covenant_Wave", playerUnit)
+    --        hsc.ai_magically_see_unit("Covenant_Support", playerUnit)
+    --        hsc.ai_magically_see_unit("Flood_Wave", playerUnit)
+    --        hsc.ai_magically_see_unit("Flood_Support", playerUnit)
+    --        hsc.ai_magically_see_unit("Covenant_Banshees", playerUnit)
+    --        hsc.ai_magically_see_unit("Covenant_Snipers", playerUnit)
+    --        hsc.ai_magically_see_unit("Sentinel_Team", playerUnit)
+    --    end
+    --end
 end
 
 return firefightManager

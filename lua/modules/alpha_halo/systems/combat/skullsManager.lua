@@ -377,7 +377,7 @@ function skullsManager.newton(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.newton.active = isActive
+    --skullsManager.skulls.newton.active = isActive
     -- logger:debug("Newton {}", isActive and "On" or "Off")
 end
 
@@ -688,111 +688,129 @@ end
 skullsManager.skulls = {
     famine = {
         name = "Famine",
-        type = "golden",
         func = skullsManager.famine,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     mythic = {
         name = "Mythic",
-        type = "golden",
         func = skullsManager.mythic,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     blind = {
         name = "Blind",
-        type = "golden",
         func = skullsManager.blind,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     catch = {
         name = "Catch",
-        type = "golden",
         func = skullsManager.catch,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     berserk = {
         name = "Berserk",
-        type = "silver",
         func = skullsManager.berserk,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     toughluck = {
         name = "Though Luck",
-        type = "silver",
         func = skullsManager.toughluck,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     fog = {
         name = "Fog",
-        type = "silver",
         func = skullsManager.fog,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     knucklehead = {
         name = "Knucklehead",
-        type = "silver",
         func = skullsManager.knucklehead,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     cowbell = {
         name = "Cowbell",
-        type = "silver",
         func = skullsManager.cowbell,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     havok = {
         name = "Havok",
-        type = "silver",
         func = skullsManager.havok,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     newton = {
         name = "Newton",
-        type = "silver",
         func = skullsManager.newton,
-        active = false
+        available = 5,
+        spent = 0,
+        permanent = false
     },
     tilt = {
         name = "Tilt",
-        type = "silver",
         func = skullsManager.tilt,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     banger = {
         name = "Banger",
-        type = "silver",
         func = skullsManager.banger,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     doubledown = {
         name = "Double Down",
-        type = "silver",
         func = skullsManager.doubledown,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     eyepatch = {
         name = "Eye Patch",
-        type = "silver",
         func = skullsManager.eyepatch,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     triggerswitch = {
         name = "Trigger Switch",
-        type = "silver",
         func = skullsManager.triggerswitch,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     slayer = {
         name = "Slayer",
-        type = "silver",
         func = skullsManager.slayer,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     },
     assassin = {
         name = "Assassin",
-        type = "silver",
         func = skullsManager.assassin,
-        active = false
+        available = 1,
+        spent = 0,
+        permanent = false
     }
 }
 
@@ -807,41 +825,48 @@ skullsManager.skulls = {
 --    end
 -- end
 
-local goldenSkulls = {
-    skullsManager.skulls.famine,
-    skullsManager.skulls.mythic,
-    skullsManager.skulls.blind,
-    skullsManager.skulls.catch
-}
+--local goldenSkulls = {
+--    skullsManager.skulls.famine,
+--    skullsManager.skulls.mythic,
+--    skullsManager.skulls.blind,
+--    skullsManager.skulls.catch,
+--}
 
-local silverSkulls = {
-    skullsManager.skulls.berserk,
-    skullsManager.skulls.toughluck,
-    skullsManager.skulls.fog,
-    skullsManager.skulls.knucklehead,
-    skullsManager.skulls.cowbell,
-    skullsManager.skulls.havok,
+local skullList = {
+    --skullsManager.skulls.famine,
+    --skullsManager.skulls.mythic,
+    --skullsManager.skulls.blind,
+    --skullsManager.skulls.catch,
+    --skullsManager.skulls.berserk,
+    --skullsManager.skulls.toughluck,
+    --skullsManager.skulls.fog,
+    --skullsManager.skulls.knucklehead,
+    --skullsManager.skulls.cowbell,
+    --skullsManager.skulls.havok,
     skullsManager.skulls.newton,
-    skullsManager.skulls.tilt,
-    skullsManager.skulls.banger,
-    skullsManager.skulls.doubledown,
-    skullsManager.skulls.eyepatch,
-    skullsManager.skulls.triggerswitch,
-    skullsManager.skulls.slayer,
-    skullsManager.skulls.assassin
+    --skullsManager.skulls.tilt,
+    --skullsManager.skulls.banger,
+    --skullsManager.skulls.doubledown,
+    --skullsManager.skulls.eyepatch,
+    --skullsManager.skulls.triggerswitch,
+    --skullsManager.skulls.slayer,
+    --skullsManager.skulls.assassin
 }
 
 
 ------------------------------------------------------ Functions to enable/disable skulls ------------------------------------------------------
 
----Activate Specified Skull by type and name
----@param skullType string | "silver" | "golden"
----@param name string | "random" | "all"
-function skullsManager.enableSkull(skullType, name)
-    local skullList = skullType == "silver" and silverSkulls or skullType == "golden" and goldenSkulls or nil
+---- This is going to skullsManager()
+--gameStartingSkulls = false,
+--startingSkullsMultiplier = 1,
+--skullAvailabilityIndex = 1
 
+---Activate Specified Skull by type and name
+---@param skullType string | "silver" | "golden" 
+---@param name string | "random" | "all" | "restore"
+function skullsManager.enableSkull(skullType, name)
     -- Check if the skullList is valid and name is provided
-    if not skullList or not name then
+    if not skullType or not name then
         logger:error(
             "Invalid parameters. Usage: activate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> ]")
         return
@@ -849,15 +874,16 @@ function skullsManager.enableSkull(skullType, name)
 
     -- Enable all skulls of one type
     if name:lower() == "all" then
-        if skullList then
-            for _, skull in ipairs(skullList) do
-                if not skull.active then
-                    skull.func(true)
-                    skull.active = true
-                    logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper), skull.name)
-                else
-                    logger:warning("{} skull '{}' is already active.", skullType:gsub("^%l", string.upper), skull.name)
+        for _, skull in ipairs(skullList) do
+            if not skull.spent == skull.available then
+                skull.func(true)
+                skull.spent = skull.spent + 1
+                if skullType:lower() == "golden" then
+                    skull.permanent = true
                 end
+                logger:info("{} skull '{}' activated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
+            else
+                logger:warning("{} skull '{}' is already spent.", skullType:gsub("^%l", string.upper), skull.name)
             end
         end
         return
@@ -865,49 +891,70 @@ function skullsManager.enableSkull(skullType, name)
 
     -- Enable a skull by random
     if name:lower() == "random" then
-        local notActive = table.filter(skullList, function(skull)
-            return not skull.active
+        local notSpent = table.filter(skullList, function(skull)
+            return skull.spent < skull.available
         end)
-
-        if #notActive == 0 then
-            logger:warning("All {} skulls are already active.", skullType:gsub("^%l", string.upper))
+        if #notSpent == 0 then
+            logger:warning("All {} skulls are already spent.", skullType:gsub("^%l", string.upper))
             return
         end
-
-        local randomSkull = notActive[math.random(#notActive)]
+        local randomSkull = notSpent[math.random(#notSpent)]
         randomSkull.func(true)
-        randomSkull.active = true
-        logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper), randomSkull.name)
+        randomSkull.spent = randomSkull.spent + 1
+        if skullType:lower() == "golden" then
+            randomSkull.permanent = true
+        end
+        logger:info("{} skull '{}' activated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), randomSkull.name, randomSkull.permanent, randomSkull.spent, randomSkull.available)
         return
+    end
+
+    -- Restore all permanent skulls
+    if name:lower() == "restore" then
+        local isPermanent = table.filter(skullList, function(skull)
+            return skull.permanent
+        end)
+        if #isPermanent == 0 then
+            logger:warning("No permanent {} skulls to restore.", skullType:gsub("^%l", string.upper))
+            return
+        end
+        for _, skull in ipairs(isPermanent) do
+            if not skull.spent == skull.available then
+                skull.func(true)
+                skull.spent = skull.spent + 1
+                logger:info("{} skull '{}' restored. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
+            else
+                logger:warning("{} skull '{}' was already active.", skullType:gsub("^%l", string.upper), skull.name)
+            end
+        end
     end
 
     -- Search by specific name
     for _, skull in ipairs(skullList) do
         if name:lower() == skull.name:lower() then
-            if skull.active then
-                logger:warning("{} skull '{}' is already active.", skullType:gsub("^%l", string.upper), skull.name)
+            if skull.spent == skull.available then
+                logger:warning("{} skull '{}' is already spent.", skullType:gsub("^%l", string.upper), skull.name)
             else
                 skull.func(true)
-                skull.active = true
-                logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper), skull.name)
+                skull.spent = skull.spent + 1
+                if skullType:lower() == "golden" then
+                    skull.permanent = true
+                end
+                logger:info("{} skull '{}' activated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
             end
             return
         end
     end
 
-    logger:info("{} skull '{}' not found. Available: {}", skullType:gsub("^%l", string.upper), name, table.concat(table.map(skullList, function(s)
+    logger:info("{} skull '{}' not found. Skull List: {}", skullType:gsub("^%l", string.upper), name, table.concat(table.map(skullList, function(s)
         return s.name:lower()
     end), ", "))
 end
 
 
 ---Deactivate specified Skull by type and name
----@param skullType string | "silver" | "golden"
----@param name string | "random" | "all" | "is_active"
+---@param skullType string | "silver" | "golden" | "permanent" 
+---@param name string | "random" | "all" | "is_spent"
 function skullsManager.disableSkull(skullType, name)
-    -- Select the list of skulls by type
-    local skullList = skullType == "silver" and silverSkulls or skullType == "golden" and goldenSkulls or nil
-
     -- Check if the skullList is valid and name is provided
     if not skullList or not name then
         logger:error(
@@ -918,10 +965,10 @@ function skullsManager.disableSkull(skullType, name)
     -- Disable all skulls of one type
     if name:lower() == "all" then
         for _, skull in ipairs(skullList) do
-            if skull.active then
+            if skull.spent > 0 then
                 skull.func(false)
-                skull.active = false
-                logger:info("{} skull: '{}' deactivated", skullType:gsub("^%l", string.upper), skull.name)
+                skull.spent = 0
+                logger:info("{} skull: '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
             else
                 logger:warning("{} skull '{}' is already inactive.", skullType:gsub("^%l", string.upper), skull.name)
             end
@@ -929,39 +976,36 @@ function skullsManager.disableSkull(skullType, name)
         return
     end
 
-    -- Disable an active skull by random
+    -- Disable an spent skull by random
     if name:lower() == "random" then
-        -- Filter the skull ones that are active
-        local activeSkulls = table.filter(skullList, function(skull)
-            return skull.active
+        -- Filter the skull ones that are spent
+        local spentSkulls = table.filter(skullList, function(skull)
+            return skull.spent > 0
         end)
-
-        -- If none skull are active, exit
-        if #activeSkulls == 0 then
+        -- If none skull are spent, exit
+        if #spentSkulls == 0 then
             logger:warning("All {} skulls are already deactivated.", skullType:gsub("^%l", string.upper))
             return
         end
-
-        -- Choose a random active skull and deactivate it
-        local randomSkull = activeSkulls[math.random(#activeSkulls)]
+        -- Choose a random spent skull and deactivate it
+        local randomSkull = spentSkulls[math.random(#spentSkulls)]
         randomSkull.func(false)
-        randomSkull.active = false
-        logger:info("{} skull: '{}' deactivated", skullType:gsub("^%l", string.upper), randomSkull.name)
+        randomSkull.spent = 0
+        logger:info("{} skull: '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), randomSkull.name, randomSkull.permanent, randomSkull.spent, randomSkull.available)
         return
     end
 
     -- Disable only the currently activated skulls of this type
-    if name:lower() == "is_active" then
+    if name:lower() == "is_spent" then
         local anyDeactivated = false
         for _, skull in ipairs(skullList) do
-            if skull.active then
+            if skull.spent > 0 then
                 skull.func(false)
-                skull.active = false
-                logger:info("{} Skull '{}' deactivated.", skullType:gsub("^%l", string.upper), skull.name)
+                skull.spent = 0
+                logger:info("{} Skull '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
                 anyDeactivated = true
             end
         end
-
         if not anyDeactivated then
             logger:warning("No {} skulls are currently activated.", skullType:gsub("^%l", string.upper))
         end
@@ -971,12 +1015,29 @@ function skullsManager.disableSkull(skullType, name)
     -- Search by specific name
     for _, skull in ipairs(skullList) do
         if name:lower() == skull.name:lower() then
-            if not skull.active then
+            if not skull.spent > 0 then
                 logger:warning("{} Skull '{}' is already inactive.", skullType:gsub("^%l", string.upper), skull.name)
             else
                 skull.func(false)
-                skull.active = false
-                logger:info("{} Skull '{}' deactivated.", skullType:gsub("^%l", string.upper), skull.name)
+                skull.spent = 0
+                if skullType:lower() == "permanent" then
+                    skull.permanent = false
+                end
+                logger:info("{} Skull '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
+            end
+            return
+        end
+    end
+
+    -- Search by specific name to turn off permanency.
+    for _, skull in ipairs(skullList) do
+        if skullType:lower() == "permanent" and name:lower() == skull.name:lower() then
+            if not skull.permanent then
+                logger:warning("{} Skull '{}' is already unpermanent.", skullType:gsub("^%l", string.upper), skull.name)
+            else
+                skull.func(false)
+                skull.permanent = false
+                logger:info("Is {} Skull '{}' permanent? '{}'", skullType:gsub("^%l", string.upper), skull.name, skull.permanent)
             end
             return
         end
@@ -987,20 +1048,5 @@ function skullsManager.disableSkull(skullType, name)
         return s.name:lower()
     end), ", "))
 end
-
-function skullsManager.spawnBaddies1()
-    local scenarioTagHandle = engine.tag.getTag(0, engine.tag.classes.scenario) -- Gets the first (and only) .scenario tag from the map
-    assert(scenarioTagHandle, "Failed to get scenario tag handle.") -- Assert handle is not nil (or false)
-    local actorPaletteIndex0 = scenarioTagHandle.data.actorPalette.elements[0].tagHandle.value
-end
-
-function skullsManager.spawnBaddies2()
-    
-end
-
-function skullsManager.spawnBaddies3()
-    
-end
-
 
 return skullsManager
