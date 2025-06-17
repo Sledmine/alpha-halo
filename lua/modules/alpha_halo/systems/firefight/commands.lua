@@ -1,5 +1,5 @@
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
---local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
+local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 
 local commands = {}
 
@@ -31,7 +31,7 @@ commands = {
         minArgs = 0,
         maxArgs = 1,
         func = function()
-            --unitDeployer.squadAssembler()
+            unitDeployer.squadAssembler()
         end
     },
 }
