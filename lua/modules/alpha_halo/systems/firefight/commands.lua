@@ -1,4 +1,5 @@
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
+local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 
 local commands = {}
 
@@ -21,6 +22,16 @@ commands = {
         maxArgs = 2,
         func = function(type, skullName)
             skullsManager.disableSkull(type, skullName)
+        end
+    },
+    squad_assembler = {
+        description = "Assemble a squad of AI.",
+        category = "debug",
+        help = "Usage: squad_assembler",
+        minArgs = 0,
+        maxArgs = 1,
+        func = function()
+            unitDeployer.squadAssembler()
         end
     },
 }
