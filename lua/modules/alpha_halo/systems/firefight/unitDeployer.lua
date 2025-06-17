@@ -5,69 +5,362 @@ local eventsManager = require "alpha_halo.systems.firefight.events"
 local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
 local hsc = require "hsc"
+local actorVariants = require "alpha_halo.systems.core.actorVariants"
+local nullHandle = 0xFFFFFFFF
 
 local unitDeployer = {}
 
-Deployer = {
-    dropshipsAsigned = 3,
-    dropshipsLeft = 0,
-    randomDropship = 1,
-    dropshipTemplate = "dropship_%s_%s",
+------------------------------------------------------------
+------ Covenant Fireteams ------
+------------------------------------------------------------
+local elite = actorVariants.covenant.elite
+local grunt = actorVariants.covenant.grunt
+local jackal = actorVariants.covenant.jackal
+local hunter = actorVariants.covenant.hunter
+unitDeployer.covenantFireteams = {
+    startingSquad = {
+        name = "Starting Squad",
+        random = false,
+        unit1 = grunt.majorNdlr.handle.value,
+        unit2 = grunt.majorPP.handle.value,
+        unit3 = grunt.minorNdlr.handle.value,
+        unit4 = grunt.minorNdlr.handle.value,
+        unit5 = grunt.minorPP.handle.value,
+        unit6 = grunt.minorPP.handle.value,
+        unit7 = grunt.minorPP.handle.value,
+        unit8 = grunt.minorPP.handle.value,
+    },
+    eliteSquad = {
+        name = "Elite Squad",
+        random = true,
+        unit1 = elite.majorNdlr.handle.value,
+        unit2 = elite.majorPR.handle.value,
+        unit3 = elite.minorNdlr.handle.value,
+        unit4 = elite.minorPR.handle.value,
+        unit5 = elite.minorPR.handle.value,
+        unit6 = elite.minorPR.handle.value,
+        unit7 = elite.minorPR.handle.value,
+        unit8 = elite.minorPR.handle.value,
+    },
+    stealthSquad = {
+        name = "Stealth Squad",
+        random = true,
+        unit1 = elite.stealthES.handle.value,
+        unit2 = elite.stealthES.handle.value,
+        unit3 = elite.stealthPR.handle.value,
+        unit4 = elite.stealthPR.handle.value,
+        unit5 = elite.stealthPR.handle.value,
+        unit6 = elite.stealthPR.handle.value,
+        unit7 = elite.stealthPR.handle.value,
+        unit8 = elite.stealthPR.handle.value,
+    },
+    gruntSquad = {
+        name = "Grunt Squad",
+        random = true,
+        unit1 = grunt.heavyFR.handle.value,
+        unit2 = grunt.heavyFR.handle.value,
+        unit3 = grunt.majorNdlr.handle.value,
+        unit4 = grunt.majorPP.handle.value,
+        unit5 = grunt.minorNdlr.handle.value,
+        unit6 = grunt.minorPP.handle.value,
+        unit7 = grunt.minorPP.handle.value,
+        unit8 = grunt.minorPP.handle.value,
+    },
+    jackalSquad = {
+        name = "Jackal Squad",
+        random = true,
+        unit1 = jackal.scoutCarbine.handle.value,
+        unit2 = jackal.scoutCarbine.handle.value,
+        unit3 = jackal.majorPP.handle.value,
+        unit4 = jackal.majorPP.handle.value,
+        unit5 = jackal.minorPP.handle.value,
+        unit6 = jackal.minorPP.handle.value,
+        unit7 = jackal.minorPP.handle.value,
+        unit8 = jackal.minorPP.handle.value,
+    },
+    hunterSquad = {
+        name = "Hunter Squad",
+        random = true,
+        unit1 = hunter.hunter.handle.value,
+        unit2 = hunter.hunter.handle.value,
+        unit3 = grunt.minorNdlr.handle.value,
+        unit4 = grunt.majorPP.handle.value,
+        unit5 = grunt.minorPP.handle.value,
+        unit6 = grunt.minorPP.handle.value,
+        unit7 = nullHandle,
+        unit8 = nullHandle,
+    },
+    specOpsSquad = {
+        name = "Spec Ops Squad",
+        random = false,
+        unit1 = elite.specOpsNdlr.handle.value,
+        unit2 = elite.specOpsPR.handle.value,
+        unit3 = elite.specOpsPR.handle.value,
+        unit4 = grunt.specOpsFR.handle.value,
+        unit5 = grunt.specOpsNdlr.handle.value,
+        unit6 = grunt.specOpsNdlr.handle.value,
+        unit7 = grunt.specOpsNdlr.handle.value,
+        unit8 = grunt.specOpsNdlr.handle.value,
+    },
+    zealotSquad = {
+        name = "Zealot Squad",
+        random = false,
+        unit1 = elite.zealotES.handle.value,
+        unit2 = elite.zealotES.handle.value,
+        unit3 = elite.zealotPC.handle.value,
+        unit4 = elite.zealotPC.handle.value,
+        unit5 = nullHandle,
+        unit6 = nullHandle,
+        unit7 = nullHandle,
+        unit8 = nullHandle,
+    },
 }
 
-local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft, Deployer.randomDropship)
+------------------------------------------------------------
+------ Flood Fireteams ------
+------------------------------------------------------------
+local floodHuman = actorVariants.flood.floodHuman
+local floodElite = actorVariants.flood.floodElite
+local carrier = actorVariants.flood.carrier
+unitDeployer.floodFireteams = {
+    startingSquad = {
+        name = "Starting Squad",
+        random = false,
+        unit1 = floodHuman.humanPR.handle.value,
+        unit2 = floodHuman.humanPR.handle.value,
+        unit3 = floodHuman.humanNdlr.handle.value,
+        unit4 = floodHuman.humanNdlr.handle.value,
+        unit5 = floodHuman.humanUnarm.handle.value,
+        unit6 = floodHuman.humanUnarm.handle.value,
+        unit7 = floodHuman.humanUnarm.handle.value,
+        unit8 = floodHuman.humanUnarm.handle.value,
+    },
+    humanFlame = {
+        name = "Human Flame Squad",
+        random = true,
+        unit1 = floodHuman.armoredFT.handle.value,
+        unit2 = floodHuman.armoredFT.handle.value,
+        unit3 = floodHuman.humanSS.handle.value,
+        unit4 = floodHuman.humanSS.handle.value,
+        unit5 = floodHuman.humanSS.handle.value,
+        unit6 = floodHuman.humanSS.handle.value,
+        unit7 = floodHuman.humanSS.handle.value,
+        unit8 = floodHuman.humanSS.handle.value,
+    },
+    humanSniper = {
+        name = "Human Sniper Squad",
+        random = true,
+        unit1 = floodHuman.armoredSR.handle.value,
+        unit2 = floodHuman.armoredSR.handle.value,
+        unit3 = floodHuman.humanBR.handle.value,
+        unit4 = floodHuman.humanBR.handle.value,
+        unit5 = floodHuman.humanBR.handle.value,
+        unit6 = floodHuman.humanBR.handle.value,
+        unit7 = floodHuman.humanBR.handle.value,
+        unit8 = floodHuman.humanBR.handle.value,
+    },
+    humanRocket = {
+        name = "Human Rocket Squad",
+        random = true,
+        unit1 = floodHuman.armoredRL.handle.value,
+        unit2 = floodHuman.armoredRL.handle.value,
+        unit3 = floodHuman.humanUnarm.handle.value,
+        unit4 = floodHuman.humanUnarm.handle.value,
+        unit5 = floodHuman.humanUnarm.handle.value,
+        unit6 = floodHuman.humanUnarm.handle.value,
+        unit7 = floodHuman.humanUnarm.handle.value,
+        unit8 = floodHuman.humanUnarm.handle.value,
+    },
+    eliteSquad = {
+        name = "Elite Squad",
+        random = true,
+        unit1 = floodElite.minorAR.handle.value,
+        unit2 = floodElite.minorAR.handle.value,
+        unit3 = floodElite.minorAR.handle.value,
+        unit4 = floodElite.minorAR.handle.value,
+        unit5 = floodElite.minorSG.handle.value,
+        unit6 = floodElite.minorSG.handle.value,
+        unit7 = floodElite.majorAR.handle.value,
+        unit8 = floodElite.majorSG.handle.value,
+    },
+    stealthSquad = {
+        name = "Stealth Squad",
+        random = true,
+        unit1 = floodElite.stealthES.handle.value,
+        unit2 = floodElite.stealthES.handle.value,
+        unit3 = floodElite.stealthUnarm.handle.value,
+        unit4 = floodElite.stealthUnarm.handle.value,
+        unit5 = floodElite.stealthUnarm.handle.value,
+        unit6 = floodElite.stealthUnarm.handle.value,
+        unit7 = floodElite.stealthUnarm.handle.value,
+        unit8 = floodElite.stealthUnarm.handle.value,
+    },
+    carrierSquad = {
+        name = "Carrier Squad",
+        random = true,
+        unit1 = floodHuman.humanPR.handle.value,
+        unit2 = floodHuman.humanPR.handle.value,
+        unit3 = floodHuman.humanNdlr.handle.value,
+        unit4 = floodHuman.humanNdlr.handle.value,
+        unit5 = carrier.carrier.handle.value,
+        unit6 = carrier.carrier.handle.value,
+        unit7 = nullHandle,
+        unit8 = nullHandle,
+    },
+    specOpsSquad = {
+        name = "Spec Ops Squad",
+        random = false,
+        unit1 = floodElite.specOpsNdlr.handle.value,
+        unit2 = floodElite.specOpsNdlr.handle.value,
+        unit3 = floodElite.specOpsPR.handle.value,
+        unit4 = floodElite.specOpsPR.handle.value,
+        unit5 = floodHuman.odstSG.handle.value,
+        unit6 = floodHuman.odstSG.handle.value,
+        unit7 = floodHuman.odstSG.handle.value,
+        unit8 = floodHuman.odstSG.handle.value,
+    },
+    zealotSquad = {
+        name = "Zealot Squad",
+        random = false,
+        unit1 = floodElite.zealotES.handle.value,
+        unit2 = floodElite.zealotES.handle.value,
+        unit3 = floodElite.zealotRL.handle.value,
+        unit4 = floodElite.zealotRL.handle.value,
+        unit5 = nullHandle,
+        unit6 = nullHandle,
+        unit7 = nullHandle,
+        unit8 = nullHandle,
+    },
+}
 
+------------------------------------------------------------
+------ Human Fireteams ------
+------------------------------------------------------------
+local odst = actorVariants.human.odst
+unitDeployer.humanFireteams = {
+    odstSquad = {
+        name = "ODST Squad",
+        random = false,
+        unit1 = odst.sniper.handle.value,
+        unit2 = odst.sniper.handle.value,
+        unit3 = odst.shotgun.handle.value,
+        unit4 = odst.shotgun.handle.value,
+        unit5 = odst.shotgun.handle.value,
+        unit6 = odst.shotgun.handle.value,
+        unit7 = odst.shotgun.handle.value,
+        unit8 = odst.shotgun.handle.value,
+    },
+}
 
----@Test Test function to deploy a wave
-function unitDeployer.enemySpawner(call, sleep)
-    hsc.garbage_collect_now()
-    hsc.object_create_anew("dropship_1_1")
-    --hsc.vehicle_hover("dropship_1_1", true)
-    --Deployer.dropshipsLeft = math.random(1, Deployer.dropshipsAsigned)
-    --local randomTeamIndex = math.random(1)
-    --local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
-    --local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
-    hsc.ai_place("Enemy_Team_1/Spirit_Gunner")
-    hsc.vehicle_load_magic("dropship_1_1", "gunseat", hsc.ai_actors("Enemy_Team_1/Spirit_Gunner"))
-    hsc.ai_migrate("Enemy_Team_1/Spirit_Gunner", "Covenant_Support")
+------------------------------------------------------------
+------ Sentinel Fireteams ------
+------------------------------------------------------------
+local sentinel = actorVariants.sentinel.sentinel
+unitDeployer.sentinelFireteams = {
+    sentinelSquad = {
+        name = "Sentinel Squad",
+        random = false,
+        unit1 = sentinel.shieldedMajor.handle.value,
+        unit2 = sentinel.shieldedMajor.handle.value,
+        unit3 = sentinel.sentinel.handle.value,
+        unit4 = sentinel.sentinel.handle.value,
+        unit5 = sentinel.sentinel.handle.value,
+        unit6 = sentinel.sentinel.handle.value,
+        unit7 = sentinel.sentinel.handle.value,
+        unit8 = sentinel.sentinel.handle.value,
+    },
+}
 
-    hsc.ai_place("test_encounter/test_squad")
-    hsc.vehicle_load_magic("dropship_1_1", "passenger", hsc.ai_actors("test_encounter/test_squad"))
-    hsc.custom_animation("dropship_1_1", "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", "dropship_3_1", false)
-    hsc.ai_migrate("test_encounter/test_squad", "Covenant_Wave")
-    sleep(700)
-    hsc.ai_exit_vehicle("Covenant_Wave")
-    --sleep(1200)
-    --hsc.object_destroy_containing("dropship")
-end
-
-function unitDeployer.pelicanDeployer(call, sleep)
-    hsc.garbage_collect_now()
-    sleep(700)
-    hsc.ai_place("Human_Team/ODSTs")
-    hsc.ai_place("human_support/pelican_pilot")
-    hsc.object_create_anew("foehammer_cliff")
-    hsc.vehicle_load_magic("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs"))
-    hsc.vehicle_load_magic("foehammer_cliff", "driver", hsc.ai_actors("human_support/pelican_pilot"))
-    hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
-    --sleep(30)
-    hsc.unit_set_enterable_by_player("foehammer_cliff", false)
-    hsc.unit_close("foehammer_cliff")
-    hsc.object_teleport("foehammer_cliff", "foehammer_cliff_flag")
-    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), true)
-    hsc.recording_play_and_hover( "foehammer_cliff", "foehammer_cliff_in")
-    sleep(1200)
-    hsc.unit_open("foehammer_cliff")
-    sleep(90)
-    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), false)
-    hsc.vehicle_unload("foehammer_cliff", "rider")
-    sleep(120)
-    if not hsc.vehicle_test_seat_list("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs")) then
-        hsc.unit_close("foehammer_cliff")
-        sleep(120)
-        hsc.vehicle_hover("foehammer_cliff", false)
-        hsc.recording_play_and_delete("foehammer_cliff", "foehammer_cliff_out")
+------------------------------------------------------------
+------ Squad Assembler ------
+------------------------------------------------------------
+-- We get the scenario.
+local scenario = engine.tag.getTag(0, engine.tag.classes.scenario)
+assert(scenario)
+-- We get the actor palette elements.
+local actorsPaletteElements = scenario.data.actorPalette.elements
+-- We assemble the squad.
+function unitDeployer.squadAssembler()
+    -- Get Fireteams labbed as random.
+    local randomFireteams = table.filter(unitDeployer.covenantFireteams, function(fireteam)
+        return fireteam.random
+    end)
+    -- Just in case.
+    if #randomFireteams == 0 then
+        logger:warning("No Fireteams left, somehow? Wtf you did")
+        return
     end
+    -- Randomize the available Fireteams.
+    local selectedTeam = randomFireteams[math.random(#randomFireteams)]
+    -- We're trying to change the value from the actor palette to match the value of the tag referenced here.
+    actorsPaletteElements[1].tagHandle.value = selectedTeam.unit1
+    --actorsPaletteElements[2].tagHandle.value = selectedTeam.unit2
+    --actorsPaletteElements[3].tagHandle.value = selectedTeam.unit3
+    --actorsPaletteElements[4].tagHandle.value = selectedTeam.unit4
+    --actorsPaletteElements[5].tagHandle.value = selectedTeam.unit5
+    --actorsPaletteElements[6].tagHandle.value = selectedTeam.unit6
+    --actorsPaletteElements[7].tagHandle.value = selectedTeam.unit7
+    --actorsPaletteElements[8].tagHandle.value = selectedTeam.unit8
 end
+
+------------------------------------------------------------
+------ Legacy Stuff ------
+------------------------------------------------------------
+--Deployer = {
+--    dropshipsAsigned = 3,
+--    dropshipsLeft = 0,
+--    randomDropship = 1,
+--    dropshipTemplate = "dropship_%s_%s",
+--}
+--local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft, Deployer.randomDropship)
+-----@Test Test function to deploy a wave
+--function unitDeployer.enemySpawner(call, sleep)
+--    hsc.object_create_anew("dropship_1_1")
+--    --hsc.vehicle_hover("dropship_1_1", true)
+--    --Deployer.dropshipsLeft = math.random(1, Deployer.dropshipsAsigned)
+--    --local randomTeamIndex = math.random(1)
+--    --local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
+--    --local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
+--    hsc.ai_place("Enemy_Team_1/Spirit_Gunner")
+--    hsc.vehicle_load_magic("dropship_1_1", "gunseat", hsc.ai_actors("Enemy_Team_1/Spirit_Gunner"))
+--    hsc.ai_migrate("Enemy_Team_1/Spirit_Gunner", "Covenant_Support")
+--
+--    hsc.ai_place("test_encounter/test_squad")
+--    hsc.vehicle_load_magic("dropship_1_1", "passenger", hsc.ai_actors("test_encounter/test_squad"))
+--    hsc.custom_animation("dropship_1_1", "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", "dropship_3_1", false)
+--    hsc.ai_migrate("test_encounter/test_squad", "Covenant_Wave")
+--    sleep(700)
+--    hsc.ai_exit_vehicle("Covenant_Wave")
+--    --sleep(1200)
+--    --hsc.object_destroy_containing("dropship")
+--end
+
+--function unitDeployer.pelicanDeployer(call, sleep)
+--    sleep(700)
+--    hsc.ai_place("Human_Team/ODSTs")
+--    hsc.ai_place("human_support/pelican_pilot")
+--    hsc.object_create_anew("foehammer_cliff")
+--    hsc.vehicle_load_magic("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs"))
+--    hsc.vehicle_load_magic("foehammer_cliff", "driver", hsc.ai_actors("human_support/pelican_pilot"))
+--    hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
+--    --sleep(30)
+--    hsc.unit_set_enterable_by_player("foehammer_cliff", false)
+--    hsc.unit_close("foehammer_cliff")
+--    hsc.object_teleport("foehammer_cliff", "foehammer_cliff_flag")
+--    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), true)
+--    hsc.recording_play_and_hover( "foehammer_cliff", "foehammer_cliff_in")
+--    sleep(1200)
+--    hsc.unit_open("foehammer_cliff")
+--    sleep(90)
+--    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), false)
+--    hsc.vehicle_unload("foehammer_cliff", "rider")
+--    sleep(120)
+--    if not hsc.vehicle_test_seat_list("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs")) then
+--        hsc.unit_close("foehammer_cliff")
+--        sleep(120)
+--        hsc.vehicle_hover("foehammer_cliff", false)
+--        hsc.recording_play_and_delete("foehammer_cliff", "foehammer_cliff_out")
+--    end
+--end
 
 return unitDeployer
