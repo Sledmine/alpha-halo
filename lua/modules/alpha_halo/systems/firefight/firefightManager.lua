@@ -4,6 +4,8 @@ local engine = Engine
 local eventsManager = require "alpha_halo.systems.firefight.events"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
+local pigPen = require "alpha_halo.systems.core.pigPen"
+local healthManager = require "alpha_halo.systems.combat.healthManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
 local hsc = require "hsc"
@@ -45,7 +47,7 @@ firefightManager.firefightSettings = { --------------
     alliesArrivalFrequency = 3,
     temporalSkullsFrequency = 0,
     resetSkullsFrequency = 1,
-    permanentSkullsFrequency = 1,
+    permanentSkullsFrequency = 1
 }
 local settings = firefightManager.firefightSettings
 
@@ -55,7 +57,8 @@ local settings = firefightManager.firefightSettings
 firefightManager.gameProgression = { --------------
     wave = 0,
     round = 0,
-    set = 0
+    set = 0,
+    currentEnemyTeam = 1, --1 = Covenant, 2 = Flood
 }
 local progression = firefightManager.gameProgression
 
@@ -80,6 +83,14 @@ function firefightManager.startGame(call, sleep)
     logger:debug("Waiing 30 ticks")
     sleep(30)
     firefightManager.firefightProgression()
+    if settings.startingEnemyTeam == 0 then
+        progression.currentEnemyTeam = 1 --"Covenant_Wave"
+    elseif settings.startingEnemyTeam == 1 then
+        progression.currentEnemyTeam = 2 --"Flood_Wave"
+    elseif settings.startingEnemyTeam == 2 then
+        local randomTeam = math.random(1, 2)
+        progression.currentEnemyTeam = randomTeam
+    end
 end
 
 ---This moves the Firefight one wave, round or set forward.
@@ -203,30 +214,74 @@ end
 local round = progression.round
 local set = progression.set
 
+---- SWITCH ENEMY TEAMS ----
 function firefightManager.switchTeams()
     local switchFreq = settings.teamSwitchFrequency
     if (switchFreq == 0) or (switchFreq == 1 and round == 1) or (switchFreq == 2 and set == 1) then
-        -- Do crazy stuff.
+        local randomTeam = math.random(1, 2)
+        if randomTeam == 1 then
+            progression.currentEnemyTeam = 1 -- "Covenant_Wave"
+            logger:debug("Switching to Covenant Team")
+        else
+            progression.currentEnemyTeam = 2 -- "Flood_Wave"
+            logger:debug("Switching to Flood Team")
+        end
     else
         logger:debug("No criteria was met for switchTeam")
         return
     end
 end
 
+---- GAIN A LIFE & SPAWN WARTHOGS AND GHOSTS ----
 function firefightManager.gameAssistances()
     local assistFreq = settings.gameAssistancesFrequency
     if (assistFreq == 0) or (assistFreq == 1 and round == 1) or (assistFreq == 2 and set == 1) then
-        -- Do crazy stuff.
+        script.thread(healthManager.livesGained)()
+        local ghostAssistTemplate = "reward_ghost_var%s"
+        local randomGhost = math.random(1, 3)
+        local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
+        pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
+        hsc.ai_vehicle_enterable_distance(selectedAssistGhost, 20.0)
+        local warthogTemplate = "warthog_%s"
+        local randomWarthog = math.random(1, 3)
+        local selectedWarthog = warthogTemplate:format(randomWarthog)
+        pigPen.compactSpawnNamedVehicle(selectedWarthog)
+        hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
     else
         logger:debug("No criteria was met for gameAssistances")
         return
     end
 end
 
-function firefightManager.alliesDeployer()
+---- DEPLOY ODSTS IN PELICAN ----
+function firefightManager.alliesDeployer(call, sleep)
     local alliesFreq = settings.alliesArrivalFrequency
     if (alliesFreq == 0) or (alliesFreq == 1 and round == 1) or (alliesFreq == 2 and set == 1) then
-        -- Do crazy stuff.
+        sleep(700)
+        hsc.ai_place("Human_Team/ODSTs")
+        hsc.ai_place("human_support/pelican_pilot")
+        hsc.object_create_anew("foehammer_cliff")
+        hsc.vehicle_load_magic("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs"))
+        hsc.vehicle_load_magic("foehammer_cliff", "driver", hsc.ai_actors("human_support/pelican_pilot"))
+        hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
+        --sleep(30)
+        hsc.unit_set_enterable_by_player("foehammer_cliff", false)
+        hsc.unit_close("foehammer_cliff")
+        hsc.object_teleport("foehammer_cliff", "foehammer_cliff_flag")
+        hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), true)
+        hsc.recording_play_and_hover( "foehammer_cliff", "foehammer_cliff_in")
+        sleep(1200)
+        hsc.unit_open("foehammer_cliff")
+        sleep(90)
+        hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), false)
+        hsc.vehicle_unload("foehammer_cliff", "rider")
+        sleep(120)
+        if not hsc.vehicle_test_seat_list("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs")) then
+            hsc.unit_close("foehammer_cliff")
+            sleep(120)
+            hsc.vehicle_hover("foehammer_cliff", false)
+            hsc.recording_play_and_delete("foehammer_cliff", "foehammer_cliff_out")
+        end
     else
         logger:debug("No criteria was met for alliesDeployer")
         return
@@ -236,19 +291,9 @@ end
 function firefightManager.temporalSkull()
     local temporalFreq = settings.temporalSkullsFrequency
     if (temporalFreq == 0) or (temporalFreq == 1 and round == 1) or (temporalFreq == 2 and set == 1) then
-        -- Do crazy stuff.
+        skullsManager.enableSkull("silver", "random")
     else
         logger:debug("No criteria was met for temporalSkull")
-        return
-    end
-end
-
-function firefightManager.resetSkulls()
-    local resetFreq = settings.resetSkullsFrequency
-    if (resetFreq == 0) or (resetFreq == 1 and round == 1) or (resetFreq == 2 and set == 1) then
-        -- Do crazy stuff.
-    else
-        logger:debug("No criteria was met for resetSkulls")
         return
     end
 end
@@ -256,9 +301,21 @@ end
 function firefightManager.permanentSkull()
     local permanentFreq = settings.permanentSkullsFrequency
     if (permanentFreq == 0) or (permanentFreq == 1 and round == 1) or (permanentFreq == 2 and set == 1) then
-        -- Do crazy stuff.
+        skullsManager.enableSkull("golden", "random")
     else
         logger:debug("No criteria was met for permanentSkull")
+        return
+    end
+end
+
+function firefightManager.resetSkulls()
+    local resetFreq = settings.resetSkullsFrequency
+    if (resetFreq == 0) or (resetFreq == 1 and round == 1) or (resetFreq == 2 and set == 1) then
+        skullsManager.disableSkull("silver", "all")
+        skullsManager.disableSkull("golden", "all")
+        skullsManager.enableSkull("golden", "is_permanent")
+    else
+        logger:debug("No criteria was met for resetSkulls")
         return
     end
 end
