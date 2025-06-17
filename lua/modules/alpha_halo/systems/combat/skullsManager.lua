@@ -52,7 +52,7 @@ function skullsManager.famine(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.famine.active = isActive
+    --skullsManager.skulls.famine.active = isActive
     -- logger:debug("Famine {}", isActive and "On" or "Off")
 end
 
@@ -87,7 +87,7 @@ function skullsManager.mythic(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.mythic.active = isActive
+    --skullsManager.skulls.mythic.active = isActive
     -- logger:debug("Mythic {}", isActive and "On" or "Off")
 end
 
@@ -110,8 +110,8 @@ function skullsManager.blind(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.blind.active = isActive
     skullsManager.skullBlindOnTick(true)
+    --skullsManager.skulls.blind.active = isActive
     -- logger:debug("Blind {}", isActive and "On" or "Off")
 end
 
@@ -153,7 +153,7 @@ function skullsManager.catch(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.catch.active = isActive
+    --skullsManager.skulls.catch.active = isActive
     -- logger:debug("Catch {}", isActive and "On" or "Off")
 end
 
@@ -188,7 +188,7 @@ function skullsManager.berserk(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.berserk.active = isActive
+    --skullsManager.skulls.berserk.active = isActive
     -- logger:debug("Berserk {}", isActive and "On" or "Off")
 end
 
@@ -211,7 +211,7 @@ function skullsManager.toughluck(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.toughluck.active = isActive
+    --skullsManager.skulls.toughluck.active = isActive
     -- logger:debug("Tough Luck {}", isActive and "On" or "Off")
 end
 
@@ -226,8 +226,8 @@ function skullsManager.fog(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.fog.active = isActive
     skullsManager.skullFogOnTick(true)
+    --skullsManager.skulls.fog.active = isActive
     -- logger:debug("Fog {}", isActive and "On" or "Off")
 end
 
@@ -319,7 +319,7 @@ function skullsManager.knucklehead(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.knucklehead.active = isActive
+    --skullsManager.skulls.knucklehead.active = isActive
     -- logger:debug("Knucklehead {}", isActive and "On" or "Off")
 end
 
@@ -342,7 +342,7 @@ function skullsManager.cowbell(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.cowbell.active = isActive
+    --skullsManager.skulls.cowbell.active = isActive
     -- logger:debug("Cowbell {}", isActive and "On" or "Off")
 end
 
@@ -358,7 +358,7 @@ function skullsManager.havok(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.havok.active = isActive
+    --skullsManager.skulls.havok.active = isActive
     -- logger:debug("Havok {}", isActive and "On" or "Off")
 end
 
@@ -368,8 +368,7 @@ function skullsManager.newton(isActive)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
         local damageEffect = tagEntry.data
         if isActive then
-            damageEffect.damageInstantaneousAcceleration.i =
-                damageEffect.damageInstantaneousAcceleration.i + 5
+            damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + 5
             if tagEntry.path:includes("response") then
                 damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 1
             end
@@ -574,10 +573,7 @@ function skullsManager.slayer(isActive)
         if isActive then
             for i = 1, tagEntry.data.magazines.count do
                 local magazine = tagEntry.data.magazines.elements[i]
-                if magazine.roundsLoadedMaximum == 1 then
-                    magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum + 1
-                    magazine.roundsReloaded = magazine.roundsReloaded + 1
-                end
+                magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
             end
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
@@ -689,168 +685,150 @@ skullsManager.skulls = {
     famine = {
         name = "Famine",
         func = skullsManager.famine,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     mythic = {
         name = "Mythic",
         func = skullsManager.mythic,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     blind = {
         name = "Blind",
         func = skullsManager.blind,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     catch = {
         name = "Catch",
         func = skullsManager.catch,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     berserk = {
         name = "Berserk",
         func = skullsManager.berserk,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     toughluck = {
         name = "Though Luck",
         func = skullsManager.toughluck,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     fog = {
         name = "Fog",
         func = skullsManager.fog,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     knucklehead = {
         name = "Knucklehead",
         func = skullsManager.knucklehead,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     cowbell = {
         name = "Cowbell",
         func = skullsManager.cowbell,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     havok = {
         name = "Havok",
         func = skullsManager.havok,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     newton = {
         name = "Newton",
         func = skullsManager.newton,
-        available = 5,
+        available = 2,
         spent = 0,
         permanent = false
     },
     tilt = {
         name = "Tilt",
         func = skullsManager.tilt,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     banger = {
         name = "Banger",
         func = skullsManager.banger,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     doubledown = {
         name = "Double Down",
         func = skullsManager.doubledown,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     eyepatch = {
         name = "Eye Patch",
         func = skullsManager.eyepatch,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     triggerswitch = {
         name = "Trigger Switch",
         func = skullsManager.triggerswitch,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     },
     slayer = {
         name = "Slayer",
         func = skullsManager.slayer,
-        available = 1,
+        available = 5,
         spent = 0,
         permanent = false
     },
     assassin = {
         name = "Assassin",
         func = skullsManager.assassin,
-        available = 1,
+        available = 2,
         spent = 0,
         permanent = false
     }
 }
 
--- local silverSkulls = {}
--- local goldenSkulls = {}
---
--- for _, skull in pairs(skullsManager.skulls) do
---    if skull.type == "golden" then
---        table.insert(goldenSkulls, skull)
---    elseif skull.type == "silver" then
---        table.insert(silverSkulls, skull)
---    end
--- end
-
---local goldenSkulls = {
---    skullsManager.skulls.famine,
---    skullsManager.skulls.mythic,
---    skullsManager.skulls.blind,
---    skullsManager.skulls.catch,
---}
-
 local skullList = {
-    --skullsManager.skulls.famine,
-    --skullsManager.skulls.mythic,
-    --skullsManager.skulls.blind,
-    --skullsManager.skulls.catch,
-    --skullsManager.skulls.berserk,
-    --skullsManager.skulls.toughluck,
-    --skullsManager.skulls.fog,
-    --skullsManager.skulls.knucklehead,
-    --skullsManager.skulls.cowbell,
-    --skullsManager.skulls.havok,
+    skullsManager.skulls.famine,
+    skullsManager.skulls.mythic,
+    skullsManager.skulls.blind,
+    skullsManager.skulls.catch,
+    skullsManager.skulls.berserk,
+    skullsManager.skulls.toughluck,
+    skullsManager.skulls.fog,
+    skullsManager.skulls.knucklehead,
+    skullsManager.skulls.cowbell,
+    skullsManager.skulls.havok,
     skullsManager.skulls.newton,
-    --skullsManager.skulls.tilt,
-    --skullsManager.skulls.banger,
-    --skullsManager.skulls.doubledown,
-    --skullsManager.skulls.eyepatch,
-    --skullsManager.skulls.triggerswitch,
-    --skullsManager.skulls.slayer,
-    --skullsManager.skulls.assassin
+    skullsManager.skulls.tilt,
+    skullsManager.skulls.banger,
+    skullsManager.skulls.doubledown,
+    skullsManager.skulls.eyepatch,
+    skullsManager.skulls.triggerswitch,
+    skullsManager.skulls.slayer,
+    skullsManager.skulls.assassin
 }
 
 
@@ -875,7 +853,7 @@ function skullsManager.enableSkull(skullType, name)
     -- Enable all skulls of one type
     if name:lower() == "all" then
         for _, skull in ipairs(skullList) do
-            if not skull.spent == skull.available then
+            if skull.spent < skull.available then
                 skull.func(true)
                 skull.spent = skull.spent + 1
                 if skullType:lower() == "golden" then
