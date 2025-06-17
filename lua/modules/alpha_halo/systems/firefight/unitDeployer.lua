@@ -274,23 +274,19 @@ unitDeployer.sentinelFireteams = {
 ------------------------------------------------------------
 ------ Squad Assembler ------
 ------------------------------------------------------------
--- We get the scenario.
+-- We get the scenario & its actor palette elements.
 local scenario = engine.tag.getTag(0, engine.tag.classes.scenario)
 assert(scenario)
--- We get the actor palette elements.
 local actorsPaletteElements = scenario.data.actorPalette.elements
--- We assemble the squad.
 function unitDeployer.squadAssembler()
-    -- Get Fireteams labbed as random.
+    -- Get Fireteams labbed as random and randomize them.
     local randomFireteams = table.filter(unitDeployer.covenantFireteams, function(fireteam)
         return fireteam.random
     end)
-    -- Just in case.
     if #randomFireteams == 0 then
-        logger:warning("No Fireteams left, somehow? Wtf you did")
+        logger:warning("No Fireteams available for randomization.")
         return
     end
-    -- Randomize the available Fireteams.
     local selectedTeam = randomFireteams[math.random(#randomFireteams)]
     -- We're trying to change the value from the actor palette to match the value of the tag referenced here.
     actorsPaletteElements[1].tagHandle.value = selectedTeam.unit1
