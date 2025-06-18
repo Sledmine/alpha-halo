@@ -17,6 +17,11 @@ Deployer = {
 
 local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft, Deployer.randomDropship)
 
+function unitDeployer.gruntSpawner(call, sleep)
+    hsc.garbage_collect_now()
+    hsc.ai_place("test_encounter/test_squad")
+    hsc.ai_migrate("test_encounter/test_squad", "Covenant_Wave")
+end
 
 ---@Test Test function to deploy a wave
 function unitDeployer.enemySpawner(call, sleep)

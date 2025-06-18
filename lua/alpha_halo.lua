@@ -86,6 +86,7 @@ function PluginLoad()
         end
     end)
 
+
     -- Commands for Alpha Firefight
     for command, data in pairs(commands) do
         -- local command = command:replace("debug_", "")

@@ -182,7 +182,8 @@ end
 
 ---Agregar deploy de tropas aquí.
 function manager.bypassDeployer()
-    script.wake(unitDeployer.enemySpawner) ---Función importada desde unitDeployer.lua
+    --script.wake(unitDeployer.enemySpawner) ---Función importada desde unitDeployer.lua
+    script.wake(unitDeployer.gruntSpawner) ---Función importada desde unitDeployer.lua
     squadLeft = squadLeft - 1
     --hsc.garbage_collect_now()
 end
@@ -213,10 +214,10 @@ function manager.cleanup()
     hsc.ai_erase_all()
     hsc.object_destroy_containing("dropship")
     hsc.garbage_collect_now()
-    skullsManager.enableSkull("silver", "all")
-    skullsManager.enableSkull("golden", "all")
-    skullsManager.disableSkull("silver", "is_active")
-    skullsManager.disableSkull("golden", "is_active")
+    --skullsManager.enableSkull("silver", "all")
+    --skullsManager.enableSkull("golden", "all")
+    --skullsManager.disableSkull("silver", "is_active")
+    --skullsManager.disableSkull("golden", "is_active")
     logger:debug("Firefight cleanup completed")
 end
 
