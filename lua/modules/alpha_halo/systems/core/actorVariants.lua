@@ -2,6 +2,7 @@ local engine = Engine
 local balltze = Balltze
 local tagClasses = Engine.tag.classes
 local getTag = Engine.tag.getTag
+local findTags = Engine.tag.findTags
 local blam = require "blam"
 local inspect = require "inspect"
 

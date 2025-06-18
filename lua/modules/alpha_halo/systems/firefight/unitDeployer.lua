@@ -6,6 +6,7 @@ local hsc = require "hsc"
 local actorVariants = require "alpha_halo.systems.core.actorVariants"
 local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
+local getTag = Engine.tag.getTag
 
 local unitDeployer = {}
 
@@ -255,20 +256,24 @@ unitDeployer.humanFireteams = {
 ------------------------------------------------------------
 ------ Sentinel Fireteams ------
 ------------------------------------------------------------
-local sentinel = actorVariants.sentinel.sentinel
+--local sentinel = actorVariants.sentinel.sentinel
 unitDeployer.sentinelFireteams = {
     sentinelSquad = {
         name = "Sentinel Squad",
-        random = false,
-        --unit1 = sentinel.shieldedMajor.handle.value,
-        --unit2 = sentinel.shieldedMajor.handle.value,
-        --unit3 = sentinel.sentinel.handle.value,
-        --unit4 = sentinel.sentinel.handle.value,
-        --unit5 = sentinel.sentinel.handle.value,
-        --unit6 = sentinel.sentinel.handle.value,
-        --unit7 = sentinel.sentinel.handle.value,
-        --unit8 = sentinel.sentinel.handle.value,
+        random = true, -- this should be false but right now its true for debug purposes.
+        unit1 = getTag("alpha_firefight\\characters\\sentinel\\sentinel_shielded_major", tagClasses.actorVariant),
+        unit2 = getTag("alpha_firefight\\characters\\sentinel\\sentinel_shielded_major", tagClasses.actorVariant),
+        unit3 = getTag("alpha_firefight\\characters\\sentinel\\sentinel", tagClasses.actorVariant),
+        unit4 = getTag("alpha_firefight\\characters\\sentinel\\sentinel", tagClasses.actorVariant),
+        unit5 = getTag("alpha_firefight\\characters\\sentinel\\sentinel", tagClasses.actorVariant),
+        unit6 = getTag("alpha_firefight\\characters\\sentinel\\sentinel", tagClasses.actorVariant),
+        unit7 = getTag("alpha_firefight\\characters\\sentinel\\sentinel", tagClasses.actorVariant),
+        unit8 = getTag("alpha_firefight\\characters\\sentinel\\sentinel", tagClasses.actorVariant),
     },
+}
+
+local sentinelFireteamsList = {
+    unitDeployer.sentinelFireteams.sentinelSquad,
 }
 
 ------------------------------------------------------------
@@ -280,7 +285,7 @@ function unitDeployer.squadAssembler()
     assert(scenario)
     local actorsPalette = scenario.data.actorPalette
     -- Get Fireteams labbed as random and randomize them.
-    local randomFireteams = table.filter(unitDeployer.covenantFireteams, function(fireteam)
+    local randomFireteams = table.filter(sentinelFireteamsList, function(fireteam)
         return fireteam.random
     end)
     if #randomFireteams == 0 then
@@ -289,15 +294,14 @@ function unitDeployer.squadAssembler()
     end
     local selectedTeam = randomFireteams[math.random(#randomFireteams)]
     -- We're trying to change the value from the actor palette to match the value of the tag referenced here.
-    local test = findTags("alpha_firefight\\characters\\human\\odst\\odst_armored_shotgun", tagClasses.actorVariant)[1]
-    actorsPalette.elements[1].reference.tagHandle.value = test.handle.value--selectedTeam.unit1
-    actorsPalette.elements[2].reference.tagHandle.value = test.handle.value--selectedTeam.unit2
-    actorsPalette.elements[3].reference.tagHandle.value = test.handle.value--selectedTeam.unit3
-    actorsPalette.elements[4].reference.tagHandle.value = test.handle.value--selectedTeam.unit4
-    actorsPalette.elements[5].reference.tagHandle.value = test.handle.value--selectedTeam.unit5
-    actorsPalette.elements[6].reference.tagHandle.value = test.handle.value--selectedTeam.unit6
-    actorsPalette.elements[7].reference.tagHandle.value = test.handle.value--selectedTeam.unit7
-    actorsPalette.elements[8].reference.tagHandle.value = test.handle.value--selectedTeam.unit8
+    actorsPalette.elements[1].reference.tagHandle.value = selectedTeam.unit1.handle.value
+    actorsPalette.elements[2].reference.tagHandle.value = selectedTeam.unit2.handle.value
+    actorsPalette.elements[3].reference.tagHandle.value = selectedTeam.unit3.handle.value
+    actorsPalette.elements[4].reference.tagHandle.value = selectedTeam.unit4.handle.value
+    actorsPalette.elements[5].reference.tagHandle.value = selectedTeam.unit5.handle.value
+    actorsPalette.elements[6].reference.tagHandle.value = selectedTeam.unit6.handle.value
+    actorsPalette.elements[7].reference.tagHandle.value = selectedTeam.unit7.handle.value
+    actorsPalette.elements[8].reference.tagHandle.value = selectedTeam.unit8.handle.value
     selectedTeam.random = false
     logger:info("Selected Fireteam: " .. selectedTeam.name)
     hsc.ai_place("test_encounter/test_squad")
