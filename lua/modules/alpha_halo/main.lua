@@ -9,19 +9,19 @@ local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
-local ffManager = require "alpha_halo.systems.firefight.manager"
+--local ffManager = require "alpha_halo.systems.firefight.manager"
 
 -- Encapsular Funcion
 function OnMapLoad()
-    script.startup(ffManager.whenMapLoads)
-    --firefightManager.whenMapLoads()
+    --script.startup(ffManager.whenMapLoads)
+    firefightManager.whenMapLoads()
     --logger:debug("Firefight Manager Loaded")
 end
 
 local isLoaded = false
 function OnTick()
-    ffManager.eachTick()
-    --firefightManager.eachTick()
+    --ffManager.eachTick()
+    firefightManager.eachTick()
     --healthManager.eachTick()
     --eventsManager.eachTick()
     skullsManager.eachTick()

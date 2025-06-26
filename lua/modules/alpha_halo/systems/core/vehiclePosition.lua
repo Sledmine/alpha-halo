@@ -55,8 +55,7 @@ function vehiclePosition.positionUpdater()
             if vehicleObject.type == objectTypes.vehicle then
                 local vehicle = getObject(vehicleIndex, objectTypes.vehicle)
                 assert(vehicle, "Failed to get vehicle object")
-                local vehicleTag = engine.tag.getTag(vehicleObject.tagHandle.value,
-                                                     tagClasses.vehicle)
+                local vehicleTag = engine.tag.getTag(vehicleObject.tagHandle.value, tagClasses.vehicle)
                 assert(vehicleTag, "Failed to get scenery tag")
                 if vehicleTag.path:includes("covenant_spirit") then
                     -- Logger:debug("Vehicle tag found: " .. vehicleTag.path)
@@ -72,7 +71,7 @@ function vehiclePosition.positionUpdater()
                     vehicle.hover = 1
                     --vehicleTag.data.vehicleFlags:aiDoesNotRequireDriver(true)
                     --vehicleTag.data.vehicleFlags:gunnerPowerWakesPhysics(true)
-                    vehicle.vehicleFlags:hovering(true)
+                    --vehicle.vehicleFlags:hovering(true)
                     -- console_out(("x: {x}, y: {y}, z: {z}"):template({
                     --     x = vehicleObject.position.x,
                     --     y = vehicleObject.position.y,
