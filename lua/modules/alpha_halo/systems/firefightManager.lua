@@ -79,7 +79,7 @@ local bossWaveCooldown = false
 local getOutOfGhost = false
 
 local function getRandomTeamWave()
-    local randomTeam = math.random(1, 1) -- This should be (1, 2)
+    local randomTeam = math.random(2, 2) -- This should be (1, 2)
     local team
     if randomTeam == 1 then
         team = "Covenant_Wave"

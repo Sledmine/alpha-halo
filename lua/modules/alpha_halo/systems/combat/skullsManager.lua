@@ -490,7 +490,7 @@ function skullsManager.banger(isActive)
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
             end
-        elseif tagEntry.path:includes("floodcombat_human") then
+        elseif tagEntry.path:includes("floodcombat_marine") then
             local collisionGeometry = tagEntry.data
             if isActive then
                 collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
