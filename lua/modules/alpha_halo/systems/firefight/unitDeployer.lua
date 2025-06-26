@@ -1,8 +1,8 @@
 -- 📁 modules/project_modules/systems/firefight/manager.lua
 local engine = Engine
 local balltze = Balltze
---local announcer = require "alpha_halo.systems.combat.announcer" -- this crashes everything
 local hsc = require "hsc"
+local script = require "script"
 local actorVariants = require "alpha_halo.systems.core.actorVariants"
 local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
@@ -10,10 +10,10 @@ local getTag = Engine.tag.getTag
 
 local unitDeployer = {}
 
-local nullHandle = 0xFFFFFFFF
 ------------------------------------------------------------
 ------ Covenant Fireteams ------
 ------------------------------------------------------------
+local nullHandle = 0xFFFFFFFF
 local elite = actorVariants.covenant.elite
 local grunt = actorVariants.covenant.grunt
 local jackal = actorVariants.covenant.jackal
@@ -279,66 +279,71 @@ local sentinelFireteamsList = {
 ------------------------------------------------------------
 ------ Squad Assembler ------
 ------------------------------------------------------------
+Deployer = {
+    squadsAsigned = 3,
+    squadsLeft = 3, -- This should be equal to squadsAsigned
+    squadTemplate = "Here goes stylized squad name template",
+    dropshipsAsigned = 3,
+    dropshipsLeft = 3, -- This should be equal to dropshipsAsigned
+    dropshipTemplate = "dropship_%s_1",
+    deploymentAllowed = true
+}
+
 function unitDeployer.squadAssembler()
-    -- We get the scenario & its actor palette elements.
-    local scenario = engine.tag.getTag(0, engine.tag.classes.scenario)
-    assert(scenario)
-    local actorsPalette = scenario.data.actorPalette
-    -- Get Fireteams labbed as random and randomize them.
-    local randomFireteams = table.filter(sentinelFireteamsList, function(fireteam)
-        return fireteam.random
-    end)
-    if #randomFireteams == 0 then
-        logger:warning("No Fireteams available for randomization.")
-        return
+    ---- We get the scenario & its actor palette elements.
+    --local scenario = engine.tag.getTag(0, engine.tag.classes.scenario)
+    --assert(scenario)
+    --local actorsPalette = scenario.data.actorPalette
+    ---- Get Fireteams labbed as random and randomize them.
+    --local randomFireteams = table.filter(sentinelFireteamsList, function(fireteam)
+    --    return fireteam.random
+    --end)
+    --if #randomFireteams == 0 then
+    --    logger:warning("No Fireteams available for randomization.")
+    --    return
+    --end
+    --local selectedTeam = randomFireteams[math.random(#randomFireteams)]
+    ---- We're trying to change the value from the actor palette to match the value of the tag referenced here.
+    --actorsPalette.elements[1].reference.tagHandle.value = selectedTeam.unit1.handle.value
+    --actorsPalette.elements[2].reference.tagHandle.value = selectedTeam.unit2.handle.value
+    --actorsPalette.elements[3].reference.tagHandle.value = selectedTeam.unit3.handle.value
+    --actorsPalette.elements[4].reference.tagHandle.value = selectedTeam.unit4.handle.value
+    --actorsPalette.elements[5].reference.tagHandle.value = selectedTeam.unit5.handle.value
+    --actorsPalette.elements[6].reference.tagHandle.value = selectedTeam.unit6.handle.value
+    --actorsPalette.elements[7].reference.tagHandle.value = selectedTeam.unit7.handle.value
+    --actorsPalette.elements[8].reference.tagHandle.value = selectedTeam.unit8.handle.value
+    --selectedTeam.random = false
+    --logger:info("Selected Fireteam: " .. selectedTeam.name)
+    ---- EVENTUALLY WE WILL USE ALL THIS SHIT ABOVE TO AI_PLACE, BUT RN IS NOT WORKING ----
+    if Deployer.dropshipsLeft > 0 then
+        hsc.ai_place("test_encounter/test_squad")
+        local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft)
+        hsc.object_create_anew(selectedDropship)
+        hsc.ai_place("Enemy_Team_1/Spirit_Gunner")
+        hsc.vehicle_load_magic(selectedDropship, "gunseat", hsc.ai_actors("Enemy_Team_1/Spirit_Gunner"))
+        hsc.ai_migrate("Enemy_Team_1/Spirit_Gunner", "Covenant_Support")
+        hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors("test_encounter/test_squad"))
+        hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
+        hsc.ai_migrate("test_encounter/test_squad", "Covenant_Wave")
+        Deployer.dropshipsLeft = Deployer.dropshipsLeft - 1
+        unitDeployer.squadAssembler()
+    else
+        logger:debug("All Dropships have been sent!")
+        Deployer.dropshipsLeft = Deployer.dropshipsAsigned
+        Deployer.deploymentAllowed = false -- Gotta find a way to cap this if deploymentAllowed is false. Something else than yet another if.
+        script.startup(unitDeployer.aiExitVehicle)
     end
-    local selectedTeam = randomFireteams[math.random(#randomFireteams)]
-    -- We're trying to change the value from the actor palette to match the value of the tag referenced here.
-    actorsPalette.elements[1].reference.tagHandle.value = selectedTeam.unit1.handle.value
-    actorsPalette.elements[2].reference.tagHandle.value = selectedTeam.unit2.handle.value
-    actorsPalette.elements[3].reference.tagHandle.value = selectedTeam.unit3.handle.value
-    actorsPalette.elements[4].reference.tagHandle.value = selectedTeam.unit4.handle.value
-    actorsPalette.elements[5].reference.tagHandle.value = selectedTeam.unit5.handle.value
-    actorsPalette.elements[6].reference.tagHandle.value = selectedTeam.unit6.handle.value
-    actorsPalette.elements[7].reference.tagHandle.value = selectedTeam.unit7.handle.value
-    actorsPalette.elements[8].reference.tagHandle.value = selectedTeam.unit8.handle.value
-    selectedTeam.random = false
-    logger:info("Selected Fireteam: " .. selectedTeam.name)
-    hsc.ai_place("test_encounter/test_squad")
+end
+
+function unitDeployer.aiExitVehicle(call, sleep)
+    sleep(720)
+    hsc.ai_exit_vehicle("Covenant_Wave")
+    Deployer.deploymentAllowed = true
 end
 
 ------------------------------------------------------------
 ------ Legacy Stuff ------
 ------------------------------------------------------------
---Deployer = {
---    dropshipsAsigned = 3,
---    dropshipsLeft = 0,
---    randomDropship = 1,
---    dropshipTemplate = "dropship_%s_%s",
---}
---local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft, Deployer.randomDropship)
------@Test Test function to deploy a wave
---function unitDeployer.enemySpawner(call, sleep)
---    hsc.object_create_anew("dropship_1_1")
---    --hsc.vehicle_hover("dropship_1_1", true)
---    --Deployer.dropshipsLeft = math.random(1, Deployer.dropshipsAsigned)
---    --local randomTeamIndex = math.random(1)
---    --local dropshipGunnerFormat = "Enemy_Team_%s/Spirit_Gunner"
---    --local selectedDropshipGunner = dropshipGunnerFormat:format(randomTeamIndex)
---    hsc.ai_place("Enemy_Team_1/Spirit_Gunner")
---    hsc.vehicle_load_magic("dropship_1_1", "gunseat", hsc.ai_actors("Enemy_Team_1/Spirit_Gunner"))
---    hsc.ai_migrate("Enemy_Team_1/Spirit_Gunner", "Covenant_Support")
---
---    hsc.ai_place("test_encounter/test_squad")
---    hsc.vehicle_load_magic("dropship_1_1", "passenger", hsc.ai_actors("test_encounter/test_squad"))
---    hsc.custom_animation("dropship_1_1", "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", "dropship_3_1", false)
---    hsc.ai_migrate("test_encounter/test_squad", "Covenant_Wave")
---    sleep(700)
---    hsc.ai_exit_vehicle("Covenant_Wave")
---    --sleep(1200)
---    --hsc.object_destroy_containing("dropship")
---end
-
 --function unitDeployer.pelicanDeployer(call, sleep)
 --    sleep(700)
 --    hsc.ai_place("Human_Team/ODSTs")
