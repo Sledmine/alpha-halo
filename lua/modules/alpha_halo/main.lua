@@ -21,7 +21,7 @@ end
 local isLoaded = false
 function OnTick()
     --ffManager.eachTick()
-    firefightManager.eachTick()
+    --firefightManager.eachTick()
     --healthManager.eachTick()
     --eventsManager.eachTick()
     skullsManager.eachTick()
