@@ -16,7 +16,7 @@ local firefightManager = {}
 -- Firefight Config
 -------------------------------------------------------
 
-local firefightIsOn = false
+local gameIsOn = false
 local waveIsOn = false
 local cooldown = false
 local counter = 0
@@ -34,7 +34,7 @@ firefightManager.firefightSettings = { --------------
     roundCooldown = 150,
     setCooldown = 30,
 
-    startingEnemyTeam = 2, -- 0 = Covenant, 1 = Flood, 2 = Random
+    startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
 
     ---Index (Gotta proper find a solution for this):
     ---0 = Each Wave
@@ -42,12 +42,12 @@ firefightManager.firefightSettings = { --------------
     ---2 = Each Set
     ---3 = Each Boss Wave
     ---4 = Never
-    switchTeamFrequency = 1,
+    switchTeamFrequency = 4,
     gameAssistancesFrequency = 1,
     alliesArrivalFrequency = 3,
-    temporalSkullsFrequency = 0,
-    resetSkullsFrequency = 1,
-    permanentSkullsFrequency = 1
+    temporalSkullsFrequency = 1,
+    resetSkullsFrequency = 2,
+    permanentSkullsFrequency = 2
 }
 local settings = firefightManager.firefightSettings
 
@@ -62,10 +62,10 @@ firefightManager.gameProgression = { --------------
 }
 local progression = firefightManager.gameProgression
 
----Firefight Start Welcome
+---Map Loads. This happens right at the very first tick of the game.
 function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Welcome to Alpha Firefight")
-    logger:debug("firefight is On '{}'", firefightIsOn)
+    logger:debug("firefight is On '{}'", gameIsOn)
     firefightManager.cleanup()
     logger:debug("Waiting 30 ticks before starting Firefight")
     sleep(30)
@@ -74,20 +74,20 @@ end
 
 ---Game Start. This begins the process that cycles the firefight to move forward.
 function firefightManager.startGame(call, sleep)
-    if firefightIsOn then
+    if gameIsOn then
         return
     end
-    firefightIsOn = true
+    gameIsOn = true
     --script.thread(announcer.gameStart)() -- Sound not available?
-    logger:debug("Firefight is On '{}'", firefightIsOn)
+    logger:debug("Firefight is On '{}'", gameIsOn)
     logger:debug("Waiing 30 ticks")
     sleep(30)
     firefightManager.firefightProgression()
-    if settings.startingEnemyTeam == 0 then
+    if settings.startingEnemyTeam == 1 then
         progression.currentEnemyTeam = 1 --"Covenant_Wave"
-    elseif settings.startingEnemyTeam == 1 then
-        progression.currentEnemyTeam = 2 --"Flood_Wave"
     elseif settings.startingEnemyTeam == 2 then
+        progression.currentEnemyTeam = 2 --"Flood_Wave"
+    elseif settings.startingEnemyTeam == 3 then
         local randomTeam = math.random(1, 2)
         progression.currentEnemyTeam = randomTeam
     end
@@ -201,7 +201,7 @@ end
 
 ---Funciones que se ejecutan cada tick del juego.
 function firefightManager.eachTick()
-    if firefightIsOn == true then
+    if gameIsOn == true then
         firefightManager.aiCheck()
         firefightManager.aiNavpoint()
         firefightManager.waveCycle()
@@ -331,7 +331,7 @@ end
 ---This function is called to reset the firefight system, clearing all AI and resetting all the states.
 ---It's coming handy when you execute |balltze_reload_plugins|
 function firefightManager.cleanup()
-    firefightIsOn = false
+    gameIsOn = false
     waveIsOn = false
     cooldown = false
     hsc.ai_erase_all()
@@ -346,9 +346,9 @@ end
 
 ---Stop the Firefight
 function firefightManager.stop()
-    firefightIsOn = false
+    gameIsOn = false
     waveIsOn = false
-    -- logger:debug("Firefight is on '{}'", firefightIsOn)
+    -- logger:debug("Firefight is on '{}'", gameIsOn)
     -- logger:debug("Wave is on '{}'", waveIsOn)
     progression.set = 0
     progression.round = 0
