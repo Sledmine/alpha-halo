@@ -12,7 +12,6 @@ local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 
 -- Encapsular Funcion
 function OnMapLoad()
-    --script.startup(ffManager.whenMapLoads)
     script.startup(firefightManager.whenMapLoads)
     --logger:debug("Firefight Manager Loaded")
 end
@@ -20,8 +19,8 @@ end
 local isLoaded = false
 function OnTick()
     firefightManager.eachTick()
-    --healthManager.eachTick()
-    --eventsManager.eachTick()
+    healthManager.eachTick()
+    eventsManager.eachTick()
     skullsManager.eachTick()
     vehiclePosition.positionUpdater()
     script.poll()
