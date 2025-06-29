@@ -27,11 +27,11 @@ commands = {
     squad_assembler = {
         description = "Assemble a squad of AI.",
         category = "debug",
-        help = "Usage: squad_assembler",
+        help = "Usage: squad_assembler [ <starting> | <boss> | <random> ]",
         minArgs = 0,
         maxArgs = 1,
-        func = function()
-            unitDeployer.squadAssembler()
+        func = function(waveType)
+            unitDeployer.waveDeployer(waveType)
         end
     },
 }
