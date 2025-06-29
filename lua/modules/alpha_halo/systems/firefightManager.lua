@@ -173,11 +173,11 @@ end
 -------------------------------------------------------
 -- Special Events
 -------------------------------------------------------
-local wave = progression.wave
-local round = progression.round
 ---- SWITCH ENEMY TEAMS ----
 function firefightManager.switchTeams()
     local switchFreq = settings.teamSwitchFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
     if (switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and round == 1) then
         local randomTeam = math.random(1, 2)
         if randomTeam == 1 then
@@ -196,6 +196,8 @@ end
 ---- GAIN A LIFE & SPAWN WARTHOGS AND GHOSTS ----
 function firefightManager.gameAssistances()
     local assistFreq = settings.gameAssistancesFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
     if (assistFreq == 0) or (assistFreq == 1 and wave == 1) or (assistFreq == 2 and round == 1) then
         script.thread(healthManager.livesGained)()
         local ghostAssistTemplate = "reward_ghost_var%s"
@@ -217,6 +219,8 @@ end
 ---- DEPLOY ODSTS IN PELICAN ----
 function firefightManager.alliesDeployer(call, sleep)
     local alliesFreq = settings.alliesArrivalFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
     if (alliesFreq == 0) or (alliesFreq == 1 and wave == 1) or (alliesFreq == 2 and round == 1) or (alliesFreq == 3 and wave == 5) then
         script.wake(unitDeployer.pelicanDeployer)
     else
@@ -228,10 +232,12 @@ end
 ---- TURN ON A TEMPORAL SKULL ----
 function firefightManager.temporalSkull()
     local temporalFreq = settings.temporalSkullsFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
     if (temporalFreq == 0) or (temporalFreq == 1 and wave == 1) or (temporalFreq == 2 and round == 1) then
         skullsManager.enableSkull("silver", "random")
     else
-        logger:debug("No criteria was met for temporalSkull")
+        logger:debug("Freq: {} - Wave: {} - Round: {} - No criteria was met for temporalSkull", temporalFreq, wave, round)
         return
     end
 end
@@ -239,10 +245,12 @@ end
 ---- TURN ON A PERMANENT SKULL ----
 function firefightManager.permanentSkull()
     local permanentFreq = settings.permanentSkullsFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
     if (permanentFreq == 0) or (permanentFreq == 1 and wave == 1) or (permanentFreq == 2 and round == 1) then
         skullsManager.enableSkull("golden", "random")
     else
-        logger:debug("No criteria was met for permanentSkull")
+        logger:debug("Freq: {} - Wave: {} - Round: {} - No criteria was met for permanentSkull", permanentFreq, wave, round)
         return
     end
 end
@@ -250,6 +258,8 @@ end
 ---- RESETS ALL SKULLS, THEN RESTORE PERMANENT SKULLS ----
 function firefightManager.resetSkulls()
     local resetFreq = settings.resetSkullsFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
     if (resetFreq == 0) or (resetFreq == 1 and wave == 1) or (resetFreq == 2 and round == 1) then
         skullsManager.disableSkull("silver", "all")
         skullsManager.disableSkull("golden", "all")
