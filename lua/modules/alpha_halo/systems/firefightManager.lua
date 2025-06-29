@@ -178,7 +178,7 @@ function firefightManager.switchTeams()
     local switchFreq = settings.teamSwitchFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
-    if (switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and round == 1) then
+    if (switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and wave == 1 and round == 1) or (switchFreq == 3 and wave == 5) then
         local randomTeam = math.random(1, 2)
         if randomTeam == 1 then
             progression.currentEnemyTeam = 1 -- "Covenant_Wave"
@@ -198,7 +198,7 @@ function firefightManager.gameAssistances()
     local assistFreq = settings.gameAssistancesFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
-    if (assistFreq == 0) or (assistFreq == 1 and wave == 1) or (assistFreq == 2 and round == 1) then
+    if (assistFreq == 0) or (assistFreq == 1 and wave == 1) or (assistFreq == 2 and wave == 1 and round == 1) or (assistFreq == 3 and wave == 5) then
         script.thread(healthManager.livesGained)()
         local ghostAssistTemplate = "reward_ghost_var%s"
         local randomGhost = math.random(1, 3)
@@ -221,7 +221,7 @@ function firefightManager.alliesDeployer(call, sleep)
     local alliesFreq = settings.alliesArrivalFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
-    if (alliesFreq == 0) or (alliesFreq == 1 and wave == 1) or (alliesFreq == 2 and round == 1) or (alliesFreq == 3 and wave == 5) then
+    if (alliesFreq == 0) or (alliesFreq == 1 and wave == 1) or (alliesFreq == 2 and wave == 1 and round == 1) or (alliesFreq == 3 and wave == 5) then
         script.wake(unitDeployer.pelicanDeployer)
     else
         logger:debug("No criteria was met for alliesDeployer")
@@ -234,7 +234,7 @@ function firefightManager.temporalSkull()
     local temporalFreq = settings.temporalSkullsFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
-    if (temporalFreq == 0) or (temporalFreq == 1 and wave == 1) or (temporalFreq == 2 and round == 1) then
+    if (temporalFreq == 0) or (temporalFreq == 1 and wave == 1) or (temporalFreq == 2 and wave == 1 and round == 1) or (temporalFreq == 3 and wave == 5) then
         skullsManager.enableSkull("silver", "random")
     else
         logger:debug("Freq: {} - Wave: {} - Round: {} - No criteria was met for temporalSkull", temporalFreq, wave, round)
@@ -247,7 +247,7 @@ function firefightManager.permanentSkull()
     local permanentFreq = settings.permanentSkullsFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
-    if (permanentFreq == 0) or (permanentFreq == 1 and wave == 1) or (permanentFreq == 2 and round == 1) then
+    if (permanentFreq == 0) or (permanentFreq == 1 and wave == 1) or (permanentFreq == 2 and wave == 1 and round == 1) or (permanentFreq == 3 and wave == 5) then
         skullsManager.enableSkull("golden", "random")
     else
         logger:debug("Freq: {} - Wave: {} - Round: {} - No criteria was met for permanentSkull", permanentFreq, wave, round)
@@ -260,7 +260,7 @@ function firefightManager.resetSkulls()
     local resetFreq = settings.resetSkullsFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
-    if (resetFreq == 0) or (resetFreq == 1 and wave == 1) or (resetFreq == 2 and round == 1) then
+    if (resetFreq == 0) or (resetFreq == 1 and wave == 1) or (resetFreq == 2 and wave == 1 and round == 1) or (resetFreq == 3 and wave == 5) then
         skullsManager.disableSkull("silver", "all")
         skullsManager.disableSkull("golden", "all")
         skullsManager.enableSkull("golden", "is_permanent")
