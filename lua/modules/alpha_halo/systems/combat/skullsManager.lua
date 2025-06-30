@@ -14,9 +14,9 @@ local skullsManager = {}
 
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
-    skullsManager.skullFogOnTick(false)
-    skullsManager.skullBlindOnTick(false)
-    skullsManager.skullAssassinOnTick(false)
+    skullsManager.skullFogOnTick()
+    skullsManager.skullBlindOnTick()
+    skullsManager.skullAssassinOnTick()
 end
 
 -------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
@@ -92,6 +92,7 @@ function skullsManager.mythic(isActive)
 end
 
 -- Blind: Hides HUD and duplicates AI burst origin radius.
+local blindOnTick = false
 ---@param isActive boolean
 function skullsManager.blind(isActive)
     local blindTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
@@ -110,18 +111,20 @@ function skullsManager.blind(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skullBlindOnTick(true)
+    blindOnTick = true
     --skullsManager.skulls.blind.active = isActive
     -- logger:debug("Blind {}", isActive and "On" or "Off")
 end
 
 -- Blind OnTick
----@param isActive boolean
-function skullsManager.skullBlindOnTick(isActive)
-    if not isActive and skullsManager.skulls.blind.active then
-        execute_script("show_hud 0")
-    elseif isActive and not skullsManager.skulls.blind.active then
-        execute_script("show_hud 1")
+function skullsManager.skullBlindOnTick()
+    if blindOnTick == true then
+        if skullsManager.skulls.blind.spent > 0 then
+            execute_script("show_hud 0")
+        else
+            execute_script("show_hud 1")
+            blindOnTick = false
+        end
     end
 end
 
@@ -216,6 +219,7 @@ function skullsManager.toughluck(isActive)
 end
 
 ---Fog: Turns off a HUD element & aguments AI surprise distance.
+local fogOnTick = false
 ---@param isActive boolean
 function skullsManager.fog(isActive)
     for _, tagEntry in ipairs(tagEntries.actor()) do
@@ -226,54 +230,19 @@ function skullsManager.fog(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skullFogOnTick(true)
+    fogOnTick = true
     --skullsManager.skulls.fog.active = isActive
     -- logger:debug("Fog {}", isActive and "On" or "Off")
 end
 
----- Fog Table
---skullsManager.fogTable = {
---    motion_sensor = {
---        name = "Motion Sensor",
---        func = execute_script("hud_show_motion_sensor 0"),
---        active = false
---    },
---    health = {
---        name = "Health",
---        func = execute_script("hud_show_health 0"),
---        active = false
---    },
---    shield = {
---        name = "Shield",
---        func = execute_script("hud_show_shield 0"),
---        active = false
---    },
---    crosshair = {
---        name = "Crosshair",
---        func = execute_script("hud_show_crosshair 0"),
---        active = false
---    }
---}
----- Fog OnTick
---local fogCounter = 0
---local fogTimer = 300
----@param isActive boolean
-function skullsManager.skullFogOnTick(isActive)
-    if not isActive and skullsManager.skulls.fog.active then
-        execute_script("hud_show_motion_sensor 0")
-        --if fogCounter > 0 then
-        --    fogCounter = fogCounter - 1
-        --    logger:debug("Fog countdown: {}", fogCounter)
-        --else
-        --    execute_script("show_hud 1")
-        --    local fogElements = skullsManager.fogTable
-        --    local randomElement = fogElements[math.random(#fogElements)]
-        --    randomElement.func()
-        --    fogCounter = fogTimer
-        --end
-    elseif isActive and not skullsManager.skulls.fog.active then
-        execute_script("hud_show_motion_sensor 1")
-        --execute_script("show_hud 1")
+function skullsManager.skullFogOnTick()
+    if fogOnTick == true then
+        if skullsManager.skulls.fog.spent > 0 then
+            execute_script("hud_show_motion_sensor 0")
+        else
+            execute_script("hud_show_motion_sensor 1")
+            fogOnTick = false
+        end
     end
 end
 
@@ -472,7 +441,7 @@ function skullsManager.tilt(isActive)
             end
         end
     end
-    skullsManager.skulls.tilt.active = isActive
+    --skullsManager.skulls.tilt.active = isActive
     -- logger:debug("Tilt {}", isActive and "On" or "Off")
 end
 
@@ -500,7 +469,7 @@ function skullsManager.banger(isActive)
             end
         end
     end
-    skullsManager.skulls.banger.active = isActive
+    --skullsManager.skulls.banger.active = isActive
     -- logger:debug("Banger {}", isActive and "On" or "Off")
 end
 
@@ -519,7 +488,7 @@ function skullsManager.doubledown(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.doubledown.active = isActive
+    --skullsManager.skulls.doubledown.active = isActive
     -- logger:debug("Double Down {}", isActive and "On" or "Off")
 end
 
@@ -541,7 +510,7 @@ function skullsManager.eyepatch(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.eyepatch.active = isActive
+    --skullsManager.skulls.eyepatch.active = isActive
     -- logger:debug("Eye Patch {}", isActive and "On" or "Off")
 end
 
@@ -562,7 +531,7 @@ function skullsManager.triggerswitch(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.triggerswitch.active = isActive
+    --skullsManager.skulls.triggerswitch.active = isActive
     -- logger:debug("Trigger Switch {}", isActive and "On" or "Off")
 end
 
@@ -585,11 +554,12 @@ function skullsManager.slayer(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.slayer.active = isActive
+    --skullsManager.skulls.slayer.active = isActive
     -- logger:debug("Slayer {}", isActive and "On" or "Off")
 end
 
 -- Assassin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
+local assassinOnTick = false
 ---@param isActive boolean
 function skullsManager.assassin(isActive)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
@@ -617,65 +587,44 @@ function skullsManager.assassin(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skullsManager.skulls.assassin.active = isActive
-    skullsManager.skullAssassinOnTick(true)
+    assassinOnTick = true
+    --skullsManager.skulls.assassin.active = isActive
     -- logger:debug("Assassin {}", isActive and "On" or "Off")
 end
 
 -- Assassin OnTick
 local activeCammoCounter = 0
 local activeCammoTimer = 150
----@param isActive boolean
-function skullsManager.skullAssassinOnTick(isActive)
-    player = getPlayer()
-    if not player then
-        return
-    end
-    biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    if not isActive and skullsManager.skulls.assassin.active == true then
-        biped.unitFlags:powerUp(true)
-        if biped.unitControlFlags:melee() or biped.unitControlFlags:grenade() and (biped.grenadeCounts[1] > 0 or biped.grenadeCounts[2] > 0) then
-            biped.camoPower = 0
+function skullsManager.skullAssassinOnTick()
+    if assassinOnTick == true then
+        player = getPlayer()
+        if not player then
+            return
         end
-        if biped.camoPower > 0 then
-            if activeCammoCounter > 0 then
-                activeCammoCounter = activeCammoCounter - 1
-            else
+        biped = getObject(player.objectHandle, objectTypes.biped)
+        if not biped then
+            return
+        end
+        if skullsManager.skulls.assassin.spent > 0 then
+            biped.unitFlags:powerUp(true)
+            if biped.unitControlFlags:melee() or (biped.unitControlFlags:grenade() and (biped.grenadeCounts[1] > 0 or biped.grenadeCounts[2] > 0)) then
                 biped.camoPower = 0
+            end
+            if biped.camoPower > 0 then
+                if activeCammoCounter > 0 then
+                    activeCammoCounter = activeCammoCounter - 1
+                else
+                    biped.camoPower = 0
+                    activeCammoCounter = activeCammoTimer
+                end
+            else
                 activeCammoCounter = activeCammoTimer
             end
         else
-            activeCammoCounter = activeCammoTimer
+            biped.unitFlags:powerUp(false)
+            assassinOnTick = false
         end
-    else
-        biped.unitFlags:powerUp(false)
     end
-    -- Proof of concept for biped enemies camo in real time need improvement
-    --for bipedIndex = 0, 4095 do
-    --    local bipedObject = getObject(bipedIndex)
-    --    if not bipedObject then
-    --        return
-    --    end
-    --    if bipedObject.type == objectTypes.biped then
-    --        local bipedEnemy = getObject(bipedIndex, objectTypes.biped)
-    --        assert(bipedEnemy, "Failed to get biped object")
-    --        local bipedEnemyTag = engine.tag.getTag(bipedObject.tagHandle.value, tagClasses.biped)
-    --        assert(bipedEnemyTag, "Biped tag must exist")
-    --        for _, bipedName in pairs(allUnits) do
-    --            if bipedEnemyTag.path:includes(bipedName) then
-    --                bipedEnemy.tagHandle.value = bipedEnemyTag.handle.value
-    --                if not isActive and skullsManager.skulls.assassin.active == true then
-    --                    bipedEnemy.unitFlags:powerUp(true)
-    --                else
-    --                    bipedEnemy.unitFlags:powerUp(false)
-    --                end
-    --            end
-    --        end
-    --    end
-    --end
 end
 
 -------------------------------------------------------------------- Tables ------------------------------------------------------------------
