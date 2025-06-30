@@ -39,7 +39,7 @@ firefightManager.firefightSettings = { --------------
     ---2 = Each Set
     ---3 = Each Boss Wave
     ---4 = Never
-    switchTeamFrequency = 4,
+    switchTeamFrequency = 2,
     gameAssistancesFrequency = 1,
     alliesArrivalFrequency = 3,
     temporalSkullsFrequency = 1,
@@ -183,7 +183,7 @@ function firefightManager.switchTeams()
     local round = progression.round
     local set = progression.set
     local startingGame = (wave == 1 and round == 1 and set == 1)
-    if not startingGame and (switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and wave == 1 and round == 1) or (switchFreq == 3 and wave == 5) then
+    if (not startingGame) and ((switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and wave == 1 and round == 1) or (switchFreq == 3 and wave == 5)) then
         if progression.currentEnemyTeam == 1 then
             progression.currentEnemyTeam = 2 -- If we just had Covies, gimme Flood.
             logger:debug("Switching to Flood Team")
