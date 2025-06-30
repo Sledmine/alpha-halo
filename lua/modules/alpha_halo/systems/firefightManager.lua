@@ -1,13 +1,16 @@
 -- 📁 modules/project_modules/systems/firefight/manager.lua
 local balltze = Balltze
 local engine = Engine
+
+local blam = require "blam"
+local script = require "script"
+local hsc = require "hsc"
+
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
-local script = require "script"
-local hsc = require "hsc"
 
 local firefightManager = {}
 
@@ -175,17 +178,18 @@ end
 -------------------------------------------------------
 ---- SWITCH ENEMY TEAMS ----
 function firefightManager.switchTeams()
-    local switchFreq = settings.teamSwitchFrequency
-    local wave = firefightManager.gameProgression.wave
-    local round = firefightManager.gameProgression.round
-    if (switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and wave == 1 and round == 1) or (switchFreq == 3 and wave == 5) then
-        local randomTeam = math.random(1, 2)
-        if randomTeam == 1 then
-            progression.currentEnemyTeam = 1 -- "Covenant_Wave"
-            logger:debug("Switching to Covenant Team")
-        else
-            progression.currentEnemyTeam = 2 -- "Flood_Wave"
+    local switchFreq = settings.switchTeamFrequency
+    local wave = progression.wave
+    local round = progression.round
+    local set = progression.set
+    local startingGame = (wave == 1 and round == 1 and set == 1)
+    if not startingGame and (switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and wave == 1 and round == 1) or (switchFreq == 3 and wave == 5) then
+        if progression.currentEnemyTeam == 1 then
+            progression.currentEnemyTeam = 2 -- If we just had Covies, gimme Flood.
             logger:debug("Switching to Flood Team")
+        else
+            progression.currentEnemyTeam = 1 -- If we just had Flood, gimme Covies.
+            logger:debug("Switching to Covenant Team")
         end
     else
         logger:debug("No criteria was met for switchTeam")
@@ -305,18 +309,11 @@ function firefightManager.endGame()
     execute_script("sv_end_game")
 end
 
--- Magical Sight for actors. Calls Enemy vs Player sight every 10 seconds.
-local magicalSightCounter = 300
+-- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.
+local magicalSightCounter = 30
 local magicalSightTimer = 0
 function firefightManager.aiCheck()
-    livingCount = hsc.ai_living_count("Covenant_Wave")
-    hsc.ai_follow_target_players("Covenant_Support")
-    hsc.ai_follow_target_players("Covenant_Wave")
-    hsc.ai_magically_see_players("Human_Team") -- Allys are the only ones who see all players all the time.
-    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Wave")
-    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Support")
-    hsc.ai_magically_see_encounter("Covenant_Wave", "Human_Team")
-    hsc.ai_magically_see_encounter("Covenant_Support", "Human_Team")
+    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -325,20 +322,35 @@ function firefightManager.aiCheck()
     end
 end
 
--- Each 10 seconds, enemy AI will try to magically see each player if they exist & aren't invisible.
+-- Here we put all out encounter blocks that had bad guys in it.
+local badGuys = {
+    "Covenant_Wave",
+    "Covenant_Support",
+    "Flood_Wave",
+    "Flood_Support",
+    "Covenant_Banshees",
+    "Covenant_Snipers",
+    "Sentinel_Team"
+}
+
+-- Enemy AI will magically see and pursuit each other. Will try against players if they're not invisible.
 function firefightManager.aiSight()
-    local playerCount = hsc.list_count(hsc.players())
-    for i = 0, playerCount - 1 do
-        local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
-        assert(playerUnit)
-        if playerUnit.isCamoActive == false then
-            hsc.ai_magically_see_unit("Covenant_Wave", playerUnit)
-            hsc.ai_magically_see_unit("Covenant_Support", playerUnit)
-            hsc.ai_magically_see_unit("Flood_Wave", playerUnit)
-            hsc.ai_magically_see_unit("Flood_Support", playerUnit)
-            hsc.ai_magically_see_unit("Covenant_Banshees", playerUnit)
-            hsc.ai_magically_see_unit("Covenant_Snipers", playerUnit)
-            hsc.ai_magically_see_unit("Sentinel_Team", playerUnit)
+    -- ODSTs see and follow players.
+    hsc.ai_follow_target_players("Human_Team")
+    hsc.ai_magically_see_players("Human_Team")
+    -- Each enemy team sees and follows ODSTs.
+    for _, badGuy in pairs(badGuys) do
+        hsc.ai_follow_target_players(badGuy)
+        hsc.ai_magically_see_encounter("Human_Team", badGuy)
+        hsc.ai_magically_see_encounter(badGuy, "Human_Team")
+    end
+    -- For each player, each enemy team tries to see and follow them if not invisible.
+    local player = blam.biped(get_dynamic_player())
+    assert(player)
+    if player.camoScale < 1 then
+        for _, badGuy in pairs(badGuys) do
+            hsc.ai_follow_target_players(badGuy)
+            hsc.ai_magically_see_players(badGuy)
         end
     end
 end
