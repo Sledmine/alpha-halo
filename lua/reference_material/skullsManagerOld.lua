@@ -306,6 +306,42 @@ function skullsManager.skullAssasinOnTick(playerIndex)
     end
 end
 
+-- Mark Prototype.
+-- Assassin OnTick
+--local activeCammoCounter = 0
+--local activeCammoTimer = 150
+--function skullsManager.skullAssassinOnTick()
+--    if assassinOnTick == true then
+--        player = getPlayer()
+--        if not player then
+--            return
+--        end
+--        biped = getObject(player.objectHandle, objectTypes.biped)
+--        if not biped then
+--            return
+--        end
+--        if skullsManager.skulls.assassin.spent > 0 then
+--            biped.unitFlags:powerUp(true)
+--            if biped.unitControlFlags:melee() or (biped.unitControlFlags:grenade() and (biped.grenadeCounts[1] > 0 or biped.grenadeCounts[2] > 0)) then
+--                biped.camoPower = 0
+--            end
+--            if biped.camoPower > 0 then
+--                if activeCammoCounter > 0 then
+--                    activeCammoCounter = activeCammoCounter - 1
+--                else
+--                    biped.camoPower = 0
+--                    activeCammoCounter = activeCammoTimer
+--                end
+--            else
+--                activeCammoCounter = activeCammoTimer
+--            end
+--        else
+--            biped.unitFlags:powerUp(false)
+--            assassinOnTick = false
+--        end
+--    end
+--end
+
 ---- Catch: Makes the AI launch grenades a fuck lot. CURRENTLY NOT WORKING.
 -- function skullsManager.skullCatch(restore)
 --    if skullsManager.skulls.catch then
