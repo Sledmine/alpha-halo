@@ -102,7 +102,7 @@ unitDeployer.floodFireteams = {
         available = true,
     },
     carrierSquad = {
-        name = "Carrier_Squad",
+        name = "Mixed_Squad",
         random = true,
         available = true,
     },
