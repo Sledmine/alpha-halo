@@ -39,12 +39,12 @@ firefightManager.firefightSettings = { --------------
     ---2 = Each Set
     ---3 = Each Boss Wave
     ---4 = Never
-    switchTeamFrequency = 2,
-    gameAssistancesFrequency = 1,
-    alliesArrivalFrequency = 3,
-    temporalSkullsFrequency = 1,
-    resetSkullsFrequency = 4,
-    permanentSkullsFrequency = 2
+    switchTeamFrequency = 2, -- We swap teams each set start.
+    gameAssistancesFrequency = 1, -- We spawn assistances each round start.
+    alliesArrivalFrequency = 3, -- We deploy allies each boss wave.
+    temporalSkullsFrequency = 1, -- We apply temporal skulls each round start.
+    resetSkullsFrequency = 4, -- We reset skulls NEVEEER NEVER FOREVER.
+    permanentSkullsFrequency = 2 -- We apply permanent skulls each set start.
 }
 local settings = firefightManager.firefightSettings
 
@@ -55,7 +55,7 @@ firefightManager.gameProgression = { --------------
     wave = 0,
     round = 0,
     set = 0,
-    currentEnemyTeam = 1, --1 = Covenant, 2 = Flood
+    currentEnemyTeam = 0, --0 till defined by startingEnemyTeam on startGame. Get's changed my switchTeams.
 }
 local progression = firefightManager.gameProgression
 
@@ -79,11 +79,15 @@ function firefightManager.startGame(call, sleep)
     -- We set the starting enemy team based on the settings.
     if settings.startingEnemyTeam == 1 then
         progression.currentEnemyTeam = 1 --"Covenant_Wave"
+        unitDeployer.deployerSettings.currentTeam = 1 -- Tell unitDeployer we're having Covies.
     elseif settings.startingEnemyTeam == 2 then
         progression.currentEnemyTeam = 2 --"Flood_Wave"
+        unitDeployer.deployerSettings.currentTeam = 2 -- Tell unitDeployer we're having Flood.
     elseif settings.startingEnemyTeam == 3 then
         local randomTeam = math.random(1, 2)
         progression.currentEnemyTeam = randomTeam
+        unitDeployer.deployerSettings.currentTeam = randomTeam -- Tell unitDeployer we're having whichever team was selected.
+        logger:debug("Randomly selected starting enemy team: {}", randomTeam)
     end
     -- We wait for the game cooldown before starting the game.
     logger:debug("Waiting {} ticks to start the game", settings.gameCooldown)
@@ -186,9 +190,11 @@ function firefightManager.switchTeams()
     if (not startingGame) and ((switchFreq == 0) or (switchFreq == 1 and wave == 1) or (switchFreq == 2 and wave == 1 and round == 1) or (switchFreq == 3 and wave == 5)) then
         if progression.currentEnemyTeam == 1 then
             progression.currentEnemyTeam = 2 -- If we just had Covies, gimme Flood.
+            unitDeployer.deployerSettings.currentTeam = 2 -- Tell unitDeployer we're having Floods.
             logger:debug("Switching to Flood Team")
         else
             progression.currentEnemyTeam = 1 -- If we just had Flood, gimme Covies.
+            unitDeployer.deployerSettings.currentTeam = 1 -- Tell unitDeployer we're having Covies.
             logger:debug("Switching to Covenant Team")
         end
     else
