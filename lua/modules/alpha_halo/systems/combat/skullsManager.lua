@@ -5,10 +5,8 @@ local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
---local blam = require "blam"
+local blam = require "blam"
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
-local player
-local biped
 
 local skullsManager = {}
 
@@ -142,7 +140,7 @@ function skullsManager.catch(isActive)
     for _, tagEntry in ipairs(catchTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.visibleTarget
+            --actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.visibleTarget
             actorVariant.flags:hasUnlimitedGrenades(true)
             actorVariant.grenadeChance = actorVariant.grenadeChance + 1
             actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
@@ -597,31 +595,25 @@ local activeCammoCounter = 0
 local activeCammoTimer = 150
 function skullsManager.skullAssassinOnTick()
     if assassinOnTick == true then
-        player = getPlayer()
-        if not player then
-            return
-        end
-        biped = getObject(player.objectHandle, objectTypes.biped)
-        if not biped then
-            return
-        end
+        local player = blam.biped(get_dynamic_player())
+        assert(player)
         if skullsManager.skulls.assassin.spent > 0 then
-            biped.unitFlags:powerUp(true)
-            if biped.unitControlFlags:melee() or (biped.unitControlFlags:grenade() and (biped.grenadeCounts[1] > 0 or biped.grenadeCounts[2] > 0)) then
-                biped.camoPower = 0
+            player.isCamoActive = true
+            if player.meleeKey or player.grenadeHold then
+                player.camoScale = 0
             end
-            if biped.camoPower > 0 then
+            if player.camoScale > 0 then
                 if activeCammoCounter > 0 then
                     activeCammoCounter = activeCammoCounter - 1
                 else
-                    biped.camoPower = 0
+                    player.camoScale = 0
                     activeCammoCounter = activeCammoTimer
                 end
             else
                 activeCammoCounter = activeCammoTimer
             end
         else
-            biped.unitFlags:powerUp(false)
+            player.isCamoActive = false
             assassinOnTick = false
         end
     end
@@ -648,7 +640,7 @@ skullsManager.skulls = {
     blind = {
         name = "Blind",
         func = skullsManager.blind,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     },
@@ -662,21 +654,21 @@ skullsManager.skulls = {
     berserk = {
         name = "Berserk",
         func = skullsManager.berserk,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     },
     toughluck = {
         name = "Though Luck",
         func = skullsManager.toughluck,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     },
     fog = {
         name = "Fog",
         func = skullsManager.fog,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     },
@@ -718,7 +710,7 @@ skullsManager.skulls = {
     banger = {
         name = "Banger",
         func = skullsManager.banger,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     },
@@ -732,7 +724,7 @@ skullsManager.skulls = {
     eyepatch = {
         name = "Eye Patch",
         func = skullsManager.eyepatch,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     },
@@ -746,14 +738,14 @@ skullsManager.skulls = {
     slayer = {
         name = "Slayer",
         func = skullsManager.slayer,
-        available = 5,
+        available = 2,
         spent = 0,
         permanent = false
     },
     assassin = {
         name = "Assassin",
         func = skullsManager.assassin,
-        available = 2,
+        available = 1,
         spent = 0,
         permanent = false
     }
