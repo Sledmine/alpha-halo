@@ -15,42 +15,42 @@ local unitDeployer = {}
 ------------------------------------------------------------
 unitDeployer.covenantFireteams = {
     startingSquad = {
-        name = "Covenant_Fireteams/Starting_Squad",
+        name = "Starting_Squad",
         random = false,
         available = true,
     },
     eliteSquad = {
-        name = "Covenant_Fireteams/Elite_Squad",
+        name = "Elite_Squad",
         random = true,
         available = true,
     },
     stealthSquad = {
-        name = "Covenant_Fireteams/Stealth_Squad",
+        name = "Stealth_Squad",
         random = true,
         available = true,
     },
     gruntSquad = {
-        name = "Covenant_Fireteams/Grunt_Squad",
+        name = "Grunt_Squad",
         random = true,
         available = true,
     },
     jackalSquad = {
-        name = "Covenant_Fireteams/Jackal_Squad",
+        name = "Jackal_Squad",
         random = true,
         available = true,
     },
     hunterSquad = {
-        name = "Covenant_Fireteams/Hunter_Squad",
+        name = "Hunter_Squad",
         random = true,
         available = true,
     },
     specOpsSquad = {
-        name = "Covenant_Fireteams/SpecOps_Squad",
+        name = "SpecOps_Squad",
         random = false,
         available = true,
     },
     zealotSquad = {
-        name = "Covenant_Fireteams/Zealot_Squad",
+        name = "Zealot_Squad",
         random = false,
         available = true,
     },
@@ -72,50 +72,62 @@ local covenantList = {
 ------------------------------------------------------------
 unitDeployer.floodFireteams = {
     startingSquad = {
-        name = "Starting Squad",
+        name = "Starting_Squad",
         random = false,
         available = true,
     },
-    humanFlame = {
-        name = "Human Flame Squad",
+    flameSquad = {
+        name = "Flame_Squad",
         random = true,
         available = true,
     },
-    humanSniper = {
-        name = "Human Sniper Squad",
+    sniperSquad = {
+        name = "Sniper_Squad",
         random = true,
         available = true,
     },
-    humanRocket = {
-        name = "Human Rocket Squad",
+    rocketSquad = {
+        name = "Rocket_Squad",
         random = true,
         available = true,
     },
     eliteSquad = {
-        name = "Elite Squad",
+        name = "Elite_Squad",
         random = true,
         available = true,
     },
     stealthSquad = {
-        name = "Stealth Squad",
+        name = "Stealth_Squad",
         random = true,
         available = true,
     },
     carrierSquad = {
-        name = "Carrier Squad",
+        name = "Carrier_Squad",
         random = true,
         available = true,
     },
     specOpsSquad = {
-        name = "Spec Ops Squad",
+        name = "SpecOps_Squad",
         random = false,
         available = true,
     },
     zealotSquad = {
-        name = "Zealot Squad",
+        name = "Zealot_Squad",
         random = false,
         available = true,
     },
+}
+
+local floodList = {
+    unitDeployer.floodFireteams.startingSquad,
+    unitDeployer.floodFireteams.flameSquad,
+    unitDeployer.floodFireteams.sniperSquad,
+    unitDeployer.floodFireteams.rocketSquad,
+    unitDeployer.floodFireteams.eliteSquad,
+    unitDeployer.floodFireteams.stealthSquad,
+    unitDeployer.floodFireteams.carrierSquad,
+    unitDeployer.floodFireteams.specOpsSquad,
+    unitDeployer.floodFireteams.zealotSquad,
 }
 
 ------------------------------------------------------------
@@ -147,7 +159,7 @@ Deployer = {
     dropshipsAsigned = 3,
     dropshipsLeft = 3, -- This should be equal to dropshipsAsigned
     dropshipTemplate = "dropship_%s_1",
-    deploymentAllowed = true
+    deploymentAllowed = true,
 }
 
 local randomizedTeam
@@ -155,7 +167,8 @@ local canRandomize = true
 -- Call Wave Deployer based on the type of wave we're on.
 ---@param waveType string | "starting" | "boss" | "random"
 function unitDeployer.waveDeployer(waveType)
-    local selectedTeam -- We're gonna define this and then do stuff with it.
+    local selectedTeam = "Covenant_Fireteams"
+    local selectedSquad -- We're gonna define this and then do stuff with it.
     local currentWaveType = waveType -- We want to know which type of wave we've been called.
 
     -- Check if the waveType is valid
@@ -168,20 +181,20 @@ function unitDeployer.waveDeployer(waveType)
     -- If we're on a starting wave...
     if waveType:lower() == "starting" then
         -- The 3 Dropships drops Starting Squads!
-        selectedTeam = unitDeployer.covenantFireteams.startingSquad.name
-        logger:info("Starting Fireteam: " .. selectedTeam)
+        selectedSquad = (selectedTeam .. "/" .. unitDeployer.covenantFireteams.startingSquad.name)
+        logger:info("Starting Fireteam: " .. selectedSquad)
     end
 
     -- If we're on a boss wave...
     if waveType:lower() == "boss" then
         if Deployer.dropshipsLeft == Deployer.dropshipsAsigned then
             -- The first Dropship will drop a Zealot Squad, and...
-            selectedTeam = unitDeployer.covenantFireteams.zealotSquad.name
-            logger:info("Bodyguard Fireteam: " .. selectedTeam)
+            selectedSquad = (selectedTeam .. "/" .. unitDeployer.covenantFireteams.zealotSquad.name)
+            logger:info("Bodyguard Fireteam: " .. selectedSquad)
         else
             -- The rest of them will deploy SpecOps Squads!
-            selectedTeam = unitDeployer.covenantFireteams.specOpsSquad.name
-            logger:info("Boss Fireteam: " .. selectedTeam)
+            selectedSquad = (selectedTeam .. "/" .. unitDeployer.covenantFireteams.specOpsSquad.name)
+            logger:info("Boss Fireteam: " .. selectedSquad)
         end
     end
 
@@ -211,19 +224,19 @@ function unitDeployer.waveDeployer(waveType)
                 canRandomize = false
             end
         end
-        selectedTeam = randomizedTeam.name
+        selectedSquad = (selectedTeam .. "/" .. randomizedTeam.name)
     end
 
     if Deployer.dropshipsLeft > 0 then
-        hsc.ai_place(selectedTeam)
+        hsc.ai_place(selectedSquad)
         local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft)
         hsc.object_create_anew(selectedDropship)
         hsc.ai_place("Covenant_Fireteams/Spirit_Gunner")
         hsc.vehicle_load_magic(selectedDropship, "gunseat", hsc.ai_actors("Covenant_Fireteams/Spirit_Gunner"))
         hsc.ai_migrate("Covenant_Fireteams/Spirit_Gunner", "Covenant_Support")
-        hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors(selectedTeam))
+        hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors(selectedSquad))
         hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
-        hsc.ai_migrate(selectedTeam, "Covenant_Wave")
+        hsc.ai_migrate(selectedSquad, "Covenant_Wave")
         Deployer.dropshipsLeft = Deployer.dropshipsLeft - 1
         unitDeployer.waveDeployer(currentWaveType) -- We're calling this again as the same type of wave we're on.
     else
