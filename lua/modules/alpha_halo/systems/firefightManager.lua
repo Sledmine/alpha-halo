@@ -31,7 +31,7 @@ firefightManager.firefightSettings = { --------------
     setCooldown = 30,
     gameCooldown = 30,
 
-    startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
+    startingEnemyTeam = 2, -- 1 = Covenant, 2 = Flood, 3 = Random
 
     ---Index (Gotta proper find a solution for this):
     ---0 = Each Wave
@@ -363,13 +363,14 @@ end
 
 -- Set a navpoint for remaining enemies.
 function firefightManager.aiNavpoint()
+    local currentTeam = progression.currentEnemyTeam == 1 and "Covenant_Wave" or "Flood_Wave"
     local navpointType = "default_red"
     local navpointOffset = 0.6
     local playerCount = hsc.list_count(hsc.players())
     for i = 0, playerCount - 1 do
         local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
         for actorIndex = 0, 3 do
-            local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors("Covenant_Wave"), actorIndex))
+            local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentTeam), actorIndex))
             hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
         end
     end
