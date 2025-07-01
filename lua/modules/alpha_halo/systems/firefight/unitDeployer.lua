@@ -263,7 +263,9 @@ function unitDeployer.waveDeployer(waveType)
 end
 
 function unitDeployer.aiExitVehicle(call, sleep)
+    --hsc.ai_braindead(currentTeam .. "_Wave", true)
     sleep(720)
+    --hsc.ai_braindead(currentTeam .. "_Wave", false) -- I don't understand why this doesn't work.
     hsc.ai_exit_vehicle(currentTeam .. "_Wave")
     Deployer.deploymentAllowed = true
 end

@@ -1141,9 +1141,9 @@ end
 function hsc.ai_exit_vehicle(encounterName)
 end
 
----@param arg1 ai
----@param arg2 boolean
-function hsc.ai_braindead()
+---@param encounterName ai
+---@param boolean boolean
+function hsc.ai_braindead(encounterName, boolean)
 end
 
 ---makes a list of objects braindead, or restores them to life. if you pass in a vehicle index, it makes all actors in that vehicle braindead (including any built-in guns).
