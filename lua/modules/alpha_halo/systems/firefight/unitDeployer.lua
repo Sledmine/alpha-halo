@@ -166,6 +166,7 @@ local Deployer = unitDeployer.deployerSettings -- For easier access to the Deplo
 
 local randomizedTeam -- These ones are out bc we don't want to reset them;
 local canRandomize = true -- every time we call the waveDeployer function.
+--local randomizedGhost -- This one ill be used for the boss wave.
 local currentTeam
 -- Call Wave Deployer based on the type of wave we're on.
 ---@param waveType string | "starting" | "boss" | "random"
@@ -204,6 +205,7 @@ function unitDeployer.waveDeployer(waveType)
         if Deployer.dropshipsLeft == Deployer.dropshipsAsigned then
             -- The first Dropship will drop a Zealot Squad, and...
             selectedSquad = (currentTeam .. "_Fireteams/" .. currentTeamFireteams.zealotSquad.name)
+            --randomizedGhost = math.random(1, 3) -- Randomize the Ghost for the boss wave.
             logger:info("Bodyguard Fireteam: " .. selectedSquad)
         else
             -- The rest of them will deploy SpecOps Squads!
@@ -242,39 +244,68 @@ function unitDeployer.waveDeployer(waveType)
     end
 
     if Deployer.dropshipsLeft > 0 then
-        hsc.ai_place(selectedSquad)
+        -- Define and create the Dropship.
         local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft)
         hsc.object_create_anew(selectedDropship)
-        hsc.ai_place(currentTeam .. "_Fireteams/Spirit_Gunner") -- Covenant-or-Flood_Fireteams/Spirit_Gunner
+        -- Place and load it's troopers & turrets.
+        hsc.ai_place(selectedSquad)
+        hsc.ai_place(currentTeam .. "_Fireteams/Spirit_Gunner")
         hsc.vehicle_load_magic(selectedDropship, "gunseat", hsc.ai_actors(currentTeam .. "_Fireteams/Spirit_Gunner"))
-        hsc.ai_migrate(currentTeam .. "_Fireteams/Spirit_Gunner", currentTeam .. "_Support") -- Covenant-or-Flood_Support squad block
         hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors(selectedSquad))
-        hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
+        -- Migrate them to their respective deployment encounters.
         hsc.ai_migrate(selectedSquad, "Standby_Dropship")
+        hsc.ai_migrate(currentTeam .. "_Fireteams/Spirit_Gunner", currentTeam .. "_Support")
+        -- If we're on a boss wave, create a Ghost for each dropship.
+        --if waveType:lower() == "boss" then
+        --    -- Set and create the Ghost.
+        --    local selectedGhost = "ghost_var" .. randomizedGhost .. "_drop" .. Deployer.dropshipsLeft
+        --    hsc.object_create_anew(selectedGhost)
+        --    -- Set and create the Ghost Pilot.
+        --    local ghostPilot = currentTeam .. "_Fireteams/Ghost_Pilot"
+        --    hsc.ai_place(ghostPilot)
+        --    logger:info("Ghost Pilot: " .. ghostPilot)
+        --    -- Load the Pilot into the Ghost, and the Ghost into the Dropship.
+        --    hsc.vehicle_load_magic(selectedGhost, "driver", hsc.ai_actors(ghostPilot))
+        --    hsc.unit_enter_vehicle(selectedGhost, selectedDropship, "cargo_ghost02")
+        --    -- Set the Ghost to belong to current wave & make it's units impulsively entrable to it.
+        --    hsc.ai_vehicle_encounter(selectedGhost, currentTeam .. "_Wave")
+        --    hsc.ai_vehicle_enterable_actors(selectedGhost, currentTeam .. "_Wave")
+        --end -- The Ghost is ejected at Mach 5, not usable. Maybe in the future.
+        -- Trigger the dropship animation, decrement dropshipsLeft, and call the waveDeployer function with the same parameter again.
+        hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
         Deployer.dropshipsLeft = Deployer.dropshipsLeft - 1
-        unitDeployer.waveDeployer(currentWaveType) -- We're calling this again as the same type of wave we're on.
+        unitDeployer.waveDeployer(currentWaveType)
     else
+        -- Restore all the necesary variables and flags. Begin the exit vehicle process.
         logger:debug("All Dropships have been sent!")
         Deployer.dropshipsLeft = Deployer.dropshipsAsigned
-        canRandomize = true -- Reset the randomization flag for the next wave.
-        Deployer.deploymentAllowed = false -- Gotta find a way to cap this func if deploymentAllowed is false, just in case.
+        canRandomize = true
+        Deployer.deploymentAllowed = false -- We cap this so no dropships can be deployed 'till the Spirits are out.
         script.startup(unitDeployer.aiExitVehicle)
     end
 end
 
 function unitDeployer.aiExitVehicle(call, sleep)
+    -- Set the troops onboard braindead (Does not apply to Ghost, but it doesn't matter).
     hsc.ai_braindead("Standby_Dropship", true)
     sleep(690)
-    hsc.ai_migrate("Standby_Dropship", currentTeam .. "_Wave") -- Covenant-or-Flood_Wave encounter block
-    sleep(15)
+    -- Migrate troops onboard to the current wave encounter.
+    hsc.ai_migrate("Standby_Dropship", currentTeam .. "_Wave")
+    sleep(30)
+    -- We reestablish the brain of the units. Yes, this is very much necessary.
     hsc.ai_braindead(currentTeam .. "_Wave", false)
-    sleep(15)
-    hsc.ai_exit_vehicle(currentTeam .. "_Wave")
-    Deployer.deploymentAllowed = true
+    sleep(30)
+    -- Make the encounter to exit it's vehicles.
+    -- This will make the pilot drop from it's ghost, but will try to climb in again after.
+    hsc.vehicle_unload("dropship_1_1", "")
+    hsc.vehicle_unload("dropship_2_1", "")
+    hsc.vehicle_unload("dropship_3_1", "")
+    sleep(750)
+    Deployer.deploymentAllowed = true -- Now Spirits can run wild.
 end
 
 ------------------------------------------------------------
------- Legacy Stuff ------
+------ ODST Deployer ------
 ------------------------------------------------------------
 function unitDeployer.pelicanDeployer(call, sleep)
     sleep(700)
