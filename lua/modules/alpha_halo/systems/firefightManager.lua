@@ -366,7 +366,6 @@ function firefightManager.aiSight()
     hsc.ai_magically_see_players("Human_Team")
     -- Each enemy team sees and follows ODSTs.
     for _, badGuy in pairs(badGuys) do
-        hsc.ai_follow_target_players(badGuy)
         hsc.ai_magically_see_encounter("Human_Team", badGuy)
         hsc.ai_magically_see_encounter(badGuy, "Human_Team")
     end
@@ -375,8 +374,10 @@ function firefightManager.aiSight()
     assert(player)
     if player.camoScale < 1 then
         for _, badGuy in pairs(badGuys) do
-            hsc.ai_follow_target_players(badGuy)
             hsc.ai_magically_see_players(badGuy)
+            if not (badGuy == "Covenant_Banshee") then
+                hsc.ai_follow_target_players(badGuy)
+            end
         end
     end
 end
