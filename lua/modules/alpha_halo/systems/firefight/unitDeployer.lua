@@ -250,7 +250,7 @@ function unitDeployer.waveDeployer(waveType)
         hsc.ai_migrate(currentTeam .. "_Fireteams/Spirit_Gunner", currentTeam .. "_Support") -- Covenant-or-Flood_Support squad block
         hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors(selectedSquad))
         hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
-        hsc.ai_migrate(selectedSquad, currentTeam .. "_Wave") -- Covenant-or-Flood_Wave encounter block
+        hsc.ai_migrate(selectedSquad, "Standby_Dropship")
         Deployer.dropshipsLeft = Deployer.dropshipsLeft - 1
         unitDeployer.waveDeployer(currentWaveType) -- We're calling this again as the same type of wave we're on.
     else
@@ -263,10 +263,12 @@ function unitDeployer.waveDeployer(waveType)
 end
 
 function unitDeployer.aiExitVehicle(call, sleep)
-    hsc.ai_braindead(currentTeam .. "_Wave", true)
+    hsc.ai_braindead("Standby_Dropship", true)
     sleep(690)
+    hsc.ai_migrate("Standby_Dropship", currentTeam .. "_Wave") -- Covenant-or-Flood_Wave encounter block
+    sleep(15)
     hsc.ai_braindead(currentTeam .. "_Wave", false)
-    sleep(30)
+    sleep(15)
     hsc.ai_exit_vehicle(currentTeam .. "_Wave")
     Deployer.deploymentAllowed = true
 end

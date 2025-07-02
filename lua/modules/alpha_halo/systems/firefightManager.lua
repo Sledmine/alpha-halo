@@ -319,7 +319,7 @@ end
 local magicalSightCounter = 30
 local magicalSightTimer = 0
 function firefightManager.aiCheck()
-    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave")
+    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") + hsc.ai_living_count("Standby_Dropship")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -336,7 +336,8 @@ local badGuys = {
     "Flood_Support",
     "Covenant_Banshees",
     "Covenant_Snipers",
-    "Sentinel_Team"
+    "Sentinel_Team",
+    "Standby_Dropship",
 }
 
 -- Enemy AI will magically see and pursuit each other. Will try against players if they're not invisible.
