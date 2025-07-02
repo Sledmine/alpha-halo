@@ -592,7 +592,7 @@ end
 
 -- Assassin OnTick
 local activeCammoCounter = 0
-local activeCammoTimer = 150
+local activeCammoTimer = 300
 function skullsManager.skullAssassinOnTick()
     if assassinOnTick == true then
         local player = blam.biped(get_dynamic_player())
