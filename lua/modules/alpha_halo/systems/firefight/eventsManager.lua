@@ -16,12 +16,13 @@ end
 
 local bansheeLivingCount
 local snipersLivingCount
+local sentinelsLivingCount
 --local mortarLivingCount
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
 local randomEventTimer = 4200
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
-    if bansheeLivingCount == 0 or snipersLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
+    if bansheeLivingCount == 0 or snipersLivingCount == 0 or sentinelsLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
         if randomEventCountdown > 0 then
             randomEventCountdown = randomEventCountdown - 1
         else
@@ -33,13 +34,13 @@ end
 
 -- Esta función es llamada por randomEventTimer. Se encarga de randomizar el evento.
 function eventsManager.randomEventGenerator()
-    local selectedEvent = math.random(1, 2) -- 1, 3 (Mortar is not working)
+    local selectedEvent = math.random(1, 3) -- 1, 4 (Mortar is not working)
     if selectedEvent == 1 then
         eventsManager.bansheeEvent()
     elseif selectedEvent == 2 then
         eventsManager.sniperEvent()
-    --elseif selectedEvent == 3 then
-    --    eventsManager.mortarEvent()
+    elseif selectedEvent == 3 then
+        eventsManager.sentinelEvent()
     end
 end
 
@@ -73,6 +74,18 @@ function eventsManager.sniperEvent()
     end
 end
 
+-- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Sentinel.
+function eventsManager.sentinelEvent()
+    if sentinelsLivingCount == 0 then
+        script.startup(announcer.enemyIncoming)
+        logger:debug("Sentinel event!")
+        hsc.ai_place("Sentinel_Team/Sentinels_1")
+        hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1") -- They get to see the players one tick after being created.
+    else
+        eventsManager.randomEventGenerator()
+    end
+end
+
 -- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Mortar.
 -- Por ahora, esto no se está llamando, dado que el Mortero no dispara en lo absoluto.
 --function eventsManager.mortarEvent()
@@ -90,9 +103,7 @@ end
 function eventsManager.aiCheck()
     bansheeLivingCount = hsc.ai_living_count("Covenant_Banshees")
     snipersLivingCount = hsc.ai_living_count("Covenant_Snipers")
-    hsc.ai_follow_target_players("Covenant_Snipers")
-    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Banshees")
-    hsc.ai_magically_see_encounter("Human_Team", "Covenant_Snipers")
+    sentinelsLivingCount = hsc.ai_living_count("Sentinel_Team")
 end
 
 return eventsManager
