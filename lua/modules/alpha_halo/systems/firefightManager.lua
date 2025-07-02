@@ -29,10 +29,10 @@ firefightManager.firefightSettings = { --------------
     waveLivingMin = 3,
     bossWaveLivingMin = 0,
 
-    waveCooldown = 270,
-    roundCooldown = 30,
+    waveCooldown = 240,
+    roundCooldown = 300,
     setCooldown = 30,
-    gameCooldown = 270,
+    gameCooldown = 30,
 
     startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
 
@@ -67,6 +67,7 @@ local progression = firefightManager.gameProgression
 local gameIsOn = false
 function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Welcome to Alpha Firefight")
+    --hsc.hud_set_objective_text("Welcome to Alpha Firefight")
     logger:debug("firefight is On '{}'", gameIsOn)
     firefightManager.reloadGame()
     logger:debug("Waiting 30 ticks before starting game")
