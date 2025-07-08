@@ -596,7 +596,9 @@ local activeCammoTimer = 300
 function skullsManager.skullAssassinOnTick()
     if assassinOnTick == true then
         local player = blam.biped(get_dynamic_player())
-        assert(player)
+        if not player then
+            return
+        end
         if skullsManager.skulls.assassin.spent > 0 then
             player.isCamoActive = true
             if player.meleeKey or player.grenadeHold then
