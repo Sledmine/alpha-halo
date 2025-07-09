@@ -22,16 +22,15 @@ local firefightManager = {}
 ---Could be customizable in the future from the Ins menu.
 ---@enum
 firefightManager.firefightSettings = { --------------
-    wavesPerRound = 0,
+    bossWaveFrequency = 0,
+    wavesPerRound = 5,
     roundsPerSet = 3,
     setsPerGame = 3,
 
     waveLivingMin = 4,
     bossWaveLivingMin = 0,
 
-    bossWaveFrequency = 3,
-
-    waveCooldown = 240,
+    waveCooldown = 280,
     roundCooldown = 300,
     setCooldown = 30,
     gameCooldown = 30,
@@ -44,7 +43,7 @@ firefightManager.firefightSettings = { --------------
     ---2 = Each Set
     ---3 = Each Boss Wave
     ---4 = Never
-    switchTeamFrequency = 2, -- We swap teams each set start.
+    switchTeamFrequency = 0, -- We swap teams each set start.
     gameAssistancesFrequency = 1, -- We spawn assistances each round start.
     alliesArrivalFrequency = 1, -- We deploy allies each boss wave.
     temporalSkullsFrequency = 1, -- We apply temporal skulls each round start.
@@ -109,19 +108,25 @@ end
 
 ---Functions that are being called each tick.
 local waveIsOn = false
+local drawNavPoint = false
+local isBossWave = false
 local livingCount = 0
 function firefightManager.eachTick()
     if gameIsOn == true then
         firefightManager.aiCheck()
         progression.deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed -- Do we really need to check this each tick?
+        isBossWave = (progression.wavesTilBoss == settings.bossWaveFrequency) or (progression.wave == settings.wavesPerRound)
         if waveIsOn == true and progression.deploymentAllowed == true then -- We hold this 'til aiExitVehicle is over.
-            if (progression.wavesTilBoss < settings.bossWaveFrequency and (livingCount <= settings.waveLivingMin))
-            or (progression.wavesTilBoss == settings.bossWaveFrequency and (livingCount <= settings.bossWaveLivingMin)) then
+            if (not isBossWave and livingCount <= settings.waveLivingMin)
+            or (isBossWave and livingCount <= settings.bossWaveLivingMin) then
                 script.thread(announcer.reinforcements)()
-                firefightManager.aiNavpoint()
                 firefightManager.firefightProgression()
                 waveIsOn = false
             end
+        end
+        if drawNavPoint == false and (livingCount <= 4) then
+            firefightManager.aiNavpoint()
+            drawNavPoint = true
         end
     end
 end
@@ -130,33 +135,35 @@ end
 ---It's called when game starts and after a completed wave.
 ---It's the only thing that can alter the progression list.
 function firefightManager.firefightProgression()
-    if progression.wavesTilBoss < settings.bossWaveFrequency then
-        progression.wavesTilBoss = progression.wavesTilBoss + 1
-    elseif progression.wavesTilBoss == settings.bossWaveFrequency then
-        progression.wavesTilBoss = 1
-    end
     if progression.gameFirstWave == true then -- If the game just started...
         progression.wave = progression.wave + 1
         progression.round = progression.round + 1
         progression.set = progression.set + 1
+        progression.wavesTilBoss = progression.wavesTilBoss + 1 -- Set the wavesTilBoss to 1.
         progression.gameFirstWave = false
         script.wake(firefightManager.startSet) -- Set everything to 1 and start the set!
-    elseif progression.gameFirstWave == false then
+    else
         if not (progression.wave == settings.wavesPerRound) then -- If we hadn't reach the wavePerRound limit...
-            logger:debug("Is this condition being met?")
             progression.wave = progression.wave + 1
-            script.wake(firefightManager.startWave) -- Keep counting and start the next wave!
-        elseif progression.wave == settings.wavesPerRound then -- If we reached the wavePerRound limit...
-            progression.wave = 1 -- Reset the wave to 1 and check round status!
+            logger:debug("We should be asking for a wave...")
+            script.wake(firefightManager.startWave) -- Keep counting and start the next wave, and...!
+            if not (progression.wavesTilBoss == settings.bossWaveFrequency) then
+                progression.wavesTilBoss = progression.wavesTilBoss + 1
+            else
+                progression.wavesTilBoss = 1
+            end
+        else -- If we reached the wavePerRound limit...
+            progression.wave = 1
+            progression.wavesTilBoss = 1 -- Reset the wave to 1 and check round status!
             if not (progression.round == settings.roundsPerSet) then -- If we hadn't reach the roundsPerSet limit...
                 progression.round = progression.round + 1
                 script.wake(firefightManager.startRound) -- Keep counting and start the next round!
-            elseif progression.round == settings.roundsPerSet then -- If we reached the roundsPerSet limit...
+            else -- If we reached the roundsPerSet limit...
                 progression.round = 1 -- Reset the round to 1 and check set status!
                 if not (progression.set == settings.setsPerGame) then -- If we hadn't reach the setsPerGame limit...
                     progression.set = progression.set + 1
                     script.wake(firefightManager.startSet) -- Keep counting and start the next set!
-                elseif progression.set == settings.setsPerGame then -- If we reached the setsPerGame limit...
+                else -- If we reached the setsPerGame limit...
                     logger:debug("You won. Go brag about it, prick.")
                     firefightManager.endGame() -- End the game!
                 end
@@ -190,11 +197,11 @@ function firefightManager.startWave(call, sleep)
     firefightManager.permanentSkull()
     sleep(settings.waveCooldown)
     --script.thread(announcer.waveStart)() -- Sound not available?
-    if progression.wavesTilBoss == 1 then
+    if progression.wave == 1 and (isBossWave == false) then
         unitDeployer.waveDeployer("starting")
-    elseif progression.wavesTilBoss < settings.bossWaveFrequency then
+    elseif not isBossWave then
         unitDeployer.waveDeployer("random")
-    elseif progression.wavesTilBoss == settings.bossWaveFrequency then
+    elseif isBossWave then
         unitDeployer.waveDeployer("boss")
     end
     hsc.garbage_collect_now()
@@ -202,6 +209,7 @@ function firefightManager.startWave(call, sleep)
     local actualWave = waveTemplate:format(progression.wave, progression.round, progression.set)
     logger:debug(actualWave) -- This will be eventually replaced by a proper UI message.
     waveIsOn = true
+    drawNavPoint = false
 end
 
 -------------------------------------------------------
@@ -326,6 +334,7 @@ end
 function firefightManager.reloadGame()
     gameIsOn = false
     waveIsOn = false
+    drawNavPoint = false
     hsc.ai_erase_all()
     hsc.object_destroy_containing("dropship")
     hsc.garbage_collect_now()
@@ -338,6 +347,7 @@ end
 function firefightManager.endGame()
     gameIsOn = false
     waveIsOn = false
+    drawNavPoint = false
     -- logger:debug("Firefight is on '{}'", gameIsOn)
     -- logger:debug("Wave is on '{}'", waveIsOn)
     progression.set = 0
@@ -386,7 +396,9 @@ function firefightManager.aiSight()
     end
     -- For each player, each enemy team tries to see and follow them if not invisible.
     local player = blam.biped(get_dynamic_player())
-    assert(player)
+    if not player then
+        return
+    end
     if player.camoScale < 1 then
         for _, badGuy in pairs(badGuys) do
             hsc.ai_magically_see_players(badGuy)
