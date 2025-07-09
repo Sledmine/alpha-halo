@@ -238,7 +238,7 @@ function unitDeployer.waveDeployer(waveType)
                 randomizedTeam.available = false -- Mark this team as unavailable for the next randomization.
                 logger:info("Main Team: {}, Available? {}", randomizedTeam.name, randomizedTeam.available)
                 canRandomize = false
-            end
+            end -- We need to restore availability if we reach 0.
         end
         selectedSquad = (currentTeam .. "_Fireteams/" .. randomizedTeam.name)
     end
