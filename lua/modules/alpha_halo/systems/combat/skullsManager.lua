@@ -497,11 +497,12 @@ function skullsManager.eyepatch(isActive)
         local weapon = tagEntry.data
         if isActive then
             weapon.autoaimAngle = weapon.autoaimAngle * 0
-            weapon.autoaimRange = weapon.autoaimRange * 0
-            weapon.magnetismAngle = weapon.magnetismAngle * 0
-            weapon.magnetismRange = weapon.magnetismRange * 0
+            --weapon.autoaimRange = weapon.autoaimRange * 0 -- This should fix Needler bug.
+            weapon.magnetismAngle = weapon.magnetismAngle * 0 -- Is this rlly neccesary? It's just for controll.
+            --weapon.magnetismRange = weapon.magnetismRange * 0
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
+                trigger.minimumError = trigger.minimumError * 0 -- Both are needed to be 0.
                 trigger.errorAngle[1] = trigger.errorAngle[1] * 0
             end
         else
@@ -538,13 +539,13 @@ end
 function skullsManager.slayer(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if isActive then
-            for i = 1, tagEntry.data.magazines.count do
-                local magazine = tagEntry.data.magazines.elements[i]
-                magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
-            end
+            --for i = 1, tagEntry.data.magazines.count do
+            --    local magazine = tagEntry.data.magazines.elements[i]
+            --    magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
+            --end -- This whole mechanic might be turn into a new skull all together.
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                trigger.roundsPerShot = trigger.roundsPerShot * 2
+                --trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
             end
