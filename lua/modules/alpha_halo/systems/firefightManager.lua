@@ -43,11 +43,11 @@ firefightManager.firefightSettings = { --------------
     ---2 = Each Set
     ---3 = Each Boss Wave
     ---4 = Never
-    switchTeamFrequency = 0, -- We swap teams each set start.
+    switchTeamFrequency = 2, -- We swap teams each set start.
     gameAssistancesFrequency = 1, -- We spawn assistances each round start.
-    alliesArrivalFrequency = 1, -- We deploy allies each boss wave.
+    alliesArrivalFrequency = 1, -- We deploy allies each round start for singleplayer version.
     temporalSkullsFrequency = 1, -- We apply temporal skulls each round start.
-    resetSkullsFrequency = 4, -- We reset skulls NEVEEER NEVER FOREVER.
+    resetSkullsFrequency = 4, -- We reset skulls NEVEEEEER NEVER.
     permanentSkullsFrequency = 2 -- We apply permanent skulls each set start.
 }
 local settings = firefightManager.firefightSettings
