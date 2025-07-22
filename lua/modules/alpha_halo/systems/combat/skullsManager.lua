@@ -494,20 +494,20 @@ end
 ---@param isActive boolean
 function skullsManager.eyepatch(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
-        local weapon = tagEntry.data
-        if isActive then
-            weapon.autoaimAngle = weapon.autoaimAngle * 0
-            --weapon.autoaimRange = weapon.autoaimRange * 0 -- This should fix Needler bug.
-            weapon.magnetismAngle = weapon.magnetismAngle * 0 -- Is this rlly neccesary? It's just for controll.
-            --weapon.magnetismRange = weapon.magnetismRange * 0
-            for i = 1, tagEntry.data.triggers.count do
-                local trigger = tagEntry.data.triggers.elements[i]
-                trigger.minimumError = trigger.minimumError * 0 -- Both are needed to be 0.
-                trigger.errorAngle[1] = trigger.errorAngle[1] * 0
+        --if not tagEntry.data.weaponType == engine.tag.weaponType.needler then -- We spare the Needler of this skull.
+            local weapon = tagEntry.data
+            if isActive then
+                weapon.autoaimAngle = weapon.autoaimAngle * 0
+                weapon.magnetismAngle = weapon.magnetismAngle * 0
+                for i = 1, tagEntry.data.triggers.count do
+                    local trigger = tagEntry.data.triggers.elements[i]
+                    trigger.minimumError = trigger.minimumError * 0
+                    trigger.errorAngle[1] = trigger.errorAngle[1] * 0
+                end
+            else
+                Balltze.features.reloadTagData(tagEntry.handle)
             end
-        else
-            Balltze.features.reloadTagData(tagEntry.handle)
-        end
+        --end -- Comment this if you want to apply the skull to the Needler as well (It will not track targets).
     end
     --skullsManager.skulls.eyepatch.active = isActive
     -- logger:debug("Eye Patch {}", isActive and "On" or "Off")
