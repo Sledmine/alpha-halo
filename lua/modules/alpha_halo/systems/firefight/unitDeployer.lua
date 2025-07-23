@@ -300,7 +300,7 @@ function unitDeployer.aiExitVehicle(call, sleep)
     hsc.vehicle_unload("dropship_1_1", "")
     hsc.vehicle_unload("dropship_2_1", "")
     hsc.vehicle_unload("dropship_3_1", "")
-    sleep(750)
+    sleep(900)
     Deployer.deploymentAllowed = true -- Now Spirits can run wild.
 end
 

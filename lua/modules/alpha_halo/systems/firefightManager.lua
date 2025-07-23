@@ -24,14 +24,14 @@ local firefightManager = {}
 firefightManager.firefightSettings = { --------------
     bossWaveFrequency = 0,
     wavesPerRound = 5,
-    roundsPerSet = 3,
-    setsPerGame = 3,
+    roundsPerSet = 1,
+    setsPerGame = 1,
 
-    waveLivingMin = 4,
-    bossWaveLivingMin = 0,
+    waveLivingMin = 999,
+    bossWaveLivingMin = 999, -- The game kinda brokes if this is set for continuous waves.
 
-    waveCooldown = 280,
-    roundCooldown = 300,
+    waveCooldown = 30,
+    roundCooldown = 30,
     setCooldown = 30,
     gameCooldown = 30,
 
@@ -45,7 +45,7 @@ firefightManager.firefightSettings = { --------------
     ---4 = Never
     switchTeamFrequency = 2, -- We swap teams each set start.
     gameAssistancesFrequency = 1, -- We spawn assistances each round start.
-    alliesArrivalFrequency = 1, -- We deploy allies each round start for singleplayer version.
+    alliesArrivalFrequency = 4, -- We deploy allies each round start for singleplayer version.
     temporalSkullsFrequency = 1, -- We apply temporal skulls each round start.
     resetSkullsFrequency = 4, -- We reset skulls NEVEEEEER NEVER.
     permanentSkullsFrequency = 2 -- We apply permanent skulls each set start.
@@ -59,7 +59,7 @@ firefightManager.gameProgression = { --------------
     wave = 1,
     round = 1,
     set = 1,
-    wavesTilBoss = 0,
+    wavesTilBoss = 1,
     currentEnemyTeam = 0,
     deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed
 }
@@ -101,6 +101,7 @@ function firefightManager.startGame(call, sleep)
     sleep(settings.gameCooldown)
     --script.thread(announcer.gameStart)() -- Sound not available?
     gameIsOn = true
+    firefightManager.waveDefinition() -- Define in which type of wave are we depending on the settings.
     script.wake(firefightManager.startSet) -- Start the first set.
     logger:debug("Game is on! Pain is coming in hot!")
 end
@@ -115,6 +116,7 @@ function firefightManager.eachTick()
     if gameIsOn == true then
         firefightManager.aiCheck()
         progression.deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed -- Do we really need to check this each tick?
+        logger:debug(livingCount .. " living enemies")
         if waveIsOn == true and progression.deploymentAllowed == true then -- We hold this 'til aiExitVehicle is over.
             if not lastWave and ((not bossWave and livingCount <= settings.waveLivingMin)
             or (bossWave and livingCount <= settings.bossWaveLivingMin)) then
@@ -134,13 +136,8 @@ function firefightManager.eachTick()
 end
 
 ---This moves the Firefight one wave, round or set forward.
----It's called when game starts and after a completed wave.
----It's the only thing that can alter the progression list.
-local firstWave = true -- First wave of the game. By default this is the only one true.
-local startingWave = false -- First wave of the round.
-local randomWave = false -- Random wave.
--- local lastWave = false -- Last wave of the game. These two bools are actually above eachTick---
--- local bossWave = false -- Boss wave. ---bc that function needs them for the livingCount.
+---It's called AFTER a completed wave, not when the game starts.
+---This is the only function that can alter the progression list.
 function firefightManager.firefightProgression()
     if not (progression.wave == settings.wavesPerRound) then -- If we hadn't reach the wavePerRound limit...
         progression.wave = progression.wave + 1
@@ -167,6 +164,17 @@ function firefightManager.firefightProgression()
             end
         end
     end
+    firefightManager.waveDefinition()
+    -- We announce bad guys coming in.
+    logger:debug("Bad guys coming in...")
+end
+
+local firstWave = false -- First wave of the game.
+local startingWave = false -- First wave of the round.
+local randomWave = false -- Random wave.
+-- local lastWave = false -- Last wave of the game. These two bools are actually above eachTick...
+-- local bossWave = false -- Boss wave. ...bc that function needs them for the livingCount.
+function firefightManager.waveDefinition()
     -- We define what is the startingWave.
     startingWave = (progression.wave == 1)
     -- We define what is the bossWave.
@@ -182,8 +190,6 @@ function firefightManager.firefightProgression()
             (progression.set == settings.setsPerGame))
     -- We define what is a randomWave.
     randomWave = not (startingWave or bossWave or firstWave or lastWave)
-    -- We announce bad guys coming in.
-    logger:debug("Bad guys coming in...")
 end
 
 ---Set Start. Calls round start.
@@ -210,7 +216,7 @@ function firefightManager.startWave(call, sleep)
     firefightManager.permanentSkull()
     sleep(settings.waveCooldown)
     --script.thread(announcer.waveStart)() -- Sound not available?
-    if firstWave or startingWave then
+    if (firstWave or startingWave) and (not bossWave) then
         unitDeployer.waveDeployer("starting")
     elseif randomWave then
         unitDeployer.waveDeployer("random")
@@ -221,6 +227,9 @@ function firefightManager.startWave(call, sleep)
     local waveTemplate = "Wave %s, Round %s, Set %s."
     local actualWave = waveTemplate:format(progression.wave, progression.round, progression.set)
     logger:debug(actualWave) -- This will be eventually replaced by a proper UI message.
+    if lastWave then
+        logger:debug("Hang in there, just one final effort...")
+    end
     waveIsOn = true
     drawNavPoint = false
 end
