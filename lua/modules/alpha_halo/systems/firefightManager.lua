@@ -10,6 +10,7 @@ local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
+--local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
 
 local firefightManager = {}
@@ -24,16 +25,17 @@ local firefightManager = {}
 firefightManager.firefightSettings = { --------------
     bossWaveFrequency = 0,
     wavesPerRound = 5,
-    roundsPerSet = 1,
-    setsPerGame = 1,
+    roundsPerSet = 3,
+    setsPerGame = 3,
 
-    waveLivingMin = 999,
-    bossWaveLivingMin = 999, -- The game kinda brokes if this is set for continuous waves.
+    waveLivingMin = 4,
+    bossWaveLivingMin = 0, -- The game kinda brokes if this is set for continuous waves.
 
-    waveCooldown = 30,
-    roundCooldown = 30,
+    waveCooldown = 270,
+    roundCooldown = 300,
     setCooldown = 30,
     gameCooldown = 30,
+    --eventsManager.eventsSettings.randomEventTimer == 4200,
 
     startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
 
@@ -116,7 +118,6 @@ function firefightManager.eachTick()
     if gameIsOn == true then
         firefightManager.aiCheck()
         progression.deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed -- Do we really need to check this each tick?
-        logger:debug(livingCount .. " living enemies")
         if waveIsOn == true and progression.deploymentAllowed == true then -- We hold this 'til aiExitVehicle is over.
             if not lastWave and ((not bossWave and livingCount <= settings.waveLivingMin)
             or (bossWave and livingCount <= settings.bossWaveLivingMin)) then
