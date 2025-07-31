@@ -14,12 +14,17 @@ function eventsManager.eachTick()
     eventsManager.aiCheck()
 end
 
+eventsManager.deployerSettings = {
+    randomEventFrequency = 4200,
+}
+local settings = eventsManager.deployerSettings
+
 local bansheeLivingCount
 local snipersLivingCount
 local sentinelsLivingCount
 --local mortarLivingCount
 -- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
-local randomEventTimer = 4200
+local randomEventTimer = settings.randomEventFrequency
 local randomEventCountdown = randomEventTimer
 function eventsManager.randomEventTimer()
     if bansheeLivingCount == 0 or snipersLivingCount == 0 or sentinelsLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)

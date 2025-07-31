@@ -6,36 +6,48 @@ local getPlayer = Engine.gameState.getPlayer
 local tagClasses = Engine.tag.classes
 local const = require "alpha_halo.systems.core.constants"
 local script = require "script"
+-- local blam = require "blam"
 
 local healthManager = {}
 
----- THESE FUNCTIONS ARE CALLED EACH TICK ----
+-- VARIABLES DE LA FUNCIÓN healthRegenSP.maxHealthCap
+local maxHealth = 1
+
+-- VARIALBES DE LA FUNCIÓN healthRegenSP.respawnAndDeath
+local playerLives = 6
+
 function healthManager.eachTick()
     healthManager.healthRegen()
     healthManager.regenerateAllyHealth()
 end
 
----- THIS FUNCTION MANAGES THE HEALTH REGENERATION FOR THE PLAYER ----
-local maxHealth = 1
+-- VARIABLES DE LA FUNCIÓN healthManager.healthRegen(playerIndex)
+local playerIsDead = false
+local waitingForRespawn = false
 function healthManager.healthRegen()
     for playerIndex = 0, 15 do
-        -- We get the player.
         local player = getPlayer(playerIndex)
         if not player then
             return
         end
-        -- We get the player biped.
         local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
         if not biped then
-            -- We call this function when the player is dead.
-            healthManager.playerIsDead()
+            if playerIsDead == false then
+                playerIsDead = true
+                waitingForRespawn = true
+            end
+            if playerLives == 0 then
+                -- gameIsOn = false
+                logger:debug("Thanks for playing.")
+                execute_script("sv_end_game")
+            end
             return
         end
-        -- Idk why we need this, honestly.
+        healthManager.maxHealthCap()
+        playerIsDead = false
         if biped.vitals.health <= 0 then
             biped.vitals.health = 0.000000001
         end
-        -- If player's shield is above 0.95 and health is below maxHealth, we regenerate health.
         if biped.vitals.health < maxHealth and biped.vitals.shield > 0.95 then
             local newPlayerHealth = biped.vitals.health + const.healthRegenerationAmount
             if newPlayerHealth > 1 then
@@ -44,68 +56,32 @@ function healthManager.healthRegen()
                 biped.vitals.health = newPlayerHealth
             end
         end
-        -- We define what is maxHealth for each player.
-        if biped.vitals.health >= 0.605 then
-            maxHealth = 1
-        elseif biped.vitals.health < 0.605 and biped.vitals.health >= 0.305 then
-            maxHealth = 0.6
-        elseif biped.vitals.health < 0.305 then
-            maxHealth = 0.3
-        end
     end
 end
 
----- THIS FUNCTION REGENERATES THE HEALTH OF ALLIED BIPEDS ----
-function healthManager.regenerateAllyHealth()
-    for bipedIndex = 0, 4095 do
-        local bipedObject = getObject(bipedIndex)
-        if not bipedObject then
-            return
-        end
-        if bipedObject.type == objectTypes.biped then
-            local bipedAlly = getObject(bipedIndex, objectTypes.biped)
-            assert(bipedAlly, "Failed to get biped object")
-            local bipedAllyTag = engine.tag.getTag(bipedObject.tagHandle.value, tagClasses.biped)
-            assert(bipedAllyTag, "Biped tag must exist")
-            if bipedAllyTag.path:includes("odst_h2") then
-                bipedAlly.tagHandle.value = bipedAllyTag.handle.value
-                if bipedAlly.vitals.health < 1 and bipedAlly.vitals.shield > 0.75 then
-                    bipedAlly.vitals.health = bipedAlly.vitals.health + const.healthRegenAiAmount
-                    --logger:debug("Ally  '{}'  Health Regen:  '{}'", bipedAlly.tagHandle.value, bipedAlly.vitals.health)
-                    if bipedAlly.vitals.health > 1 then
-                        bipedAlly.vitals.health = 1
-                    end
-                end
-                --logger:debug("Ally  '{}'  Health:  '{}'", bipedAlly.tagHandle.value, bipedAlly.vitals.health)
-            end
-        end
+-- We cap max health regen according to current player's health.
+function healthManager.maxHealthCap()
+    local player = getPlayer()
+    if not player then
+        return
+    end
+    local biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
+    if biped.vitals.health >= 0.605 then
+        maxHealth = 1
+    elseif biped.vitals.health < 0.605 and biped.vitals.health >= 0.305 then
+        maxHealth = 0.6
+    elseif biped.vitals.health < 0.305 then
+        maxHealth = 0.3
     end
 end
 
----- THIS FUNCTION HANDLES THE PLAYER DEATH ----
-healthManager.livesSettings = {
-    playerInitialLives = 6,
-}
-local settings = healthManager.livesSettings
-local playerLives = settings.playerInitialLives
-local playerIsDead = false
-local waitingForRespawn = false
-function healthManager.playerIsDead()
-    if playerIsDead == false then
-        playerIsDead = true
-        waitingForRespawn = true
-    end
-    if playerLives == 0 then
-        -- gameIsOn = false
-        logger:debug("Thanks for playing.")
-        execute_script("sv_end_game")
-    end
-end
-
----- THIS FUNCTION HANDLES THE PLAYER RESPAWN ----
 local livesLeftTemplate = "Lives left... %s"
 local actualLivesLeft = livesLeftTemplate:format(playerLives)
 local playSound = engine.userInterface.playSound
+-- A player has lost a life. What a looser.
 function healthManager.tryingToRespawn(call, sleep)
     local player = getPlayer()
     if not player then
@@ -138,9 +114,10 @@ function healthManager.tryingToRespawn(call, sleep)
         end
     end
 end
+
 script.continuous(healthManager.tryingToRespawn)
 
----- THIS FUNCTION GAVES A LIFE TO THE PLAYER ----
+-- This function is called from other modules to add a live to the player.
 function healthManager.livesGained(call, sleep)
     local player = getPlayer()
     if not player then
@@ -155,6 +132,33 @@ function healthManager.livesGained(call, sleep)
     sleep(100)
     playSound(const.sounds.livesAdded.handle)
     biped.vitals.health = 1
+end
+
+-- Regenerate a designated biped health using game ticks on singleplayer. 
+function healthManager.regenerateAllyHealth()
+    for bipedIndex = 0, 4095 do
+        local bipedObject = getObject(bipedIndex)
+        if not bipedObject then
+            return
+        end
+        if bipedObject.type == objectTypes.biped then
+            local bipedAlly = getObject(bipedIndex, objectTypes.biped)
+            assert(bipedAlly, "Failed to get biped object")
+            local bipedAllyTag = engine.tag.getTag(bipedObject.tagHandle.value, tagClasses.biped)
+            assert(bipedAllyTag, "Biped tag must exist")
+            if bipedAllyTag.path:includes("odst_h2") then
+                bipedAlly.tagHandle.value = bipedAllyTag.handle.value
+                if bipedAlly.vitals.health < 1 and bipedAlly.vitals.shield > 0.75 then
+                    bipedAlly.vitals.health = bipedAlly.vitals.health + const.healthRegenAiAmount
+                    --logger:debug("Ally  '{}'  Health Regen:  '{}'", bipedAlly.tagHandle.value, bipedAlly.vitals.health)
+                    if bipedAlly.vitals.health > 1 then
+                        bipedAlly.vitals.health = 1
+                    end
+                end
+                --logger:debug("Ally  '{}'  Health:  '{}'", bipedAlly.tagHandle.value, bipedAlly.vitals.health)
+            end
+        end
+    end
 end
 
 return healthManager
