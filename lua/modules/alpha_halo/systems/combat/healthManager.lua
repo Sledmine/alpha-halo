@@ -27,8 +27,6 @@ function healthManager.healthRegen()
         -- We get the player biped.
         local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
         if not biped then
-            -- We call this function when the player is dead.
-            healthManager.playerIsDead()
             return
         end
         -- Idk why we need this, honestly.
@@ -80,81 +78,6 @@ function healthManager.regenerateAllyHealth()
             end
         end
     end
-end
-
----- THIS FUNCTION HANDLES THE PLAYER DEATH ----
-healthManager.livesSettings = {
-    playerInitialLives = 6,
-}
-local settings = healthManager.livesSettings
-local playerLives = settings.playerInitialLives
-local playerIsDead = false
-local waitingForRespawn = false
-function healthManager.playerIsDead()
-    if playerIsDead == false then
-        playerIsDead = true
-        waitingForRespawn = true
-    end
-    if playerLives == 0 then
-        -- gameIsOn = false
-        logger:debug("Thanks for playing.")
-        execute_script("sv_end_game")
-    end
-end
-
----- THIS FUNCTION HANDLES THE PLAYER RESPAWN ----
-local livesLeftTemplate = "Lives left... %s"
-local actualLivesLeft = livesLeftTemplate:format(playerLives)
-local playSound = engine.userInterface.playSound
-function healthManager.tryingToRespawn(call, sleep)
-    local player = getPlayer()
-    if not player then
-        return
-    end
-    local biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    if waitingForRespawn == true and biped then
-        waitingForRespawn = false
-        playerLives = playerLives - 1
-        actualLivesLeft = livesLeftTemplate:format(playerLives)
-        if playerLives > 0 then
-            logger:debug(actualLivesLeft)
-        end
-        if playerLives == 5 then
-            sleep(10)
-            playSound(const.sounds.fiveLivesLeft.handle)
-        end
-        if playerLives == 1 then
-            sleep(10)
-            playSound(const.sounds.oneLiveLeft.handle)
-        end
-        if playerLives == 0 then
-            logger:debug("No lives left.")
-            logger:debug("You feel a sense of dread crawling up your spine...")
-            sleep(10)
-            playSound(const.sounds.noLivesLeft.handle)
-        end
-    end
-end
-script.continuous(healthManager.tryingToRespawn)
-
----- THIS FUNCTION GAVES A LIFE TO THE PLAYER ----
-function healthManager.livesGained(call, sleep)
-    local player = getPlayer()
-    if not player then
-        return
-    end
-    local biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    logger:debug("Lives added!")
-    playerLives = playerLives + 1
-    sleep(100)
-    playSound(const.sounds.livesAdded.handle)
-    biped.vitals.health = 1
 end
 
 return healthManager

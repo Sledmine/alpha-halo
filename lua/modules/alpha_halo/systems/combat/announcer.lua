@@ -40,6 +40,11 @@ function announcer.noLivesLeft(call, sleep)
     playSound(const.sounds.noLivesLeft.handle)
 end
 
+function announcer.livesAdded(call, sleep)
+    sleep(1)
+    playSound(const.sounds.livesAdded.handle)
+end
+
 function announcer.skullOn(call, sleep)
     sleep(1)
     playSound(const.sounds.skullOn.handle)

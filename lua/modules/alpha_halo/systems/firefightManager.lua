@@ -23,6 +23,8 @@ local firefightManager = {}
 ---Could be customizable in the future from the Ins menu.
 ---@enum
 firefightManager.firefightSettings = { --------------
+    playerInitialLives = 7,
+
     bossWaveFrequency = 0,
     wavesPerRound = 5,
     roundsPerSet = 3,
@@ -235,6 +237,76 @@ function firefightManager.startWave(call, sleep)
     drawNavPoint = false
 end
 
+---- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ----
+---- THIS FUNCTION HANDLES THE PLAYER RESPAWN ----
+---- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ----
+local getObject = Engine.gameState.getObject
+local getPlayer = Engine.gameState.getPlayer
+local objectTypes = Engine.tag.objectType
+local playerLives = settings.playerInitialLives
+local playerIsDead = false -- This by default is false, obviously.
+function firefightManager.playerCheck(call, sleep)
+    -- We check if the game is on.
+    if gameIsOn == true then
+        -- We get the player.
+        local player = getPlayer()
+        if not player then
+            return
+        end
+        -- We get the player biped.
+        local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
+        if not biped then
+            playerIsDead = true
+            -- If lifes are 0 and there's no player biped, then we end the game.
+            if playerLives == 0 then
+                logger:debug("You lost, sucker!!!")
+                firefightManager.endGame()
+            end
+            return -- Do we really need these returns here?
+        end
+        -- We do stuff as soon as the player reapears.
+        if playerIsDead and biped then
+            playerIsDead = false
+            playerLives = playerLives - 1
+            if playerLives > 0 then
+                logger:debug("Lifes left... {}", playerLives)
+            end
+            if playerLives == 5 then
+                sleep(15)
+                script.thread(announcer.fiveLivesLeft)()
+            end
+            if playerLives == 1 then
+                sleep(15)
+                script.thread(announcer.oneLiveLeft)()
+            end
+            if playerLives == 0 then
+                logger:debug("No lives left.")
+                logger:debug("You feel a sense of dread crawling up your spine...")
+                sleep(15)
+                script.thread(announcer.noLivesLeft)()
+            end
+        end
+    end
+end
+script.continuous(firefightManager.playerCheck)
+
+---- THIS FUNCTION GAVES A LIFE TO THE PLAYER ----
+function firefightManager.livesGained(call, sleep)
+    logger:debug("Lives added!")
+    playerLives = playerLives + 1
+    sleep(90)
+    local player = getPlayer()
+    if not player then
+        return
+    end
+    local biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
+    script.thread(announcer.livesAdded)()
+    biped.vitals.health = 1
+end
+
 -------------------------------------------------------
 -- Special Events
 -------------------------------------------------------
@@ -265,7 +337,7 @@ function firefightManager.gameAssistances()
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
     if (assistFreq == 0) or (assistFreq == 1 and wave == 1) or (assistFreq == 2 and wave == 1 and round == 1) or (assistFreq == 3 and bossWave) then
-        script.thread(healthManager.livesGained)()
+        script.thread(firefightManager.livesGained)()
         local ghostAssistTemplate = "reward_ghost_var%s"
         local randomGhost = math.random(1, 3)
         local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
