@@ -247,44 +247,45 @@ local playerLives = settings.playerInitialLives
 local playerIsDead = false -- This by default is false, obviously.
 function firefightManager.playerCheck(call, sleep)
     -- We check if the game is on.
-    if gameIsOn == true then
-        -- We get the player.
-        local player = getPlayer()
-        if not player then
-            return
+    if gameIsOn == false then
+        return
+    end
+    -- We get the player.
+    local player = getPlayer()
+    if not player then
+        return
+    end
+    -- We get the player biped.
+    local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
+    if not biped then
+        playerIsDead = true
+        -- If lifes are 0 and there's no player biped, then we end the game.
+        if playerLives == 0 then
+            logger:debug("You lost, sucker!!!")
+            firefightManager.endGame()
         end
-        -- We get the player biped.
-        local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
-        if not biped then
-            playerIsDead = true
-            -- If lifes are 0 and there's no player biped, then we end the game.
-            if playerLives == 0 then
-                logger:debug("You lost, sucker!!!")
-                firefightManager.endGame()
-            end
-            return -- Do we really need these returns here?
+        return -- Do we really need these returns here?
+    end
+    -- We do stuff as soon as the player reapears.
+    if playerIsDead and biped then
+        playerIsDead = false
+        playerLives = playerLives - 1
+        if playerLives > 0 then
+            logger:debug("Lifes left... {}", playerLives)
         end
-        -- We do stuff as soon as the player reapears.
-        if playerIsDead and biped then
-            playerIsDead = false
-            playerLives = playerLives - 1
-            if playerLives > 0 then
-                logger:debug("Lifes left... {}", playerLives)
-            end
-            if playerLives == 5 then
-                sleep(15)
-                script.thread(announcer.fiveLivesLeft)()
-            end
-            if playerLives == 1 then
-                sleep(15)
-                script.thread(announcer.oneLiveLeft)()
-            end
-            if playerLives == 0 then
-                logger:debug("No lives left.")
-                logger:debug("You feel a sense of dread crawling up your spine...")
-                sleep(15)
-                script.thread(announcer.noLivesLeft)()
-            end
+        if playerLives == 5 then
+            sleep(15)
+            script.thread(announcer.fiveLivesLeft)()
+        end
+        if playerLives == 1 then
+            sleep(15)
+            script.thread(announcer.oneLiveLeft)()
+        end
+        if playerLives == 0 then
+            logger:debug("No lives left.")
+            logger:debug("You feel a sense of dread crawling up your spine...")
+            sleep(15)
+            script.thread(announcer.noLivesLeft)()
         end
     end
 end
