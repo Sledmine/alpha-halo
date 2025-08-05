@@ -9,8 +9,6 @@ local hsc = require "hsc"
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
-local healthManager = require "alpha_halo.systems.combat.healthManager"
---local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local announcer = require "alpha_halo.systems.combat.announcer"
 
 local firefightManager = {}
@@ -31,13 +29,12 @@ firefightManager.firefightSettings = { --------------
     setsPerGame = 3,
 
     waveLivingMin = 4,
-    bossWaveLivingMin = 0, -- The game kinda brokes if this is set for continuous waves.
+    bossWaveLivingMin = 0,
 
     waveCooldown = 270,
     roundCooldown = 300,
     setCooldown = 30,
     gameCooldown = 30,
-    --eventsManager.eventsSettings.randomEventTimer == 4200,
 
     startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
 
@@ -293,8 +290,11 @@ script.continuous(firefightManager.playerCheck)
 
 ---- THIS FUNCTION GAVES A LIFE TO THE PLAYER ----
 function firefightManager.livesGained(call, sleep)
+    -- We add a life to the player.
     logger:debug("Lives added!")
     playerLives = playerLives + 1
+    script.thread(announcer.livesAdded)()
+    -- If the player exist, then we restore his health.
     sleep(90)
     local player = getPlayer()
     if not player then
@@ -304,7 +304,6 @@ function firefightManager.livesGained(call, sleep)
     if not biped then
         return
     end
-    script.thread(announcer.livesAdded)()
     biped.vitals.health = 1
 end
 
