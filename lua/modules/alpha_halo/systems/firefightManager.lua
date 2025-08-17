@@ -22,6 +22,8 @@ local firefightManager = {}
 ---@enum
 firefightManager.firefightSettings = { --------------
     playerInitialLives = 7,
+    extraLivesGained = 1,
+    livesLostPerDead = 1,
 
     bossWaveFrequency = 0,
     wavesPerRound = 5,
@@ -46,6 +48,7 @@ firefightManager.firefightSettings = { --------------
     ---4 = Never
     switchTeamFrequency = 2, -- We swap teams each set start.
     gameAssistancesFrequency = 1, -- We spawn assistances each round start.
+    livesGainedFrequency = 1, -- We apply lives gained each round start.
     alliesArrivalFrequency = 4, -- We deploy allies each round start for singleplayer version.
     temporalSkullsFrequency = 1, -- We apply temporal skulls each round start.
     resetSkullsFrequency = 4, -- We reset skulls NEVEEEEER NEVER.
@@ -266,7 +269,7 @@ function firefightManager.playerCheck(call, sleep)
     -- We do stuff as soon as the player reapears.
     if playerIsDead and biped then
         playerIsDead = false
-        playerLives = playerLives - 1
+        playerLives = playerLives - settings.livesLostPerDead
         if playerLives > 0 then
             logger:debug("Lifes left... {}", playerLives)
         end
@@ -287,25 +290,6 @@ function firefightManager.playerCheck(call, sleep)
     end
 end
 script.continuous(firefightManager.playerCheck)
-
----- THIS FUNCTION GAVES A LIFE TO THE PLAYER ----
-function firefightManager.livesGained(call, sleep)
-    -- We add a life to the player.
-    logger:debug("Lives added!")
-    playerLives = playerLives + 1
-    script.thread(announcer.livesAdded)()
-    -- If the player exist, then we restore his health.
-    sleep(90)
-    local player = getPlayer()
-    if not player then
-        return
-    end
-    local biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    biped.vitals.health = 1
-end
 
 -------------------------------------------------------
 -- Special Events
@@ -331,13 +315,12 @@ function firefightManager.switchTeams()
     end
 end
 
----- GAIN A LIFE & SPAWN WARTHOGS AND GHOSTS ----
+---- SPAWN WARTHOGS AND GHOSTS ----
 function firefightManager.gameAssistances()
     local assistFreq = settings.gameAssistancesFrequency
     local wave = firefightManager.gameProgression.wave
     local round = firefightManager.gameProgression.round
     if (assistFreq == 0) or (assistFreq == 1 and wave == 1) or (assistFreq == 2 and wave == 1 and round == 1) or (assistFreq == 3 and bossWave) then
-        script.thread(firefightManager.livesGained)()
         local ghostAssistTemplate = "reward_ghost_var%s"
         local randomGhost = math.random(1, 3)
         local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
@@ -348,6 +331,34 @@ function firefightManager.gameAssistances()
         local selectedWarthog = warthogTemplate:format(randomWarthog)
         pigPen.compactSpawnNamedVehicle(selectedWarthog)
         hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
+    else
+        logger:debug("No criteria was met for gameAssistances")
+        return
+    end
+end
+
+---- THIS FUNCTION GAVES A LIFE TO THE PLAYER ----
+function firefightManager.livesGained()
+    local livesFreq = settings.livesGainedFrequency
+    local wave = firefightManager.gameProgression.wave
+    local round = firefightManager.gameProgression.round
+    if (livesFreq == 0) or (livesFreq == 1 and wave == 1) or (livesFreq == 2 and wave == 1 and round == 1) or (livesFreq == 3 and bossWave) then
+        -- We add a life to the player.
+        logger:debug("Lives added!")
+        playerLives = playerLives + settings.extraLivesGained
+        script.thread(announcer.livesAdded)()
+        -- If the player exist, then we restore his health.
+        local player = getPlayer()
+        if not player then
+            return
+        end
+        local biped = getObject(player.objectHandle, objectTypes.biped)
+        if not biped then
+            return
+        end
+        if biped.vitals.health < 1 then
+            biped.vitals.health = 1
+        end
     else
         logger:debug("No criteria was met for gameAssistances")
         return
@@ -421,7 +432,9 @@ end
 function firefightManager.reloadGame()
     gameIsOn = false
     waveIsOn = false
-    drawNavPoint = false
+    progression.set = 1
+    progression.round = 1
+    progression.wave = 1
     hsc.ai_erase_all()
     hsc.object_destroy_containing("dropship")
     hsc.garbage_collect_now()
@@ -434,12 +447,12 @@ end
 function firefightManager.endGame()
     gameIsOn = false
     waveIsOn = false
-    drawNavPoint = false
     -- logger:debug("Firefight is on '{}'", gameIsOn)
     -- logger:debug("Wave is on '{}'", waveIsOn)
-    progression.set = 0
-    progression.round = 0
-    progression.wave = 0
+    progression.set = 1
+    progression.round = 1
+    progression.wave = 1
+    progression.wavesTilBoss = 1
     -- logger:debug("Set, Round and Wave reset to '0'")
     hsc.ai_erase_all()
     hsc.garbage_collect_now()
@@ -447,7 +460,7 @@ function firefightManager.endGame()
 end
 
 -- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.
-local magicalSightCounter = 30
+local magicalSightCounter = 300
 local magicalSightTimer = 0
 function firefightManager.aiCheck()
     livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") + hsc.ai_living_count("Standby_Dropship")
