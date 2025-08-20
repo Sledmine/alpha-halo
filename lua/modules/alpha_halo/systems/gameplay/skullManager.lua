@@ -38,7 +38,8 @@ local silverSkulls = {skullManager.skulls.fog}
 ---@param skullType string | "silver" | "golden"
 ---@param name string | "random" | "all"
 function skullManager.enableSkull(skullType, name)
-    local skullList = skullType == "silver" and silverSkulls or skullType == "golden" and goldenSkulls or nil
+    local skullList = skullType == "silver" and silverSkulls or skullType == "golden" and
+                          goldenSkulls or nil
 
     -- Check if the skullList is valid and name is provided
     if not skullList or not name then
@@ -57,7 +58,8 @@ function skullManager.enableSkull(skullType, name)
                     logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper),
                                 skull.name)
                 else
-                    logger:warning("{} skull '{}' is already active.", skullType:gsub("^%l", string.upper), skull.name)
+                    logger:warning("{} skull '{}' is already active.",
+                                   skullType:gsub("^%l", string.upper), skull.name)
                 end
             end
         end
@@ -130,9 +132,6 @@ function skullManager.disableSkull(skullType, name)
                 skull.active = false
                 logger:info("{} skull: '{}' deactivated", skullType:gsub("^%l", string.upper),
                             skull.name)
-            else
-                logger:warning("{} skull '{}' is already inactive.",
-                               skullType:gsub("^%l", string.upper), skull.name)
             end
         end
         return

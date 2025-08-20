@@ -1,27 +1,23 @@
 local skullsManager = require "alpha_halo.systems.combat.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
+local luna         = require "luna"
 
 local commands = {}
 
 commands = {
-    enable_skull = {
-        description = "Activate a skull by <type> and <arg>.",
+    skull = {
+        description = "Activate a skull by <type> and <arg> <isEnabled>",
         category = "debug",
-        help = "Usage: activate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> ]",
-        minArgs = 2,
-        maxArgs = 2,
-        func = function(type, skullName)
-            skullsManager.enableSkull(type, skullName)
-        end
-    },
-    disable_skull = {
-        description = "Deactivate a skull by <type> and <arg>.",
-        category = "debug",
-        help = "Usage: deactivate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> | <is_active> ]",
-        minArgs = 2,
-        maxArgs = 2,
-        func = function(type, skullName)
-            skullsManager.disableSkull(type, skullName)
+        help = "Usage: skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> ]",
+        minArgs = 3,
+        maxArgs = 3,
+        func = function(type, skullName, isEnabled)
+            isEnabled = luna.bool(isEnabled)
+            if isEnabled then
+                skullsManager.enableSkull(type, skullName)
+            else
+                skullsManager.disableSkull(type, skullName)
+            end
         end
     },
     squad_assembler = {

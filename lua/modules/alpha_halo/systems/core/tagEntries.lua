@@ -5,7 +5,7 @@ local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
-local blam = require "blam"
+local blam = require "blam2"
 local inspect = require "inspect"
 
 local tagEntries = {}
@@ -95,9 +95,10 @@ function tagEntries.vehicle()
 end
 
 function tagEntries.weapon()
-    local weaponTagEntries = findTags("", tagClasses.weapon)
+    --local weaponTagEntries = findTags("", tagClasses.weapon)
+    local weaponTagEntries = blam.tag.findTags("", blam.tag.groups.weapon)
     assert(weaponTagEntries)
-    return weaponTagEntries
+    return weaponTagEntries --[[@as MetaEngineWeaponTag[] ]]
 end
 
 return tagEntries
