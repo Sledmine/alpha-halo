@@ -1,7 +1,23 @@
 local balltze = Balltze
 local engine = Engine
 local script = require "script"
+inspect = require "inspect"
 math.randomseed(os.time())
+local luaAssert = assert
+function assert(...)
+    local args = {...}
+    local condition = args[1]
+    local message = args[2]
+    if not condition then
+        if message then
+            local err = debug.traceback(message, 2)
+            luaAssert(condition, err)
+        else
+            local err = debug.traceback("Assertion failed", 2)
+            luaAssert(condition, err)
+        end
+    end
+end
 
 --Project modules
 local firefightManager = require "alpha_halo.systems.firefightManager"
