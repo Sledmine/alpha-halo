@@ -497,12 +497,12 @@ function skullsManager.eyepatch(isActive)
         --if not tagEntry.data.weaponType == engine.tag.weaponType.needler then -- We spare the Needler of this skull.
             local weapon = tagEntry.data
             if isActive then
-                weapon.autoaimAngle = weapon.autoaimAngle * 0
-                weapon.magnetismAngle = weapon.magnetismAngle * 0
+                weapon.autoaimAngle = 0
+                weapon.magnetismAngle = 0
                 for i = 1, tagEntry.data.triggers.count do
                     local trigger = tagEntry.data.triggers.elements[i]
-                    trigger.minimumError = trigger.minimumError * 0
-                    trigger.errorAngle[1] = trigger.errorAngle[1] * 0
+                    trigger.minimumError = 0
+                    trigger.errorAngle[1] = 0
                 end
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -891,8 +891,6 @@ function skullsManager.disableSkull(skullType, name)
                 skull.func(false)
                 skull.spent = 0
                 logger:info("{} skull: '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-            else
-                logger:warning("{} skull '{}' is already inactive.", skullType:gsub("^%l", string.upper), skull.name)
             end
         end
         return
@@ -937,7 +935,7 @@ function skullsManager.disableSkull(skullType, name)
     -- Search by specific name
     for _, skull in ipairs(skullList) do
         if name:lower() == skull.name:lower() then
-            if not skull.spent > 0 then
+            if not (skull.spent > 0) then
                 logger:warning("{} Skull '{}' is already inactive.", skullType:gsub("^%l", string.upper), skull.name)
             else
                 skull.func(false)
