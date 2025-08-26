@@ -639,131 +639,189 @@ end
 skullsManager.skulls = {
     famine = {
         name = "Famine",
+        motto = "Trust us, bring a magazine.",
+        description = "Enemies dropped weapons with half ammo.",
         effect = skullsEffect.famine,
         state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     mythic = {
         name = "Mythic",
+        motto = "Coverage under the Covenant Health Plan!",
+        description = " Enemies have double health & shields, and player gets a x1.5 bonus.",
         effect = skullsEffect.mythic,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     blind = {
         name = "Blind",
+        motto = "Shoot from the hip.",
+        description = "Players have the HUD disabled.",
         effect = skullsEffect.blind,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
-        isPermanent = false
+        isPermanent = false,
+        onTick = function()
+        end
     },
     catch = {
         name = "Catch",
+        motto = "Pull pin. Count to three. Throw.",
+        description = "Enemies launch grenades with more frequency, and throwing speed increases a little.",
         effect = skullsEffect.catch,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     berserk = {
         name = "Berserk",
+        motto = "Reckless rage, poisonous pride.",
+        description = "Enemies are in a berserker state.",
         effect = skullsEffect.berserk,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     toughluck = {
-        name = "Though Luck",
+        name = "Tough Luck",
+        motto = "Your foes always make every saving throw.",
+        description = "Enemies always evade danger",
         effect = skullsEffect.toughluck,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     fog = {
         name = "Fog",
+        motto = "You’ll miss those eyes in the back of your head.",
+        description = "Motion tracker is hidden.",
         effect = skullsEffect.fog,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
+        isPermanent = false,
         onTick = function()
-
-        end,
-        isPermanent = false
+        end
     },
     knucklehead = {
         name = "Knucklehead",
+        motto = "All brawn and no brain…",
+        description = "Body damage gets reduced to 1/5th, and head damage gets a 500% bonus.",
         effect = skullsEffect.knucklehead,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     cowbell = {
         name = "Cowbell",
+        motto = "More bang for your buck.",
+        description = "Acceleration effects are duplicated.",
         effect = skullsEffect.cowbell,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     havok = {
         name = "Havok",
+        motto = "Deliver hope… and tactical warheads.",
+        description = "Doubles explosion’s radius effect.",
         effect = skullsEffect.havok,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
+        isEnabled = false,
         isPermanent = false
     },
     newton = {
         name = "Newton",
+        motto = "That’s… not how the 3rd law works.",
+        description = "Melee hits now inflict knockback… To both ends.",
         effect = skullsEffect.newton,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     tilt = {
         name = "Tilt",
+        motto = "What was once resistance is now immunity.",
+        description = "Material resistances and weakness are doubled.",
         effect = skullsEffect.tilt,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     banger = {
         name = "Banger",
+        motto = "Send me out, with a bang.",
+        description = "Some enemies drop live grenades at death.",
         effect = skullsEffect.banger,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     doubledown = {
         name = "Double Down",
+        motto = "Do I feel lucky?",
+        description = "Doubles your shield… As well as it’s stun & recovering time.",
         effect = skullsEffect.doubledown,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     eyepatch = {
         name = "Eye Patch",
+        motto = "Like a mad dog.",
+        description = "Aim assistance gets reduced to 0, but so is initial error for all weapons.",
         effect = skullsEffect.eyepatch,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     triggerswitch = {
         name = "Trigger Switch",
+        motto = "A change of pace.",
+        description = "Full auto weapons become semi-auto and vice versa.",
         effect = skullsEffect.triggerswitch,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     slayer = {
         name = "Slayer",
+        motto = "Double every shot by sheer will of rip & tear.",
+        description = "Doubles projectiles per shot & spread cone size.",
         effect = skullsEffect.slayer,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     assassin = {
         name = "Assassin",
+        motto = "Your armor's system is not as... new as ours.",
+        description = "Everyone get’s active cammo… But your’s fail from time to time.",
         effect = skullsEffect.assassin,
-        state = {count = 0, max = 1},
+        state = {count = 0, max = 1, multiplier = 1},
+        isStackable = false,
         isEnabled = false,
-        isPermanent = false
+        isPermanent = false,
+        onTick = function()
+        end
     }
 }
 
