@@ -206,7 +206,7 @@ function script.thread(func, metadata)
         local ok, result = coroutine.resume(scriptThread.thread, call, sleep,
                                             table.unpack(parentScriptThread.args or {}))
         if not ok then
-            error(result, 2)
+            error(debug.traceback(scriptThread.thread, result), 2)
         end
         return result
     end
