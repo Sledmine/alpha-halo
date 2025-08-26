@@ -8,28 +8,67 @@ local getPlayer = Engine.gameState.getPlayer
 local blam = require "blam"
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
 
-local skullsManager = {}
+local skullsManager = {
+    paths = {
+        effects = {
+            plasma = "alpha_firefight\\effects\\skull_banger_plasma",
+            flood = "alpha_firefight\\effects\\skull_banger_flood"
+        },
+        bipeds = {player = "gdd\\characters\\spartan_mp\\spartan_mp"}
+    },
+    names = {
+        weapons = {
+            energy = {
+                "beam_rifle",
+                "brute_plasma_rifle",
+                "carbine",
+                "energy sword",
+                "fuel rod gun",
+                "plasma_cannon",
+                "plasma pistol",
+                "plasma rifle",
+                "ghost",
+                "wraith",
+                "banshee",
+                "spirit",
+                "shade",
+                "hunter"
+            },
+            kinetic = {
+                "assault rifle",
+                "battle_rifle",
+                "frag grenade",
+                "needler",
+                "pistol",
+                "rocket launcher",
+                "shotgun",
+                "smg",
+                "sniper_gauss",
+                "sniper rifle",
+                "m90_short",
+                "warthog",
+                "scorpion"
+            }
+        },
+        actors = {berserk = {"flood", "elite", "odst"}}
+    }
+}
+
+local skullsEffect = {}
 
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
-    skullsManager.skullFogOnTick()
-    skullsManager.skullBlindOnTick()
-    skullsManager.skullAssassinOnTick()
+    --skullsManager.skullFogOnTick()
+    --skullsManager.skullBlindOnTick()
+    --skullsManager.skullAssassinOnTick()
 end
 
 -------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
-local allUnits = {
-    "flood",
-    "elite",
-    "grunt",
-    "jackal",
-    "hunter",
-    "odst"
-}
+local allUnits = {"flood", "elite", "grunt", "jackal", "hunter", "odst"}
 
 -- Famine: Makes the AI drop half the ammo.
 ---@param isActive boolean
-function skullsManager.famine(isActive)
+function skullsEffect.famine(isActive)
     local famineTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -50,13 +89,13 @@ function skullsManager.famine(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.famine.active = isActive
+    -- skullsManager.skulls.famine.active = isActive
     -- logger:debug("Famine {}", isActive and "On" or "Off")
 end
 
 -- Mythic: AI gets double body & shield vitality, while player gets x1.5 boost.
 ---@param isActive boolean
-function skullsManager.mythic(isActive)
+function skullsEffect.mythic(isActive)
     local mythicTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -85,14 +124,14 @@ function skullsManager.mythic(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.mythic.active = isActive
+    -- skullsManager.skulls.mythic.active = isActive
     -- logger:debug("Mythic {}", isActive and "On" or "Off")
 end
 
 -- Blind: Hides HUD and duplicates AI burst origin radius.
 local blindOnTick = false
 ---@param isActive boolean
-function skullsManager.blind(isActive)
+function skullsEffect.blind(isActive)
     local blindTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -110,12 +149,12 @@ function skullsManager.blind(isActive)
         end
     end
     blindOnTick = true
-    --skullsManager.skulls.blind.active = isActive
+    -- skullsManager.skulls.blind.active = isActive
     -- logger:debug("Blind {}", isActive and "On" or "Off")
 end
 
 -- Blind OnTick
-function skullsManager.skullBlindOnTick()
+function skullsEffect.skullBlindOnTick()
     if blindOnTick == true then
         if skullsManager.skulls.blind.spent > 0 then
             execute_script("show_hud 0")
@@ -128,7 +167,7 @@ end
 
 -- Catch: Makes the AI launch grenades a fuck lot.
 ---@param isActive boolean
-function skullsManager.catch(isActive)
+function skullsEffect.catch(isActive)
     local catchTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -140,7 +179,7 @@ function skullsManager.catch(isActive)
     for _, tagEntry in ipairs(catchTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            --actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.visibleTarget
+            -- actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.visibleTarget
             actorVariant.flags:hasUnlimitedGrenades(true)
             actorVariant.grenadeChance = actorVariant.grenadeChance + 1
             actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
@@ -154,7 +193,7 @@ function skullsManager.catch(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.catch.active = isActive
+    -- skullsManager.skulls.catch.active = isActive
     -- logger:debug("Catch {}", isActive and "On" or "Off")
 end
 
@@ -162,10 +201,9 @@ end
 
 ---Berserk: Makes the AI enter in constant Berserk state.
 ---@param isActive boolean
-function skullsManager.berserk(isActive)
-    local berserkUnits = {"flood", "elite", "odst"}
+function skullsEffect.berserk(isActive)
     local berserkActorsFiltered = table.filter(tagEntries.actor(), function(tagEntry)
-        for _, unitName in pairs(berserkUnits) do
+        for _, unitName in pairs(skullsManager.names.actors.berserk) do
             if tagEntry.path:includes(unitName) then
                 return true
             end
@@ -189,13 +227,13 @@ function skullsManager.berserk(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.berserk.active = isActive
+    -- skullsManager.skulls.berserk.active = isActive
     -- logger:debug("Berserk {}", isActive and "On" or "Off")
 end
 
 ---Tough Luck: Makes AI react to everything and enhances their senses.
 ---@param isActive boolean
-function skullsManager.toughluck(isActive)
+function skullsEffect.toughluck(isActive)
     for _, tagEntry in ipairs(tagEntries.actor()) do
         local actor = tagEntry.data
         if isActive then
@@ -212,14 +250,13 @@ function skullsManager.toughluck(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.toughluck.active = isActive
+    -- skullsManager.skulls.toughluck.active = isActive
     -- logger:debug("Tough Luck {}", isActive and "On" or "Off")
 end
 
 ---Fog: Turns off a HUD element & aguments AI surprise distance.
-local fogOnTick = false
 ---@param isActive boolean
-function skullsManager.fog(isActive)
+function skullsEffect.fog(isActive)
     for _, tagEntry in ipairs(tagEntries.actor()) do
         local actor = tagEntry.data
         if isActive then
@@ -228,13 +265,12 @@ function skullsManager.fog(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    fogOnTick = true
-    --skullsManager.skulls.fog.active = isActive
-    -- logger:debug("Fog {}", isActive and "On" or "Off")
 end
 
 function skullsManager.skullFogOnTick()
-    if fogOnTick == true then
+    -- TODO Retrieve previous state of the motion sensor using transpilation
+    local previousMotionSensorState = false
+    if previousMotionSensorState then
         if skullsManager.skulls.fog.spent > 0 then
             execute_script("hud_show_motion_sensor 0")
         else
@@ -246,8 +282,9 @@ end
 
 -- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
 ---@param isActive boolean
-function skullsManager.knucklehead(isActive)
-    local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(), function(tagEntry)
+function skullsEffect.knucklehead(isActive)
+    local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(),
+                                                 function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
                 return true
@@ -286,13 +323,13 @@ function skullsManager.knucklehead(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.knucklehead.active = isActive
+    -- skullsManager.skulls.knucklehead.active = isActive
     -- logger:debug("Knucklehead {}", isActive and "On" or "Off")
 end
 
 ---Cowbell: Doubles bipeds & vehicles accelerationScale.
 ---@param isActive boolean
-function skullsManager.cowbell(isActive)
+function skullsEffect.cowbell(isActive)
     for _, tagEntry in ipairs(tagEntries.biped()) do
         local bipedTag = tagEntry.data
         if isActive then
@@ -309,13 +346,13 @@ function skullsManager.cowbell(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.cowbell.active = isActive
+    -- skullsManager.skulls.cowbell.active = isActive
     -- logger:debug("Cowbell {}", isActive and "On" or "Off")
 end
 
 ---Havok: Doubles all damage_effect's damage radius, and it scales properly.
 ---@param isActive boolean
-function skullsManager.havok(isActive)
+function skullsEffect.havok(isActive)
     for _, tagEntry in ipairs(tagEntries.explosionDamageEffect()) do
         local damageEffect = tagEntry.data
         if isActive then
@@ -325,17 +362,18 @@ function skullsManager.havok(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.havok.active = isActive
+    -- skullsManager.skulls.havok.active = isActive
     -- logger:debug("Havok {}", isActive and "On" or "Off")
 end
 
 ---Newton: Augments instant acceleration for melee damages.
 ---@param isActive boolean
-function skullsManager.newton(isActive)
+function skullsEffect.newton(isActive)
     for _, tagEntry in ipairs(tagEntries.meleeDamageEffect()) do
         local damageEffect = tagEntry.data
         if isActive then
-            damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + 5
+            damageEffect.damageInstantaneousAcceleration.i =
+                damageEffect.damageInstantaneousAcceleration.i + 5
             if tagEntry.path:includes("response") then
                 damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 1
             end
@@ -343,46 +381,15 @@ function skullsManager.newton(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.newton.active = isActive
+    -- skullsManager.skulls.newton.active = isActive
     -- logger:debug("Newton {}", isActive and "On" or "Off")
 end
 
 ---Tilt: Doubles strenghts and weakenesses.
 ---@param isActive boolean
-function skullsManager.tilt(isActive)
-    local energyWeapons = {
-        "beam_rifle",
-        "brute_plasma_rifle",
-        "carbine",
-        "energy sword",
-        "fuel rod gun",
-        "plasma_cannon",
-        "plasma pistol",
-        "plasma rifle",
-        "ghost",
-        "wraith",
-        "banshee",
-        "spirit",
-        "shade",
-        "hunter"
-    }
-    local kineticWeapons = {
-        "assault rifle",
-        "battle_rifle",
-        "frag grenade",
-        "needler",
-        "pistol",
-        "rocket launcher",
-        "shotgun",
-        "smg",
-        "sniper_gauss",
-        "sniper rifle",
-        "m90_short",
-        "warthog",
-        "scorpion"
-    }
+function skullsEffect.tilt(isActive)
     local energyDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
-        for _, keyword in pairs(energyWeapons) do
+        for _, keyword in pairs(skullsManager.names.weapons.energy) do
             if tagEntry.path:includes(keyword) then
                 return true
             end
@@ -390,7 +397,7 @@ function skullsManager.tilt(isActive)
         return false
     end)
     local kineticDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
-        for _, keyword in pairs(kineticWeapons) do
+        for _, keyword in pairs(skullsManager.names.weapons.kinetic) do
             if tagEntry.path:includes(keyword) then
                 return true
             end
@@ -410,7 +417,8 @@ function skullsManager.tilt(isActive)
                 damageEffectModifier.elite = damageEffectModifier.elite * 0.5
                 damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 2
                 damageEffectModifier.jackal = damageEffectModifier.jackal * 0.5
-                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * 2
+                damageEffectModifier.jackalEnergyShield =
+                    damageEffectModifier.jackalEnergyShield * 2
                 damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.5
                 damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.5
             else
@@ -429,9 +437,11 @@ function skullsManager.tilt(isActive)
                 damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * 2
                 damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
                 damageEffectModifier.elite = damageEffectModifier.elite * 2
-                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 0.5
+                damageEffectModifier.eliteEnergyShield =
+                    damageEffectModifier.eliteEnergyShield * 0.5
                 damageEffectModifier.jackal = damageEffectModifier.jackal * 2
-                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * 0.5
+                damageEffectModifier.jackalEnergyShield =
+                    damageEffectModifier.jackalEnergyShield * 0.5
                 damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 2
                 damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 2
             else
@@ -439,20 +449,21 @@ function skullsManager.tilt(isActive)
             end
         end
     end
-    --skullsManager.skulls.tilt.active = isActive
+    -- skullsManager.skulls.tilt.active = isActive
     -- logger:debug("Tilt {}", isActive and "On" or "Off")
 end
 
 ---Banger: Makes Grunts and Human Floods explode after dying.
 ---@param isActive boolean
-function skullsManager.banger(isActive)
-    local plasmaExplosion = findTags("alpha_firefight\\effects\\skull_banger_plasma", tagClasses.effect)[1]
-    local floodExplosion = findTags("alpha_firefight\\effects\\skull_banger_flood", tagClasses.effect)[1]
+function skullsEffect.banger(isActive)
+    local plasmaExplosion = findTags(skullsManager.paths.effects.plasma, tagClasses.effect)[1]
+    local floodExplosion = findTags(skullsManager.paths.effects.flood, tagClasses.effect)[1]
     for _, tagEntry in ipairs(tagEntries.modelCollisionGeometry()) do
         if tagEntry.path:includes("grunt") then
             local collisionGeometry = tagEntry.data
             if isActive then
-                collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDamagedThreshold =
+                    collisionGeometry.bodyDamagedThreshold + 0.1
                 collisionGeometry.bodyDepletedEffect.tagHandle.value = plasmaExplosion.handle.value
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -460,22 +471,24 @@ function skullsManager.banger(isActive)
         elseif tagEntry.path:includes("floodcombat_marine") then
             local collisionGeometry = tagEntry.data
             if isActive then
-                collisionGeometry.bodyDamagedThreshold = collisionGeometry.bodyDamagedThreshold + 0.1
+                collisionGeometry.bodyDamagedThreshold =
+                    collisionGeometry.bodyDamagedThreshold + 0.1
                 collisionGeometry.bodyDepletedEffect.tagHandle.value = floodExplosion.handle.value
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
             end
         end
     end
-    --skullsManager.skulls.banger.active = isActive
+    -- skullsManager.skulls.banger.active = isActive
     -- logger:debug("Banger {}", isActive and "On" or "Off")
 end
 
 -- Double Down: Duplicates player's shields, but also it's recharging time.
 ---@param isActive boolean
-function skullsManager.doubledown(isActive)
-    local playerCollisionTagEntry = findTags("gdd\\characters\\spartan_mp\\spartan_mp", tagClasses.modelCollisionGeometry)
-    assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
+function skullsEffect.doubledown(isActive)
+    local playerCollisionTagEntry = findTags(skullsManager.paths.bipeds.player,
+                                             tagClasses.modelCollisionGeometry)
+    assert(playerCollisionTagEntry)
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         local collisionGeometry = tagEntry.data
         if isActive then
@@ -486,66 +499,67 @@ function skullsManager.doubledown(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.doubledown.active = isActive
+    -- skullsManager.skulls.doubledown.active = isActive
     -- logger:debug("Double Down {}", isActive and "On" or "Off")
 end
 
 -- Eye Patch: Eliminates weapons assistances & initial error.
 ---@param isActive boolean
-function skullsManager.eyepatch(isActive)
+function skullsEffect.eyepatch(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
-        --if not tagEntry.data.weaponType == engine.tag.weaponType.needler then -- We spare the Needler of this skull.
-            local weapon = tagEntry.data
-            if isActive then
-                weapon.autoaimAngle = 0
-                weapon.magnetismAngle = 0
-                for i = 1, tagEntry.data.triggers.count do
-                    local trigger = tagEntry.data.triggers.elements[i]
-                    trigger.minimumError = 0
-                    trigger.errorAngle[1] = 0
-                end
-            else
-                Balltze.features.reloadTagData(tagEntry.handle)
+        -- if not tagEntry.data.weaponType == engine.tag.weaponType.needler then -- We spare the Needler of this skull.
+        local weapon = tagEntry.data
+        if isActive then
+            weapon.autoaimAngle = 0
+            weapon.magnetismAngle = 0
+            for i = 1, tagEntry.data.triggers.count do
+                local trigger = tagEntry.data.triggers.elements[i]
+                trigger.minimumError = 0
+                trigger.errorAngle[1] = 0
             end
-        --end -- Comment this if you want to apply the skull to the Needler as well (It will not track targets).
+        else
+            Balltze.features.reloadTagData(tagEntry.handle)
+        end
+        -- end -- Comment this if you want to apply the skull to the Needler as well (It will not track targets).
     end
-    --skullsManager.skulls.eyepatch.active = isActive
+    -- skullsManager.skulls.eyepatch.active = isActive
     -- logger:debug("Eye Patch {}", isActive and "On" or "Off")
 end
 
 -- Trigger Switch: Auto weapons became semi-auto and vice versa.
 ---@param isActive boolean
-function skullsManager.triggerswitch(isActive)
+function skullsEffect.triggerswitch(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if isActive then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                if trigger.flags:doesNotRepeatAutomatically() == false then
-                    trigger.flags:doesNotRepeatAutomatically(true)
+                --if trigger.flags:doesNotRepeatAutomatically() == false then
+                if not trigger.flags.doesNotRepeatAutomatically then
+                    trigger.flags.doesNotRepeatAutomatically = true
                 else
-                    trigger.flags:doesNotRepeatAutomatically(false)
+                    trigger.flags.doesNotRepeatAutomatically = false
                 end
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.triggerswitch.active = isActive
+    -- skullsManager.skulls.triggerswitch.active = isActive
     -- logger:debug("Trigger Switch {}", isActive and "On" or "Off")
 end
 
 -- Slayer: Weapons shoot doble rounds and waste double ammo.
 ---@param isActive boolean
-function skullsManager.slayer(isActive)
+function skullsEffect.slayer(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if isActive then
-            --for i = 1, tagEntry.data.magazines.count do
+            -- for i = 1, tagEntry.data.magazines.count do
             --    local magazine = tagEntry.data.magazines.elements[i]
             --    magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
-            --end -- This whole mechanic might be turn into a new skull all together.
+            -- end -- This whole mechanic might be turn into a new skull all together.
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                --trigger.roundsPerShot = trigger.roundsPerShot * 2
+                -- trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * 2
                 trigger.errorAngle[2] = trigger.errorAngle[2] * 2
             end
@@ -553,14 +567,14 @@ function skullsManager.slayer(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --skullsManager.skulls.slayer.active = isActive
+    -- skullsManager.skulls.slayer.active = isActive
     -- logger:debug("Slayer {}", isActive and "On" or "Off")
 end
 
 -- Assassin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
 local assassinOnTick = false
 ---@param isActive boolean
-function skullsManager.assassin(isActive)
+function skullsEffect.assassin(isActive)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -587,7 +601,7 @@ function skullsManager.assassin(isActive)
         end
     end
     assassinOnTick = true
-    --skullsManager.skulls.assassin.active = isActive
+    -- skullsManager.skulls.assassin.active = isActive
     -- logger:debug("Assassin {}", isActive and "On" or "Off")
 end
 
@@ -622,135 +636,134 @@ function skullsManager.skullAssassinOnTick()
     end
 end
 
--------------------------------------------------------------------- Tables ------------------------------------------------------------------
-
----Skull List
 skullsManager.skulls = {
     famine = {
         name = "Famine",
-        func = skullsManager.famine,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.famine,
+        state = {count = 0, max = 1, multiplier = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     mythic = {
         name = "Mythic",
-        func = skullsManager.mythic,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.mythic,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     blind = {
         name = "Blind",
-        func = skullsManager.blind,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.blind,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     catch = {
         name = "Catch",
-        func = skullsManager.catch,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.catch,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     berserk = {
         name = "Berserk",
-        func = skullsManager.berserk,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.berserk,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     toughluck = {
         name = "Though Luck",
-        func = skullsManager.toughluck,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.toughluck,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     fog = {
         name = "Fog",
-        func = skullsManager.fog,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.fog,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        onTick = function()
+
+        end,
+        isPermanent = false
     },
     knucklehead = {
         name = "Knucklehead",
-        func = skullsManager.knucklehead,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.knucklehead,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     cowbell = {
         name = "Cowbell",
-        func = skullsManager.cowbell,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.cowbell,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     havok = {
         name = "Havok",
-        func = skullsManager.havok,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.havok,
+        state = {count = 0, max = 1},
+        isPermanent = false
     },
     newton = {
         name = "Newton",
-        func = skullsManager.newton,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.newton,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     tilt = {
         name = "Tilt",
-        func = skullsManager.tilt,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.tilt,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     banger = {
         name = "Banger",
-        func = skullsManager.banger,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.banger,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     doubledown = {
         name = "Double Down",
-        func = skullsManager.doubledown,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.doubledown,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     eyepatch = {
         name = "Eye Patch",
-        func = skullsManager.eyepatch,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.eyepatch,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     triggerswitch = {
         name = "Trigger Switch",
-        func = skullsManager.triggerswitch,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.triggerswitch,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     slayer = {
         name = "Slayer",
-        func = skullsManager.slayer,
-        available = 2,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.slayer,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     },
     assassin = {
         name = "Assassin",
-        func = skullsManager.assassin,
-        available = 1,
-        spent = 0,
-        permanent = false
+        effect = skullsEffect.assassin,
+        state = {count = 0, max = 1},
+        isEnabled = false,
+        isPermanent = false
     }
 }
 
@@ -774,199 +787,162 @@ local skullList = {
     skullsManager.skulls.slayer,
     skullsManager.skulls.assassin
 }
+skullsManager.skullList = skullList
 
+-- Functions to enable/disable skulls --
 
------------------------------------------------------- Functions to enable/disable skulls ------------------------------------------------------
-
----- This is going to skullsManager()
---gameStartingSkulls = false,
---startingSkullsMultiplier = 1,
---skullAvailabilityIndex = 1
-
----Activate Specified Skull by type and name
----@param skullType string | "silver" | "golden" 
----@param name string | "random" | "all" | "restore"
-function skullsManager.enableSkull(skullType, name)
-    -- Check if the skullList is valid and name is provided
-    if not skullType or not name then
-        logger:error(
-            "Invalid parameters. Usage: activate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> ]")
-        return
-    end
-
-    -- Enable all skulls of one type
-    if name:lower() == "all" then
-        for _, skull in ipairs(skullList) do
-            if skull.spent < skull.available then
-                skull.func(true)
-                skull.spent = skull.spent + 1
-                if skullType:lower() == "golden" then
-                    skull.permanent = true
-                end
-                logger:info("{} skull '{}' activated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-            else
-                logger:warning("{} skull '{}' is already spent.", skullType:gsub("^%l", string.upper), skull.name)
-            end
-        end
-        return
-    end
-
-    -- Enable a skull by random
-    if name:lower() == "random" then
-        local notSpent = table.filter(skullList, function(skull)
-            return skull.spent < skull.available
-        end)
-        if #notSpent == 0 then
-            logger:warning("All {} skulls are already spent.", skullType:gsub("^%l", string.upper))
-            return
-        end
-        local randomSkull = notSpent[math.random(#notSpent)]
-        randomSkull.func(true)
-        randomSkull.spent = randomSkull.spent + 1
-        if skullType:lower() == "golden" then
-            randomSkull.permanent = true
-        end
-        logger:info("{} skull '{}' activated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), randomSkull.name, randomSkull.permanent, randomSkull.spent, randomSkull.available)
-        return
-    end
-
-    -- Restore all permanent skulls
-    if name:lower() == "restore" then
-        local isPermanent = table.filter(skullList, function(skull)
-            return skull.permanent
-        end)
-        if #isPermanent == 0 then
-            logger:warning("No permanent {} skulls to restore.", skullType:gsub("^%l", string.upper))
-            return
-        end
-        for _, skull in ipairs(isPermanent) do
-            if not skull.spent == skull.available then
-                skull.func(true)
-                skull.spent = skull.spent + 1
-                logger:info("{} skull '{}' restored. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-            else
-                logger:warning("{} skull '{}' was already active.", skullType:gsub("^%l", string.upper), skull.name)
-            end
-        end
-    end
-
-    -- Search by specific name
-    for _, skull in ipairs(skullList) do
-        if name:lower() == skull.name:lower() then
-            if skull.spent == skull.available then
-                logger:warning("{} skull '{}' is already spent.", skullType:gsub("^%l", string.upper), skull.name)
-            else
-                skull.func(true)
-                skull.spent = skull.spent + 1
-                if skullType:lower() == "golden" then
-                    skull.permanent = true
-                end
-                logger:info("{} skull '{}' activated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-            end
-            return
-        end
-    end
-
-    logger:info("{} skull '{}' not found. Skull List: {}", skullType:gsub("^%l", string.upper), name, table.concat(table.map(skullList, function(s)
-        return s.name:lower()
-    end), ", "))
+--- Initiate Skull Effect applying its function the number of times specified in its state.
+local function initiateSkullEffect(skull)
+    --for i = 1, skull.state.count do
+        --skull.effect(true)
+        pcall(skull.effect, true)
+    --end
 end
 
+local function isSkullAvailable(name)
+    for _, skull in ipairs(skullList) do
+        if name == skull.name:lower() then
+            return skull.state.count < skull.state.max
+        end
+    end
+    return false
+end
+
+local function spendSkull(skull)
+    skull.state.count = skull.state.count + 1
+    if skull.state.count > skull.state.max then
+        skull.state.count = skull.state.max
+        logger:warning("Skull '{}' has reached its maximum count of {}.", skull.name,
+                       skull.state.max)
+    end
+    skullsManager.enableSkull(skull.name)
+end
+
+local function restoreSkull(skull)
+    skull.state.count = skull.state.count - 1
+    if skull.state.count < 0 then
+        skull.state.count = 0
+        logger:warning("Skull '{}' is already at its minimum count of 0.", skull.name)
+    end
+    skullsManager.disableSkull(skull.name)
+end
+
+---Enable skull balancing count availability against its max.
+---@param name string | "random" | "all"
+function skullsManager.enableSkullWithBalance(name)
+    local name = name:lower()
+    -- Use the existing enableSkull function to activate the skull
+    for _, skull in ipairs(skullList) do
+        if name == skull.name:lower() then
+            if isSkullAvailable(name) then
+                spendSkull(skull)
+            end
+            return
+        elseif name == "all" then
+            if isSkullAvailable(skull.name:lower()) then
+                spendSkull(skull)
+            end
+        elseif name == "random" then
+            local randomIndex = math.random(1, #skullList)
+            local randomSkull = skullList[randomIndex]
+            if isSkullAvailable(randomSkull.name:lower()) then
+                spendSkull(randomSkull)
+            end
+        end
+    end
+end
+
+---Disable skull balancing count availability against its max.
+---@param name string | "random" | "all"
+function skullsManager.disableSkullWithBalance(name)
+    local name = name:lower()
+    -- Use the existing disableSkull function to deactivate the skull
+    for _, skull in ipairs(skullList) do
+        if name == skull.name:lower() then
+            if skull.state.count > 0 then
+                restoreSkull(skull)
+            end
+            return
+        elseif name == "all" then
+            if skull.state.count > 0 then
+                restoreSkull(skull)
+            end
+        elseif name == "random" then
+            local randomIndex = math.random(1, #skullList)
+            local randomSkull = skullList[randomIndex]
+            if randomSkull.state.count > 0 then
+                restoreSkull(randomSkull)
+            end
+        end
+    end
+end
+
+---Activate Specified Skull by type and name
+---@param name string | "random" | "all"
+function skullsManager.enableSkull(name)
+    local name = name:lower()
+
+    -- Disable all skulls to revert their effects
+    --logger:debug("Reverting all skull effects before enabling new ones.")
+    for _, skull in ipairs(skullList) do
+        skull.effect(false)
+    end
+
+    -- Enable desired skull
+    for _, skull in ipairs(skullList) do
+        if name == skull.name:lower() then
+            skull.isEnabled = true
+            --logger:info("Enabling Skull: {} x{}", skull.name, skull.state.multiplier)
+            logger:info("Enabling Skull: {}", skull.name)
+        elseif name == "all" then
+            skull.isEnabled = true
+            logger:info("Enabling Skull: {}", skull.name)
+        elseif name == "random" then
+            local randomIndex = math.random(1, #skullList)
+            skullList[randomIndex].isEnabled = true
+            logger:info("Enabling Skull: {}", skull.name)
+            break
+        end
+    end
+
+    -- Initiate the effect of the enabled skulls
+    for _, skull in ipairs(skullList) do
+        if skull.isEnabled then
+            initiateSkullEffect(skull)
+        end
+    end
+end
 
 ---Deactivate specified Skull by type and name
----@param skullType string | "silver" | "golden" | "permanent" 
----@param name string | "random" | "all" | "is_spent"
-function skullsManager.disableSkull(skullType, name)
+---@param name string | "random" | "all"
+function skullsManager.disableSkull(name)
+    local name = name:lower()
     -- Check if the skullList is valid and name is provided
-    if not skullList or not name then
-        logger:error(
-            "Invalid parameters. Usage: deactivate_skull  [ <silver> | <golden> ]  [ <name> | <random> | <all> | <is_active> ]")
+    if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
+        logger:error("Invalid skull name. Usage: deactivate_skull [ <name> | <random> | <all> ]")
         return
     end
 
-    -- Disable all skulls of one type
-    if name:lower() == "all" then
-        for _, skull in ipairs(skullList) do
-            if skull.spent > 0 then
-                skull.func(false)
-                skull.spent = 0
-                logger:info("{} skull: '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-            end
-        end
-        return
-    end
-
-    -- Disable an spent skull by random
-    if name:lower() == "random" then
-        -- Filter the skull ones that are spent
-        local spentSkulls = table.filter(skullList, function(skull)
-            return skull.spent > 0
-        end)
-        -- If none skull are spent, exit
-        if #spentSkulls == 0 then
-            logger:warning("All {} skulls are already deactivated.", skullType:gsub("^%l", string.upper))
-            return
-        end
-        -- Choose a random spent skull and deactivate it
-        local randomSkull = spentSkulls[math.random(#spentSkulls)]
-        randomSkull.func(false)
-        randomSkull.spent = 0
-        logger:info("{} skull: '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), randomSkull.name, randomSkull.permanent, randomSkull.spent, randomSkull.available)
-        return
-    end
-
-    -- Disable only the currently activated skulls of this type
-    if name:lower() == "is_spent" then
-        local anyDeactivated = false
-        for _, skull in ipairs(skullList) do
-            if skull.spent > 0 then
-                skull.func(false)
-                skull.spent = 0
-                logger:info("{} Skull '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-                anyDeactivated = true
-            end
-        end
-        if not anyDeactivated then
-            logger:warning("No {} skulls are currently activated.", skullType:gsub("^%l", string.upper))
-        end
-        return
-    end
-
-    -- Search by specific name
+    -- Disable desired skull
     for _, skull in ipairs(skullList) do
-        if name:lower() == skull.name:lower() then
-            if not (skull.spent > 0) then
-                logger:warning("{} Skull '{}' is already inactive.", skullType:gsub("^%l", string.upper), skull.name)
-            else
-                skull.func(false)
-                skull.spent = 0
-                if skullType:lower() == "permanent" then
-                    skull.permanent = false
-                end
-                logger:info("{} Skull '{}' deactivated. Permanent: '{}', Spent: {}, Available: {}", skullType:gsub("^%l", string.upper), skull.name, skull.permanent, skull.spent, skull.available)
-            end
-            return
+        if name == skull.name:lower() then
+            skull.isEnabled = false
+        elseif name == "all" then
+            skull.isEnabled = false
+        elseif name == "random" then
+            local randomIndex = math.random(1, #skullList)
+            skullList[randomIndex].isEnabled = false
+            break
         end
     end
 
-    -- Search by specific name to turn off permanency.
+    -- Revert the effect of the disabled skulls
     for _, skull in ipairs(skullList) do
-        if skullType:lower() == "permanent" and name:lower() == skull.name:lower() then
-            if not skull.permanent then
-                logger:warning("{} Skull '{}' is already unpermanent.", skullType:gsub("^%l", string.upper), skull.name)
-            else
-                skull.func(false)
-                skull.permanent = false
-                logger:info("Is {} Skull '{}' permanent? '{}'", skullType:gsub("^%l", string.upper), skull.name, skull.permanent)
-            end
-            return
+        if not skull.isEnabled then
+            logger:info("Disabling Skull: {}", skull.name)
+            --skull.effect(false)
         end
     end
-
-    -- If the name does not match any skull, show error
-    logger:info("{} Skull '{}' not found. Available: {}", skullType:gsub("^%l", string.upper), name, table.concat(table.map(skullList, function(s)
-        return s.name:lower()
-    end), ", "))
 end
 
 return skullsManager

@@ -53,7 +53,7 @@ function skullManager.enableSkull(skullType, name)
         if skullList then
             for _, skull in ipairs(skullList) do
                 if not skull.active then
-                    skull.func(true)
+                    skull.effect(true)
                     skull.active = true
                     logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper),
                                 skull.name)
@@ -78,7 +78,7 @@ function skullManager.enableSkull(skullType, name)
         end
 
         local randomSkull = notActive[math.random(#notActive)]
-        randomSkull.func(true)
+        randomSkull.effect(true)
         randomSkull.active = true
         logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper),
                     randomSkull.name)
@@ -92,7 +92,7 @@ function skullManager.enableSkull(skullType, name)
                 logger:warning("{} skull '{}' is already active.",
                                skullType:gsub("^%l", string.upper), skull.name)
             else
-                skull.func(true)
+                skull.effect(true)
                 skull.active = true
                 logger:info("{} skull '{}' activated.", skullType:gsub("^%l", string.upper),
                             skull.name)
@@ -128,7 +128,7 @@ function skullManager.disableSkull(skullType, name)
     if name:lower() == "all" then
         for _, skull in ipairs(skullList) do
             if skull.active then
-                skull.func(false)
+                skull.effect(false)
                 skull.active = false
                 logger:info("{} skull: '{}' deactivated", skullType:gsub("^%l", string.upper),
                             skull.name)
@@ -153,7 +153,7 @@ function skullManager.disableSkull(skullType, name)
 
         -- Choose a random active skull and deactivate it
         local randomSkull = activeSkulls[math.random(#activeSkulls)]
-        randomSkull.func(false)
+        randomSkull.effect(false)
         randomSkull.active = false
         logger:info("{} skull: '{}' deactivated", skullType:gsub("^%l", string.upper),
                     randomSkull.name)
@@ -165,7 +165,7 @@ function skullManager.disableSkull(skullType, name)
         local anyDeactivated = false
         for _, skull in ipairs(skullList) do
             if skull.active then
-                skull.func(false)
+                skull.effect(false)
                 skull.active = false
                 logger:info("{} Skull '{}' deactivated.", skullType:gsub("^%l", string.upper),
                             skull.name)
@@ -187,7 +187,7 @@ function skullManager.disableSkull(skullType, name)
                 logger:warning("{} Skull '{}' is already inactive.",
                                skullType:gsub("^%l", string.upper), skull.name)
             else
-                skull.func(false)
+                skull.effect(false)
                 skull.active = false
                 logger:info("{} Skull '{}' deactivated.", skullType:gsub("^%l", string.upper),
                             skull.name)
