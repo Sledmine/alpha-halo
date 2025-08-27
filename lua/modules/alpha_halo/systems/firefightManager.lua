@@ -27,7 +27,7 @@ firefightManager.firefightSettings = { --------------
     livesLostPerDead = 1,
 
     bossWaveFrequency = 0,
-    wavesPerRound = 2,
+    wavesPerRound = 5,
     roundsPerSet = 3,
     setsPerGame = 3,
 
