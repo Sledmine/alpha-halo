@@ -58,9 +58,9 @@ local skullsEffect = {}
 
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
-    --skullsManager.skullFogOnTick()
-    --skullsManager.skullBlindOnTick()
-    --skullsManager.skullAssassinOnTick()
+    -- skullsManager.skullFogOnTick()
+    -- skullsManager.skullBlindOnTick()
+    -- skullsManager.skullAssassinOnTick()
 end
 
 -------------------------------------------------------------- Golden Skulls ----------------------------------------------------------------------------
@@ -533,7 +533,6 @@ function skullsEffect.triggerswitch(isActive)
         if isActive then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                --if trigger.flags:doesNotRepeatAutomatically() == false then
                 if not trigger.flags.doesNotRepeatAutomatically then
                     trigger.flags.doesNotRepeatAutomatically = true
                 else
@@ -849,21 +848,22 @@ skullsManager.skullList = skullList
 
 -- Functions to enable/disable skulls --
 
---- Initiate Skull Effect applying its function the number of times specified in its state.
-local function initiateSkullEffect(skull)
-    --for i = 1, skull.state.count do
-        --skull.effect(true)
-        pcall(skull.effect, true)
-    --end
+local function revertAllSkullEffects()
+    logger:debug("Reverting all Skull effects...")
+    for _, skull in ipairs(skullList) do
+        skull.effect(false)
+    end
 end
 
-local function isSkullAvailable(name)
-    for _, skull in ipairs(skullList) do
-        if name == skull.name:lower() then
-            return skull.state.count < skull.state.max
-        end
+--- Initiate Skull Effect applying its function the number of times specified in its state.
+local function initiateSkullEffect(skull)
+    local multiplier = skull.state.multiplier or 1
+    for i = 1, multiplier do
+        skull.isEnabled = true
+        logger:info("Initiating Skull effect: {} x{}", skull.name, multiplier)
+        --pcall(skull.effect, true)
+        skull.effect(true)
     end
-    return false
 end
 
 local function spendSkull(skull)
@@ -873,7 +873,8 @@ local function spendSkull(skull)
         logger:warning("Skull '{}' has reached its maximum count of {}.", skull.name,
                        skull.state.max)
     end
-    skullsManager.enableSkull(skull.name)
+    skull.isEnabled = true
+    initiateSkullEffect(skull)
 end
 
 local function restoreSkull(skull)
@@ -882,55 +883,39 @@ local function restoreSkull(skull)
         skull.state.count = 0
         logger:warning("Skull '{}' is already at its minimum count of 0.", skull.name)
     end
-    skullsManager.disableSkull(skull.name)
+    if skull.state.count == 0 then
+        skull.isEnabled = false
+        skull.effect(false)
+    end
 end
 
----Enable skull balancing count availability against its max.
----@param name string | "random" | "all"
-function skullsManager.enableSkullWithBalance(name)
-    local name = name:lower()
-    -- Use the existing enableSkull function to activate the skull
-    for _, skull in ipairs(skullList) do
-        if name == skull.name:lower() then
-            if isSkullAvailable(name) then
-                spendSkull(skull)
-            end
-            return
-        elseif name == "all" then
-            if isSkullAvailable(skull.name:lower()) then
-                spendSkull(skull)
-            end
-        elseif name == "random" then
-            local randomIndex = math.random(1, #skullList)
-            local randomSkull = skullList[randomIndex]
-            if isSkullAvailable(randomSkull.name:lower()) then
-                spendSkull(randomSkull)
-            end
+---Activate multiple Skulls at once with balancing
+---@param skulls table List of skull names to enable
+---@param useBalance? boolean Whether to use balancing or not
+function skullsManager.enableSkulls(skulls, useBalance)
+    -- Disable all skulls to revert their effects
+    revertAllSkullEffects()
+
+    for _, skull in ipairs(skulls) do
+        if useBalance then
+            spendSkull(skull)
+        elseif not useBalance then
+            skull.isEnabled = true
+            initiateSkullEffect(skull)
         end
     end
 end
 
----Disable skull balancing count availability against its max.
----@param name string | "random" | "all"
-function skullsManager.disableSkullWithBalance(name)
-    local name = name:lower()
-    -- Use the existing disableSkull function to deactivate the skull
-    for _, skull in ipairs(skullList) do
-        if name == skull.name:lower() then
-            if skull.state.count > 0 then
-                restoreSkull(skull)
-            end
-            return
-        elseif name == "all" then
-            if skull.state.count > 0 then
-                restoreSkull(skull)
-            end
-        elseif name == "random" then
-            local randomIndex = math.random(1, #skullList)
-            local randomSkull = skullList[randomIndex]
-            if randomSkull.state.count > 0 then
-                restoreSkull(randomSkull)
-            end
+---Deactive multiple Skulls at once with balancing
+---@param skulls table List of skull names to disable
+---@param useBalance? boolean Whether to use balancing or not
+function skullsManager.disableSkulls(skulls, useBalance)
+    -- Disable all skulls to revert their effects
+    revertAllSkullEffects()
+
+    for _, skull in ipairs(skulls) do
+        if not useBalance or (useBalance and skull.state.count > 0) then
+            restoreSkull(skull)
         end
     end
 end
@@ -941,16 +926,13 @@ function skullsManager.enableSkull(name)
     local name = name:lower()
 
     -- Disable all skulls to revert their effects
-    --logger:debug("Reverting all skull effects before enabling new ones.")
-    for _, skull in ipairs(skullList) do
-        skull.effect(false)
-    end
+    revertAllSkullEffects()
 
     -- Enable desired skull
     for _, skull in ipairs(skullList) do
         if name == skull.name:lower() then
             skull.isEnabled = true
-            --logger:info("Enabling Skull: {} x{}", skull.name, skull.state.multiplier)
+            -- logger:info("Enabling Skull: {} x{}", skull.name, skull.state.multiplier)
             logger:info("Enabling Skull: {}", skull.name)
         elseif name == "all" then
             skull.isEnabled = true
@@ -998,7 +980,7 @@ function skullsManager.disableSkull(name)
     for _, skull in ipairs(skullList) do
         if not skull.isEnabled then
             logger:info("Disabling Skull: {}", skull.name)
-            --skull.effect(false)
+            -- skull.effect(false)
         end
     end
 end
