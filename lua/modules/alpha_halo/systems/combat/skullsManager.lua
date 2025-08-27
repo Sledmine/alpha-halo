@@ -860,10 +860,9 @@ local function initiateSkullEffect(skull)
     local multiplier = skull.state.multiplier or 1
     logger:info("Initiating Skull effect: {} x{}", skull.name, multiplier)
     for i = 1, multiplier do
-        skull.isEnabled = true
-        --pcall(skull.effect, true)
         skull.effect(true)
     end
+    skull.isEnabled = true
 end
 
 local function spendSkull(skull)
@@ -893,7 +892,7 @@ end
 ---@param skulls table List of skull names to enable
 ---@param useBalance? boolean Whether to use balancing or not
 function skullsManager.enableSkulls(skulls, useBalance)
-    -- Disable all skulls to revert their effects
+    -- Revert all skull effects
     revertAllSkullEffects()
 
     for _, skull in ipairs(skulls) do
@@ -910,7 +909,7 @@ end
 ---@param skulls table List of skull names to disable
 ---@param useBalance? boolean Whether to use balancing or not
 function skullsManager.disableSkulls(skulls, useBalance)
-    -- Disable all skulls to revert their effects
+    -- Revert all skull effects
     revertAllSkullEffects()
 
     for _, skull in ipairs(skulls) do
@@ -920,29 +919,27 @@ function skullsManager.disableSkulls(skulls, useBalance)
     end
 end
 
----Activate Specified Skull by type and name
+---Activate Specified Skull by name
 ---@param name string | "random" | "all"
 ---@param multiplier? number
 function skullsManager.enableSkull(name, multiplier)
     local name = name:lower()
 
-    -- Disable all skulls to revert their effects
+    -- Revert all skull effects
     revertAllSkullEffects()
 
-    -- Enable desired skull
-    for _, skull in ipairs(skullList) do
-        if name == skull.name:lower() then
-            skull.isEnabled = true
-            skull.state.multiplier = multiplier or skull.state.multiplier or 1
-        elseif name == "all" then
-            skull.isEnabled = true
-            skull.state.multiplier = multiplier or skull.state.multiplier or 1
-        elseif name == "random" then
-            local randomIndex = math.random(1, #skullList)
-            local randomSkull = skullList[randomIndex]
-            randomSkull.isEnabled = true
-            randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
-            break
+    if name == "random" then
+        local randomIndex = math.random(1, #skullList)
+        local randomSkull = skullList[randomIndex]
+        randomSkull.isEnabled = true
+        randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
+    else
+        -- Enable desired skull
+        for _, skull in ipairs(skullList) do
+            if name == skull.name:lower() or name == "all" then
+                skull.isEnabled = true
+                skull.state.multiplier = multiplier or skull.state.multiplier or 1
+            end
         end
     end
 
@@ -964,16 +961,15 @@ function skullsManager.disableSkull(name)
         return
     end
 
-    -- Disable desired skull
-    for _, skull in ipairs(skullList) do
-        if name == skull.name:lower() then
-            skull.isEnabled = false
-        elseif name == "all" then
-            skull.isEnabled = false
-        elseif name == "random" then
-            local randomIndex = math.random(1, #skullList)
-            skullList[randomIndex].isEnabled = false
-            break
+    if name == "random" then
+        local randomIndex = math.random(1, #skullList)
+        skullList[randomIndex].isEnabled = false
+    else
+        -- Disable desired skull
+        for _, skull in ipairs(skullList) do
+            if name == skull.name:lower() or name == "all" then
+                skull.isEnabled = false
+            end
         end
     end
 

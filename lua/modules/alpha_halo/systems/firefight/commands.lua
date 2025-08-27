@@ -14,6 +14,11 @@ commands = {
         maxArgs = 3,
         func = function(name, isEnabled, multiplier)
             local name = name:lower()
+            -- Check if the skullList is valid and name is provided
+            if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
+                logger:error("Invalid skull name '{}'. Usage: {}", name, commands.skull.help)
+                return
+            end
             isEnabled = luna.bool(isEnabled)
             multiplier = tonumber(multiplier) or 1
             if multiplier <= 0 then
@@ -21,11 +26,6 @@ commands = {
                 return
             end
             if isEnabled then
-                -- Check if the skullList is valid and name is provided
-                if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
-                    logger:error("Invalid skull name '{}'. Usage: {}", name, commands.skull.help)
-                    return
-                end
                 skullsManager.enableSkull(name, multiplier)
             else
                 skullsManager.disableSkull(name)
