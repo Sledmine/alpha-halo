@@ -13,9 +13,9 @@ commands = {
         minArgs = 3,
         maxArgs = 3,
         func = function(name, isEnabled)
+            local name = name:lower()
             isEnabled = luna.bool(isEnabled)
             if isEnabled then
-                local name = name:lower()
                 -- Check if the skullList is valid and name is provided
                 if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
                     logger:error("Invalid skull name '{}'. Usage: {}", name, commands.skull.help)
