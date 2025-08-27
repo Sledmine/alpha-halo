@@ -3,10 +3,7 @@ local balltze = Balltze
 local objectTypes = Engine.tag.objectType
 local tagClasses = Engine.tag.classes
 local findTags = Engine.tag.findTags
-local getObject = Engine.gameState.getObject
-local getPlayer = Engine.gameState.getPlayer
 local blam = require "blam2"
-local inspect = require "inspect"
 
 local actorTagEntries
 local actorVariantTagEntries

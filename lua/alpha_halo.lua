@@ -5,9 +5,8 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
--- local skullsManager = require "alpha_halo.gameplay_core.skullsManager"
 local commands = require "alpha_halo.systems.firefight.commands"
--- local firefightManager = require "alpha_halo.firefightManager"
+local constants = require "alpha_halo.systems.core.constants"
 
 -- local main
 local loadWhenIn = {"alpha_halo"}
@@ -61,6 +60,7 @@ function PluginFirstTick()
     balltze.event.tick.subscribe(function(event)
         if event.time == "before" then
             if not main then
+                constants.get()
                 main = require "alpha_halo.main"
             end
         end

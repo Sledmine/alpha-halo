@@ -1,12 +1,9 @@
--- 📁 modules/project_modules/systems/firefight/manager.lua
 local engine = Engine
 local balltze = Balltze
 local hsc = require "hsc"
 local script = require "script"
+local constants = require "alpha_halo.systems.core.constants"
 --local actorVariants = require "alpha_halo.systems.core.actorVariants"
---local tagClasses = Engine.tag.classes
---local findTags = Engine.tag.findTags
---local getTag = Engine.tag.getTag
 
 local unitDeployer = {}
 
@@ -308,14 +305,14 @@ end
 ------ ODST Deployer ------
 ------------------------------------------------------------
 function unitDeployer.pelicanDeployer(call, sleep)
-    sleep(700)
+    sleep(constants.pelicanDeploymentDelay)
     hsc.ai_place("Human_Team/ODSTs")
     hsc.ai_place("human_support/pelican_pilot")
+    -- TODO Prevent ODSTs from receiving damage while in the Pelican.
     hsc.object_create_anew("foehammer_cliff")
     hsc.vehicle_load_magic("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs"))
     hsc.vehicle_load_magic("foehammer_cliff", "driver", hsc.ai_actors("human_support/pelican_pilot"))
     hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
-    --sleep(30)
     hsc.unit_set_enterable_by_player("foehammer_cliff", false)
     hsc.unit_close("foehammer_cliff")
     hsc.object_teleport("foehammer_cliff", "foehammer_cliff_flag")

@@ -1,5 +1,7 @@
 local balltze = Balltze
 local engine = Engine
+local getObject = Engine.gameState.getObject
+local getPlayer = Engine.gameState.getPlayer
 
 local blam = require "blam"
 local script = require "script"
@@ -74,6 +76,7 @@ function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Waiting 30 ticks before starting game")
     sleep(30)
     script.startup(firefightManager.startGame)
+    --script.continuous(firefightManager.playerCheck)
 end
 
 ---Game Start. This begins the process that cycles the firefight to move forward.
@@ -239,8 +242,6 @@ function firefightManager.startWave(call, sleep)
     drawNavPoint = false
 end
 
-local getObject = Engine.gameState.getObject
-local getPlayer = Engine.gameState.getPlayer
 local objectTypes = Engine.tag.objectType
 local playerLives = settings.playerInitialLives
 local playerIsDead = false -- This by default is false, obviously.
@@ -290,7 +291,6 @@ function firefightManager.playerCheck(call, sleep)
         end
     end
 end
-script.continuous(firefightManager.playerCheck)
 
 -------------------------------------------------------
 -- Special Events
@@ -311,6 +311,7 @@ end
 
 -- Spawn player assistances (Warthogs and Ghosts).
 function firefightManager.spawnPlayerAssistances()
+    logger:debug("Spawning player assistances...")
     local ghostAssistTemplate = "reward_ghost_var%s"
     local randomGhost = math.random(1, 3)
     local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
@@ -344,40 +345,45 @@ function firefightManager.addPlayerLives()
 end
 
 -- Deploy allies in a Pelican. (ODSTs for now)
-function firefightManager.alliesDeployer(call, sleep)
+function firefightManager.deployPlayerAllies(call, sleep)
     script.wake(unitDeployer.pelicanDeployer)
     logger:debug("ODSTs are coming in hot!")
 end
 
 -- Turn on a random temporal skull.
-function firefightManager.enableTemporalSkulls()
-    logger:debug("Enabling temporal skulls...")
+function firefightManager.enableRandomSkull()
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
-        return not skull.isPermanent
+        return not skull.isPermanent and not skull.isEnabled
     end)
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
         local selectedSkull = temporalSkulls[randomIndex]
-        skullsManager.enableSkullWithBalance(selectedSkull.name:lower())
+        logger:debug("Chosen random skull: {}", selectedSkull.name)
+        -- Enable skull with balance
+        skullsManager.enableSkulls({selectedSkull}, true) -- We use balancing here.
     end
 end
 
 -- Turn on a random permanent skull.
-function firefightManager.enablePermanentSkull()
+function firefightManager.enableRandomPermanentSkull()
     local permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-        return skull.isPermanent
+        return skull.isPermanent and not skull.isEnabled
     end)
     if #permanentSkulls > 0 then
         local randomIndex = math.random(1, #permanentSkulls)
         local selectedSkull = permanentSkulls[randomIndex]
-        skullsManager.enableSkullWithBalance(selectedSkull.name:lower())
+        -- Enable skull with balance
+        skullsManager.enableSkulls({selectedSkull}, true)
     end
 end
 
--- Reset all temporal skulls but keep permanent ones.
-function firefightManager.resetAllSkullsKeepPermanent()
-    skullsManager.disableSkullWithBalance("all")
-    firefightManager.enablePermanentSkull()
+-- Reset only temporal skulls.
+function firefightManager.resetAllTemporalSkulls()
+    local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
+        return not skull.isPermanent
+    end)
+    -- We disable all temporal skulls regardless of balance
+    skullsManager.disableSkulls(temporalSkulls)
 end
 
 -------------------------------------------------------
@@ -488,14 +494,16 @@ events = {
     },
     eachRound = {
         firefightManager.spawnPlayerAssistances,
-        firefightManager.enableTemporalSkulls,
+        firefightManager.enableRandomSkull,
         firefightManager.addPlayerLives
     },
     eachSet = {
         --firefightManager.switchTeams,
-        firefightManager.enablePermanentSkull
+        firefightManager.enableRandomPermanentSkull
     },
-    eachBossWave = {}
+    eachBossWave = {
+        firefightManager.deployPlayerAllies
+    }
 }
 
 return firefightManager

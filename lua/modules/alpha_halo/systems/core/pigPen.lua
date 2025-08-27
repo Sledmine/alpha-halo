@@ -3,7 +3,6 @@
 -- Module imports
 local engine = Engine
 local balltze = Balltze
-DebugMode = false
 
 local pigPen = {}
 
