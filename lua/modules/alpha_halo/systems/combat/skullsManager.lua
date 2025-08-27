@@ -858,9 +858,9 @@ end
 --- Initiate Skull Effect applying its function the number of times specified in its state.
 local function initiateSkullEffect(skull)
     local multiplier = skull.state.multiplier or 1
+    logger:info("Initiating Skull effect: {} x{}", skull.name, multiplier)
     for i = 1, multiplier do
         skull.isEnabled = true
-        logger:info("Initiating Skull effect: {} x{}", skull.name, multiplier)
         --pcall(skull.effect, true)
         skull.effect(true)
     end
@@ -922,7 +922,8 @@ end
 
 ---Activate Specified Skull by type and name
 ---@param name string | "random" | "all"
-function skullsManager.enableSkull(name)
+---@param multiplier? number
+function skullsManager.enableSkull(name, multiplier)
     local name = name:lower()
 
     -- Disable all skulls to revert their effects
@@ -932,15 +933,15 @@ function skullsManager.enableSkull(name)
     for _, skull in ipairs(skullList) do
         if name == skull.name:lower() then
             skull.isEnabled = true
-            -- logger:info("Enabling Skull: {} x{}", skull.name, skull.state.multiplier)
-            logger:info("Enabling Skull: {}", skull.name)
+            skull.state.multiplier = multiplier or skull.state.multiplier or 1
         elseif name == "all" then
             skull.isEnabled = true
-            logger:info("Enabling Skull: {}", skull.name)
+            skull.state.multiplier = multiplier or skull.state.multiplier or 1
         elseif name == "random" then
             local randomIndex = math.random(1, #skullList)
-            skullList[randomIndex].isEnabled = true
-            logger:info("Enabling Skull: {}", skull.name)
+            local randomSkull = skullList[randomIndex]
+            randomSkull.isEnabled = true
+            randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
             break
         end
     end
@@ -980,7 +981,7 @@ function skullsManager.disableSkull(name)
     for _, skull in ipairs(skullList) do
         if not skull.isEnabled then
             logger:info("Disabling Skull: {}", skull.name)
-            -- skull.effect(false)
+            skull.effect(false)
         end
     end
 end

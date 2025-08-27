@@ -9,19 +9,24 @@ commands = {
     skull = {
         description = "Activate or disable a skull by name, or use 'random' or 'all'.",
         category = "debug",
-        help = "Usage: skull [ <name> | <random> | <all> ] [ true | false ]",
+        help = "Usage: skull [ <name> | <random> | <all> ] [ true | false ] [multiplier (optional, default=1) ]\nExample: skull cowbell true 2",
         minArgs = 3,
         maxArgs = 3,
-        func = function(name, isEnabled)
+        func = function(name, isEnabled, multiplier)
             local name = name:lower()
             isEnabled = luna.bool(isEnabled)
+            multiplier = tonumber(multiplier) or 1
+            if multiplier <= 0 then
+                logger:error("Invalid multiplier '{}'. It must be a positive number.", multiplier)
+                return
+            end
             if isEnabled then
                 -- Check if the skullList is valid and name is provided
                 if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
                     logger:error("Invalid skull name '{}'. Usage: {}", name, commands.skull.help)
                     return
                 end
-                skullsManager.enableSkull(name)
+                skullsManager.enableSkull(name, multiplier)
             else
                 skullsManager.disableSkull(name)
             end
