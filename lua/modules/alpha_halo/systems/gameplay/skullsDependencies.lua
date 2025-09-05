@@ -1,8 +1,8 @@
 local skullsDependencies = {
     paths = {
         effects = {
-            plasma = "alpha_firefight\\effects\\skull_banger_plasma",
-            flood = "alpha_firefight\\effects\\skull_banger_flood"
+            plasma = "alpha_firefight\\skulls\\banger\\_fx\\skull_banger_plasma",
+            flood = "alpha_firefight\\skulls\\banger\\_fx\\skull_banger_flood"
         },
         bipeds = {player = "gdd\\characters\\spartan_mp\\spartan_mp"}
     },
