@@ -1,18 +1,14 @@
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
+local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
 
 local blind = {}
 
-local allUnits = {
-    "flood",
-    "elite",
-    "grunt",
-    "jackal",
-    "hunter",
-    "odst"
-}
+local allUnits = dependencies.names.units
 
+--local blindOnTick = false
+-- Blind: Hides HUD and duplicates AI burst origin radius.
 ---@param isActive boolean
-function blind.set(isActive, skulls)
+function blind.skullEffect(isActive)
     local blindTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -29,17 +25,21 @@ function blind.set(isActive, skulls)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    skulls.blind.active = isActive
-    blind.onTick(true, skulls)
+    --blindOnTick = true
+    -- skullsManager.skulls.blind.active = isActive
+    -- logger:debug("Blind {}", isActive and "On" or "Off")
 end
 
----@param isActive boolean
-function blind.onTick(isActive, skulls)
-    if not isActive and skulls.blind.active then
-        execute_script("show_hud 0")
-    elseif isActive and not skulls.blind.active then
-        execute_script("show_hud 1")
-    end
-end
+-- Blind OnTick
+--function blind.skullOnTick()
+--    if blindOnTick == true then
+--        if skullsManager.skulls.blind.spent > 0 then
+--            execute_script("show_hud 0")
+--        else
+--            execute_script("show_hud 1")
+--            blindOnTick = false
+--        end
+--    end
+--end
 
 return blind
