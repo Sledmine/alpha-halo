@@ -491,15 +491,15 @@ end
 
 events = {
     eachWave = {
+        firefightManager.enableRandomSkull,
     },
     eachRound = {
         firefightManager.spawnPlayerAssistances,
-        firefightManager.enableRandomSkull,
-        firefightManager.addPlayerLives
+        firefightManager.addPlayerLives,
+        firefightManager.enableRandomPermanentSkull
     },
     eachSet = {
         --firefightManager.switchTeams,
-        firefightManager.enableRandomPermanentSkull
     },
     eachBossWave = {
         firefightManager.deployPlayerAllies
