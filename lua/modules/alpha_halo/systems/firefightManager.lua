@@ -7,7 +7,7 @@ local blam = require "blam"
 local script = require "script"
 local hsc = require "hsc"
 
-local skullsManager = require "alpha_halo.systems.combat.skullsManager"
+local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
@@ -491,15 +491,15 @@ end
 
 events = {
     eachWave = {
+        firefightManager.enableRandomSkull,
     },
     eachRound = {
         firefightManager.spawnPlayerAssistances,
-        firefightManager.enableRandomSkull,
-        firefightManager.addPlayerLives
+        firefightManager.addPlayerLives,
+        firefightManager.enableRandomPermanentSkull
     },
     eachSet = {
         --firefightManager.switchTeams,
-        firefightManager.enableRandomPermanentSkull
     },
     eachBossWave = {
         firefightManager.deployPlayerAllies

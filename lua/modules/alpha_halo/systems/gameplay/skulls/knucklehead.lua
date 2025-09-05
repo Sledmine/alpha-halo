@@ -1,0 +1,54 @@
+local tagEntries = require "alpha_halo.systems.core.tagEntries"
+local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
+
+local knucklehead = {}
+
+local allUnits = dependencies.names.units
+
+-- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
+---@param isActive boolean
+function knucklehead.skullEffect(isActive)
+    local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(), function(tagEntry)
+        for _, unitName in pairs(allUnits) do
+            if tagEntry.path:includes(unitName) then
+                return true
+            end
+        end
+        return false
+    end)
+    for _, tagEntry in ipairs(knuckleheadTagsFiltered) do
+        for i = 1, tagEntry.data.materials.count do
+            local material = tagEntry.data.materials.elements[i]
+            local shield = material.shieldDamageMultiplier
+            local body = material.bodyDamageMultiplier
+            if isActive then
+                if material.flags:head() then
+                    shield = shield * 25
+                    body = body * 25
+                end
+            else
+                Balltze.features.reloadTagData(tagEntry.handle)
+            end
+            material.shieldDamageMultiplier = shield
+            material.bodyDamageMultiplier = body
+        end
+    end
+    for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
+        local damageEffectModifier = tagEntry.data
+        if isActive then
+            damageEffectModifier.grunt = damageEffectModifier.grunt * 0.2
+            damageEffectModifier.jackal = damageEffectModifier.jackal * 0.2
+            damageEffectModifier.elite = damageEffectModifier.elite * 0.2
+            damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 0.2
+            damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.2
+            damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.2
+            damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
+        else
+            Balltze.features.reloadTagData(tagEntry.handle)
+        end
+    end
+    -- skullsManager.skulls.knucklehead.active = isActive
+    -- logger:debug("Knucklehead {}", isActive and "On" or "Off")
+end
+
+return knucklehead

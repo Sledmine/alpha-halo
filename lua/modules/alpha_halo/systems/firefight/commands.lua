@@ -1,4 +1,4 @@
-local skullsManager = require "alpha_halo.systems.combat.skullsManager"
+local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local luna = require "luna"

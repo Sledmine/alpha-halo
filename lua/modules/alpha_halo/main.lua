@@ -23,7 +23,7 @@ end
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
-local skullsManager = require "alpha_halo.systems.combat.skullsManager"
+--local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 
 -- Encapsular Funcion
@@ -37,7 +37,7 @@ function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
     eventsManager.eachTick()
-    skullsManager.eachTick()
+    --skullsManager.eachTick()
     vehiclePosition.positionUpdater()
     script.poll()
     -- Execute the function one time
