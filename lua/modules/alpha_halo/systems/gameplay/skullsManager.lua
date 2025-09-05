@@ -174,10 +174,10 @@ skullsManager.skulls = {
         motto = "Send me out, with a bang.",
         description = "Some enemies drop live grenades at death.",
         effect = banger.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 3, multiplier = 1},
         isStackable = false,
         isEnabled = false,
-        isPermanent = false
+        isPermanent = true
     },
     doubledown = {
         name = "Double Down",
