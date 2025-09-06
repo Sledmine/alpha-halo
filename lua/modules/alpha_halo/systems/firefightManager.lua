@@ -346,7 +346,7 @@ end
 
 -- Deploy allies in a Pelican. (ODSTs for now)
 function firefightManager.deployPlayerAllies(call, sleep)
-    script.wake(unitDeployer.pelicanDeployer)
+    script.wake(unitDeployer.scriptDeployPelicans)
     logger:debug("ODSTs are coming in hot!")
 end
 

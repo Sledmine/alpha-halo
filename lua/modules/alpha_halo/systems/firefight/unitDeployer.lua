@@ -7,48 +7,45 @@ local constants = require "alpha_halo.systems.core.constants"
 
 local unitDeployer = {}
 
-------------------------------------------------------------
------- Covenant Fireteams ------
-------------------------------------------------------------
 unitDeployer.covenantFireteams = {
     startingSquad = {
         name = "Starting_Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
     eliteSquad = {
         name = "Elite_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     stealthSquad = {
         name = "Stealth_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     gruntSquad = {
         name = "Grunt_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     jackalSquad = {
         name = "Jackal_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     hunterSquad = {
         name = "Hunter_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     specOpsSquad = {
         name = "SpecOps_Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
     zealotSquad = {
         name = "Zealot_Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
 }
@@ -64,53 +61,50 @@ local covenantList = {
     unitDeployer.covenantFireteams.zealotSquad,
 }
 
-------------------------------------------------------------
------- Flood Fireteams ------
-------------------------------------------------------------
 unitDeployer.floodFireteams = {
     startingSquad = {
         name = "Starting_Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
     flameSquad = {
         name = "Flame_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     sniperSquad = {
         name = "Sniper_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     rocketSquad = {
         name = "Rocket_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     eliteSquad = {
         name = "Elite_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     stealthSquad = {
         name = "Stealth_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     carrierSquad = {
         name = "Mixed_Squad",
-        random = true,
+        isRandom = true,
         available = true,
     },
     specOpsSquad = {
         name = "SpecOps_Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
     zealotSquad = {
         name = "Zealot_Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
 }
@@ -127,24 +121,18 @@ local floodList = {
     unitDeployer.floodFireteams.zealotSquad,
 }
 
-------------------------------------------------------------
------- Human Fireteams ------
-------------------------------------------------------------
 unitDeployer.humanFireteams = {
     odstSquad = {
         name = "ODST Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
 }
 
-------------------------------------------------------------
------- Sentinel Fireteams ------
-------------------------------------------------------------
 unitDeployer.sentinelFireteams = {
     sentinelSquad = {
         name = "Sentinel Squad",
-        random = false,
+        isRandom = false,
         available = true,
     },
 }
@@ -153,53 +141,52 @@ unitDeployer.sentinelFireteams = {
 ------ Wave Deployer ------
 ------------------------------------------------------------
 unitDeployer.deployerSettings = {
-    dropshipsAsigned = 3,
-    dropshipsLeft = 3, -- This should be equal to dropshipsAsigned
+    dropshipsAssigned = 3,
+    dropshipsLeft = 0,
     dropshipTemplate = "dropship_%s_1",
     deploymentAllowed = true,
     currentTeam = 1,
 }
-local Deployer = unitDeployer.deployerSettings -- For easier access to the Deployer table.
+-- By default dropships left is equal to dropships assigned.
+unitDeployer.deployerSettings.dropshipsLeft = unitDeployer.deployerSettings.dropshipsAssigned
 
-local randomizedTeam -- These ones are out bc we don't want to reset them;
-local canRandomize = true -- every time we call the waveDeployer function.
+-- Shorter reference to the settings table.
+local settings = unitDeployer.deployerSettings
+
+local randomizedTeam -- Hold randomized team data for random waves.
+local isWaveRandomizable = true -- Control flag for random waves.
 --local randomizedGhost -- This one ill be used for the boss wave.
-local currentTeam
+local currentTeam = "Covenant" -- We need to know which team we're deploying.
 -- Call Wave Deployer based on the type of wave we're on.
 ---@param waveType string | "starting" | "boss" | "random"
 function unitDeployer.waveDeployer(waveType)
-    local currentTeamList
+    local currenFireteamList
     local currentTeamFireteams
-    local selectedSquad -- We're gonna define this and then do stuff with it.
     local currentWaveType = waveType -- We want to know which type of wave we've been called.
 
-    if Deployer.currentTeam == 1 then
+    if settings.currentTeam == 1 then
         currentTeam = "Covenant"
-        currentTeamList = covenantList
+        currenFireteamList = covenantList
         currentTeamFireteams = unitDeployer.covenantFireteams
-    elseif Deployer.currentTeam == 2 then
+    elseif settings.currentTeam == 2 then
         currentTeam = "Flood"
-        currentTeamList = floodList
+        currenFireteamList = floodList
         currentTeamFireteams = unitDeployer.floodFireteams
     end -- Perhaps there's a better way to do this?
 
-    -- Check if the waveType is valid
-    if not waveType then
-        logger:error(
-            "WRONG! Usage: squad_assembler [ <starting> | <boss> | <random> ]")
-        return
-    end
+    -- By default, we deploy the starting squad.
+    local selectedSquad = currentTeam .. "_Fireteams/" .. currentTeamFireteams.startingSquad.name
 
     -- If we're on a starting wave...
-    if waveType:lower() == "starting" then
+    if waveType == "starting" then
         -- The 3 Dropships drops Starting Squads!
-        selectedSquad = (currentTeam .. "_Fireteams/" .. currentTeamFireteams.startingSquad.name)
+        selectedSquad = currentTeam .. "_Fireteams/" .. currentTeamFireteams.startingSquad.name
         logger:info("Starting Fireteam: " .. selectedSquad)
     end
 
     -- If we're on a boss wave...
-    if waveType:lower() == "boss" then
-        if Deployer.dropshipsLeft == Deployer.dropshipsAsigned then
+    if waveType == "boss" then
+        if settings.dropshipsLeft == settings.dropshipsAssigned then
             -- The first Dropship will drop a Zealot Squad, and...
             selectedSquad = (currentTeam .. "_Fireteams/" .. currentTeamFireteams.zealotSquad.name)
             --randomizedGhost = math.random(1, 3) -- Randomize the Ghost for the boss wave.
@@ -212,10 +199,10 @@ function unitDeployer.waveDeployer(waveType)
     end
 
     -- If we're on a random wave...
-    if waveType:lower() == "random" then
-        if canRandomize == true then
-            local randomFireteams = table.filter(currentTeamList, function(fireteam)
-                return fireteam.random
+    if waveType == "random" then
+        if isWaveRandomizable then
+            local randomFireteams = table.filter(currenFireteamList, function(fireteam)
+                return fireteam.isRandom
             end)
             local availableFireteams = table.filter(randomFireteams, function(fireteam)
                 return fireteam.available
@@ -224,7 +211,7 @@ function unitDeployer.waveDeployer(waveType)
                 logger:warning("No Fireteams available for randomization.")
                 return
             end
-            if Deployer.dropshipsLeft == Deployer.dropshipsAsigned then
+            if settings.dropshipsLeft == settings.dropshipsAssigned then
                 -- The first Dropship will drop a Support Squad, and...
                 randomizedTeam = randomFireteams[math.random(#randomFireteams)]
                 logger:info("Support Team: {}, Available? {}", randomizedTeam.name, randomizedTeam.available)
@@ -234,15 +221,17 @@ function unitDeployer.waveDeployer(waveType)
                 randomizedTeam = availableFireteams[math.random(#availableFireteams)]
                 randomizedTeam.available = false -- Mark this team as unavailable for the next randomization.
                 logger:info("Main Team: {}, Available? {}", randomizedTeam.name, randomizedTeam.available)
-                canRandomize = false
+                isWaveRandomizable = false
             end -- We need to restore availability if we reach 0.
         end
-        selectedSquad = (currentTeam .. "_Fireteams/" .. randomizedTeam.name)
+        if randomizedTeam then
+            selectedSquad = currentTeam .. "_Fireteams/" .. randomizedTeam.name
+        end
     end
 
-    if Deployer.dropshipsLeft > 0 then
+    if settings.dropshipsLeft > 0 then
         -- Define and create the Dropship.
-        local selectedDropship = Deployer.dropshipTemplate:format(Deployer.dropshipsLeft)
+        local selectedDropship = settings.dropshipTemplate:format(settings.dropshipsLeft)
         hsc.object_create_anew(selectedDropship)
         -- Place and load it's troopers & turrets.
         hsc.ai_place(selectedSquad)
@@ -270,14 +259,14 @@ function unitDeployer.waveDeployer(waveType)
         --end -- The Ghost is ejected at Mach 5, not usable. Maybe in the future.
         -- Trigger the dropship animation, decrement dropshipsLeft, and call the waveDeployer function with the same parameter again.
         hsc.custom_animation(selectedDropship, "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies", selectedDropship, false)
-        Deployer.dropshipsLeft = Deployer.dropshipsLeft - 1
+        settings.dropshipsLeft = settings.dropshipsLeft - 1
         unitDeployer.waveDeployer(currentWaveType)
     else
         -- Restore all the necesary variables and flags. Begin the exit vehicle process.
         logger:debug("All Dropships have been sent!")
-        Deployer.dropshipsLeft = Deployer.dropshipsAsigned
-        canRandomize = true
-        Deployer.deploymentAllowed = false -- We cap this so no dropships can be deployed 'till the Spirits are out.
+        settings.dropshipsLeft = settings.dropshipsAssigned
+        isWaveRandomizable = true
+        settings.deploymentAllowed = false -- We cap this so no dropships can be deployed 'till the Spirits are out.
         script.startup(unitDeployer.aiExitVehicle)
     end
 end
@@ -298,13 +287,11 @@ function unitDeployer.aiExitVehicle(call, sleep)
     hsc.vehicle_unload("dropship_2_1", "")
     hsc.vehicle_unload("dropship_3_1", "")
     sleep(900)
-    Deployer.deploymentAllowed = true -- Now Spirits can run wild.
+    settings.deploymentAllowed = true -- Now Spirits can run wild.
 end
 
-------------------------------------------------------------
------- ODST Deployer ------
-------------------------------------------------------------
-function unitDeployer.pelicanDeployer(call, sleep)
+-- Deploy allied ODSTs in a Pelican.
+function unitDeployer.scriptDeployPelicans(call, sleep)
     sleep(constants.pelicanDeploymentDelay)
     hsc.ai_place("Human_Team/ODSTs")
     hsc.ai_place("human_support/pelican_pilot")
