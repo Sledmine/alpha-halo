@@ -39,6 +39,10 @@ commands = {
         minArgs = 0,
         maxArgs = 1,
         func = function(waveType)
+            if not waveType or (waveType ~= "starting" and waveType ~= "boss" and waveType ~= "random") then
+                logger:error("Invalid or missing wave type. Usage: {}", commands.squad_assembler.help)
+                return
+            end
             unitDeployer.waveDeployer(waveType)
         end
     },
