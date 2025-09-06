@@ -8,7 +8,7 @@ local commands = {}
 commands = {
     skull = {
         description = "Activate or disable a skull by name, or use \"random\" or \"all\"." ..
-                      " Optionally set a multiplier for skull effects (default is 1).",+
+                      " Optionally set a multiplier for skull effects (default is 1).",
         category = "debug",
         help = "<name | \"random\" | \"all\"> <boolean> [<multiplier = 1>]",
         example = "skull cowbell true 2",

@@ -106,7 +106,10 @@ local function handleScriptThread(scriptThread, result)
         else
             removeThreadFromTrace(scriptThread)
             if scriptThread.parent then
-                handleScriptThread(scriptThread.parent, threadResult)
+                local result = pcall(handleScriptThread, scriptThread.parent, threadResult)
+                if not result then
+                    logger:warning(debug.traceback(scriptThread.parent.thread))
+                end
             end
         end
     end
