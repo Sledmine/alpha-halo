@@ -11,6 +11,7 @@ local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
+local utils = require "alpha_halo.utils"
 
 local firefightManager = {}
 
@@ -20,7 +21,6 @@ local firefightManager = {}
 
 ---Base Firefight Settings.
 ---Could be customizable in the future from the Ins menu.
----@enum
 firefightManager.firefightSettings = { --------------
     playerInitialLives = 7,
     extraLivesGained = 1,
@@ -34,10 +34,10 @@ firefightManager.firefightSettings = { --------------
     waveLivingMin = 4,
     bossWaveLivingMin = 0,
 
-    waveCooldown = 270,
-    roundCooldown = 300,
-    setCooldown = 30,
-    gameCooldown = 30,
+    waveCooldown = utils.secondsToTicks(9),
+    roundCooldown = utils.secondsToTicks(10),
+    setCooldown = utils.secondsToTicks(1),
+    gameCooldown = utils.secondsToTicks(1),
 
     startingEnemyTeam = 1 -- 1 = Covenant, 2 = Flood, 3 = Random
 }
@@ -207,7 +207,7 @@ local function eventDispatcher()
         end
     end
     if isFirstWave or isFirstRoundWave then
-        logger:debug("First wave of the game!")
+        logger:debug("First wave of the game or round!")
         for _, event in pairs(events.eachSet) do
             event()
         end
