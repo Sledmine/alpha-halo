@@ -104,6 +104,7 @@ function firefightManager.startGame(call, sleep)
     -- script.thread(announcer.gameStart)() -- Sound not available?
     gameIsOn = true
     firefightManager.waveDefinition()
+    firefightManager.enableStartingSkulls()
     script.wake(firefightManager.startSet) -- Start the first set.
     logger:debug("Game is on! Pain is coming in hot!")
 end
@@ -352,6 +353,20 @@ end
 function firefightManager.deployPlayerAllies(call, sleep)
     script.wake(unitDeployer.scriptDeployPelicans)
     logger:debug("ODSTs are coming in hot!")
+end
+
+-- Turn on all starting skulls.
+function firefightManager.enableStartingSkulls()
+    local startingSkulls = table.filter(skullsManager.skullList, function(skull)
+        return skull.enabledFromTheStart
+    end)
+    if #startingSkulls > 0 then
+        for _, selectedSkull in ipairs(startingSkulls) do
+            logger:info("Activating initial skull: {}", selectedSkull.name)
+            -- Enable skull with balance
+            skullsManager.enableSkulls({selectedSkull}, true) -- We use balancing here.
+        end
+    end
 end
 
 -- Turn on a random temporal skull.

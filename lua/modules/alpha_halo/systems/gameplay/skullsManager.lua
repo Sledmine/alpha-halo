@@ -40,7 +40,7 @@ skullsManager.skulls = {
         effect = "skullFunctionReference",
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -52,7 +52,7 @@ skullsManager.skulls = {
         effect = famine.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -63,7 +63,7 @@ skullsManager.skulls = {
         effect = mythic.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -74,7 +74,7 @@ skullsManager.skulls = {
         effect = blind.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false,
         onTick = function()
@@ -87,7 +87,7 @@ skullsManager.skulls = {
         effect = catch.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -99,7 +99,7 @@ skullsManager.skulls = {
         effect = berserk.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -110,7 +110,7 @@ skullsManager.skulls = {
         effect = toughLuck.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -121,7 +121,7 @@ skullsManager.skulls = {
         effect = fog.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false,
         onTick = function()
@@ -134,7 +134,7 @@ skullsManager.skulls = {
         effect = knucklehead.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -145,7 +145,7 @@ skullsManager.skulls = {
         effect = cowbell.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -156,7 +156,7 @@ skullsManager.skulls = {
         effect = havok.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = true,
+        enabledFromTheStart = true,
         isEnabled = false,
         isPermanent = false
     },
@@ -167,7 +167,7 @@ skullsManager.skulls = {
         effect = newton.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = true,
+        enabledFromTheStart = true,
         isEnabled = false,
         isPermanent = false
     },
@@ -178,7 +178,7 @@ skullsManager.skulls = {
         effect = tilt.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -189,7 +189,7 @@ skullsManager.skulls = {
         effect = banger.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -200,7 +200,7 @@ skullsManager.skulls = {
         effect = doubleDown.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -211,7 +211,7 @@ skullsManager.skulls = {
         effect = eyePatch.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -222,7 +222,7 @@ skullsManager.skulls = {
         effect = triggerSwitch.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -233,7 +233,7 @@ skullsManager.skulls = {
         effect = slayer.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -244,7 +244,7 @@ skullsManager.skulls = {
         effect = assassin.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        isStackable = false,
+        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false,
         onTick = function()
