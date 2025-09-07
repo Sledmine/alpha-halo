@@ -39,6 +39,7 @@ skullsManager.skulls = {
         description = "This skull does nothing.",
         effect = "skullFunctionReference",
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -50,6 +51,7 @@ skullsManager.skulls = {
         description = "Enemies dropped weapons with half ammo.",
         effect = famine.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -60,6 +62,7 @@ skullsManager.skulls = {
         description = " Enemies have double health & shields, and player gets a x1.5 bonus of it.",
         effect = mythic.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -70,6 +73,7 @@ skullsManager.skulls = {
         description = "Players have the HUD disabled.",
         effect = blind.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false,
@@ -82,6 +86,7 @@ skullsManager.skulls = {
         description = "Enemies launch grenades with more frequency, and throwing speed increases a little.",
         effect = catch.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -93,6 +98,7 @@ skullsManager.skulls = {
         description = "Enemies are in a berserker state.",
         effect = berserk.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -103,6 +109,7 @@ skullsManager.skulls = {
         description = "Enemies always evade danger",
         effect = toughLuck.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -113,6 +120,7 @@ skullsManager.skulls = {
         description = "Motion tracker is hidden.",
         effect = fog.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false,
@@ -125,6 +133,7 @@ skullsManager.skulls = {
         description = "Body damage gets reduced to 1/5th, and head damage gets a 500% bonus.",
         effect = knucklehead.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -135,6 +144,7 @@ skullsManager.skulls = {
         description = "Acceleration effects are duplicated.",
         effect = cowbell.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -145,6 +155,7 @@ skullsManager.skulls = {
         description = "Doubles explosions radius effect.",
         effect = havok.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = true,
         isEnabled = false,
         isPermanent = false
@@ -155,6 +166,7 @@ skullsManager.skulls = {
         description = "Melee hits now inflict knockback... To both ends.",
         effect = newton.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = true,
         isEnabled = false,
         isPermanent = false
@@ -165,6 +177,7 @@ skullsManager.skulls = {
         description = "Material resistances and weakness are doubled.",
         effect = tilt.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -175,6 +188,7 @@ skullsManager.skulls = {
         description = "Some enemies drop live grenades at death.",
         effect = banger.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -185,6 +199,7 @@ skullsManager.skulls = {
         description = "Doubles your shield... As well as the stun & recovering time.",
         effect = doubleDown.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -195,6 +210,7 @@ skullsManager.skulls = {
         description = "Aim assistance gets reduced to 0, but so is initial error for all weapons.",
         effect = eyePatch.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -205,6 +221,7 @@ skullsManager.skulls = {
         description = "Full auto weapons become semi-auto and vice versa.",
         effect = triggerSwitch.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -215,6 +232,7 @@ skullsManager.skulls = {
         description = "Doubles projectiles per shot & spread cone size.",
         effect = slayer.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -225,6 +243,7 @@ skullsManager.skulls = {
         description = "Everyone gets active cammo... But yours fail from time to time.",
         effect = assassin.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
         isStackable = false,
         isEnabled = false,
         isPermanent = false,
