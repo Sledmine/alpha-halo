@@ -55,12 +55,8 @@ local fireTeams = {
         specOpsSquad = {name = "SpecOps_Squad", isRandom = false, available = true},
         zealotSquad = {name = "Zealot_Squad", isRandom = false, available = true}
     },
-    human = {
-        odstSquad = {name = "ODST Squad", isRandom = false, available = true}
-    },
-    sentinel = {
-        sentinelSquad = {name = "Sentinel Squad", isRandom = false, available = true}
-    }
+    human = {odstSquad = {name = "ODST Squad", isRandom = false, available = true}},
+    sentinel = {sentinelSquad = {name = "Sentinel Squad", isRandom = false, available = true}}
 }
 
 unitDeployer.deployerSettings = {
@@ -119,7 +115,7 @@ function unitDeployer.waveDeployer(waveType)
     if waveType == "starting" then
         -- The 3 Dropships drops Starting Squads!
         selectedSquad = currentTeam .. "_Fireteams/" .. currentFireteams.startingSquad.name
-        logger:info("Starting Fireteam: " .. selectedSquad)
+        logger:debug("Starting Fireteam: " .. selectedSquad)
     end
 
     -- If we're on a boss wave...
@@ -128,11 +124,11 @@ function unitDeployer.waveDeployer(waveType)
             -- The first Dropship will drop a Zealot Squad, and...
             selectedSquad = (currentTeam .. "_Fireteams/" .. currentFireteams.zealotSquad.name)
             -- randomizedGhost = math.random(1, 3) -- Randomize the Ghost for the boss wave.
-            logger:info("Bodyguard Fireteam: " .. selectedSquad)
+            logger:debug("Bodyguard Fireteam: " .. selectedSquad)
         else
             -- The rest of them will deploy SpecOps Squads!
             selectedSquad = (currentTeam .. "_Fireteams/" .. currentFireteams.specOpsSquad.name)
-            logger:info("Boss Fireteam: " .. selectedSquad)
+            logger:debug("Boss Fireteam: " .. selectedSquad)
         end
     end
 
@@ -227,32 +223,38 @@ function unitDeployer.aiExitVehicle(call, sleep)
     settings.deploymentAllowed = true -- Now Spirits can run wild.
 end
 
+local pelicanVehicleName = "foehammer_cliff"
+local pelicanPilotName = "human_support/pelican_pilot"
+local odstSquadName = "Human_Team/ODSTs"
+
 -- Deploy allied ODSTs in a Pelican.
 function unitDeployer.scriptDeployPelicans(call, sleep)
     sleep(constants.pelicanDeploymentDelay)
-    hsc.ai_place("Human_Team/ODSTs")
-    hsc.ai_place("human_support/pelican_pilot")
+    hsc.ai_place(odstSquadName)
+    hsc.ai_place(pelicanPilotName)
     -- TODO Prevent ODSTs from receiving damage while in the Pelican.
-    hsc.object_create_anew("foehammer_cliff")
-    hsc.vehicle_load_magic("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs"))
-    hsc.vehicle_load_magic("foehammer_cliff", "driver", hsc.ai_actors("human_support/pelican_pilot"))
+    hsc.object_create_anew(pelicanVehicleName)
+    hsc.vehicle_load_magic(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName))
+    hsc.vehicle_load_magic(pelicanVehicleName, "driver", hsc.ai_actors(pelicanPilotName))
+    -- TODO This should be a dynamic encounter based on the current wave.
+    -- Otherwise it just forces the AI to only see Covenant
     hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
-    hsc.unit_set_enterable_by_player("foehammer_cliff", false)
-    hsc.unit_close("foehammer_cliff")
-    hsc.object_teleport("foehammer_cliff", "foehammer_cliff_flag")
+    hsc.unit_set_enterable_by_player(pelicanVehicleName, false)
+    hsc.unit_close(pelicanVehicleName)
+    hsc.object_teleport(pelicanVehicleName, "foehammer_cliff_flag")
     hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), true)
-    hsc.recording_play_and_hover("foehammer_cliff", "foehammer_cliff_in")
+    hsc.recording_play_and_hover(pelicanVehicleName, "foehammer_cliff_in")
     sleep(1200)
-    hsc.unit_open("foehammer_cliff")
+    hsc.unit_open(pelicanVehicleName)
     sleep(90)
     hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), false)
-    hsc.vehicle_unload("foehammer_cliff", "rider")
+    hsc.vehicle_unload(pelicanVehicleName, "rider")
     sleep(120)
-    if not hsc.vehicle_test_seat_list("foehammer_cliff", "rider", hsc.ai_actors("Human_Team/ODSTs")) then
-        hsc.unit_close("foehammer_cliff")
+    if not hsc.vehicle_test_seat_list(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName)) then
+        hsc.unit_close(pelicanVehicleName)
         sleep(120)
-        hsc.vehicle_hover("foehammer_cliff", false)
-        hsc.recording_play_and_delete("foehammer_cliff", "foehammer_cliff_out")
+        hsc.vehicle_hover(pelicanVehicleName, false)
+        hsc.recording_play_and_delete(pelicanVehicleName, "foehammer_cliff_out")
     end
 end
 

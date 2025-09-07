@@ -76,7 +76,7 @@ function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Waiting 30 ticks before starting game")
     sleep(30)
     script.startup(firefightManager.startGame)
-    --script.continuous(firefightManager.playerCheck)
+    script.continuous(firefightManager.playerCheck)
 end
 
 ---Game Start. This begins the process that cycles the firefight to move forward.
@@ -249,7 +249,7 @@ local playerIsDead = false -- This by default is false, obviously.
 --- Handle player respawn and lives.
 function firefightManager.playerCheck(call, sleep)
     -- We check if the game is on.
-    if gameIsOn == false then
+    if not gameIsOn then
         return
     end
     -- We get the player.
@@ -260,13 +260,14 @@ function firefightManager.playerCheck(call, sleep)
     -- We get the player biped.
     local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
     if not biped then
+        logger:debug("Player is dead.")
         playerIsDead = true
         -- If lifes are 0 and there's no player biped, then we end the game.
         if playerLives == 0 then
-            logger:debug("You lost, sucker!!!")
+            logger:info("You lost, sucker!!!")
             firefightManager.endGame()
         end
-        return -- Do we really need these returns here?
+        return
     end
     -- We do stuff as soon as the player reapears.
     if playerIsDead and biped then
@@ -327,8 +328,9 @@ end
 -- Give extra lives to the player.
 function firefightManager.addPlayerLives()
     -- We add a life to the player.
-    logger:debug("Lives added!")
+    logger:info("Lives added!")
     playerLives = playerLives + settings.extraLivesGained
+    logger:debug("Current lives: {}", playerLives)
     script.thread(announcer.livesAdded)()
     -- If the player exist, then we restore his health.
     local player = getPlayer()
@@ -358,7 +360,7 @@ function firefightManager.enableRandomSkull()
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
         local selectedSkull = temporalSkulls[randomIndex]
-        logger:debug("Chosen random skull: {}", selectedSkull.name)
+        logger:info("Chosen random skull: {}", selectedSkull.name)
         -- Enable skull with balance
         skullsManager.enableSkulls({selectedSkull}, true) -- We use balancing here.
     end
@@ -491,15 +493,18 @@ end
 
 events = {
     eachWave = {
-        firefightManager.enableRandomSkull,
     },
     eachRound = {
         firefightManager.spawnPlayerAssistances,
-        firefightManager.addPlayerLives,
-        firefightManager.enableRandomPermanentSkull
+        function ()
+            if not isFirstRoundWave then
+                firefightManager.addPlayerLives()
+            end
+        end,
     },
     eachSet = {
         --firefightManager.switchTeams,
+        firefightManager.enableRandomPermanentSkull
     },
     eachBossWave = {
         firefightManager.deployPlayerAllies

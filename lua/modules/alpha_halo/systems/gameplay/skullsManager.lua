@@ -144,18 +144,18 @@ skullsManager.skulls = {
         motto = "Deliver hope… and tactical warheads.",
         description = "Doubles explosions radius effect.",
         effect = havok.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
-        isStackable = false,
+        state = {count = 0, max = 3, multiplier = 1},
+        isStackable = true,
         isEnabled = false,
         isPermanent = false
     },
     newton = {
         name = "Newton",
         motto = "That is… not how the 3rd law works.",
-        description = "Melee hits now inflict knockback… To both ends.",
+        description = "Melee hits now inflict knockback... To both ends.",
         effect = newton.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
-        isStackable = false,
+        state = {count = 0, max = 3, multiplier = 1},
+        isStackable = true,
         isEnabled = false,
         isPermanent = false
     },
@@ -177,7 +177,7 @@ skullsManager.skulls = {
         state = {count = 0, max = 3, multiplier = 1},
         isStackable = false,
         isEnabled = false,
-        isPermanent = true
+        isPermanent = false
     },
     doubledown = {
         name = "Double Down",
@@ -266,12 +266,21 @@ end
 
 --- Initiate Skull Effect applying its function the number of times specified in its state.
 local function initiateSkullEffect(skull)
-    local multiplier = skull.state.multiplier or 1
-    logger:info("Initiating Skull effect: {} x{}", skull.name, multiplier)
+    -- Apply the effect the number of times specified in its state
+    local multiplier = (skull.state.multiplier or 1) * (skull.state.count - 1)
+    logger:debug("Initiating Skull effect: {} x{}", skull.name, skull.state.count)
     for i = 1, multiplier do
         skull.effect(true)
     end
     skull.isEnabled = true
+end
+
+local function reinitializeEnabledSkulls()
+    for _, skull in ipairs(skullList) do
+        if skull.isEnabled then
+            initiateSkullEffect(skull)
+        end
+    end
 end
 
 local function spendSkull(skull)
@@ -282,7 +291,6 @@ local function spendSkull(skull)
                        skull.state.max)
     end
     skull.isEnabled = true
-    initiateSkullEffect(skull)
 end
 
 local function restoreSkull(skull)
@@ -309,9 +317,12 @@ function skullsManager.enableSkulls(skulls, useBalance)
             spendSkull(skull)
         elseif not useBalance then
             skull.isEnabled = true
-            initiateSkullEffect(skull)
         end
+        logger:info("Enabling Skull: {} ({})", skull.name, skull.description)
     end
+
+    -- Initiate the effect of the enabled skulls
+    reinitializeEnabledSkulls()
 end
 
 ---Deactive multiple Skulls at once with balancing
@@ -326,6 +337,9 @@ function skullsManager.disableSkulls(skulls, useBalance)
             restoreSkull(skull)
         end
     end
+
+    -- Re-initiate the effect of the still enabled skulls
+    reinitializeEnabledSkulls()
 end
 
 ---Activate Specified Skull by name
@@ -353,22 +367,13 @@ function skullsManager.enableSkull(name, multiplier)
     end
 
     -- Initiate the effect of the enabled skulls
-    for _, skull in ipairs(skullList) do
-        if skull.isEnabled then
-            initiateSkullEffect(skull)
-        end
-    end
+    reinitializeEnabledSkulls()
 end
 
 ---Deactivate specified Skull by type and name
 ---@param name string | "random" | "all"
 function skullsManager.disableSkull(name)
     local name = name:lower()
-    -- Check if the skullList is valid and name is provided
-    if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
-        logger:error("Invalid skull name. Usage: deactivate_skull [ <name> | <random> | <all> ]")
-        return
-    end
 
     if name == "random" then
         local randomIndex = math.random(1, #skullList)
