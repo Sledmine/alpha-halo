@@ -355,9 +355,9 @@ function firefightManager.deployPlayerAllies(call, sleep)
 end
 
 -- Turn on a random temporal skull.
-function firefightManager.enableRandomSkull()
+function firefightManager.enableTemporalSkull()
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
-        return not (skull.state.count == skull.state.max)
+        return not (skull.state.count == skull.state.max) and skull.allowedInRandom
     end)
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
@@ -371,11 +371,11 @@ end
 -- Turn on a random permanent skull.
 function firefightManager.enablePermanentSkull()
     local permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-        return skull.isPermanent and not (skull.state.count == skull.state.max)
+        return skull.isPermanent and not (skull.state.count == skull.state.max) and skull.allowedInRandom
     end)
     if settings.permanentSkullsCanBeRandom then -- If we allow random skulls...
         permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-            return not (skull.state.count == skull.state.max) -- ... We no longer check previous permanency.
+            return not (skull.state.count == skull.state.max) and skull.allowedInRandom -- ... We no longer check previous permanency.
         end)
     end
     if #permanentSkulls > 0 then
@@ -504,7 +504,7 @@ events = {
     eachWave = {
     },
     eachRound = {
-        firefightManager.enableRandomSkull,
+        firefightManager.enableTemporalSkull,
         firefightManager.spawnPlayerAssistances,
         function ()
             if not isFirstGameWave then
