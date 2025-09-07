@@ -49,7 +49,7 @@ skullsManager.skulls = {
         motto = "Trust us, bring a magazine.",
         description = "Enemies dropped weapons with half ammo.",
         effect = famine.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -59,7 +59,7 @@ skullsManager.skulls = {
         motto = "Coverage under the Covenant Health Plan!",
         description = " Enemies have double health & shields, and player gets a x1.5 bonus of it.",
         effect = mythic.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -81,7 +81,7 @@ skullsManager.skulls = {
         motto = "Pull pin. Count to three. Throw.",
         description = "Enemies launch grenades with more frequency, and throwing speed increases a little.",
         effect = catch.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -121,10 +121,10 @@ skullsManager.skulls = {
     },
     knucklehead = {
         name = "Knucklehead",
-        motto = "All brawn and no brain…",
+        motto = "All brawn and no brain...",
         description = "Body damage gets reduced to 1/5th, and head damage gets a 500% bonus.",
         effect = knucklehead.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -134,27 +134,27 @@ skullsManager.skulls = {
         motto = "More bang for your buck.",
         description = "Acceleration effects are duplicated.",
         effect = cowbell.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
     },
     havok = {
         name = "Havok",
-        motto = "Deliver hope… and tactical warheads.",
+        motto = "Deliver hope... and tactical warheads.",
         description = "Doubles explosions radius effect.",
         effect = havok.skullEffect,
-        state = {count = 0, max = 3, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = true,
         isEnabled = false,
         isPermanent = false
     },
     newton = {
         name = "Newton",
-        motto = "That is… not how the 3rd law works.",
+        motto = "That is... not how the 3rd law works.",
         description = "Melee hits now inflict knockback... To both ends.",
         effect = newton.skullEffect,
-        state = {count = 0, max = 3, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = true,
         isEnabled = false,
         isPermanent = false
@@ -164,7 +164,7 @@ skullsManager.skulls = {
         motto = "What was once resistance is now immunity.",
         description = "Material resistances and weakness are doubled.",
         effect = tilt.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -174,7 +174,7 @@ skullsManager.skulls = {
         motto = "Send me out, with a bang.",
         description = "Some enemies drop live grenades at death.",
         effect = banger.skullEffect,
-        state = {count = 0, max = 3, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -182,9 +182,9 @@ skullsManager.skulls = {
     doubledown = {
         name = "Double Down",
         motto = "Do I feel lucky?",
-        description = "Doubles your shield… As well as the stun & recovering time.",
+        description = "Doubles your shield... As well as the stun & recovering time.",
         effect = doubleDown.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -214,7 +214,7 @@ skullsManager.skulls = {
         motto = "Double every shot by sheer will of rip & tear.",
         description = "Doubles projectiles per shot & spread cone size.",
         effect = slayer.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 1},
         isStackable = false,
         isEnabled = false,
         isPermanent = false
@@ -222,7 +222,7 @@ skullsManager.skulls = {
     assassin = {
         name = "Assassin",
         motto = "Your armor's system is not as... new as ours.",
-        description = "Everyone gets active cammo… But your’s fail from time to time.",
+        description = "Everyone gets active cammo... But yours fail from time to time.",
         effect = assassin.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         isStackable = false,
@@ -236,11 +236,11 @@ skullsManager.skulls = {
 local skullList = {
     skullsManager.skulls.famine,
     skullsManager.skulls.mythic,
-    skullsManager.skulls.blind,
-    skullsManager.skulls.catch,
+    --skullsManager.skulls.blind,
+    --skullsManager.skulls.catch,
     skullsManager.skulls.berserk,
     skullsManager.skulls.toughluck,
-    skullsManager.skulls.fog,
+    --skullsManager.skulls.fog,
     skullsManager.skulls.knucklehead,
     skullsManager.skulls.cowbell,
     skullsManager.skulls.havok,
@@ -251,7 +251,7 @@ local skullList = {
     skullsManager.skulls.eyepatch,
     skullsManager.skulls.triggerswitch,
     skullsManager.skulls.slayer,
-    skullsManager.skulls.assassin
+    --skullsManager.skulls.assassin
 }
 skullsManager.skullList = skullList
 
@@ -267,7 +267,7 @@ end
 --- Initiate Skull Effect applying its function the number of times specified in its state.
 local function initiateSkullEffect(skull)
     -- Apply the effect the number of times specified in its state
-    local multiplier = (skull.state.multiplier or 1) * (skull.state.count - 1)
+    local multiplier = (skull.state.multiplier or 1) * (skull.state.count)
     logger:debug("Initiating Skull effect: {} x{}", skull.name, skull.state.count)
     for i = 1, multiplier do
         skull.effect(true)
@@ -288,7 +288,7 @@ local function spendSkull(skull)
     if skull.state.count > skull.state.max then
         skull.state.count = skull.state.max
         logger:warning("Skull '{}' has reached its maximum count of {}.", skull.name,
-                       skull.state.max)
+                        skull.state.max)
     end
     skull.isEnabled = true
 end
