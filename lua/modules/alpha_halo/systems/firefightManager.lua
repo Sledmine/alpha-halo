@@ -357,7 +357,7 @@ end
 -- Turn on a random temporal skull.
 function firefightManager.enableRandomSkull()
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
-        return not (skull.state.count == skull.state.maxCount)
+        return not (skull.state.count == skull.state.max)
     end)
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
@@ -371,11 +371,11 @@ end
 -- Turn on a random permanent skull.
 function firefightManager.enablePermanentSkull()
     local permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-        return skull.isPermanent and not (skull.state.count == skull.state.maxCount)
+        return skull.isPermanent and not (skull.state.count == skull.state.max)
     end)
     if settings.permanentSkullsCanBeRandom then -- If we allow random skulls...
         permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-            return not (skull.state.count == skull.state.maxCount) -- ... We no longer check previous permanency.
+            return not (skull.state.count == skull.state.max) -- ... We no longer check previous permanency.
         end)
     end
     if #permanentSkulls > 0 then
