@@ -39,29 +39,29 @@ firefightManager.firefightSettings = { --------------
     setCooldown = utils.secondsToTicks(1),
     gameCooldown = utils.secondsToTicks(1),
 
-    startingEnemyTeam = 1 -- 1 = Covenant, 2 = Flood, 3 = Random
+    startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
+    permanentSkullsCanBeRandom = true
 }
+local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
 firefightManager.firefightSettings.bossWaveFrequency = firefightManager.firefightSettings.wavesPerRound
 
-local isFirstWave = false -- First wave of the game.
+local isFirstGameWave = false -- First wave of the game.
 local isFirstRoundWave = false -- First wave of the round.
 local intermediateWave = false -- Any wave that is not first, boss or last.
 local isLastWave = false -- Is the current wave the last wave of the game?
 local isCurrentWaveBoss = false -- Is the current wave a boss wave?
 
-local settings = firefightManager.firefightSettings
-
 ---This is the progression of the Firefight.
 ---It gets updated with firefightManager.progression()
 ---@enum
 firefightManager.gameProgression = { --------------
-    totalWalves = 0,
+    totalWalves = 1,
     wave = 1,
     round = 1,
     set = 1,
     wavesUntilBoss = 1,
-    currentEnemyTeam = 0,
+    currentEnemyTeam = 1,
     deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed
 }
 local progression = firefightManager.gameProgression
@@ -104,6 +104,7 @@ function firefightManager.startGame(call, sleep)
     -- script.thread(announcer.gameStart)() -- Sound not available?
     gameIsOn = true
     firefightManager.waveDefinition()
+    firefightManager.enableStartingSkulls()
     script.wake(firefightManager.startSet) -- Start the first set.
     logger:debug("Game is on! Pain is coming in hot!")
 end
@@ -169,12 +170,14 @@ function firefightManager.waveDefinition()
     isFirstRoundWave = progression.wave == 1
     isCurrentWaveBoss = (progression.wave == settings.wavesPerRound) or
                             math.fmod(progression.wave, settings.bossWaveFrequency) == 0
-    isFirstWave = totalWaves == 1
+    isFirstGameWave = (progression.wave == 1) and
+                      (progression.round == 1) and
+                      (progression.set == 1) --progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
     isLastWave = (progression.wave == settings.wavesPerRound) and
-                     (progression.round == settings.roundsPerSet) and
-                     (progression.set == settings.setsPerGame)
+                    (progression.round == settings.roundsPerSet) and
+                    (progression.set == settings.setsPerGame)
     -- We define what is a randomWave.
-    intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstWave or isLastWave)
+    intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstGameWave or isLastWave)
 end
 
 ---Set Start. Calls round start.
@@ -197,18 +200,15 @@ local events = {}
 local function eventDispatcher()
     logger:debug("Dispatching events...")
     logger:debug("#events.eachWave: {}", #events.eachWave)
-    for _, event in ipairs(events.eachWave) do
-        event()
+    if isFirstGameWave or isFirstRoundWave then
+        logger:debug("First wave of the game or round!")
+        for _, event in pairs(events.eachSet) do
+            event()
+        end
     end
     if isFirstRoundWave then
         logger:debug("First wave of the round!")
         for _, event in pairs(events.eachRound) do
-            event()
-        end
-    end
-    if isFirstWave or isFirstRoundWave then
-        logger:debug("First wave of the game or round!")
-        for _, event in pairs(events.eachSet) do
             event()
         end
     end
@@ -218,6 +218,9 @@ local function eventDispatcher()
             event()
         end
     end
+    for _, event in ipairs(events.eachWave) do
+        event()
+    end
 end
 
 ---Wave Starts. Deploys wave units.
@@ -225,7 +228,7 @@ function firefightManager.startWave(call, sleep)
     eventDispatcher()
     sleep(settings.waveCooldown)
     -- script.thread(announcer.waveStart)() -- Sound not available?
-    if (isFirstWave or isFirstRoundWave) and (not isCurrentWaveBoss) then
+    if (isFirstGameWave or isFirstRoundWave) and (not isCurrentWaveBoss) then
         unitDeployer.waveDeployer("starting")
     elseif intermediateWave then
         unitDeployer.waveDeployer("random")
@@ -352,10 +355,24 @@ function firefightManager.deployPlayerAllies(call, sleep)
     logger:debug("ODSTs are coming in hot!")
 end
 
+-- Turn on all starting skulls.
+function firefightManager.enableStartingSkulls()
+    local startingSkulls = table.filter(skullsManager.skullList, function(skull)
+        return skull.enabledFromTheStart
+    end)
+    if #startingSkulls > 0 then
+        for _, selectedSkull in ipairs(startingSkulls) do
+            logger:info("Activating initial skull: {}", selectedSkull.name)
+            -- Enable skull with balance
+            skullsManager.enableSkulls({selectedSkull}, true) -- We use balancing here.
+        end
+    end
+end
+
 -- Turn on a random temporal skull.
-function firefightManager.enableRandomSkull()
+function firefightManager.enableTemporalSkull()
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
-        return not skull.isPermanent and not skull.isEnabled
+        return not (skull.state.count == skull.state.max) and skull.allowedInRandom
     end)
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
@@ -367,14 +384,21 @@ function firefightManager.enableRandomSkull()
 end
 
 -- Turn on a random permanent skull.
-function firefightManager.enableRandomPermanentSkull()
+function firefightManager.enablePermanentSkull()
     local permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-        return skull.isPermanent and not skull.isEnabled
+        return skull.isPermanent and not (skull.state.count == skull.state.max) and skull.allowedInRandom
     end)
+    if settings.permanentSkullsCanBeRandom then -- If we allow random skulls...
+        permanentSkulls = table.filter(skullsManager.skullList, function(skull)
+            return not (skull.state.count == skull.state.max) and skull.allowedInRandom -- ... We no longer check previous permanency.
+        end)
+    end
     if #permanentSkulls > 0 then
         local randomIndex = math.random(1, #permanentSkulls)
         local selectedSkull = permanentSkulls[randomIndex]
+        logger:info("Chosen permanent skull: {}", selectedSkull.name)
         -- Enable skull with balance
+        selectedSkull.isPermanent = true
         skullsManager.enableSkulls({selectedSkull}, true)
     end
 end
@@ -495,16 +519,22 @@ events = {
     eachWave = {
     },
     eachRound = {
+        firefightManager.enableTemporalSkull,
         firefightManager.spawnPlayerAssistances,
         function ()
-            if not isFirstRoundWave then
+            if not isFirstGameWave then
                 firefightManager.addPlayerLives()
             end
         end,
     },
     eachSet = {
-        --firefightManager.switchTeams,
-        firefightManager.enableRandomPermanentSkull
+        firefightManager.resetAllTemporalSkulls,
+        firefightManager.enablePermanentSkull,
+        function ()
+            if not isFirstGameWave then
+                firefightManager.switchTeams()
+            end
+        end,
     },
     eachBossWave = {
         firefightManager.deployPlayerAllies
