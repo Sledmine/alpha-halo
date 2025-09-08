@@ -1,9 +1,12 @@
+local tagClasses = Engine.tag.classes
+local findTags = Engine.tag.findTags
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
 local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
 
 local catch = {}
 
 local allUnits = dependencies.names.units
+local bipeds = dependencies.paths.bipeds
 
 -- Catch: Makes the AI launch grenades a fuck lot.
 ---@param isActive boolean
@@ -26,9 +29,19 @@ function catch.skullEffect(isActive)
             actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0
             actorVariant.grenadeCount[1] = actorVariant.grenadeCount[1] + 1
             actorVariant.grenadeCount[2] = actorVariant.grenadeCount[2] + 1
-            if not tagEntry.path:includes("odst") then
+            --if not tagEntry.path:includes("odst") then
                 actorVariant.grenadeVelocity = actorVariant.grenadeVelocity * 2
-            end
+            --end  -- Why did i wanted to omit odsts? Guess we'll find out...
+        else
+            Balltze.features.reloadTagData(tagEntry.handle)
+        end
+    end
+    local playerBipedTagEntry = findTags(bipeds.player, tagClasses.biped)
+    assert(playerBipedTagEntry)
+    for _, tagEntry in ipairs(playerBipedTagEntry) do
+        local biped = tagEntry.data
+        if isActive then
+            biped.grenadeVelocity = biped.grenadeVelocity * 2
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end

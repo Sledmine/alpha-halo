@@ -6,6 +6,7 @@ local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
 local mythic = {}
 
 local allUnits = dependencies.names.units
+local bipeds = dependencies.paths.bipeds
 
 -- Mythic: AI gets double body & shield vitality, while player gets x1.5 boost.
 ---@param isActive boolean
@@ -27,8 +28,8 @@ function mythic.skullEffect(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    local playerCollisionTagEntry = findTags("spartan_mp", tagClasses.modelCollisionGeometry)
-    assert(playerCollisionTagEntry) -- There must be a better way to do this ^^^.
+    local playerCollisionTagEntry = findTags(bipeds.player, tagClasses.modelCollisionGeometry)
+    assert(playerCollisionTagEntry) -- There was a better way to do this! :D ^^^
     for _, tagEntry in ipairs(playerCollisionTagEntry) do
         local collisionGeometry = tagEntry.data
         if isActive then

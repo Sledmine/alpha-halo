@@ -32,4 +32,23 @@ function famine.skullEffect(isActive)
     -- logger:debug("Famine {}", isActive and "On" or "Off")
 end
 
+-- PvP Famine: Halves weapon's max reserved ammo.
+---@param isActive boolean
+function famine.pvpSkullEffect(isActive)
+    for _, tagEntry in ipairs(tagEntries.weapon()) do
+        local weapon = tagEntry.data
+        if isActive then
+            for i = 1, weapon.magazines.count do
+                local magazine = weapon.magazines.elements[i]
+                magazine.roundsTotalInitial = magazine.roundsTotalInitial * 0.5
+                magazine.roundsReservedMaximum = magazine.roundsReservedMaximum * 0.5
+            end
+        else
+            Balltze.features.reloadTagData(tagEntry.handle)
+        end
+    end
+    -- skullsManager.skulls.pvpFamine.active = isActive
+    -- logger:debug("Famine {}", isActive and "On" or "Off")
+end
+
 return famine
