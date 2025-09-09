@@ -2,6 +2,7 @@ local engine = Engine
 local balltze = Balltze
 local objectTypes = Engine.tag.objectType
 local tagClasses = Engine.tag.classes
+local getTag = Engine.tag.getTag
 local findTags = Engine.tag.findTags
 local blam = require "blam2"
 
@@ -57,6 +58,9 @@ function tagEntries.impactDamageEffect()
     if impactDamageEffect then
         return impactDamageEffect
     end
+    --impactDamageEffect = table.map(tagEntries.projectile(), function(projectileEntry)
+    --    return getTag(projectileEntry.data.impactDamage.tagHandle.value, tagClasses.damageEffect)
+    --end) -- Currently this doesn't work, for some reason.
     impactDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
         for _, impactValue in ipairs(tagEntries.projectile()) do
             -- engine.tag.getTag(impactValue.data.impactDamage.tagHandle.value, engine.tag.classes.damageEffect)
