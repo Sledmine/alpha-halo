@@ -40,7 +40,6 @@ skullsManager.skulls = {
         effect = "skullFunctionReference",
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -52,7 +51,6 @@ skullsManager.skulls = {
         effect = famine.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -63,7 +61,6 @@ skullsManager.skulls = {
         effect = mythic.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -74,7 +71,6 @@ skullsManager.skulls = {
         effect = blind.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false,
         onTick = function()
@@ -87,7 +83,6 @@ skullsManager.skulls = {
         effect = catch.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -99,7 +94,6 @@ skullsManager.skulls = {
         effect = berserk.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -110,7 +104,6 @@ skullsManager.skulls = {
         effect = toughLuck.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -121,7 +114,6 @@ skullsManager.skulls = {
         effect = fog.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false,
         onTick = function()
@@ -134,7 +126,6 @@ skullsManager.skulls = {
         effect = knucklehead.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -145,7 +136,6 @@ skullsManager.skulls = {
         effect = cowbell.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -178,7 +168,6 @@ skullsManager.skulls = {
         effect = tilt.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -189,7 +178,6 @@ skullsManager.skulls = {
         effect = banger.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -200,7 +188,6 @@ skullsManager.skulls = {
         effect = doubleDown.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -211,7 +198,6 @@ skullsManager.skulls = {
         effect = eyePatch.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -222,7 +208,6 @@ skullsManager.skulls = {
         effect = triggerSwitch.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -233,7 +218,6 @@ skullsManager.skulls = {
         effect = slayer.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false
     },
@@ -244,7 +228,6 @@ skullsManager.skulls = {
         effect = assassin.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
-        enabledFromTheStart = false,
         isEnabled = false,
         isPermanent = false,
         onTick = function()
@@ -255,11 +238,11 @@ skullsManager.skulls = {
 local skullList = {
     skullsManager.skulls.famine,
     skullsManager.skulls.mythic,
-    --skullsManager.skulls.blind,
-    --skullsManager.skulls.catch,
+    -- skullsManager.skulls.blind,
+    -- skullsManager.skulls.catch,
     skullsManager.skulls.berserk,
     skullsManager.skulls.toughluck,
-    --skullsManager.skulls.fog,
+    -- skullsManager.skulls.fog,
     skullsManager.skulls.knucklehead,
     skullsManager.skulls.cowbell,
     skullsManager.skulls.havok,
@@ -269,8 +252,8 @@ local skullList = {
     skullsManager.skulls.doubledown,
     skullsManager.skulls.eyepatch,
     skullsManager.skulls.triggerswitch,
-    skullsManager.skulls.slayer,
-    --skullsManager.skulls.assassin
+    skullsManager.skulls.slayer
+    -- skullsManager.skulls.assassin
 }
 skullsManager.skullList = skullList
 
@@ -286,8 +269,8 @@ end
 --- Initiate Skull Effect applying its function the number of times specified in its state.
 local function initiateSkullEffect(skull)
     -- Apply the effect the number of times specified in its state
-    local multiplier = (skull.state.multiplier or 1) * (skull.state.count)
-    logger:debug("Initiating Skull effect: {} x{}", skull.name, skull.state.count)
+    local multiplier = (skull.state.multiplier or 1) * skull.state.count
+    logger:debug("Initiating Skull effect: {} ({}) x{}", skull.name, skull.state.count, multiplier)
     for i = 1, multiplier do
         skull.effect(true)
     end
@@ -307,7 +290,7 @@ local function spendSkull(skull)
     if skull.state.count > skull.state.max then
         skull.state.count = skull.state.max
         logger:warning("Skull '{}' has reached its maximum count of {}.", skull.name,
-                        skull.state.max)
+                       skull.state.max)
     end
     skull.isEnabled = true
 end
