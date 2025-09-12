@@ -8,12 +8,6 @@ local script = require "script"
 local hsc = require "hsc"
 
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
-
--- For testing purposes only, remove for release.
--- Enable some skulls from the start.
-skullsManager.skulls.havok.isEnabled = true
-skullsManager.skulls.newton.isEnabled = true
-
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
@@ -50,7 +44,8 @@ firefightManager.firefightSettings = { --------------
 }
 local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
-firefightManager.firefightSettings.bossWaveFrequency = firefightManager.firefightSettings.wavesPerRound
+firefightManager.firefightSettings.bossWaveFrequency =
+    firefightManager.firefightSettings.wavesPerRound
 
 local isFirstGameWave = false -- First wave of the game.
 local isFirstRoundWave = false -- First wave of the round.
@@ -110,8 +105,17 @@ function firefightManager.startGame(call, sleep)
     -- script.thread(announcer.gameStart)() -- Sound not available?
     gameIsOn = true
     firefightManager.waveDefinition()
+
+    -- Start the first set.
+    script.wake(firefightManager.startSet)
+
+    -- TODO For testing purposes only, remove for release.
+    -- Enable some skulls from the start.
+    skullsManager.skulls.havok.isEnabled = true
+    skullsManager.skulls.newton.isEnabled = true
+
     firefightManager.enableStartingSkulls()
-    script.wake(firefightManager.startSet) -- Start the first set.
+
     logger:debug("Game is on! Pain is coming in hot!")
 end
 
@@ -176,12 +180,11 @@ function firefightManager.waveDefinition()
     isFirstRoundWave = progression.wave == 1
     isCurrentWaveBoss = (progression.wave == settings.wavesPerRound) or
                             math.fmod(progression.wave, settings.bossWaveFrequency) == 0
-    isFirstGameWave = (progression.wave == 1) and
-                      (progression.round == 1) and
-                      (progression.set == 1) --progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
+    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
+                          (progression.set == 1) -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
     isLastWave = (progression.wave == settings.wavesPerRound) and
-                    (progression.round == settings.roundsPerSet) and
-                    (progression.set == settings.setsPerGame)
+                     (progression.round == settings.roundsPerSet) and
+                     (progression.set == settings.setsPerGame)
     -- We define what is a randomWave.
     intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstGameWave or isLastWave)
 end
@@ -367,12 +370,14 @@ function firefightManager.enableStartingSkulls()
         return skull.isEnabled
     end)
     if #startingSkulls > 0 then
-        for _, selectedSkull in ipairs(startingSkulls) do
-            logger:info("Activating initial skull: {}", selectedSkull.name)
+        for _, skull in ipairs(startingSkulls) do
+            logger:info("Activating initial skull: {}", skull.name)
             -- Enable skull with balance
-            skullsManager.enableSkulls({selectedSkull}, true)
+            skullsManager.enableSkulls({skull}, true)
         end
+        return
     end
+    logger:info("No starting skulls to enable.")
 end
 
 -- Turn on a random temporal skull.
@@ -392,7 +397,8 @@ end
 -- Turn on a random permanent skull.
 function firefightManager.enablePermanentSkull()
     local permanentSkulls = table.filter(skullsManager.skullList, function(skull)
-        return skull.isPermanent and not (skull.state.count == skull.state.max) and skull.allowedInRandom
+        return skull.isPermanent and not (skull.state.count == skull.state.max) and
+                   skull.allowedInRandom
     end)
     if settings.permanentSkullsCanBeRandom then -- If we allow random skulls...
         permanentSkulls = table.filter(skullsManager.skullList, function(skull)
@@ -522,29 +528,26 @@ function firefightManager.aiNavpoint()
 end
 
 events = {
-    eachWave = {
-    },
+    eachWave = {},
     eachRound = {
         firefightManager.enableTemporalSkull,
-        firefightManager.spawnPlayerAssistances,
-        function ()
+        function()
             if not isFirstGameWave then
+                firefightManager.spawnPlayerAssistances()
                 firefightManager.addPlayerLives()
             end
-        end,
+        end
     },
     eachSet = {
-        firefightManager.resetAllTemporalSkulls,
-        firefightManager.enablePermanentSkull,
-        function ()
+        function()
             if not isFirstGameWave then
+                firefightManager.resetAllTemporalSkulls()
                 firefightManager.switchTeams()
             end
         end,
+        firefightManager.enablePermanentSkull
     },
-    eachBossWave = {
-        firefightManager.deployPlayerAllies
-    }
+    eachBossWave = {firefightManager.deployPlayerAllies}
 }
 
 return firefightManager
