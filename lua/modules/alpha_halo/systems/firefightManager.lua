@@ -8,6 +8,12 @@ local script = require "script"
 local hsc = require "hsc"
 
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
+
+-- For testing purposes only, remove for release.
+-- Enable some skulls from the start.
+skullsManager.skulls.havok.isEnabled = true
+skullsManager.skulls.newton.isEnabled = true
+
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
@@ -358,13 +364,13 @@ end
 -- Turn on all starting skulls.
 function firefightManager.enableStartingSkulls()
     local startingSkulls = table.filter(skullsManager.skullList, function(skull)
-        return skull.enabledFromTheStart
+        return skull.isEnabled
     end)
     if #startingSkulls > 0 then
         for _, selectedSkull in ipairs(startingSkulls) do
             logger:info("Activating initial skull: {}", selectedSkull.name)
             -- Enable skull with balance
-            skullsManager.enableSkulls({selectedSkull}, true) -- We use balancing here.
+            skullsManager.enableSkulls({selectedSkull}, true)
         end
     end
 end
@@ -379,7 +385,7 @@ function firefightManager.enableTemporalSkull()
         local selectedSkull = temporalSkulls[randomIndex]
         logger:info("Chosen random skull: {}", selectedSkull.name)
         -- Enable skull with balance
-        skullsManager.enableSkulls({selectedSkull}, true) -- We use balancing here.
+        skullsManager.enableSkulls({selectedSkull}, true)
     end
 end
 
