@@ -6,13 +6,31 @@ local luna = require "luna"
 local commands = {}
 
 commands = {
+    debug = {
+        description = "Toggle debug mode.",
+        category = "debug",
+        help = "<boolean>",
+        example = "debug true",
+        minArgs = 1,
+        maxArgs = 1,
+        func = function(isEnabled)
+            DebugMode = luna.bool(isEnabled)
+            if DebugMode then
+                logger:info("Debug mode enabled.")
+            else
+                logger:info("Debug mode disabled.")
+            end
+            logger:muteDebug(not DebugMode)
+            logger:muteIngame(not DebugMode)
+        end
+    },
     skull = {
         description = "Activate or disable a skull by name, or use \"random\" or \"all\"." ..
                       " Optionally set a multiplier for skull effects (default is 1).",
         category = "debug",
         help = "<name | \"random\" | \"all\"> <boolean> [<multiplier = 1>]",
         example = "skull cowbell true 2",
-        minArgs = 3,
+        minArgs = 2,
         maxArgs = 3,
         func = function(name, isEnabled, multiplier)
             local name = name:lower()

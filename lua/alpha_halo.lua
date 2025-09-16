@@ -74,17 +74,19 @@ function PluginLoad()
     ---@diagnostic disable-next-line: inject-field
     logger.warn = logger.warning -- alias warning to warn
     loadChimeraCompatibility()
-    Balltze.event.frame.subscribe(function(ev)
-        if ev.time == "before" then
+    Balltze.event.frame.subscribe(function(event)
+        if event.time == "before" then
             local font = "smaller"
             local align = "center"
-            local bounds = {left = 0, top = 400, right = 640, bottom = 480}
-            local textColor = {1.0, 0.45, 0.72, 1.0}
-            local memory = collectgarbage("count")
-            local sizeInMb = memory / 1024
-            local text = string.format("Lua Memory Usage: %.4f MB", sizeInMb)
-            Balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom,
-                                      font, align, table.unpack(textColor))
+            if DebugMode then
+                local bounds = {left = 0, top = 400, right = 640, bottom = 480}
+                local textColor = {1.0, 0.45, 0.72, 1.0}
+                local memory = collectgarbage("count")
+                local sizeInMb = memory / 1024
+                local text = string.format("Alpha Halo Lua %.4f MB", sizeInMb)
+                Balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right,
+                                          bounds.bottom, font, align, table.unpack(textColor))
+            end
         end
     end)
 
@@ -93,8 +95,13 @@ function PluginLoad()
         -- local command = command:replace("debug_", "")
         balltze.command.registerCommand(command, command, data.description, data.help,
                                         data.save or false, data.minArgs or 0, data.maxArgs or 0,
-                                        false, true, function(...)
-            data.func(table.unpack(...))
+                                        false, true, function(args)
+            --logger:debug("{}", inspect(args))
+            if #args < data.minArgs or #args > data.maxArgs then
+                logger:error("Invalid number of arguments. Usage: {}, Example: {}", data.help, data.example)
+                return true
+            end
+            data.func(table.unpack(args))
             return true
         end)
     end
