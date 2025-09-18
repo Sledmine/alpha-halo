@@ -36,7 +36,8 @@ function constants.get()
         skullsReset = findTags("skulls_reset", engine.tag.classes.sound)[1],
         goldenSkullOn = findTags("skull_golden_on", engine.tag.classes.sound)[1],
         enemySniper = findTags("survival_enemy_sniper_incoming", engine.tag.classes.sound)[1],
-        enemyIncoming = findTags("survival_enemy_incoming", engine.tag.classes.sound)[1]
+        enemyIncoming = findTags("survival_enemy_incoming", engine.tag.classes.sound)[1],
+        hillMove = findTags("hill_move", engine.tag.classes.sound)[1],
     }
 
     constants.bipeds = {

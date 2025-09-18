@@ -57,7 +57,7 @@ skullsManager.skulls = {
     mythic = {
         name = "Mythic",
         motto = "Coverage under the Covenant Health Plan!",
-        description = " Enemies have double health & shields, and player gets a x1.5 bonus of it.",
+        description = " Enemies have double health and shields, and player gets a x1.5 bonus of it.",
         effect = mythic.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
@@ -184,7 +184,7 @@ skullsManager.skulls = {
     doubledown = {
         name = "Double Down",
         motto = "Do I feel lucky?",
-        description = "Doubles your shield... As well as the stun & recovering time.",
+        description = "Doubles your shield... As well as the stun and recovering time.",
         effect = doubleDown.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,
@@ -213,8 +213,8 @@ skullsManager.skulls = {
     },
     slayer = {
         name = "Slayer",
-        motto = "Double every shot by sheer will of rip & tear.",
-        description = "Doubles projectiles per shot & spread cone size.",
+        motto = "Double every shot by sheer will of rip and tear.",
+        description = "Doubles projectiles per shot and spread cone size.",
         effect = slayer.skullEffect,
         state = {count = 0, max = 2, multiplier = 1},
         allowedInRandom = true,

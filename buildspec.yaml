@@ -4,7 +4,6 @@ tag_space: 64M
 extend_limits: true
 scenarios:
   - "[shm]/halo_1/maps/installation_04/alpha_halo_dev"
-  - "[shm]/halo_1/maps/installation_04/alpha_halo_test"
 commands:
   release:
     - mercury build --release --output package/game-maps/

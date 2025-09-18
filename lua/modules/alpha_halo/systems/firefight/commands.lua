@@ -1,6 +1,7 @@
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local firefightManager = require "alpha_halo.systems.firefightManager"
+local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local luna = require "luna"
 
 local commands = {}
@@ -26,7 +27,7 @@ commands = {
     },
     skull = {
         description = "Activate or disable a skull by name, or use \"random\" or \"all\"." ..
-                      " Optionally set a multiplier for skull effects (default is 1).",
+            " Optionally set a multiplier for skull effects (default is 1).",
         category = "debug",
         help = "<name | \"random\" | \"all\"> <boolean> [<multiplier = 1>]",
         example = "skull cowbell true 2",
@@ -57,7 +58,7 @@ commands = {
         description = "Assemble a squad of AI.",
         category = "debug",
         help = "<\"starting\" | \"boss\" | \"random\" ]",
-        minArgs = 0,
+        minArgs = 1,
         maxArgs = 1,
         func = function(waveType)
             if not waveType or
@@ -75,6 +76,29 @@ commands = {
         help = "",
         func = function()
             firefightManager.deployPlayerAllies()
+        end
+    },
+    spawn_encounter_event = {
+        description = "Spawn a encounter event (Banshees, Snipers, Sentinels).",
+        category = "debug",
+        help = "<\"banshee\" | \"sniper\" | \"sentinel\">",
+        example = "spawn_encounter_event banshee",
+        minArgs = 1,
+        maxArgs = 1,
+        func = function(eventType)
+            if not eventType or
+                (eventType ~= "banshee" and eventType ~= "sniper" and eventType ~= "sentinel") then
+                logger:error("Invalid or missing event type. Usage: {}",
+                             commands.spawn_encounter_event.help)
+                return
+            end
+            if eventType == "banshee" then
+                eventsManager.bansheeEvent()
+            elseif eventType == "sniper" then
+                eventsManager.sniperEvent()
+            elseif eventType == "sentinel" then
+                eventsManager.sentinelEvent()
+            end
         end
     }
 }

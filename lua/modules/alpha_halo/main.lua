@@ -29,6 +29,7 @@ local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 -- Encapsular Funcion
 function OnMapLoad()
     script.startup(firefightManager.whenMapLoads)
+    firefightManager.loadSettings()
     --logger:debug("Firefight Manager Loaded")
 end
 

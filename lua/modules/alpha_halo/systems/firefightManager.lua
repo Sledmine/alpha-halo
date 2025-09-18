@@ -2,16 +2,20 @@ local balltze = Balltze
 local engine = Engine
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
+local playSound = engine.userInterface.playSound
 
 local blam = require "blam"
 local script = require "script"
 local hsc = require "hsc"
+local luna = require "luna"
+local json = require "json"
 
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
 local utils = require "alpha_halo.utils"
+local const = require "alpha_halo.systems.core.constants"
 
 local firefightManager = {}
 
@@ -19,33 +23,39 @@ local firefightManager = {}
 -- Firefight Config
 -------------------------------------------------------
 
+---@enum eventNames
+local eventNames = {never = 1, eachWave = 2, eachRound = 3, eachSet = 4, eachBossWave = 5}
+
 ---Base Firefight Settings.
 ---Could be customizable in the future from the Ins menu.
-firefightManager.firefightSettings = { --------------
+---@class firefightSettings
+firefightManager.firefightSettings = {
+    _version = 1,
     playerInitialLives = 7,
     extraLivesGained = 1,
     livesLostPerDead = 1,
-
+    -- Waves, Rounds, Sets and Game properties
     bossWaveFrequency = 0,
     wavesPerRound = 5,
     roundsPerSet = 3,
     setsPerGame = 3,
-
     waveLivingMin = 4,
     bossWaveLivingMin = 0,
-
-    waveCooldown = utils.secondsToTicks(9),
-    roundCooldown = utils.secondsToTicks(10),
-    setCooldown = utils.secondsToTicks(1),
-    gameCooldown = utils.secondsToTicks(1),
-
+    -- Time properties
+    waveCooldownSeconds = 9,
+    roundCooldownSeconds = 10,
+    setCooldownSeconds = 1,
+    gameCooldownSeconds = 1,
+    -- Game settings
     startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
-    permanentSkullsCanBeRandom = true
+    permanentSkullsCanBeRandom = true,
+    -- Event properties
+    activateTemporalSkullEach = eventNames.eachRound,
+    activatePermanentSkullEach = eventNames.eachSet
 }
 local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
-firefightManager.firefightSettings.bossWaveFrequency =
-    firefightManager.firefightSettings.wavesPerRound
+settings.bossWaveFrequency = settings.wavesPerRound
 
 local isFirstGameWave = false -- First wave of the game.
 local isFirstRoundWave = false -- First wave of the round.
@@ -57,7 +67,7 @@ local isCurrentWaveBoss = false -- Is the current wave a boss wave?
 ---It gets updated with firefightManager.progression()
 ---@enum
 firefightManager.gameProgression = { --------------
-    totalWalves = 1,
+    totalWaves = 1,
     wave = 1,
     round = 1,
     set = 1,
@@ -100,8 +110,8 @@ function firefightManager.startGame(call, sleep)
         logger:debug("Randomly selected starting enemy team: {}", randomTeam)
     end
     -- We wait for the game cooldown before starting the game.
-    logger:debug("Waiting {} ticks to start the game", settings.gameCooldown)
-    sleep(settings.gameCooldown)
+    logger:debug("Waiting {} seconds to start the game", settings.gameCooldownSeconds)
+    sleep(utils.secondsToTicks(settings.gameCooldownSeconds))
     -- script.thread(announcer.gameStart)() -- Sound not available?
     gameIsOn = true
     firefightManager.waveDefinition()
@@ -111,8 +121,8 @@ function firefightManager.startGame(call, sleep)
 
     -- TODO For testing purposes only, remove for release.
     -- Enable some skulls from the start.
-    skullsManager.skulls.havok.isEnabled = true
-    skullsManager.skulls.newton.isEnabled = true
+    -- skullsManager.skulls.havok.isEnabled = true
+    -- skullsManager.skulls.newton.isEnabled = true
 
     firefightManager.enableStartingSkulls()
 
@@ -152,7 +162,6 @@ end
 function firefightManager.firefightProgression()
     if not (progression.wave == settings.wavesPerRound) then -- If we hadn't reach the wavePerRound limit...
         progression.wave = progression.wave + 1
-        progression.totalWalves = progression.totalWalves + 1
         script.wake(firefightManager.startWave) -- Keep counting and start the next wave, and...!
     else -- If we reached the wavePerRound limit...
         progression.wave = 1
@@ -170,6 +179,7 @@ function firefightManager.firefightProgression()
             end
         end
     end
+    progression.totalWaves = progression.totalWaves + 1
     firefightManager.waveDefinition()
     -- We announce bad guys coming in.
     logger:debug("Bad guys coming in...")
@@ -191,14 +201,14 @@ end
 
 ---Set Start. Calls round start.
 function firefightManager.startSet(call, sleep)
-    sleep(settings.setCooldown)
+    sleep(utils.secondsToTicks(settings.setCooldownSeconds))
     script.thread(announcer.setStart)()
     script.wake(firefightManager.startRound)
 end
 
 ---Round Start. Calls wave start.
 function firefightManager.startRound(call, sleep)
-    sleep(settings.roundCooldown)
+    sleep(utils.secondsToTicks(settings.roundCooldownSeconds))
     script.thread(announcer.roundStart)()
     script.wake(firefightManager.startWave)
 end
@@ -235,7 +245,7 @@ end
 ---Wave Starts. Deploys wave units.
 function firefightManager.startWave(call, sleep)
     eventDispatcher()
-    sleep(settings.waveCooldown)
+    sleep(utils.secondsToTicks(settings.waveCooldownSeconds))
     -- script.thread(announcer.waveStart)() -- Sound not available?
     if (isFirstGameWave or isFirstRoundWave) and (not isCurrentWaveBoss) then
         unitDeployer.waveDeployer("starting")
@@ -322,6 +332,12 @@ function firefightManager.switchTeams()
     end
 end
 
+function firefightManager.conditionedSwitchTeams()
+    if not isFirstGameWave then
+        firefightManager.switchTeams()
+    end
+end
+
 -- Spawn player assistances (Warthogs and Ghosts).
 function firefightManager.spawnPlayerAssistances()
     logger:debug("Spawning player assistances...")
@@ -335,6 +351,12 @@ function firefightManager.spawnPlayerAssistances()
     local selectedWarthog = warthogTemplate:format(randomWarthog)
     pigPen.compactSpawnNamedVehicle(selectedWarthog)
     hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
+end
+
+function firefightManager.conditionedSpawnPlayerAssistances()
+    if not isFirstGameWave then
+        firefightManager.spawnPlayerAssistances()
+    end
 end
 
 -- Give extra lives to the player.
@@ -355,6 +377,12 @@ function firefightManager.addPlayerLives()
     end
     if biped.vitals.health < 1 then
         biped.vitals.health = 1
+    end
+end
+
+function firefightManager.conditionalAddPlayerLives()
+    if not isFirstGameWave then
+        firefightManager.addPlayerLives()
     end
 end
 
@@ -382,6 +410,8 @@ end
 
 -- Turn on a random temporal skull.
 function firefightManager.enableTemporalSkull()
+    --playSound(const.sounds.skullOn.handle)
+    playSound(const.sounds.hillMove.handle)
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
         return not (skull.state.count == skull.state.max) and skull.allowedInRandom
     end)
@@ -417,11 +447,18 @@ end
 
 -- Reset only temporal skulls.
 function firefightManager.resetAllTemporalSkulls()
+    playSound(const.sounds.skullsReset.handle)
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
         return not skull.isPermanent
     end)
     -- We disable all temporal skulls regardless of balance
     skullsManager.disableSkulls(temporalSkulls)
+end
+
+function firefightManager.conditionedResetAllTemporalSkulls()
+    if not isFirstGameWave then
+        firefightManager.resetAllTemporalSkulls()
+    end
 end
 
 -------------------------------------------------------
@@ -531,23 +568,83 @@ events = {
     eachWave = {},
     eachRound = {
         firefightManager.enableTemporalSkull,
-        function()
-            if not isFirstGameWave then
-                firefightManager.spawnPlayerAssistances()
-                firefightManager.addPlayerLives()
-            end
-        end
+        firefightManager.conditionedSpawnPlayerAssistances,
+        firefightManager.conditionalAddPlayerLives
     },
     eachSet = {
-        function()
-            if not isFirstGameWave then
-                firefightManager.resetAllTemporalSkulls()
-                firefightManager.switchTeams()
-            end
-        end,
+        firefightManager.conditionedResetAllTemporalSkulls,
+        --firefightManager.conditionedSwitchTeams,
         firefightManager.enablePermanentSkull
     },
     eachBossWave = {firefightManager.deployPlayerAllies}
 }
+
+-- Helper function to get function name from its reference, for debug purposes.
+---@param fn function
+---@return string|nil
+local function getModuleFunctionName(fn)
+    for name, func in pairs(firefightManager) do
+        if func == fn then
+            return name
+        end
+    end
+end
+
+--- Load an event into the appropriate list.
+---@param actionFunction function The function to be called during the event.
+---@param eventIndex? eventNames The index of the event list to load the function into.
+local function loadEvent(actionFunction, eventIndex)
+    local actionFunctionName = getModuleFunctionName(actionFunction)
+    if not eventIndex then
+        logger:debug("Skipping action {}, no event index provided", tostring(actionFunctionName))
+        return
+    end
+    local eventName = table.flip(eventNames)[eventIndex]
+    if not eventName then
+        logger:debug("Skipping action {}, invalid index: {}", tostring(actionFunctionName),
+                     tostring(eventIndex))
+        return
+    end
+
+    local isNever = eventIndex == eventNames.never
+    -- Filter out event if it already exists
+    for eventName, event in pairs(events) do
+        events[eventName] = table.filter(event, function(existingEvent)
+            return existingEvent ~= actionFunction or isNever
+        end)
+    end
+
+    -- Add event to the appropriate list
+    if not isNever then
+        table.insert(events[eventName], actionFunction)
+    end
+    logger:debug("Loading event: {} into {}", tostring(actionFunctionName), tostring(eventName))
+end
+
+function firefightManager.loadSettings()
+    logger:debug("Loading Firefight settings from file...")
+    local path = balltze.filesystem.getPluginPath():split("\\")
+    local pluginsPath = table.concat(path, "\\", 1, #path - 1)
+    local settingsPath = pluginsPath .. "\\lua_insurrection\\firefight_settings.json"
+    logger:debug("Settings path: {}", settingsPath)
+    local settingsFile = luna.file.read(settingsPath)
+    -- local settingsFile = balltze.filesystem.readFile(settingsPath)
+    if settingsFile then
+        local success, data = pcall(json.decode, settingsFile)
+        if success and type(data) == "table" then
+            settings = table.merge(settings, data) --[[@as firefightSettings]]
+
+            -- Load events properties
+            loadEvent(firefightManager.enableTemporalSkull, settings.activateTemporalSkullEach)
+            loadEvent(firefightManager.enablePermanentSkull, settings.activatePermanentSkullEach)
+            logger:info("Firefight settings loaded from file.")
+            return
+        end
+        logger:warn("Failed to decode settings file, using default settings. Error: {}", data)
+        return
+    end
+    logger:warn("Settings file not found, using default settings.")
+    return
+end
 
 return firefightManager

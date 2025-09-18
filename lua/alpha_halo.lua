@@ -97,11 +97,11 @@ function PluginLoad()
                                         data.save or false, data.minArgs or 0, data.maxArgs or 0,
                                         false, true, function(args)
             --logger:debug("{}", inspect(args))
-            if #args < data.minArgs or #args > data.maxArgs then
+            if (args and data.minArgs and data.maxArgs) and (#args < data.minArgs) or (#args > data.maxArgs) then
                 logger:error("Invalid number of arguments. Usage: {}, Example: {}", data.help, data.example)
                 return true
             end
-            data.func(table.unpack(args))
+            data.func(table.unpack(args or {}))
             return true
         end)
     end

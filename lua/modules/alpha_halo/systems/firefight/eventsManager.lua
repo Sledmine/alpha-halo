@@ -31,22 +31,21 @@ function eventsManager.randomEventTimer()
         if randomEventCountdown > 0 then
             randomEventCountdown = randomEventCountdown - 1
         else
-            eventsManager.randomEventGenerator()
+            eventsManager.randomEncounterEventGenerator()
             randomEventCountdown = randomEventTimer
         end
     end
 end
 
 -- Esta función es llamada por randomEventTimer. Se encarga de randomizar el evento.
-function eventsManager.randomEventGenerator()
-    local selectedEvent = math.random(1, 3) -- 1, 4 (Mortar is not working)
-    if selectedEvent == 1 then
-        eventsManager.bansheeEvent()
-    elseif selectedEvent == 2 then
-        eventsManager.sniperEvent()
-    elseif selectedEvent == 3 then
-        eventsManager.sentinelEvent()
-    end
+function eventsManager.randomEncounterEventGenerator()
+    local encounterEvents =  {
+        eventsManager.bansheeEvent,
+        eventsManager.sniperEvent,
+        eventsManager.sentinelEvent,
+    }
+    local selectedEvent = math.random(1, #encounterEvents)
+    encounterEvents[selectedEvent]()
 end
 
 -- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covennat Banshee.
@@ -63,7 +62,7 @@ function eventsManager.bansheeEvent()
         hsc.object_teleport("banshee_2", "Banshee_2")
         hsc.ai_magically_see_players("Covenant_Banshees") -- They get to see the players one tick after being created.
     else
-        eventsManager.randomEventGenerator()
+        eventsManager.randomEncounterEventGenerator()
     end
 end
 
@@ -75,7 +74,7 @@ function eventsManager.sniperEvent()
         hsc.ai_place("Covenant_Snipers")
         hsc.ai_magically_see_players("Covenant_Snipers") -- They get to see the players one tick after being created.
     else
-        eventsManager.randomEventGenerator()
+        eventsManager.randomEncounterEventGenerator()
     end
 end
 
@@ -87,7 +86,7 @@ function eventsManager.sentinelEvent()
         hsc.ai_place("Sentinel_Team/Sentinels_1")
         hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1") -- They get to see the players one tick after being created.
     else
-        eventsManager.randomEventGenerator()
+        eventsManager.randomEncounterEventGenerator()
     end
 end
 
