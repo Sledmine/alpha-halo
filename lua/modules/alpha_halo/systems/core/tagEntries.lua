@@ -14,6 +14,9 @@ local modelCollisionTagEntries
 local projectileTagEntries
 local vehicleTagEntries
 local weaponTagEntries
+local impactDamageEffect
+local meleeDamageEffect
+local explosionDamageEffect
 
 local tagEntries = {}
 
