@@ -189,7 +189,8 @@ end
 function firefightManager.waveDefinition()
     isFirstRoundWave = progression.wave == 1
     isCurrentWaveBoss = (progression.wave == settings.wavesPerRound) or
-                            math.fmod(progression.wave, settings.bossWaveFrequency) == 0
+                            (settings.bossWaveFrequency > 0 and
+                                math.fmod(progression.wave, settings.bossWaveFrequency) == 0)
     isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
                           (progression.set == 1) -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
     isLastWave = (progression.wave == settings.wavesPerRound) and
@@ -265,11 +266,15 @@ function firefightManager.startWave(call, sleep)
 end
 
 local objectTypes = Engine.tag.objectType
-local playerLives = settings.playerInitialLives
+local playerLives
 local playerIsDead = false -- This by default is false, obviously.
 
 --- Handle player respawn and lives.
 function firefightManager.playerCheck(call, sleep)
+    if not playerLives then
+        playerLives = settings.playerInitialLives
+        logger:debug("Player initial lives: {}", playerLives)
+    end
     -- We check if the game is on.
     if not gameIsOn then
         return
