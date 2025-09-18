@@ -11,6 +11,7 @@ local skullsDependencies = {
             energy = {
                 "beam_rifle",
                 "brute_plasma_rifle",
+                "covenant_carbine",
                 "carbine",
                 "energy_sword",
                 "fuel rod gun",
@@ -40,6 +41,7 @@ local skullsDependencies = {
                 "sniper_gauss",
                 "sniper_rifle",
                 "m90_short",
+                "warthog_",
                 "warthog",
                 "scorpion",
                 "pelican",
