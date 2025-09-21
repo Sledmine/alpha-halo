@@ -49,6 +49,7 @@ firefightManager.firefightSettings = {
     -- Game settings
     startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
     permanentSkullsCanBeRandom = true,
+    roundEndingBoss = true,
     -- Event properties
     activateTemporalSkullEach = eventNames.eachRound,
     activatePermanentSkullEach = eventNames.eachSet
@@ -220,9 +221,10 @@ end
 --- Define in which type of wave are we depending on the settings.
 function firefightManager.waveDefinition()
     isFirstRoundWave = progression.wave == 1
-    isCurrentWaveBoss = (progression.wave == settings.wavesPerRound) or
-                            (settings.bossWaveFrequency > 0 and
-                                math.fmod(progression.wave, settings.bossWaveFrequency) == 0)
+    isCurrentWaveBoss = ((settings.roundEndingBoss == true) and
+                        (progression.wave == settings.wavesPerRound)) or
+                        (settings.bossWaveFrequency > 0 and
+                        math.fmod(progression.totalWaves, settings.bossWaveFrequency) == 0)
     isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
                           (progression.set == 1) -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
     isLastWave = (progression.wave == settings.wavesPerRound) and
@@ -322,7 +324,7 @@ function firefightManager.playerCheck(call, sleep)
         logger:debug("Player is dead.")
         playerIsDead = true
         -- If lifes are 0 and there's no player biped, then we end the game.
-        if playerLives == 0 then
+        if playerLives <= 0 then
             logger:info("You lost, sucker!!!")
             firefightManager.endGame()
         end
