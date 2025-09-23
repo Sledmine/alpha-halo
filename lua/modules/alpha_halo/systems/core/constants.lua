@@ -48,6 +48,10 @@ function constants.get()
     constants.fonts = {
         title = findTags("geogrotesque-regular-title", engine.tag.classes.font)[1],
     }
+
+    constants.hud = {
+        skulls = findTags([[alpha_firefight\ui\chud\marine_outlines]], engine.tag.classes.weaponHudInterface)[1],
+    }
 end
 
 return constants

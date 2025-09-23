@@ -132,7 +132,33 @@ end
 local waveIsOn = false
 local drawNavPoint = false
 local livingCount = 0
+
 function firefightManager.eachTick()
+    -- Draw the skulls HUD if the game is on.
+    if const.hud.skulls then
+        local hud = const.hud.skulls.data
+
+        for i = 1, hud.staticElements.count do
+            local currentSkull = skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
+            local hudElement = hud.staticElements.elements[i]
+            if currentSkull then
+                local skullKeyName = table.keyof(skullsManager.skulls, currentSkull)
+                local index = table.indexof(skullsManager.skullsHudOrder, skullKeyName) or 1
+                --logger:debug("Drawing skull {} at HUD index {} using bitmap {}", currentSkull.name, i, index)
+                hudElement.sequenceIndex = index - 1
+                hudElement.defaultColor.alpha = 255
+                hudElement.defaultColor.red = 125
+                hudElement.defaultColor.green = 238
+                hudElement.defaultColor.blue = 85
+            else
+                hudElement.sequenceIndex = 0
+                hudElement.defaultColor.alpha = 0
+                hudElement.defaultColor.red = 0
+                hudElement.defaultColor.green = 0
+                hudElement.defaultColor.blue = 0
+            end
+        end
+    end
     if progression.isGameOn then
         firefightManager.aiCheck()
         if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
@@ -156,7 +182,7 @@ end
 
 local font = "ticker"
 local align = "right"
-local bounds = {left = -15, top = 390, right = 640, bottom = 480}
+local bounds = {left = -8, top = 390, right = 640, bottom = 480}
 -- local r, g, b = 125, 238, 85
 local r, g, b = 255, 255, 255
 local r, g, b = 255, 187, 0
@@ -409,11 +435,9 @@ function firefightManager.enableStartingSkulls()
         return skull.isEnabled
     end)
     if #startingSkulls > 0 then
-        for _, skull in ipairs(startingSkulls) do
-            logger:info("Activating initial skull: {}", skull.name)
-            -- Enable skull with balance
-            skullsManager.enableSkulls({skull}, true)
-        end
+        logger:info("Activating initial skulls...")
+        -- Enable skull with balance
+        skullsManager.enableSkulls(startingSkulls, true)
         return
     end
     logger:info("No starting skulls to enable.")

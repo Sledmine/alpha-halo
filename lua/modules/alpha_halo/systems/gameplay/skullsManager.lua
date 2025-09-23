@@ -257,8 +257,90 @@ local skullList = {
 }
 skullsManager.skullList = skullList
 
--- Functions to enable/disable skulls --
+skullsManager.skullsHudOrder = {
+    "assassin",
+    "bandana",
+    "banger",
+    "berserk",
+    "blind",
+    "catch",
+    "cowbell",
+    "doubledown",
+    "eyepatch",
+    "famine",
+    "fog",
+    "gruntbirthday",
+    "havok",
+    "knucklehead",
+    "mythic",
+    "newton",
+    "slayer",
+    "tilt",
+    "toughluck",
+    "triggerswitch"
+}
 
+skullsManager.enabledSkullsQueue = {}
+
+local function updateEnabledSkullsQueue(skull)
+    local enabledSkullsQueue = skullsManager.enabledSkullsQueue
+
+    -- Remove disabled skulls but keep table indices stable
+    for i = #enabledSkullsQueue, 1, -1 do
+        local skull = enabledSkullsQueue[i]
+        if skull and not skull.isEnabled then
+            enabledSkullsQueue[i] = nil
+        end
+    end
+
+    if not skull then
+        return
+    end
+
+    -- Avoid duplicates: only add if not present
+    local found = false
+    for i = 1, #enabledSkullsQueue do
+        if enabledSkullsQueue[i] == skull then
+            found = true
+            break
+        end
+    end
+    if not found then
+        -- Find first empty slot or append
+        local inserted = false
+        for i = 1, #enabledSkullsQueue + 1 do
+            if enabledSkullsQueue[i] == nil then
+                enabledSkullsQueue[i] = skull
+                inserted = true
+                break
+            end
+        end
+        -- If still not inserted, append at the end
+        if not inserted then
+            enabledSkullsQueue[#enabledSkullsQueue + 1] = skull
+        end
+    end
+
+    -- Maintain a maximum of 7 active skulls, keeping indices stable
+    local count = 0
+    for i = 1, #enabledSkullsQueue do
+        if enabledSkullsQueue[i] ~= nil then
+            count = count + 1
+        end
+    end
+    if count > 7 then
+        logger:debug(
+        "Removing oldest skull from the queue to maintain a maximum of 7 active skulls.")
+        for i = 1, #enabledSkullsQueue do
+            if enabledSkullsQueue[i] ~= nil then
+                enabledSkullsQueue[i] = nil
+                break
+            end
+        end
+    end
+end
+
+--- Revert all Skull effects by calling their effect function with false.
 local function revertAllSkullEffects()
     logger:debug("Reverting all Skull effects...")
     for _, skull in ipairs(skullList) do
@@ -277,6 +359,7 @@ local function initiateSkullEffect(skull)
         skull.effect(true)
     end
     skull.isEnabled = true
+    updateEnabledSkullsQueue(skull)
 end
 
 local function reinitializeEnabledSkulls()
@@ -285,6 +368,7 @@ local function reinitializeEnabledSkulls()
             initiateSkullEffect(skull)
         end
     end
+    updateEnabledSkullsQueue()
 end
 
 local function spendSkull(skull)
@@ -357,7 +441,7 @@ function skullsManager.enableSkull(name, multiplier)
     revertAllSkullEffects()
 
     if name == "random" then
-        local randomIndex = math.random(1, #skullList) 
+        local randomIndex = math.random(1, #skullList)
         local randomSkull = skullList[randomIndex]
         randomSkull.isEnabled = true
         randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
@@ -399,6 +483,9 @@ function skullsManager.disableSkull(name)
             skull.effect(false)
         end
     end
+
+    -- Re-initiate the effect of the still enabled skulls
+    reinitializeEnabledSkulls()
 end
 
 return skullsManager
