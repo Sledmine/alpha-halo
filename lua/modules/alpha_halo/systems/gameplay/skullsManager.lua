@@ -269,8 +269,10 @@ end
 --- Initiate Skull Effect applying its function the number of times specified in its state.
 local function initiateSkullEffect(skull)
     -- Apply the effect the number of times specified in its state
-    local multiplier = (skull.state.multiplier or 1) * skull.state.count
-    logger:debug("Initiating Skull effect: {} ({}) x{}", skull.name, skull.state.count, multiplier)
+    local count = skull.state.count > 0 and skull.state.count or 1
+    local multiplier = skull.state.multiplier > 0 and skull.state.multiplier or 1
+    multiplier = multiplier * count
+    logger:debug("Initiating Skull effect: {} ({}) x{}", skull.name, count, multiplier)
     for i = 1, multiplier do
         skull.effect(true)
     end
@@ -349,12 +351,13 @@ end
 ---@param multiplier? number
 function skullsManager.enableSkull(name, multiplier)
     local name = name:lower()
+    logger:info("Enabling Skull: {}", name)
 
     -- Revert all skull effects
     revertAllSkullEffects()
 
     if name == "random" then
-        local randomIndex = math.random(1, #skullList)
+        local randomIndex = math.random(1, #skullList) 
         local randomSkull = skullList[randomIndex]
         randomSkull.isEnabled = true
         randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
