@@ -44,6 +44,10 @@ function constants.get()
         odstAllyTag = findTags("mrchromed\\halo_2\\characters\\marine\\odst\\odst_h2",
                                engine.tag.classes.biped)[1]
     }
+
+    constants.fonts = {
+        title = findTags("geogrotesque-regular-title", engine.tag.classes.font)[1],
+    }
 end
 
 return constants

@@ -662,13 +662,14 @@ function firefightManager.onEachFrame()
     -- Show current game progression info
     local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
                      firefightManager.gameProgression)
-    balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom, font,
-                              align, table.unpack(textColor))
+
+    balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom,
+                              const.fonts.title.handle.value, align, table.unpack(textColor))
 
     -- Draw current lifes
     local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
-    balltze.chimera.draw_text(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, font,
-                              align, table.unpack(textColor))
+    balltze.chimera.draw_text(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom,
+                              const.fonts.title.handle.value, align, table.unpack(textColor))
 end
 
 return firefightManager
