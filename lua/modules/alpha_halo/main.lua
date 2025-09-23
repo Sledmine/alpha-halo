@@ -37,8 +37,10 @@ local isLoaded = false
 function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
-    eventsManager.eachTick()
-    --skullsManager.eachTick()
+    if firefightManager.gameProgression.isGameOn then
+        eventsManager.eachTick()
+    end
+    -- skullsManager.eachTick()
     vehiclePosition.positionUpdater()
     script.poll()
     -- Execute the function one time
@@ -52,6 +54,22 @@ end
 local onTickEvent = balltze.event.tick.subscribe(function(event)
     if event.time == "before" then
         OnTick()
+    end
+end)
+
+Balltze.event.frame.subscribe(function(event)
+    if event.time == "before" then
+        if console_is_open() then
+            return
+        end
+
+        local rootWidget = engine.userInterface.getRootWidget()
+        local isPlayerOnMenu = rootWidget ~= nil
+        if isPlayerOnMenu then
+            return
+        end
+
+        firefightManager.onEachFrame()
     end
 end)
 

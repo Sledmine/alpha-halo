@@ -71,14 +71,12 @@ firefightManager.gameProgression = { --------------
     wave = 1,
     round = 1,
     set = 1,
-    wavesUntilBoss = 1,
     currentEnemyTeam = 1,
+    isGameOn = false,
     deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed
 }
 local progression = firefightManager.gameProgression
 
----Map Loads. This happens right at the very first tick of the game.
-local gameIsOn = false
 function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Welcome to Alpha Firefight")
     -- hsc.hud_set_objective_text("Welcome to Alpha Firefight")
@@ -93,7 +91,7 @@ end
 ---Game Start. This begins the process that cycles the firefight to move forward.
 function firefightManager.startGame(call, sleep)
     -- If the game is already on, we don't need to start it again.
-    if gameIsOn then
+    if progression.isGameOn then
         return
     end
     -- We set the starting enemy team based on the settings.
@@ -113,7 +111,7 @@ function firefightManager.startGame(call, sleep)
     logger:debug("Waiting {} seconds to start the game", settings.gameCooldownSeconds)
     sleep(utils.secondsToTicks(settings.gameCooldownSeconds))
     -- script.thread(announcer.gameStart)() -- Sound not available?
-    gameIsOn = true
+    progression.isGameOn = true
     firefightManager.waveDefinition()
 
     -- Start the first set.
@@ -135,7 +133,7 @@ local waveIsOn = false
 local drawNavPoint = false
 local livingCount = 0
 function firefightManager.eachTick()
-    if gameIsOn then
+    if progression.isGameOn then
         firefightManager.aiCheck()
         if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
             if not isLastWave and
@@ -155,6 +153,14 @@ function firefightManager.eachTick()
         end
     end
 end
+
+local font = "ticker"
+local align = "right"
+local bounds = {left = -15, top = 390, right = 640, bottom = 480}
+-- local r, g, b = 125, 238, 85
+local r, g, b = 255, 255, 255
+local r, g, b = 255, 187, 0
+local textColor = {1.0, r / 255, g / 255, b / 255}
 
 ---This moves the Firefight one wave, round or set forward.
 ---It's called AFTER a completed wave, not when the game starts.
@@ -415,7 +421,7 @@ end
 
 -- Turn on a random temporal skull.
 function firefightManager.enableTemporalSkull()
-    --playSound(const.sounds.skullOn.handle)
+    -- playSound(const.sounds.skullOn.handle)
     playSound(const.sounds.hillMove.handle)
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
         return not (skull.state.count == skull.state.max) and skull.allowedInRandom
@@ -476,7 +482,7 @@ end
 ---This function is called to reset all systems, clearing AI and resetting all states.
 ---It's coming handy when you execute |balltze_reload_plugins|
 function firefightManager.reloadGame()
-    gameIsOn = false
+    progression.isGameOn = false
     waveIsOn = false
     progression.set = 1
     progression.round = 1
@@ -490,7 +496,7 @@ end
 
 ---End Game.
 function firefightManager.endGame()
-    gameIsOn = false
+    progression.isGameOn = false
     waveIsOn = false
     -- logger:debug("Firefight is on '{}'", gameIsOn)
     -- logger:debug("Wave is on '{}'", waveIsOn)
@@ -578,7 +584,7 @@ events = {
     },
     eachSet = {
         firefightManager.conditionedResetAllTemporalSkulls,
-        --firefightManager.conditionedSwitchTeams,
+        -- firefightManager.conditionedSwitchTeams,
         firefightManager.enablePermanentSkull
     },
     eachBossWave = {firefightManager.deployPlayerAllies}
@@ -650,6 +656,19 @@ function firefightManager.loadSettings()
     end
     logger:warn("Settings file not found, using default settings.")
     return
+end
+
+function firefightManager.onEachFrame()
+    -- Show current game progression info
+    local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
+                     firefightManager.gameProgression)
+    balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom, font,
+                              align, table.unpack(textColor))
+
+    -- Draw current lifes
+    local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
+    balltze.chimera.draw_text(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, font,
+                              align, table.unpack(textColor))
 end
 
 return firefightManager

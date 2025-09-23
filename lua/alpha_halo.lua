@@ -70,7 +70,7 @@ end
 function PluginLoad()
     logger = balltze.logger.createLogger("Alpha Halo") -- this means Alpha Firefight
     logger:muteDebug(not DebugMode)
-    logger:muteIngame(not DebugMode)
+    --logger:muteIngame(not DebugMode)
     ---@diagnostic disable-next-line: inject-field
     logger.warn = logger.warning -- alias warning to warn
     loadChimeraCompatibility()

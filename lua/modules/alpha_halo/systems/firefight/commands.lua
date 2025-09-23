@@ -22,7 +22,6 @@ commands = {
                 logger:info("Debug mode disabled.")
             end
             logger:muteDebug(not DebugMode)
-            logger:muteIngame(not DebugMode)
         end
     },
     skull = {
@@ -41,6 +40,7 @@ commands = {
                              commands.skull.example)
                 return
             end
+            logger:debug("Toggling skull '{}' to {}", name, isEnabled)
             isEnabled = luna.bool(isEnabled)
             multiplier = tonumber(multiplier) or 1
             if multiplier <= 0 then
