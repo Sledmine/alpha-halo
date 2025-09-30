@@ -53,7 +53,8 @@ firefightManager.firefightSettings = {
     roundEndingBoss = true,
     -- Event properties
     activateTemporalSkullEach = eventNames.eachRound,
-    activatePermanentSkullEach = eventNames.eachSet
+    activatePermanentSkullEach = eventNames.eachSet,
+    deployAlliesEach = eventNames.eachBossWave,
 }
 local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
@@ -631,12 +632,6 @@ function firefightManager.endGame()
     hsc.ai_erase_all()
     hsc.garbage_collect_now()
     execute_script("sv_end_game")
-end
-
----Timer function.
-function firefightManager.timer(call, sleep)
-    sleep(600)
-    logger:debug("Timer finished")
 end
 
 -- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.
