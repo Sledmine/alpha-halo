@@ -1237,7 +1237,7 @@ local function createBindStruct(baseAddress, struct, parentStruct)
             local fieldMeta, address = getFieldMetadata(struct, key, baseAddress)
             assert(fieldMeta and address, "Field '" .. key .. "' not found in struct")
             printdebug(string.format("0x%x", address),
-                  key .. " (" .. fieldMeta.type .. ") WRITE = " .. tostring(value))
+                  key .. " (" .. tostring(fieldMeta.type) .. ") WRITE = " .. tostring(value))
 
             if cTypes[fieldMeta.type] and cTypes[fieldMeta.type].write then
                 cTypes[fieldMeta.type].write(address, value, fieldMeta.offset)
@@ -1254,7 +1254,9 @@ local function createBindStruct(baseAddress, struct, parentStruct)
                 if type(value) ~= "table" then
                     error("Expected a table for array assignment")
                 end
-                for i = 1, fieldMeta.count do
+                --for i = 1, fieldMeta.count do
+                local writeCount = math.min(#value, fieldMeta.count)
+                for i = 1, writeCount do
                     local elementAddress = address + (i - 1) * fieldMeta.elementSize
                     local v = value[i]
                     if cTypes[fieldMeta.elementType] and cTypes[fieldMeta.elementType].write then
