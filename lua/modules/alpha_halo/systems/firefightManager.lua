@@ -11,7 +11,6 @@ local luna = require "luna"
 local json = require "json"
 
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
---local skullsInterface = require "alpha_halo.systems.gameplay.skullsInterface"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
@@ -137,7 +136,6 @@ local drawNavPoint = false
 local livingCount = 0
 
 function firefightManager.eachTick()
-    --skullsInterface.init()
         -- Draw the skulls HUD if the game is on.
     if const.hud.skullsIcons and const.hud.skullsInfo then
         local hud = const.hud.skullsIcons.data
