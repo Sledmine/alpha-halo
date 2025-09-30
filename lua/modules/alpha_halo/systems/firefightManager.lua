@@ -81,7 +81,7 @@ local progression = firefightManager.gameProgression
 function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Welcome to Alpha Firefight")
     -- hsc.hud_set_objective_text("Welcome to Alpha Firefight")
-    logger:debug("firefight is On '{}'", gameIsOn)
+    logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
     logger:debug("Waiting 30 ticks before starting game")
     sleep(30)
@@ -310,7 +310,7 @@ function firefightManager.playerCheck(call, sleep)
         logger:debug("Player initial lives: {}", playerLives)
     end
     -- We check if the game is on.
-    if not gameIsOn then
+    if not progression.isGameOn then
         return
     end
     -- We get the player.
@@ -524,7 +524,7 @@ end
 function firefightManager.endGame()
     progression.isGameOn = false
     waveIsOn = false
-    -- logger:debug("Firefight is on '{}'", gameIsOn)
+    -- logger:debug("Firefight is on '{}'", progression.isGameOn)
     -- logger:debug("Wave is on '{}'", waveIsOn)
     progression.set = 1
     progression.round = 1
