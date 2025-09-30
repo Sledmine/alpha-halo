@@ -11,6 +11,7 @@ local luna = require "luna"
 local json = require "json"
 
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
+--local skullsInterface = require "alpha_halo.systems.gameplay.skullsInterface"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
@@ -135,28 +136,126 @@ local drawNavPoint = false
 local livingCount = 0
 
 function firefightManager.eachTick()
-    -- Draw the skulls HUD if the game is on.
-    if const.hud.skulls then
-        local hud = const.hud.skulls.data
+    --skullsInterface.init()
+        -- Draw the skulls HUD if the game is on.
+    if const.hud.skullsIcons and const.hud.skullsInfo then
+        local hud = const.hud.skullsIcons.data
+        local info = const.hud.skullsInfo.data
 
         for i = 1, hud.staticElements.count do
-            local currentSkull = skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
+            local currentSkull =
+                skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
             local hudElement = hud.staticElements.elements[i]
             if currentSkull then
                 local skullKeyName = table.keyof(skullsManager.skulls, currentSkull)
                 local index = table.indexof(skullsManager.skullsHudOrder, skullKeyName) or 1
-                --logger:debug("Drawing skull {} at HUD index {} using bitmap {}", currentSkull.name, i, index)
+                -- logger:debug("Drawing skull {} at HUD index {} using bitmap {}", currentSkull.name, i, index)
+                local hudElementColorAlphaOn = 255
+                local hudElementColorRedOn = 125
+                local hudElementColorGreenOn = 238
+                local hudElementColorBlueOn = 85
+                
                 hudElement.sequenceIndex = index - 1
-                hudElement.defaultColor.alpha = 255
-                hudElement.defaultColor.red = 125
-                hudElement.defaultColor.green = 238
-                hudElement.defaultColor.blue = 85
+                hudElement.defaultColor.alpha = hudElementColorAlphaOn
+                hudElement.defaultColor.red = hudElementColorRedOn
+                hudElement.defaultColor.green = hudElementColorGreenOn
+                hudElement.defaultColor.blue = hudElementColorBlueOn
+                hudElement.disabledColor.alpha = hudElementColorAlphaOn
+                hudElement.disabledColor.red = hudElementColorRedOn
+                hudElement.disabledColor.green = hudElementColorGreenOn
+                hudElement.disabledColor.blue = hudElementColorBlueOn
+                hudElement.flashingColor.alpha = hudElementColorAlphaOn
+                hudElement.flashingColor.red = hudElementColorRedOn
+                hudElement.flashingColor.green = hudElementColorGreenOn
+                hudElement.flashingColor.blue = hudElementColorBlueOn
             else
                 hudElement.sequenceIndex = 0
                 hudElement.defaultColor.alpha = 0
                 hudElement.defaultColor.red = 0
                 hudElement.defaultColor.green = 0
                 hudElement.defaultColor.blue = 0
+                hudElement.disabledColor.alpha = 0
+                hudElement.disabledColor.red = 0
+                hudElement.disabledColor.green = 0
+                hudElement.disabledColor.blue = 0
+                hudElement.flashingColor.alpha = 0
+                hudElement.flashingColor.red = 0
+                hudElement.flashingColor.green = 0
+                hudElement.flashingColor.blue = 0
+            end
+        end
+
+        firefightManager.skullInfoTimers = firefightManager.skullInfoTimers or {}
+        -- Draw skull info with fade out effect.
+        for i = 1, info.staticElements.count do
+            local currentSkullInfo =
+                skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
+            local infoElement = info.staticElements.elements[i]
+
+            if currentSkullInfo then
+                local skullKeyName = table.keyof(skullsManager.skulls, currentSkullInfo)
+                local index = table.indexof(skullsManager.skullsHudOrder, skullKeyName) or 1
+                infoElement.sequenceIndex = index - 1
+
+                if not skullKeyName then
+                    return
+                end
+                if not firefightManager.skullInfoTimers[skullKeyName] then
+                    firefightManager.skullInfoTimers[skullKeyName] = os.clock()
+                end
+
+                local elapsed = os.clock() - firefightManager.skullInfoTimers[skullKeyName]
+
+                if elapsed < 6 then
+                    local InfoElementColorAlphaOn = 255
+                    local InfoElementColorRedOn = 255
+                    local InfoElementColorGreenOn = 187
+                    local InfoElementColorBlueOn = 0
+                    infoElement.defaultColor.alpha = InfoElementColorAlphaOn
+                    infoElement.defaultColor.red = InfoElementColorRedOn
+                    infoElement.defaultColor.green = InfoElementColorGreenOn
+                    infoElement.defaultColor.blue = InfoElementColorBlueOn
+                    infoElement.disabledColor.alpha = InfoElementColorAlphaOn
+                    infoElement.disabledColor.red = InfoElementColorRedOn
+                    infoElement.disabledColor.green = InfoElementColorGreenOn
+                    infoElement.disabledColor.blue = InfoElementColorBlueOn
+                    infoElement.flashingColor.alpha = InfoElementColorAlphaOn
+                    infoElement.flashingColor.red = InfoElementColorRedOn
+                    infoElement.flashingColor.green = InfoElementColorGreenOn
+                    infoElement.flashingColor.blue = InfoElementColorBlueOn
+                else
+                    local fadeElapsed = elapsed - 6
+                    local alpha = math.max(infoElement.defaultColor.alpha - (fadeElapsed * (infoElement.defaultColor.alpha / 2)), 0)
+                    local red = math.max(infoElement.defaultColor.red - (fadeElapsed * (infoElement.defaultColor.red / 2)), 0)
+                    local green = math.max(infoElement.defaultColor.green - (fadeElapsed * (infoElement.defaultColor.green / 2)), 0)
+                    local blue = math.max(infoElement.defaultColor.blue - (fadeElapsed * (infoElement.defaultColor.blue / 2)), 0)
+                    infoElement.defaultColor.alpha = alpha
+                    infoElement.defaultColor.red = red
+                    infoElement.defaultColor.green = green
+                    infoElement.defaultColor.blue = blue
+                    infoElement.disabledColor.alpha = alpha
+                    infoElement.disabledColor.red = red
+                    infoElement.disabledColor.green = green
+                    infoElement.disabledColor.blue = blue
+                    infoElement.flashingColor.alpha = alpha
+                    infoElement.flashingColor.red = red
+                    infoElement.flashingColor.green = green
+                    infoElement.flashingColor.blue = blue
+                end
+            else
+                infoElement.sequenceIndex = 0
+                infoElement.defaultColor.alpha = 0
+                infoElement.defaultColor.red = 0
+                infoElement.defaultColor.green = 0
+                infoElement.defaultColor.blue = 0
+                infoElement.disabledColor.alpha = 0
+                infoElement.disabledColor.red = 0
+                infoElement.disabledColor.green = 0
+                infoElement.disabledColor.blue = 0
+                infoElement.flashingColor.alpha = 0
+                infoElement.flashingColor.red = 0
+                infoElement.flashingColor.green = 0
+                infoElement.flashingColor.blue = 0
             end
         end
     end
@@ -532,6 +631,12 @@ function firefightManager.endGame()
     hsc.ai_erase_all()
     hsc.garbage_collect_now()
     execute_script("sv_end_game")
+end
+
+---Timer function.
+function firefightManager.timer(call, sleep)
+    sleep(600)
+    logger:debug("Timer finished")
 end
 
 -- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.

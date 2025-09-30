@@ -50,7 +50,8 @@ function constants.get()
     }
 
     constants.hud = {
-        skulls = findTags([[alpha_firefight\ui\chud\marine_outlines]], engine.tag.classes.weaponHudInterface)[1],
+        skullsIcons = findTags([[alpha_firefight\ui\chud\skulls_icons]], engine.tag.classes.weaponHudInterface)[1],
+        skullsInfo = findTags([[alpha_firefight\ui\chud\skulls_info]], engine.tag.classes.weaponHudInterface)[1]
     }
 end
 
