@@ -418,7 +418,7 @@ function firefightManager.playerCheck(call, sleep)
     -- We get the player biped.
     local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
     if not biped then
-        logger:debug("Player is dead.")
+        --logger:debug("Player is dead.")
         playerIsDead = true
         -- If lifes are 0 and there's no player biped, then we end the game.
         if playerLives <= 0 then

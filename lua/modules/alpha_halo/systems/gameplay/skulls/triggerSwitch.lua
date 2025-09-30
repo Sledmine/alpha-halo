@@ -9,11 +9,7 @@ function triggerSwitch.skullEffect(isActive)
         if isActive then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                if not trigger.flags.doesNotRepeatAutomatically then
-                    trigger.flags.doesNotRepeatAutomatically = true
-                else
-                    trigger.flags.doesNotRepeatAutomatically = false
-                end
+                trigger.flags.doesNotRepeatAutomatically = not trigger.flags.doesNotRepeatAutomatically
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
