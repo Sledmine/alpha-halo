@@ -14,7 +14,7 @@ function eyePatch.skullEffect(isActive)
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
                 trigger.minimumError = 0
-                trigger.errorAngle[1] = 0
+                trigger.errorAngle = {0}
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)

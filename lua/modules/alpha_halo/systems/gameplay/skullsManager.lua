@@ -330,7 +330,7 @@ local function updateEnabledSkullsQueue(skull)
     end
     if count > 7 then
         logger:debug(
-        "Removing oldest skull from the queue to maintain a maximum of 7 active skulls.")
+            "Removing oldest skull from the queue to maintain a maximum of 7 active skulls.")
         for i = 1, #enabledSkullsQueue do
             if enabledSkullsQueue[i] ~= nil then
                 enabledSkullsQueue[i] = nil
@@ -447,8 +447,8 @@ function skullsManager.enableSkull(name, multiplier)
         randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
     else
         -- Enable desired skull
-        for _, skull in ipairs(skullList) do
-            if name == skull.name:lower() or name == "all" then
+        for skullName, skull in pairs(skullsManager.skulls) do
+            if name == skullName:lower() or name == "all" then
                 skull.isEnabled = true
                 skull.state.multiplier = multiplier or skull.state.multiplier or 1
             end
@@ -469,8 +469,8 @@ function skullsManager.disableSkull(name)
         skullList[randomIndex].isEnabled = false
     else
         -- Disable desired skull
-        for _, skull in ipairs(skullList) do
-            if name == skull.name:lower() or name == "all" then
+        for skullName, skull in pairs(skullsManager.skulls) do
+            if name == skullName:lower() or name == "all" then
                 skull.isEnabled = false
             end
         end
