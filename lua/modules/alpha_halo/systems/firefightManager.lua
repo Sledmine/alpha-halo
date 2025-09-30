@@ -221,15 +221,14 @@ end
 --- Define in which type of wave are we depending on the settings.
 function firefightManager.waveDefinition()
     isFirstRoundWave = progression.wave == 1
-    isCurrentWaveBoss = ((settings.roundEndingBoss == true) and
-                        (progression.wave == settings.wavesPerRound)) or
-                        (settings.bossWaveFrequency > 0 and
-                        math.fmod(progression.totalWaves, settings.bossWaveFrequency) == 0)
-    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
-                          (progression.set == 1) -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
+    local isRoundEndingBoss = (settings.roundEndingBoss == true) and (progression.wave == settings.wavesPerRound) -- Boss at the end of the round.
+    local isBossFrequencyMeet = (settings.bossWaveFrequency > 0 and math.fmod(progression.totalWaves, settings.bossWaveFrequency) == 0) -- Boss at the player's choice.
+    isCurrentWaveBoss = isRoundEndingBoss or isBossFrequencyMeet -- Either methods can coexist or not in a game. Both are considered as bossWaves.
+    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and (progression.set == 1)
+                    -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
     isLastWave = (progression.wave == settings.wavesPerRound) and
-                     (progression.round == settings.roundsPerSet) and
-                     (progression.set == settings.setsPerGame)
+                (progression.round == settings.roundsPerSet) and
+                (progression.set == settings.setsPerGame)
     -- We define what is a randomWave.
     intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstGameWave or isLastWave)
 end
