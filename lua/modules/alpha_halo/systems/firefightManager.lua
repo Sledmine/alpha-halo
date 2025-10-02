@@ -754,6 +754,8 @@ function firefightManager.loadSettings()
             -- Load events properties
             loadEvent(firefightManager.enableTemporalSkull, settings.activateTemporalSkullEach)
             loadEvent(firefightManager.enablePermanentSkull, settings.activatePermanentSkullEach)
+            loadEvent(firefightManager.conditionedResetAllTemporalSkulls, settings.resetTemporalSkullEach)
+            loadEvent(firefightManager.deployPlayerAllies, settings.deployAlliesEach)
             logger:info("Firefight settings loaded from file.")
             return
         end
