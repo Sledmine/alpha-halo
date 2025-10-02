@@ -231,23 +231,26 @@ local odstSquadName = "Human_Team/ODSTs"
 function unitDeployer.scriptDeployPelicans(call, sleep)
     sleep(constants.pelicanDeploymentDelay)
     hsc.ai_place(odstSquadName)
-    hsc.ai_place(pelicanPilotName)
+    -- TODO Make a custom biped for the Pelican turrets that can attack while in the Pelican.
+    --hsc.ai_place(pelicanPilotName)
     -- TODO Prevent ODSTs from receiving damage while in the Pelican.
     hsc.object_create_anew(pelicanVehicleName)
     hsc.vehicle_load_magic(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName))
-    hsc.vehicle_load_magic(pelicanVehicleName, "driver", hsc.ai_actors(pelicanPilotName))
+    --hsc.vehicle_load_magic(pelicanVehicleName, "driver", hsc.ai_actors(pelicanPilotName))
+    hsc.ai_migrate(odstSquadName, "standby_pelican") -- No jala
     -- TODO This should be a dynamic encounter based on the current wave.
     -- Otherwise it just forces the AI to only see Covenant
-    hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
+    --hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
     hsc.unit_set_enterable_by_player(pelicanVehicleName, false)
     hsc.unit_close(pelicanVehicleName)
     hsc.object_teleport(pelicanVehicleName, "foehammer_cliff_flag")
-    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), true)
+    hsc.ai_braindead_by_unit(hsc.ai_actors("standby_pelican"), true)
     hsc.recording_play_and_hover(pelicanVehicleName, "foehammer_cliff_in")
     sleep(1200)
     hsc.unit_open(pelicanVehicleName)
-    sleep(90)
-    hsc.ai_braindead_by_unit(hsc.ai_actors("Human_Team"), false)
+    sleep(70)
+    hsc.ai_braindead_by_unit(hsc.ai_actors("standby_pelican"), false)
+    hsc.ai_migrate("standby_pelican", odstSquadName)
     hsc.vehicle_unload(pelicanVehicleName, "rider")
     sleep(120)
     if not hsc.vehicle_test_seat_list(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName)) then
