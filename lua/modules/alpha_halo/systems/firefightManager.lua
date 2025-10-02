@@ -52,8 +52,9 @@ firefightManager.firefightSettings = {
     roundEndingBoss = true,
     -- Event properties
     activateTemporalSkullEach = eventNames.eachRound,
+    resetTemporalSkullEach = eventNames.eachSet,
     activatePermanentSkullEach = eventNames.eachSet,
-    deployAlliesEach = eventNames.eachBossWave,
+    deployAlliesEach = eventNames.eachBossWave
 }
 local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
@@ -136,128 +137,8 @@ local drawNavPoint = false
 local livingCount = 0
 
 function firefightManager.eachTick()
-        -- Draw the skulls HUD if the game is on.
-    if const.hud.skullsIcons and const.hud.skullsInfo then
-        local hud = const.hud.skullsIcons.data
-        local info = const.hud.skullsInfo.data
+    firefightManager.updateSkullsHud()
 
-        for i = 1, hud.staticElements.count do
-            local currentSkull =
-                skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
-            local hudElement = hud.staticElements.elements[i]
-            if currentSkull then
-                local skullKeyName = table.keyof(skullsManager.skulls, currentSkull)
-                local index = table.indexof(skullsManager.skullsHudOrder, skullKeyName) or 1
-                -- logger:debug("Drawing skull {} at HUD index {} using bitmap {}", currentSkull.name, i, index)
-                local hudElementColorAlphaOn = 255
-                local hudElementColorRedOn = 125
-                local hudElementColorGreenOn = 238
-                local hudElementColorBlueOn = 85
-                
-                hudElement.sequenceIndex = index - 1
-                hudElement.defaultColor.alpha = hudElementColorAlphaOn
-                hudElement.defaultColor.red = hudElementColorRedOn
-                hudElement.defaultColor.green = hudElementColorGreenOn
-                hudElement.defaultColor.blue = hudElementColorBlueOn
-                hudElement.disabledColor.alpha = hudElementColorAlphaOn
-                hudElement.disabledColor.red = hudElementColorRedOn
-                hudElement.disabledColor.green = hudElementColorGreenOn
-                hudElement.disabledColor.blue = hudElementColorBlueOn
-                hudElement.flashingColor.alpha = hudElementColorAlphaOn
-                hudElement.flashingColor.red = hudElementColorRedOn
-                hudElement.flashingColor.green = hudElementColorGreenOn
-                hudElement.flashingColor.blue = hudElementColorBlueOn
-            else
-                hudElement.sequenceIndex = 0
-                hudElement.defaultColor.alpha = 0
-                hudElement.defaultColor.red = 0
-                hudElement.defaultColor.green = 0
-                hudElement.defaultColor.blue = 0
-                hudElement.disabledColor.alpha = 0
-                hudElement.disabledColor.red = 0
-                hudElement.disabledColor.green = 0
-                hudElement.disabledColor.blue = 0
-                hudElement.flashingColor.alpha = 0
-                hudElement.flashingColor.red = 0
-                hudElement.flashingColor.green = 0
-                hudElement.flashingColor.blue = 0
-            end
-        end
-
-        firefightManager.skullInfoTimers = firefightManager.skullInfoTimers or {}
-        -- Draw skull info with fade out effect.
-        for i = 1, info.staticElements.count do
-            local currentSkullInfo =
-                skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
-            local infoElement = info.staticElements.elements[i]
-
-            if currentSkullInfo then
-                local skullKeyName = table.keyof(skullsManager.skulls, currentSkullInfo)
-                local index = table.indexof(skullsManager.skullsHudOrder, skullKeyName) or 1
-                infoElement.sequenceIndex = index - 1
-
-                if not skullKeyName then
-                    return
-                end
-                if not firefightManager.skullInfoTimers[skullKeyName] then
-                    firefightManager.skullInfoTimers[skullKeyName] = os.clock()
-                end
-
-                local elapsed = os.clock() - firefightManager.skullInfoTimers[skullKeyName]
-
-                if elapsed < 6 then
-                    local InfoElementColorAlphaOn = 255
-                    local InfoElementColorRedOn = 255
-                    local InfoElementColorGreenOn = 187
-                    local InfoElementColorBlueOn = 0
-                    infoElement.defaultColor.alpha = InfoElementColorAlphaOn
-                    infoElement.defaultColor.red = InfoElementColorRedOn
-                    infoElement.defaultColor.green = InfoElementColorGreenOn
-                    infoElement.defaultColor.blue = InfoElementColorBlueOn
-                    infoElement.disabledColor.alpha = InfoElementColorAlphaOn
-                    infoElement.disabledColor.red = InfoElementColorRedOn
-                    infoElement.disabledColor.green = InfoElementColorGreenOn
-                    infoElement.disabledColor.blue = InfoElementColorBlueOn
-                    infoElement.flashingColor.alpha = InfoElementColorAlphaOn
-                    infoElement.flashingColor.red = InfoElementColorRedOn
-                    infoElement.flashingColor.green = InfoElementColorGreenOn
-                    infoElement.flashingColor.blue = InfoElementColorBlueOn
-                else
-                    local fadeElapsed = elapsed - 6
-                    local alpha = math.max(infoElement.defaultColor.alpha - (fadeElapsed * (infoElement.defaultColor.alpha / 2)), 0)
-                    local red = math.max(infoElement.defaultColor.red - (fadeElapsed * (infoElement.defaultColor.red / 2)), 0)
-                    local green = math.max(infoElement.defaultColor.green - (fadeElapsed * (infoElement.defaultColor.green / 2)), 0)
-                    local blue = math.max(infoElement.defaultColor.blue - (fadeElapsed * (infoElement.defaultColor.blue / 2)), 0)
-                    infoElement.defaultColor.alpha = alpha
-                    infoElement.defaultColor.red = red
-                    infoElement.defaultColor.green = green
-                    infoElement.defaultColor.blue = blue
-                    infoElement.disabledColor.alpha = alpha
-                    infoElement.disabledColor.red = red
-                    infoElement.disabledColor.green = green
-                    infoElement.disabledColor.blue = blue
-                    infoElement.flashingColor.alpha = alpha
-                    infoElement.flashingColor.red = red
-                    infoElement.flashingColor.green = green
-                    infoElement.flashingColor.blue = blue
-                end
-            else
-                infoElement.sequenceIndex = 0
-                infoElement.defaultColor.alpha = 0
-                infoElement.defaultColor.red = 0
-                infoElement.defaultColor.green = 0
-                infoElement.defaultColor.blue = 0
-                infoElement.disabledColor.alpha = 0
-                infoElement.disabledColor.red = 0
-                infoElement.disabledColor.green = 0
-                infoElement.disabledColor.blue = 0
-                infoElement.flashingColor.alpha = 0
-                infoElement.flashingColor.red = 0
-                infoElement.flashingColor.green = 0
-                infoElement.flashingColor.blue = 0
-            end
-        end
-    end
     if progression.isGameOn then
         firefightManager.aiCheck()
         if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
@@ -319,14 +200,18 @@ end
 --- Define in which type of wave are we depending on the settings.
 function firefightManager.waveDefinition()
     isFirstRoundWave = progression.wave == 1
-    local isRoundEndingBoss = (settings.roundEndingBoss == true) and (progression.wave == settings.wavesPerRound) -- Boss at the end of the round.
-    local isBossFrequencyMeet = (settings.bossWaveFrequency > 0 and math.fmod(progression.totalWaves, settings.bossWaveFrequency) == 0) -- Boss at the player's choice.
+    local isRoundEndingBoss = (settings.roundEndingBoss == true) and
+                                  (progression.wave == settings.wavesPerRound) -- Boss at the end of the round.
+    local isBossFrequencyMeet = (settings.bossWaveFrequency > 0 and
+                                    math.fmod(progression.totalWaves, settings.bossWaveFrequency) ==
+                                    0) -- Boss at the player's choice.
     isCurrentWaveBoss = isRoundEndingBoss or isBossFrequencyMeet -- Either methods can coexist or not in a game. Both are considered as bossWaves.
-    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and (progression.set == 1)
-                    -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
+    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
+                          (progression.set == 1)
+    -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
     isLastWave = (progression.wave == settings.wavesPerRound) and
-                (progression.round == settings.roundsPerSet) and
-                (progression.set == settings.setsPerGame)
+                     (progression.round == settings.roundsPerSet) and
+                     (progression.set == settings.setsPerGame)
     -- We define what is a randomWave.
     intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstGameWave or isLastWave)
 end
@@ -418,7 +303,7 @@ function firefightManager.playerCheck(call, sleep)
     -- We get the player biped.
     local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
     if not biped then
-        --logger:debug("Player is dead.")
+        -- logger:debug("Player is dead.")
         playerIsDead = true
         -- If lifes are 0 and there's no player biped, then we end the game.
         if playerLives <= 0 then
@@ -592,6 +477,104 @@ end
 function firefightManager.conditionedResetAllTemporalSkulls()
     if not isFirstGameWave then
         firefightManager.resetAllTemporalSkulls()
+    end
+end
+
+function firefightManager.updateSkullsHud()
+    if not (const.hud.skullsIcons and const.hud.skullsInfo) then
+        return
+    end
+
+    local hudIcons, hudInfo = const.hud.skullsIcons.data, const.hud.skullsInfo.data
+    local timers, prevSkullState = firefightManager.skullInfoTimers or {},
+                                   firefightManager.prevSkullStates or {}
+    firefightManager.skullInfoTimers, firefightManager.prevSkullStates = timers, prevSkullState
+
+    local hudColor, infoColor, emptyColor = {255, 125, 238, 85}, -- Alpha, Red, Green, Blue
+    {255, 255, 187, 0}, {0, 0, 0, 0}
+
+    local function setElementColor(element, color)
+        local channels = {"alpha", "red", "green", "blue"}
+        for channelIndex, channelName in ipairs(channels) do
+            element.defaultColor[channelName] = color[channelIndex]
+            element.disabledColor[channelName] = color[channelIndex]
+            element.flashingColor[channelName] = color[channelIndex]
+        end
+    end
+
+    -- We create a table with the currently active skulls in the queue for easy lookup.
+    local activeInfoInQueue = {}
+    for _, skullObj in ipairs(skullsManager.enabledSkullsQueue) do
+        if skullObj and skullObj.isEnabled then
+            local skullName = table.keyof(skullsManager.skulls, skullObj)
+            if skullName then
+                activeInfoInQueue[skullName] = true
+            end
+        end
+    end
+
+    -- We clean up prevSkullState and timers tables from skulls that are no longer active.
+    for existingKey, _ in pairs(prevSkullState) do
+        if not activeInfoInQueue[existingKey] then
+            prevSkullState[existingKey] = false
+            timers[existingKey] = nil
+        end
+    end
+
+    -- Skull Icons HUD
+    for i = 1, hudIcons.staticElements.count do
+        local currentSkullIcon =
+            skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
+        local skullIconElement = hudIcons.staticElements.elements[i]
+        if currentSkullIcon and currentSkullIcon.isEnabled then
+            local skullName = table.keyof(skullsManager.skulls, currentSkullIcon)
+            skullIconElement.sequenceIndex =
+                (table.indexof(skullsManager.skullsHudOrder, skullName) or 1) - 1
+            setElementColor(skullIconElement, hudColor)
+        else
+            skullIconElement.sequenceIndex = 0
+            setElementColor(skullIconElement, emptyColor)
+        end
+    end
+
+    -- Skull Info HUD
+    for i = 1, hudInfo.staticElements.count do
+        local currentSkullInfo =
+            skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
+        local skullInfoElement = hudInfo.staticElements.elements[i]
+        local skullName = currentSkullInfo and table.keyof(skullsManager.skulls, currentSkullInfo)
+        local skullIsActive = currentSkullInfo and skullName and currentSkullInfo.isEnabled
+        local skullWasActive = skullName and prevSkullState[skullName]
+        -- We manage the timers for showing/hiding skull info.
+        if skullName then
+            if skullIsActive and not skullWasActive then
+                timers[skullName] = os.clock()
+            elseif not skullIsActive and skullWasActive then
+                timers[skullName] = nil
+            end
+        end
+
+        -- We show the skull info if it's active or if it was recently deactivated.
+        if skullName and timers[skullName] then
+            local disappearTime = 8
+            local elapsed = os.clock() - timers[skullName]
+            if elapsed < disappearTime then
+                skullInfoElement.sequenceIndex = (table.indexof(skullsManager.skullsHudOrder,
+                                                                skullName) or 1) - 1
+                setElementColor(skullInfoElement, infoColor)
+            else
+                skullInfoElement.sequenceIndex = 0
+                setElementColor(skullInfoElement, emptyColor)
+                timers[skullName] = nil
+            end
+        else
+            skullInfoElement.sequenceIndex = 0
+            setElementColor(skullInfoElement, emptyColor)
+        end
+
+        if skullName then
+            prevSkullState[skullName] = skullIsActive
+        end
     end
 end
 

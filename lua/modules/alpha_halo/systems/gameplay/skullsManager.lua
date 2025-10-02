@@ -33,16 +33,6 @@ function skullsManager.eachTick()
 end
 
 skullsManager.skulls = {
-    example = {
-        name = "Example",
-        motto = "This is an example skull.",
-        description = "This skull does nothing.",
-        effect = "skullFunctionReference",
-        state = {count = 0, max = 1, multiplier = 1},
-        allowedInRandom = true,
-        isEnabled = false,
-        isPermanent = false
-    },
     -- Golden Skulls
     famine = {
         name = "Famine",
@@ -280,63 +270,37 @@ skullsManager.skullsHudOrder = {
     "triggerswitch"
 }
 
-skullsManager.enabledSkullsQueue = {}
+skullsManager.enabledSkullsQueue = skullsManager.enabledSkullsQueue or {}
 
 local function updateEnabledSkullsQueue(skull)
     local enabledSkullsQueue = skullsManager.enabledSkullsQueue
 
-    -- Remove disabled skulls but keep table indices stable
+    -- Clean up the deactivated skulls from the queue
     for i = #enabledSkullsQueue, 1, -1 do
-        local skull = enabledSkullsQueue[i]
-        if skull and not skull.isEnabled then
-            enabledSkullsQueue[i] = nil
+        if not enabledSkullsQueue[i].isEnabled then
+            table.remove(enabledSkullsQueue, i)
         end
     end
 
-    if not skull then
-        return
-    end
-
-    -- Avoid duplicates: only add if not present
-    local found = false
-    for i = 1, #enabledSkullsQueue do
-        if enabledSkullsQueue[i] == skull then
-            found = true
-            break
-        end
-    end
-    if not found then
-        -- Find first empty slot or append
-        local inserted = false
-        for i = 1, #enabledSkullsQueue + 1 do
-            if enabledSkullsQueue[i] == nil then
-                enabledSkullsQueue[i] = skull
-                inserted = true
+    -- If a skull is active 
+    if skull and skull.isEnabled then
+        -- Check if it's already in the queue
+        local skullFound = false
+        for _, s in ipairs(enabledSkullsQueue) do
+            if s == skull then
+                skullFound = true
                 break
             end
         end
-        -- If still not inserted, append at the end
-        if not inserted then
-            enabledSkullsQueue[#enabledSkullsQueue + 1] = skull
+        -- If it's not, add it to the end (new active skull)
+        if not skullFound then
+            table.insert(enabledSkullsQueue, skull)
         end
     end
 
-    -- Maintain a maximum of 7 active skulls, keeping indices stable
-    local count = 0
-    for i = 1, #enabledSkullsQueue do
-        if enabledSkullsQueue[i] ~= nil then
-            count = count + 1
-        end
-    end
-    if count > 7 then
-        logger:debug(
-            "Removing oldest skull from the queue to maintain a maximum of 7 active skulls.")
-        for i = 1, #enabledSkullsQueue do
-            if enabledSkullsQueue[i] ~= nil then
-                enabledSkullsQueue[i] = nil
-                break
-            end
-        end
+    -- Keep only the last 7 active skulls in the queue
+    while #enabledSkullsQueue > 7 do
+        table.remove(enabledSkullsQueue, 1) -- remove the oldest
     end
 end
 
