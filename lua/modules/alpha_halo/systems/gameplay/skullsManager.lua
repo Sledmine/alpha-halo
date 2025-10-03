@@ -134,7 +134,7 @@ skullsManager.skulls = {
         motto = "Deliver hope... and tactical warheads.",
         description = "Doubles explosions radius effect.",
         effect = havok.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 3},
         allowedInRandom = true,
         enabledFromTheStart = true,
         isEnabled = false,
@@ -145,7 +145,7 @@ skullsManager.skulls = {
         motto = "That is... not how the 3rd law works.",
         description = "Melee hits now inflict knockback... To both ends.",
         effect = newton.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 4},
         allowedInRandom = true,
         enabledFromTheStart = true,
         isEnabled = false,
@@ -166,7 +166,7 @@ skullsManager.skulls = {
         motto = "Send me out, with a bang.",
         description = "Some enemies drop live grenades at death.",
         effect = banger.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 5},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -176,7 +176,7 @@ skullsManager.skulls = {
         motto = "Do I feel lucky?",
         description = "Doubles your shield... As well as the stun and recovering time.",
         effect = doubleDown.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 2, multiplier = 4},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -196,7 +196,7 @@ skullsManager.skulls = {
         motto = "A change of pace.",
         description = "Full auto weapons become semi-auto and vice versa.",
         effect = triggerSwitch.skullEffect,
-        state = {count = 0, max = 1, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 3},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -206,7 +206,7 @@ skullsManager.skulls = {
         motto = "Double every shot by sheer will of rip and tear.",
         description = "Doubles projectiles per shot and spread cone size.",
         effect = slayer.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 2},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -226,24 +226,24 @@ skullsManager.skulls = {
 }
 
 local skullList = {
-    skullsManager.skulls.famine,
-    skullsManager.skulls.mythic,
-    -- skullsManager.skulls.blind,
-    -- skullsManager.skulls.catch,
-    skullsManager.skulls.berserk,
-    skullsManager.skulls.toughluck,
-    -- skullsManager.skulls.fog,
-    skullsManager.skulls.knucklehead,
-    skullsManager.skulls.cowbell,
+    --skullsManager.skulls.famine,
+    --skullsManager.skulls.mythic,
+    ---- skullsManager.skulls.blind,
+    ---- skullsManager.skulls.catch,
+    --skullsManager.skulls.berserk,
+    --skullsManager.skulls.toughluck,
+    ---- skullsManager.skulls.fog,
+    --skullsManager.skulls.knucklehead,
+    --skullsManager.skulls.cowbell,
     skullsManager.skulls.havok,
     skullsManager.skulls.newton,
-    skullsManager.skulls.tilt,
+    --skullsManager.skulls.tilt,
     skullsManager.skulls.banger,
     skullsManager.skulls.doubledown,
-    skullsManager.skulls.eyepatch,
+    --skullsManager.skulls.eyepatch,
     skullsManager.skulls.triggerswitch,
     skullsManager.skulls.slayer
-    -- skullsManager.skulls.assassin
+    ---- skullsManager.skulls.assassin
 }
 skullsManager.skullList = skullList
 
