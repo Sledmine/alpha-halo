@@ -527,6 +527,8 @@ function firefightManager.updateSkullsHud()
             skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
         local skullIconElement = hudIcons.staticElements.elements[i]
         if currentSkullIcon and currentSkullIcon.isEnabled then
+            -- local skullElement = hudIcons.anchor
+            -- logger:debug("Anchor: {}", skullElement)
             local skullName = table.keyof(skullsManager.skulls, currentSkullIcon)
             skullIconElement.sequenceIndex =
                 (table.indexof(skullsManager.skullsHudOrder, skullName) or 1) - 1
@@ -766,18 +768,44 @@ function firefightManager.loadSettings()
     return
 end
 
+
 function firefightManager.onEachFrame()
+    local drawText = balltze.chimera.draw_text
+    local titleText = const.fonts.title.handle.value
+    local textColorW = {1.0, 1.0, 1.0, 1.0}
     -- Show current game progression info
     local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
                      firefightManager.gameProgression)
 
-    balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom,
-                              const.fonts.title.handle.value, align, table.unpack(textColor))
+    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleText, align,table.unpack(textColor))
 
     -- Draw current lifes
     local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
-    balltze.chimera.draw_text(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom,
-                              const.fonts.title.handle.value, align, table.unpack(textColor))
+    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleText, align, table.unpack(textColor))
+
+    -- Multipliers per Skull
+    if const.hud.skullsIcons then
+        local hudIcons = const.hud.skullsIcons.data
+
+        for i = 1, hudIcons.staticElements.count do
+            -- Toma el cráneo en la misma posición del HUD, no invertido
+            local skullObj = skullsManager.enabledSkullsQueue[i]
+            local skullElement = hudIcons.staticElements.elements[i]
+
+            if skullObj and skullObj.isEnabled then
+                local skullName = table.keyof(skullsManager.skulls, skullObj)
+                if skullName then
+                    local multiplier = skullsManager.skulls[skullName].state.multiplier
+                    if multiplier > 1 then
+                        local y = skullElement.anchorOffset.y
+                        local multText = "x" .. tostring(multiplier)
+                        drawText(multText, bounds.left, y + 193, bounds.right + 5, bounds.bottom, titleText,
+                        align, table.unpack(textColorW))
+                    end
+                end
+            end
+        end
+    end
 end
 
 return firefightManager
