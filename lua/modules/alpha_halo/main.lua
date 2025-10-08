@@ -68,7 +68,10 @@ Balltze.event.frame.subscribe(function(event)
         if isPlayerOnMenu then
             return
         end
-
+        local player = get_dynamic_player()
+        if not player then
+            return
+        end
         firefightManager.onEachFrame()
     end
 end)

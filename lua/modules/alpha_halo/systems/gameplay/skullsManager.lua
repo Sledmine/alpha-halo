@@ -206,7 +206,7 @@ skullsManager.skulls = {
         motto = "Double every shot by sheer will of rip and tear.",
         description = "Doubles projectiles per shot and spread cone size.",
         effect = slayer.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -242,7 +242,7 @@ local skullList = {
     skullsManager.skulls.doubledown,
     skullsManager.skulls.eyepatch,
     skullsManager.skulls.triggerswitch,
-    skullsManager.skulls.slayer
+    skullsManager.skulls.slayer,
     -- skullsManager.skulls.assassin
 }
 skullsManager.skullList = skullList

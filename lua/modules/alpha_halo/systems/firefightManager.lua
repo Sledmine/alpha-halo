@@ -490,8 +490,9 @@ function firefightManager.updateSkullsHud()
                                    firefightManager.prevSkullStates or {}
     firefightManager.skullInfoTimers, firefightManager.prevSkullStates = timers, prevSkullState
 
-    local hudColor, infoColor, emptyColor = {255, 125, 238, 85}, -- Alpha, Red, Green, Blue
-    {255, 255, 187, 0}, {0, 0, 0, 0}
+    local hudColor = {255, 125, 238, 85} -- Alpha, Red, Green, Blue
+    local infoColor = {255, 255, 187, 0}
+    local emptyColor = {0, 0, 0, 0}
 
     local function setElementColor(element, color)
         local channels = {"alpha", "red", "green", "blue"}
@@ -527,6 +528,8 @@ function firefightManager.updateSkullsHud()
             skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
         local skullIconElement = hudIcons.staticElements.elements[i]
         if currentSkullIcon and currentSkullIcon.isEnabled then
+            -- local skullElement = hudIcons.anchor
+            -- logger:debug("Anchor: {}", skullElement)
             local skullName = table.keyof(skullsManager.skulls, currentSkullIcon)
             skullIconElement.sequenceIndex =
                 (table.indexof(skullsManager.skullsHudOrder, skullName) or 1) - 1
@@ -766,18 +769,47 @@ function firefightManager.loadSettings()
     return
 end
 
+
 function firefightManager.onEachFrame()
+    local drawText = balltze.chimera.draw_text
+    local titleText = const.fonts.title.handle.value
+    local standardText = const.fonts.text.handle.value
+    local textColorW = {1.0, 1.0, 1.0, 1.0}
+    local infoColor = {255 / 255, 255 / 255, 187 / 255, 0 / 255}
+
     -- Show current game progression info
     local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
                      firefightManager.gameProgression)
-
-    balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right, bounds.bottom,
-                              const.fonts.title.handle.value, align, table.unpack(textColor))
+    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleText, align,table.unpack(textColor))
 
     -- Draw current lifes
     local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
-    balltze.chimera.draw_text(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom,
-                              const.fonts.title.handle.value, align, table.unpack(textColor))
+    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleText, align, table.unpack(textColor))
+
+    -- Draw the number of times each skull was activated
+    if const.hud.skullsIcons then
+        local hudIcons = const.hud.skullsIcons.data
+
+        for i = 1, hudIcons.staticElements.count do
+            local skullObj = skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
+            local skullElement = hudIcons.staticElements.elements[i]
+
+            if skullObj and skullObj.isEnabled then
+                local skullName = table.keyof(skullsManager.skulls, skullObj)
+
+                if skullName then
+                    local count = skullsManager.skulls[skullName].state.count or 1
+
+                    if count >= 1 then
+                        local y = bounds.top - skullElement.anchorOffset.y + 80
+                        local multText = "x" .. tostring(count)
+                        drawText(multText, bounds.left, y, bounds.right + 5, bounds.bottom, standardText,
+                        align, table.unpack(infoColor))
+                    end
+                end
+            end
+        end
+    end
 end
 
 return firefightManager

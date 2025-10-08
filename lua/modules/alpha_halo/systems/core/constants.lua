@@ -47,6 +47,9 @@ function constants.get()
 
     constants.fonts = {
         title = findTags("geogrotesque-regular-title", engine.tag.classes.font)[1],
+        subtitle = findTags("geogrotesque-regular-subtitle", engine.tag.classes.font)[1],
+        text = findTags("geogrotesque-regular-text", engine.tag.classes.font)[1],
+        smaller = findTags("geogrotesque-regular-smaller", engine.tag.classes.font)[1]
     }
 
     constants.hud = {
