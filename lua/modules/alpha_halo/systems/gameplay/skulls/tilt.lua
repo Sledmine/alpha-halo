@@ -7,7 +7,8 @@ local weapons = dependencies.names.weapons
 
 ---Tilt: Doubles strenghts and weakenesses.
 ---@param isActive boolean
-function tilt.skullEffect(isActive)
+function tilt.skullEffect(isActive, totalSkullPower)
+    local finalSkullPower = totalSkullPower or 1
     local energyDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
         for _, keyword in pairs(weapons.energy) do
             if tagEntry.path:includes(keyword) then
@@ -24,23 +25,24 @@ function tilt.skullEffect(isActive)
         end
         return false
     end) -- This is a kinda nuttered version of Tilt, in hopes to reduce the load on the game.
+    local tiltMultiplierBuff = 2 * finalSkullPower
+    local tiltMultiplierNerf = 0.5 / finalSkullPower
     for _, tagEntry in ipairs(energyDamageEffect) do
         if not tagEntry.path:includes("melee") then
             local damageEffectModifier = tagEntry.data
             if isActive then
-                damageEffectModifier.metalHollow = damageEffectModifier.metalHollow * 0.5
-                damageEffectModifier.metalThick = damageEffectModifier.metalThick * 0.5
-                damageEffectModifier.metalThin = damageEffectModifier.metalThin * 0.5
-                damageEffectModifier.grunt = damageEffectModifier.grunt * 0.5
-                damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * 0.5
-                damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 0.5
-                damageEffectModifier.elite = damageEffectModifier.elite * 0.5
-                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 2
-                damageEffectModifier.jackal = damageEffectModifier.jackal * 0.5
-                damageEffectModifier.jackalEnergyShield =
-                    damageEffectModifier.jackalEnergyShield * 2
-                damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.5
-                damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.5
+                damageEffectModifier.metalHollow = damageEffectModifier.metalHollow * tiltMultiplierNerf
+                damageEffectModifier.metalThick = damageEffectModifier.metalThick * tiltMultiplierNerf
+                damageEffectModifier.metalThin = damageEffectModifier.metalThin * tiltMultiplierNerf
+                damageEffectModifier.grunt = damageEffectModifier.grunt * tiltMultiplierNerf
+                damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * tiltMultiplierNerf
+                damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * tiltMultiplierNerf
+                damageEffectModifier.elite = damageEffectModifier.elite * tiltMultiplierNerf
+                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * tiltMultiplierBuff
+                damageEffectModifier.jackal = damageEffectModifier.jackal * tiltMultiplierNerf
+                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * tiltMultiplierBuff
+                damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * tiltMultiplierNerf
+                damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * tiltMultiplierNerf
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
             end
@@ -50,20 +52,18 @@ function tilt.skullEffect(isActive)
         if not tagEntry.path:includes("melee") then
             local damageEffectModifier = tagEntry.data
             if isActive then
-                damageEffectModifier.metalHollow = damageEffectModifier.metalHollow * 2
-                damageEffectModifier.metalThick = damageEffectModifier.metalThick * 2
-                damageEffectModifier.metalThin = damageEffectModifier.metalThin * 2
-                damageEffectModifier.grunt = damageEffectModifier.grunt * 2
-                damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * 2
-                damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
-                damageEffectModifier.elite = damageEffectModifier.elite * 2
-                damageEffectModifier.eliteEnergyShield =
-                    damageEffectModifier.eliteEnergyShield * 0.5
-                damageEffectModifier.jackal = damageEffectModifier.jackal * 2
-                damageEffectModifier.jackalEnergyShield =
-                    damageEffectModifier.jackalEnergyShield * 0.5
-                damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 2
-                damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 2
+                damageEffectModifier.metalHollow = damageEffectModifier.metalHollow * tiltMultiplierBuff
+                damageEffectModifier.metalThick = damageEffectModifier.metalThick * tiltMultiplierBuff
+                damageEffectModifier.metalThin = damageEffectModifier.metalThin * tiltMultiplierBuff
+                damageEffectModifier.grunt = damageEffectModifier.grunt * tiltMultiplierBuff
+                damageEffectModifier.hunterArmor = damageEffectModifier.hunterArmor * tiltMultiplierBuff
+                damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * tiltMultiplierBuff
+                damageEffectModifier.elite = damageEffectModifier.elite * tiltMultiplierBuff
+                damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * tiltMultiplierNerf
+                damageEffectModifier.jackal = damageEffectModifier.jackal * tiltMultiplierBuff
+                damageEffectModifier.jackalEnergyShield = damageEffectModifier.jackalEnergyShield * tiltMultiplierNerf
+                damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * tiltMultiplierBuff
+                damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * tiltMultiplierBuff
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
             end

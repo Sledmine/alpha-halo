@@ -7,7 +7,8 @@ local allUnits = dependencies.names.units
 
 -- Knucklehead: Multiplies damage to the head x50. Reduces weapon's impact damage to a 1/5
 ---@param isActive boolean
-function knucklehead.skullEffect(isActive)
+function knucklehead.skullEffect(isActive, totalSkullPower)
+    local finalSkullPower = totalSkullPower or 1
     local knuckleheadTagsFiltered = table.filter(tagEntries.modelCollisionGeometry(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -16,6 +17,7 @@ function knucklehead.skullEffect(isActive)
         end
         return false
     end)
+    local bipedColissionMultiplier = (24 * finalSkullPower)
     for _, tagEntry in ipairs(knuckleheadTagsFiltered) do
         for i = 1, tagEntry.data.materials.count do
             local material = tagEntry.data.materials.elements[i]
@@ -23,8 +25,8 @@ function knucklehead.skullEffect(isActive)
             local body = material.bodyDamageMultiplier
             if isActive then
                 if material.flags:head() then
-                    shield = shield * 25
-                    body = body * 25
+                    shield = shield * bipedColissionMultiplier
+                    body = body * bipedColissionMultiplier
                 end
             else
                 Balltze.features.reloadTagData(tagEntry.handle)
@@ -33,16 +35,17 @@ function knucklehead.skullEffect(isActive)
             material.bodyDamageMultiplier = body
         end
     end
+    local materialResponseMultiplier = (0.2 * finalSkullPower)
     for _, tagEntry in ipairs(tagEntries.impactDamageEffect()) do
         local damageEffectModifier = tagEntry.data
         if isActive then
-            damageEffectModifier.grunt = damageEffectModifier.grunt * 0.2
-            damageEffectModifier.jackal = damageEffectModifier.jackal * 0.2
-            damageEffectModifier.elite = damageEffectModifier.elite * 0.2
-            damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * 0.2
-            damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * 0.2
-            damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * 0.2
-            damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * 2
+            damageEffectModifier.grunt = damageEffectModifier.grunt * materialResponseMultiplier
+            damageEffectModifier.jackal = damageEffectModifier.jackal * materialResponseMultiplier
+            damageEffectModifier.elite = damageEffectModifier.elite * materialResponseMultiplier
+            damageEffectModifier.eliteEnergyShield = damageEffectModifier.eliteEnergyShield * materialResponseMultiplier
+            damageEffectModifier.floodCarrierForm = damageEffectModifier.floodCarrierForm * materialResponseMultiplier
+            damageEffectModifier.floodCombatForm = damageEffectModifier.floodCombatForm * materialResponseMultiplier
+            damageEffectModifier.hunterSkin = damageEffectModifier.hunterSkin * (2 * finalSkullPower)
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end

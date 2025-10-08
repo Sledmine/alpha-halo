@@ -226,10 +226,10 @@ skullsManager.skulls = {
 }
 
 local skullList = {
-    skullsManager.skulls.famine,
+    --skullsManager.skulls.famine,
     skullsManager.skulls.mythic,
     -- skullsManager.skulls.blind,
-    -- skullsManager.skulls.catch,
+    skullsManager.skulls.catch,
     skullsManager.skulls.berserk,
     skullsManager.skulls.toughluck,
     -- skullsManager.skulls.fog,
@@ -315,13 +315,11 @@ end
 --- Initiate Skull Effect applying its function the number of times specified in its state.
 local function initiateSkullEffect(skull)
     -- Apply the effect the number of times specified in its state
-    local count = skull.state.count > 0 and skull.state.count or 1
-    local multiplier = skull.state.multiplier > 0 and skull.state.multiplier or 1
-    multiplier = multiplier * count
-    logger:debug("Initiating Skull effect: {} ({}) x{}", skull.name, count, multiplier)
-    for i = 1, multiplier do
-        skull.effect(true)
-    end
+    local timesStacked = skull.state.count > 0 and skull.state.count or 1
+    local powerPerActivation = skull.state.multiplier > 0 and skull.state.multiplier or 1
+    local totalSkullPower = timesStacked * powerPerActivation
+    logger:debug("Initiating Skull effect: {} ({}) x{}", skull.name, timesStacked, powerPerActivation)
+    skull.effect(true, totalSkullPower)
     skull.isEnabled = true
     updateEnabledSkullsQueue(skull)
 end

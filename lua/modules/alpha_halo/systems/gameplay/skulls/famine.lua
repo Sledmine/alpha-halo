@@ -7,7 +7,8 @@ local allUnits = dependencies.names.units
 
 -- Famine: Makes the AI drop half the ammo.
 ---@param isActive boolean
-function famine.skullEffect(isActive)
+function famine.skullEffect(isActive, totalSkullPower)
+    local finalSkullPower = totalSkullPower or 1
     local famineTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
         for _, unitName in pairs(allUnits) do
             if tagEntry.path:includes(unitName) then
@@ -16,13 +17,14 @@ function famine.skullEffect(isActive)
         end
         return false
     end)
+    local famineMultiplier = 0.5 / finalSkullPower
     for _, tagEntry in ipairs(famineTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            actorVariant.dropWeaponLoaded[1] = actorVariant.dropWeaponLoaded[1] * 0.5
-            actorVariant.dropWeaponLoaded[2] = actorVariant.dropWeaponLoaded[2] * 0.5
-            actorVariant.dropWeaponAmmo[1] = actorVariant.dropWeaponAmmo[1] * 0.5
-            actorVariant.dropWeaponAmmo[2] = actorVariant.dropWeaponAmmo[2] * 0.5
+            actorVariant.dropWeaponLoaded[1] = actorVariant.dropWeaponLoaded[1] * famineMultiplier
+            actorVariant.dropWeaponLoaded[2] = actorVariant.dropWeaponLoaded[2] * famineMultiplier
+            actorVariant.dropWeaponAmmo[1] = actorVariant.dropWeaponAmmo[1] * famineMultiplier
+            actorVariant.dropWeaponAmmo[2] = actorVariant.dropWeaponAmmo[2] * famineMultiplier
             actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0
         else
             Balltze.features.reloadTagData(tagEntry.handle)
