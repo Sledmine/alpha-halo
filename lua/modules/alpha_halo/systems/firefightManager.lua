@@ -490,8 +490,9 @@ function firefightManager.updateSkullsHud()
                                    firefightManager.prevSkullStates or {}
     firefightManager.skullInfoTimers, firefightManager.prevSkullStates = timers, prevSkullState
 
-    local hudColor, infoColor, emptyColor = {255, 125, 238, 85}, -- Alpha, Red, Green, Blue
-    {255, 255, 187, 0}, {0, 0, 0, 0}
+    local hudColor = {255, 125, 238, 85} -- Alpha, Red, Green, Blue
+    local infoColor = {255, 255, 187, 0}
+    local emptyColor = {0, 0, 0, 0}
 
     local function setElementColor(element, color)
         local channels = {"alpha", "red", "green", "blue"}
@@ -772,7 +773,9 @@ end
 function firefightManager.onEachFrame()
     local drawText = balltze.chimera.draw_text
     local titleText = const.fonts.title.handle.value
+    local standardText = const.fonts.text.handle.value
     local textColorW = {1.0, 1.0, 1.0, 1.0}
+    local infoColor = {255 / 255, 255 / 255, 187 / 255, 0 / 255}
     -- Show current game progression info
     local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
                      firefightManager.gameProgression)
@@ -789,18 +792,19 @@ function firefightManager.onEachFrame()
 
         for i = 1, hudIcons.staticElements.count do
             -- Toma el cráneo en la misma posición del HUD, no invertido
-            local skullObj = skullsManager.enabledSkullsQueue[i]
+            local skullObj = skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
             local skullElement = hudIcons.staticElements.elements[i]
 
             if skullObj and skullObj.isEnabled then
                 local skullName = table.keyof(skullsManager.skulls, skullObj)
                 if skullName then
-                    local multiplier = skullsManager.skulls[skullName].state.multiplier
-                    if multiplier > 1 then
-                        local y = skullElement.anchorOffset.y
-                        local multText = "x" .. tostring(multiplier)
-                        drawText(multText, bounds.left, y + 193, bounds.right + 5, bounds.bottom, titleText,
-                        align, table.unpack(textColorW))
+                    local count = skullsManager.skulls[skullName].state.count or 1
+                    if count >= 1 then
+                        --local y = bounds.top - 40 - (i - 1) * 40
+                        local y = bounds.top - skullElement.anchorOffset.y + 80
+                        local multText = "x" .. tostring(count)
+                        drawText(multText, bounds.left, y, bounds.right + 5, bounds.bottom, standardText,
+                        align, table.unpack(infoColor))
                     end
                 end
             end
