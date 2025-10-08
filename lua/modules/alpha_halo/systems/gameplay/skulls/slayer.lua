@@ -4,7 +4,9 @@ local slayer = {}
 
 -- Slayer: Weapons shoot doble rounds and waste double ammo.
 ---@param isActive boolean
-function slayer.skullEffect(isActive)
+function slayer.skullEffect(isActive, totalSkullPower)
+    local finalSkullPower = totalSkullPower or 1
+    local slayerMultiplier = 2 * finalSkullPower
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if isActive then
             -- for i = 1, tagEntry.data.magazines.count do
@@ -14,8 +16,8 @@ function slayer.skullEffect(isActive)
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
                 -- trigger.roundsPerShot = trigger.roundsPerShot * 2
-                trigger.projectilesPerShot = trigger.projectilesPerShot * 2
-                trigger.errorAngle[2] = trigger.errorAngle[2] * 2
+                trigger.projectilesPerShot = trigger.projectilesPerShot * slayerMultiplier
+                trigger.errorAngle[2] = trigger.errorAngle[2] * slayerMultiplier
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
