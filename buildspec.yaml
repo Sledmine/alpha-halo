@@ -3,7 +3,7 @@ game_engine: gbx-custom
 tag_space: 64M
 extend_limits: true
 scenarios:
-  - "[shm]/halo_1/maps/installation_04/alpha_halo_dev"
+  - alpha_firefight/levels/alpha_halo/alpha_halo_dev
 commands:
   release:
     - mercury build --release --output package/game-maps/
