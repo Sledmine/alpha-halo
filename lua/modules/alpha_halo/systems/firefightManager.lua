@@ -276,7 +276,7 @@ function firefightManager.playerCheck(call, sleep)
         -- If lifes are 0 and there's no player biped, then we end the game.
         if playerLives <= 0 then
             logger:info("You lost, sucker!!!")
-            script.wake(firefightManager.endGame)
+            script.wake(firefightManager.scriptEndGame)
         end
         return
     end
@@ -698,7 +698,7 @@ function firefightManager.firefightProgression()
                 script.wake(firefightManager.startSet) -- Keep counting and start the next set!
             else -- If we reached the setsPerGame limit...
                 logger:debug("You won. Go brag about it, prick.")
-                script.wake(firefightManager.endGame) -- End the game!
+                script.wake(firefightManager.scriptEndGame) -- End the game!
             end
         end
     end
@@ -787,7 +787,7 @@ function firefightManager.reloadGame()
 end
 
 ---End Game.
-function firefightManager.endGame(call, sleep)
+function firefightManager.scriptEndGame(call, sleep)
     progression.isGameOn = false
     waveIsOn = false
     hsc.ai_erase_all()
