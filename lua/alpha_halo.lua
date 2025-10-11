@@ -1,6 +1,6 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = true
+DebugMode = false
 package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
