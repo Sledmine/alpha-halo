@@ -23,7 +23,6 @@ end
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
---local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 
 -- Encapsular Funcion
