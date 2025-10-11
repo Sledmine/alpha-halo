@@ -31,34 +31,34 @@ local eventNames = {never = 1, eachWave = 2, eachRound = 3, eachSet = 4, eachBos
 ---@class firefightSettings
 firefightManager.firefightSettings = {
     _version = 1,
+    -- Player properties
     playerInitialLives = 7,
     extraLivesGained = 1,
     livesLostPerDead = 1,
-    -- Waves, Rounds, Sets and Game properties
+    -- Firefight flow properties
     bossWaveFrequency = 0,
     wavesPerRound = 5,
     roundsPerSet = 3,
     setsPerGame = 3,
     waveLivingMin = 4,
     bossWaveLivingMin = 0,
+    startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
+    roundEndingBoss = true,
     -- Time properties
     waveCooldownSeconds = 9,
     roundCooldownSeconds = 10,
     setCooldownSeconds = 1,
     gameCooldownSeconds = 1,
-    -- Game settings
-    startingEnemyTeam = 1, -- 1 = Covenant, 2 = Flood, 3 = Random
-    permanentSkullsCanBeRandom = true,
-    roundEndingBoss = true,
     -- Event properties
     activateTemporalSkullEach = eventNames.eachRound,
     resetTemporalSkullEach = eventNames.eachSet,
     activatePermanentSkullEach = eventNames.eachSet,
+    permanentSkullsCanBeRandom = true,
     deployAlliesEach = eventNames.eachBossWave
 }
 local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
-settings.bossWaveFrequency = settings.wavesPerRound
+settings.bossWaveFrequency = settings.wavesPerRound or 0
 
 local isFirstGameWave = false -- First wave of the game.
 local isFirstRoundWave = false -- First wave of the round.
@@ -82,7 +82,6 @@ local progression = firefightManager.gameProgression
 
 function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Welcome to Alpha Firefight")
-    -- hsc.hud_set_objective_text("Welcome to Alpha Firefight")
     logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
     logger:debug("Waiting 30 ticks before starting game")
@@ -160,75 +159,9 @@ function firefightManager.eachTick()
     end
 end
 
-local font = "ticker"
-local align = "right"
-local bounds = {left = -8, top = 390, right = 640, bottom = 480}
--- local r, g, b = 125, 238, 85
-local r, g, b = 255, 255, 255
-local r, g, b = 255, 187, 0
-local textColor = {1.0, r / 255, g / 255, b / 255}
-
----This moves the Firefight one wave, round or set forward.
----It's called AFTER a completed wave, not when the game starts.
----This is the only function that can alter the progression list.
-function firefightManager.firefightProgression()
-    if not (progression.wave == settings.wavesPerRound) then -- If we hadn't reach the wavePerRound limit...
-        progression.wave = progression.wave + 1
-        script.wake(firefightManager.startWave) -- Keep counting and start the next wave, and...!
-    else -- If we reached the wavePerRound limit...
-        progression.wave = 1
-        if not (progression.round == settings.roundsPerSet) then -- If we hadn't reach the roundsPerSet limit...
-            progression.round = progression.round + 1
-            script.wake(firefightManager.startRound) -- Keep counting and start the next round!
-        else -- If we reached the roundsPerSet limit...
-            progression.round = 1 -- Reset the round to 1 and check set status!
-            if not (progression.set == settings.setsPerGame) then -- If we hadn't reach the setsPerGame limit...
-                progression.set = progression.set + 1
-                script.wake(firefightManager.startSet) -- Keep counting and start the next set!
-            else -- If we reached the setsPerGame limit...
-                logger:debug("You won. Go brag about it, prick.")
-                firefightManager.endGame() -- End the game!
-            end
-        end
-    end
-    progression.totalWaves = progression.totalWaves + 1
-    firefightManager.waveDefinition()
-    -- We announce bad guys coming in.
-    logger:debug("Bad guys coming in...")
-end
-
---- Define in which type of wave are we depending on the settings.
-function firefightManager.waveDefinition()
-    isFirstRoundWave = progression.wave == 1
-    local isRoundEndingBoss = (settings.roundEndingBoss == true) and
-                                  (progression.wave == settings.wavesPerRound) -- Boss at the end of the round.
-    local isBossFrequencyMeet = (settings.bossWaveFrequency > 0 and
-                                    math.fmod(progression.totalWaves, settings.bossWaveFrequency) ==
-                                    0) -- Boss at the player's choice.
-    isCurrentWaveBoss = isRoundEndingBoss or isBossFrequencyMeet -- Either methods can coexist or not in a game. Both are considered as bossWaves.
-    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
-                          (progression.set == 1)
-    -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
-    isLastWave = (progression.wave == settings.wavesPerRound) and
-                     (progression.round == settings.roundsPerSet) and
-                     (progression.set == settings.setsPerGame)
-    -- We define what is a randomWave.
-    intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstGameWave or isLastWave)
-end
-
----Set Start. Calls round start.
-function firefightManager.startSet(call, sleep)
-    sleep(utils.secondsToTicks(settings.setCooldownSeconds))
-    script.thread(announcer.setStart)()
-    script.wake(firefightManager.startRound)
-end
-
----Round Start. Calls wave start.
-function firefightManager.startRound(call, sleep)
-    sleep(utils.secondsToTicks(settings.roundCooldownSeconds))
-    script.thread(announcer.roundStart)()
-    script.wake(firefightManager.startWave)
-end
+-------------------------------------------------------
+-- Special Events
+-------------------------------------------------------
 
 local events = {}
 
@@ -259,26 +192,61 @@ local function eventDispatcher()
     end
 end
 
----Wave Starts. Deploys wave units.
-function firefightManager.startWave(call, sleep)
-    eventDispatcher()
-    sleep(utils.secondsToTicks(settings.waveCooldownSeconds))
-    -- script.thread(announcer.waveStart)() -- Sound not available?
-    if (isFirstGameWave or isFirstRoundWave) and (not isCurrentWaveBoss) then
-        unitDeployer.waveDeployer("starting")
-    elseif intermediateWave then
-        unitDeployer.waveDeployer("random")
-    elseif isCurrentWaveBoss then
-        unitDeployer.waveDeployer("boss")
+events = {
+    eachWave = {},
+    eachRound = {
+        firefightManager.enableTemporalSkull,
+        firefightManager.conditionedSpawnPlayerAssistances,
+        firefightManager.conditionalAddPlayerLives
+    },
+    eachSet = {
+        firefightManager.conditionedResetAllTemporalSkulls,
+        -- firefightManager.conditionedSwitchTeams,
+        firefightManager.enablePermanentSkull
+    },
+    eachBossWave = {firefightManager.deployPlayerAllies}
+}
+
+-- Helper function to get function name from its reference, for debug purposes.
+---@param fn function
+---@return string|nil
+local function getModuleFunctionName(fn)
+    for name, func in pairs(firefightManager) do
+        if func == fn then
+            return name
+        end
     end
-    hsc.garbage_collect_now()
-    -- This will be eventually replaced by a proper UI message.
-    logger:debug("Wave {}, Round {}, Set {}.", progression.wave, progression.round, progression.set)
-    if isLastWave then
-        logger:debug("Hang in there, just one final effort...")
+end
+
+--- Load an event into the appropriate list.
+---@param actionFunction function The function to be called during the event.
+---@param eventIndex? eventNames The index of the event list to load the function into.
+local function loadEvent(actionFunction, eventIndex)
+    local actionFunctionName = getModuleFunctionName(actionFunction)
+    if not eventIndex then
+        logger:debug("Skipping action {}, no event index provided", tostring(actionFunctionName))
+        return
     end
-    waveIsOn = true
-    drawNavPoint = false
+    local eventName = table.flip(eventNames)[eventIndex]
+    if not eventName then
+        logger:debug("Skipping action {}, invalid index: {}", tostring(actionFunctionName),
+                     tostring(eventIndex))
+        return
+    end
+
+    local isNever = eventIndex == eventNames.never
+    -- Filter out event if it already exists
+    for eventName, event in pairs(events) do
+        events[eventName] = table.filter(event, function(existingEvent)
+            return existingEvent ~= actionFunction or isNever
+        end)
+    end
+
+    -- Add event to the appropriate list
+    if not isNever then
+        table.insert(events[eventName], actionFunction)
+    end
+    logger:debug("Loading event: {} into {}", tostring(actionFunctionName), tostring(eventName))
 end
 
 local objectTypes = Engine.tag.objectType
@@ -308,7 +276,7 @@ function firefightManager.playerCheck(call, sleep)
         -- If lifes are 0 and there's no player biped, then we end the game.
         if playerLives <= 0 then
             logger:info("You lost, sucker!!!")
-            firefightManager.endGame()
+            script.wake(firefightManager.endGame)
         end
         return
     end
@@ -336,9 +304,100 @@ function firefightManager.playerCheck(call, sleep)
     end
 end
 
--------------------------------------------------------
--- Special Events
--------------------------------------------------------
+-- Here we put all out encounter blocks that had bad guys in it.
+local badGuys = {
+    "Covenant_Wave",
+    "Covenant_Support",
+    "Flood_Wave",
+    "Flood_Support",
+    "Covenant_Banshee",
+    "Covenant_Snipers",
+    "Sentinel_Team",
+    "Standby_Dropship"
+}
+
+-- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.
+local magicalSightCounter = 300
+local magicalSightTimer = 0
+function firefightManager.aiCheck()
+    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") +
+                      hsc.ai_living_count("Standby_Dropship")
+    if magicalSightTimer > 0 then
+        magicalSightTimer = magicalSightTimer - 1
+    else
+        magicalSightTimer = magicalSightCounter
+        firefightManager.aiSight()
+    end
+end
+
+-- Enemy AI will magically see and pursuit each other. Will try against players if they're not invisible.
+function firefightManager.aiSight()
+    -- ODSTs see and follow players.
+    hsc.ai_follow_target_players("Human_Team")
+    hsc.ai_magically_see_players("Human_Team")
+
+    -- Each enemy team sees and follows ODSTs.
+    for _, badGuy in pairs(badGuys) do
+        hsc.ai_magically_see_encounter("Human_Team", badGuy)
+        hsc.ai_magically_see_encounter(badGuy, "Human_Team")
+    end
+
+    -- For each player, each enemy team tries to see and follow them if not invisible.
+    local player = blam.biped(get_dynamic_player())
+    if not player then
+        return
+    end
+    if player.camoScale < 1 then
+        for _, badGuy in pairs(badGuys) do
+            hsc.ai_magically_see_players(badGuy)
+            if not (badGuy == "Covenant_Banshee") then
+                hsc.ai_follow_target_players(badGuy)
+            end
+        end
+    end
+end
+
+-- Set a navpoint for remaining enemies.
+function firefightManager.aiNavpoint()
+    local currentTeam = progression.currentEnemyTeam == 1 and "Covenant_Wave" or "Flood_Wave"
+    local navpointType = "default_red"
+    local navpointOffset = 0.6
+    local playerCount = hsc.list_count(hsc.players())
+    for i = 0, playerCount - 1 do
+        local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
+        for actorIndex = 0, 3 do
+            local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentTeam), actorIndex))
+            hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
+        end
+    end
+end
+
+-- Give extra lives to the player.
+function firefightManager.addPlayerLives()
+    -- We add a life to the player.
+    logger:info("Lives added!")
+    playerLives = playerLives + settings.extraLivesGained
+    logger:debug("Current lives: {}", playerLives)
+    script.thread(announcer.livesAdded)()
+    -- If the player exist, then we restore his health.
+    local player = getPlayer()
+    if not player then
+        return
+    end
+    local biped = getObject(player.objectHandle, objectTypes.biped)
+    if not biped then
+        return
+    end
+    if biped.vitals.health < 1 then
+        biped.vitals.health = 1
+    end
+end
+
+function firefightManager.conditionalAddPlayerLives()
+    if not isFirstGameWave then
+        firefightManager.addPlayerLives()
+    end
+end
 
 -- Switch enemy teams.
 function firefightManager.switchTeams()
@@ -377,33 +436,6 @@ end
 function firefightManager.conditionedSpawnPlayerAssistances()
     if not isFirstGameWave then
         firefightManager.spawnPlayerAssistances()
-    end
-end
-
--- Give extra lives to the player.
-function firefightManager.addPlayerLives()
-    -- We add a life to the player.
-    logger:info("Lives added!")
-    playerLives = playerLives + settings.extraLivesGained
-    logger:debug("Current lives: {}", playerLives)
-    script.thread(announcer.livesAdded)()
-    -- If the player exist, then we restore his health.
-    local player = getPlayer()
-    if not player then
-        return
-    end
-    local biped = getObject(player.objectHandle, objectTypes.biped)
-    if not biped then
-        return
-    end
-    if biped.vitals.health < 1 then
-        biped.vitals.health = 1
-    end
-end
-
-function firefightManager.conditionalAddPlayerLives()
-    if not isFirstGameWave then
-        firefightManager.addPlayerLives()
     end
 end
 
@@ -480,18 +512,24 @@ function firefightManager.conditionedResetAllTemporalSkulls()
     end
 end
 
+-------------------------------------------------------
+-- HUD Render Functions
+-------------------------------------------------------
+
+-- Update the skulls HUD elements
 function firefightManager.updateSkullsHud()
     if not (const.hud.skullsIcons and const.hud.skullsInfo) then
         return
     end
 
-    local hudIcons, hudInfo = const.hud.skullsIcons.data, const.hud.skullsInfo.data
-    local timers, prevSkullState = firefightManager.skullInfoTimers or {},
-                                   firefightManager.prevSkullStates or {}
-    firefightManager.skullInfoTimers, firefightManager.prevSkullStates = timers, prevSkullState
+    local hudIcons = const.hud.skullsIcons.data
+    local hudInfo = const.hud.skullsInfo.data
+    local timers = firefightManager.skullInfoTimers or {}
+    local prevSkullState = firefightManager.prevSkullStates or {}
+    firefightManager.skullInfoTimers = timers
+    firefightManager.prevSkullStates = prevSkullState
 
-    local hudColor = {255, 125, 238, 85} -- Alpha, Red, Green, Blue
-    local infoColor = {255, 255, 187, 0}
+    local infoColor = {255, 255, 255, 255}
     local emptyColor = {0, 0, 0, 0}
 
     local function setElementColor(element, color)
@@ -527,13 +565,21 @@ function firefightManager.updateSkullsHud()
         local currentSkullIcon =
             skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
         local skullIconElement = hudIcons.staticElements.elements[i]
+
         if currentSkullIcon and currentSkullIcon.isEnabled then
-            -- local skullElement = hudIcons.anchor
-            -- logger:debug("Anchor: {}", skullElement)
             local skullName = table.keyof(skullsManager.skulls, currentSkullIcon)
             skullIconElement.sequenceIndex =
                 (table.indexof(skullsManager.skullsHudOrder, skullName) or 1) - 1
-            setElementColor(skullIconElement, hudColor)
+
+            -- Kiwi Color
+            local colorToUse = {255, 89, 255, 5}
+
+            if currentSkullIcon.isPermanent then
+                -- Red Color
+                colorToUse = {255, 248, 57, 15}
+            end
+
+            setElementColor(skullIconElement, colorToUse)
         else
             skullIconElement.sequenceIndex = 0
             setElementColor(skullIconElement, emptyColor)
@@ -559,7 +605,7 @@ function firefightManager.updateSkullsHud()
 
         -- We show the skull info if it's active or if it was recently deactivated.
         if skullName and timers[skullName] then
-            local disappearTime = 8
+            local disappearTime = 12
             local elapsed = os.clock() - timers[skullName]
             if elapsed < disappearTime then
                 skullInfoElement.sequenceIndex = (table.indexof(skullsManager.skullsHudOrder,
@@ -581,9 +627,146 @@ function firefightManager.updateSkullsHud()
     end
 end
 
+function firefightManager.onEachFrame()
+    local drawText = balltze.chimera.draw_text
+    local align = "right"
+    local bounds = {left = -8, top = 390, right = 640, bottom = 480}
+    local r, g, b = 255, 187, 0
+    local textColor = {1.0, r / 255, g / 255, b / 255}
+    local titleText = const.fonts.title.handle.value
+    local standardText = const.fonts.text.handle.value
+    local textColorW = {1.0, 1.0, 1.0, 1.0}
+
+    -- Show current game progression info
+    local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
+                     firefightManager.gameProgression)
+    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleText, align,
+             table.unpack(textColor))
+
+    -- Draw current lifes
+    local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
+    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleText, align,
+             table.unpack(textColor))
+
+    -- Draw the number of times each skull was activated
+    if const.hud.skullsIcons then
+        local hudIcons = const.hud.skullsIcons.data
+
+        for i = 1, hudIcons.staticElements.count do
+            local skullObj = skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue -
+                                 (i - 1)]
+            local skullElement = hudIcons.staticElements.elements[i]
+
+            if skullObj and skullObj.isEnabled then
+                local skullName = table.keyof(skullsManager.skulls, skullObj)
+
+                if skullName then
+                    local count = skullsManager.skulls[skullName].state.count or 1
+
+                    if count >= 1 then
+                        local y = bounds.top - skullElement.anchorOffset.y + 80
+                        local multText = "x" .. tostring(count)
+                        drawText(multText, bounds.left, y, bounds.right + 5, bounds.bottom,
+                                 standardText, align, table.unpack(textColorW))
+                    end
+                end
+            end
+        end
+    end
+end
+
+-------------------------------------------------------
+-- Firefight Progression
+-------------------------------------------------------
+
+---This moves the Firefight one wave, round or set forward.
+---It's called AFTER a completed wave, not when the game starts.
+---This is the only function that can alter the progression list.
+function firefightManager.firefightProgression()
+    if not (progression.wave == settings.wavesPerRound) then -- If we hadn't reach the wavePerRound limit...
+        progression.wave = progression.wave + 1
+        script.wake(firefightManager.startWave) -- Keep counting and start the next wave, and...!
+    else -- If we reached the wavePerRound limit...
+        progression.wave = 1
+        if not (progression.round == settings.roundsPerSet) then -- If we hadn't reach the roundsPerSet limit...
+            progression.round = progression.round + 1
+            script.wake(firefightManager.startRound) -- Keep counting and start the next round!
+        else -- If we reached the roundsPerSet limit...
+            progression.round = 1 -- Reset the round to 1 and check set status!
+            if not (progression.set == settings.setsPerGame) then -- If we hadn't reach the setsPerGame limit...
+                progression.set = progression.set + 1
+                script.wake(firefightManager.startSet) -- Keep counting and start the next set!
+            else -- If we reached the setsPerGame limit...
+                logger:debug("You won. Go brag about it, prick.")
+                script.wake(firefightManager.endGame) -- End the game!
+            end
+        end
+    end
+    progression.totalWaves = progression.totalWaves + 1
+    firefightManager.waveDefinition()
+    -- We announce bad guys coming in.
+    logger:debug("Bad guys coming in...")
+end
+
+--- Define in which type of wave are we depending on the settings.
+function firefightManager.waveDefinition()
+    isFirstRoundWave = progression.wave == 1
+    local isRoundEndingBoss = (settings.roundEndingBoss == true) and
+                                  (progression.wave == settings.wavesPerRound) -- Boss at the end of the round.
+    local isBossFrequencyMeet = (settings.bossWaveFrequency > 0 and
+                                    math.fmod(progression.totalWaves, settings.bossWaveFrequency) ==
+                                    0) -- Boss at the player's choice.
+    isCurrentWaveBoss = isRoundEndingBoss or isBossFrequencyMeet -- Either methods can coexist or not in a game. Both are considered as bossWaves.
+    isFirstGameWave = (progression.wave == 1) and (progression.round == 1) and
+                          (progression.set == 1)
+    -- progression.totalWaves == 1 (for unknown reasons, using totalWaves don't work)
+    isLastWave = (progression.wave == settings.wavesPerRound) and
+                     (progression.round == settings.roundsPerSet) and
+                     (progression.set == settings.setsPerGame)
+    -- We define what is a randomWave.
+    intermediateWave = not (isFirstRoundWave or isCurrentWaveBoss or isFirstGameWave or isLastWave)
+end
+
+---Set Start. Calls round start.
+function firefightManager.startSet(call, sleep)
+    sleep(utils.secondsToTicks(settings.setCooldownSeconds))
+    script.thread(announcer.setStart)()
+    script.wake(firefightManager.startRound)
+end
+
+---Round Start. Calls wave start.
+function firefightManager.startRound(call, sleep)
+    sleep(utils.secondsToTicks(settings.roundCooldownSeconds))
+    script.thread(announcer.roundStart)()
+    script.wake(firefightManager.startWave)
+end
+
+---Wave Starts. Deploys wave units.
+function firefightManager.startWave(call, sleep)
+    eventDispatcher()
+    sleep(utils.secondsToTicks(settings.waveCooldownSeconds))
+    -- script.thread(announcer.waveStart)() -- Sound not available?
+    if (isFirstGameWave or isFirstRoundWave) and (not isCurrentWaveBoss) then
+        unitDeployer.waveDeployer("starting")
+    elseif intermediateWave then
+        unitDeployer.waveDeployer("random")
+    elseif isCurrentWaveBoss then
+        unitDeployer.waveDeployer("boss")
+    end
+    hsc.garbage_collect_now()
+    -- This will be eventually replaced by a proper UI message.
+    logger:debug("Wave {}, Round {}, Set {}.", progression.wave, progression.round, progression.set)
+    if isLastWave then
+        logger:debug("Hang in there, just one final effort...")
+    end
+    waveIsOn = true
+    drawNavPoint = false
+end
+
 -------------------------------------------------------
 -- Utils
 -------------------------------------------------------
+
 ---Useful functions for the game.
 ---This is where reloadGame, endGame and onTick functions are located.
 
@@ -604,141 +787,14 @@ function firefightManager.reloadGame()
 end
 
 ---End Game.
-function firefightManager.endGame()
+function firefightManager.endGame(call, sleep)
     progression.isGameOn = false
     waveIsOn = false
-    -- logger:debug("Firefight is on '{}'", progression.isGameOn)
-    -- logger:debug("Wave is on '{}'", waveIsOn)
-    progression.set = 1
-    progression.round = 1
-    progression.wave = 1
-    -- logger:debug("Set, Round and Wave reset to '0'")
     hsc.ai_erase_all()
+    hsc.object_destroy_containing("dropship")
     hsc.garbage_collect_now()
+    sleep(utils.secondsToTicks(3))
     execute_script("sv_end_game")
-end
-
--- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.
-local magicalSightCounter = 300
-local magicalSightTimer = 0
-function firefightManager.aiCheck()
-    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") +
-                      hsc.ai_living_count("Standby_Dropship")
-    if magicalSightTimer > 0 then
-        magicalSightTimer = magicalSightTimer - 1
-    else
-        magicalSightTimer = magicalSightCounter
-        firefightManager.aiSight()
-    end
-end
-
--- Here we put all out encounter blocks that had bad guys in it.
-local badGuys = {
-    "Covenant_Wave",
-    "Covenant_Support",
-    "Flood_Wave",
-    "Flood_Support",
-    "Covenant_Banshees",
-    "Covenant_Snipers",
-    "Sentinel_Team",
-    "Standby_Dropship"
-}
-
--- Enemy AI will magically see and pursuit each other. Will try against players if they're not invisible.
-function firefightManager.aiSight()
-    -- ODSTs see and follow players.
-    hsc.ai_follow_target_players("Human_Team")
-    hsc.ai_magically_see_players("Human_Team")
-    -- Each enemy team sees and follows ODSTs.
-    for _, badGuy in pairs(badGuys) do
-        hsc.ai_magically_see_encounter("Human_Team", badGuy)
-        hsc.ai_magically_see_encounter(badGuy, "Human_Team")
-    end
-    -- For each player, each enemy team tries to see and follow them if not invisible.
-    local player = blam.biped(get_dynamic_player())
-    if not player then
-        return
-    end
-    if player.camoScale < 1 then
-        for _, badGuy in pairs(badGuys) do
-            hsc.ai_magically_see_players(badGuy)
-            if not (badGuy == "Covenant_Banshee") then
-                hsc.ai_follow_target_players(badGuy)
-            end
-        end
-    end
-end
-
--- Set a navpoint for remaining enemies.
-function firefightManager.aiNavpoint()
-    local currentTeam = progression.currentEnemyTeam == 1 and "Covenant_Wave" or "Flood_Wave"
-    local navpointType = "default_red"
-    local navpointOffset = 0.6
-    local playerCount = hsc.list_count(hsc.players())
-    for i = 0, playerCount - 1 do
-        local playerUnit = hsc.unit(hsc.list_get(hsc.players(), i))
-        for actorIndex = 0, 3 do
-            local actorUnit = hsc.unit(hsc.list_get(hsc.ai_actors(currentTeam), actorIndex))
-            hsc.activate_nav_point_object(navpointType, playerUnit, actorUnit, navpointOffset)
-        end
-    end
-end
-
-events = {
-    eachWave = {},
-    eachRound = {
-        firefightManager.enableTemporalSkull,
-        firefightManager.conditionedSpawnPlayerAssistances,
-        firefightManager.conditionalAddPlayerLives
-    },
-    eachSet = {
-        firefightManager.conditionedResetAllTemporalSkulls,
-        -- firefightManager.conditionedSwitchTeams,
-        firefightManager.enablePermanentSkull
-    },
-    eachBossWave = {firefightManager.deployPlayerAllies}
-}
-
--- Helper function to get function name from its reference, for debug purposes.
----@param fn function
----@return string|nil
-local function getModuleFunctionName(fn)
-    for name, func in pairs(firefightManager) do
-        if func == fn then
-            return name
-        end
-    end
-end
-
---- Load an event into the appropriate list.
----@param actionFunction function The function to be called during the event.
----@param eventIndex? eventNames The index of the event list to load the function into.
-local function loadEvent(actionFunction, eventIndex)
-    local actionFunctionName = getModuleFunctionName(actionFunction)
-    if not eventIndex then
-        logger:debug("Skipping action {}, no event index provided", tostring(actionFunctionName))
-        return
-    end
-    local eventName = table.flip(eventNames)[eventIndex]
-    if not eventName then
-        logger:debug("Skipping action {}, invalid index: {}", tostring(actionFunctionName),
-                     tostring(eventIndex))
-        return
-    end
-
-    local isNever = eventIndex == eventNames.never
-    -- Filter out event if it already exists
-    for eventName, event in pairs(events) do
-        events[eventName] = table.filter(event, function(existingEvent)
-            return existingEvent ~= actionFunction or isNever
-        end)
-    end
-
-    -- Add event to the appropriate list
-    if not isNever then
-        table.insert(events[eventName], actionFunction)
-    end
-    logger:debug("Loading event: {} into {}", tostring(actionFunctionName), tostring(eventName))
 end
 
 function firefightManager.loadSettings()
@@ -748,6 +804,7 @@ function firefightManager.loadSettings()
     local settingsPath = pluginsPath .. "\\lua_insurrection\\firefight_settings.json"
     logger:debug("Settings path: {}", settingsPath)
     local settingsFile = luna.file.read(settingsPath)
+
     -- local settingsFile = balltze.filesystem.readFile(settingsPath)
     if settingsFile then
         local success, data = pcall(json.decode, settingsFile)
@@ -757,7 +814,8 @@ function firefightManager.loadSettings()
             -- Load events properties
             loadEvent(firefightManager.enableTemporalSkull, settings.activateTemporalSkullEach)
             loadEvent(firefightManager.enablePermanentSkull, settings.activatePermanentSkullEach)
-            loadEvent(firefightManager.conditionedResetAllTemporalSkulls, settings.resetTemporalSkullEach)
+            loadEvent(firefightManager.conditionedResetAllTemporalSkulls,
+                      settings.resetTemporalSkullEach)
             loadEvent(firefightManager.deployPlayerAllies, settings.deployAlliesEach)
             logger:info("Firefight settings loaded from file.")
             return
@@ -766,50 +824,6 @@ function firefightManager.loadSettings()
         return
     end
     logger:warn("Settings file not found, using default settings.")
-    return
-end
-
-
-function firefightManager.onEachFrame()
-    local drawText = balltze.chimera.draw_text
-    local titleText = const.fonts.title.handle.value
-    local standardText = const.fonts.text.handle.value
-    local textColorW = {1.0, 1.0, 1.0, 1.0}
-    local infoColor = {255 / 255, 255 / 255, 187 / 255, 0 / 255}
-
-    -- Show current game progression info
-    local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
-                     firefightManager.gameProgression)
-    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleText, align,table.unpack(textColor))
-
-    -- Draw current lifes
-    local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
-    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleText, align, table.unpack(textColor))
-
-    -- Draw the number of times each skull was activated
-    if const.hud.skullsIcons then
-        local hudIcons = const.hud.skullsIcons.data
-
-        for i = 1, hudIcons.staticElements.count do
-            local skullObj = skullsManager.enabledSkullsQueue[#skullsManager.enabledSkullsQueue - (i - 1)]
-            local skullElement = hudIcons.staticElements.elements[i]
-
-            if skullObj and skullObj.isEnabled then
-                local skullName = table.keyof(skullsManager.skulls, skullObj)
-
-                if skullName then
-                    local count = skullsManager.skulls[skullName].state.count or 1
-
-                    if count >= 1 then
-                        local y = bounds.top - skullElement.anchorOffset.y + 80
-                        local multText = "x" .. tostring(count)
-                        drawText(multText, bounds.left, y, bounds.right + 5, bounds.bottom, standardText,
-                        align, table.unpack(infoColor))
-                    end
-                end
-            end
-        end
-    end
 end
 
 return firefightManager
