@@ -17,26 +17,29 @@ function catch.skullEffect(isActive, totalSkullPower)
         end
         return false
     end)
-    local catchMultiplier = 2 * finalSkullPower
+    local catchMultiplier = 1.5 * finalSkullPower
     for _, tagEntry in ipairs(catchTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            -- actorVariant.grenadeStimulus = engine.tag.actorVariantGrenadeStimulus.visibleTarget
-            actorVariant.flags:hasUnlimitedGrenades(true)
-            actorVariant.grenadeChance = actorVariant.grenadeChance + 1
-            actorVariant.grenadeCheckTime = actorVariant.grenadeCheckTime * 0.1
-            actorVariant.encounterGrenadeTimeout = actorVariant.encounterGrenadeTimeout * 0
-            actorVariant.grenadeCount[1] = actorVariant.grenadeCount[1] + 1
-            actorVariant.grenadeCount[2] = actorVariant.grenadeCount[2] + 1
+            local grenades = actorVariant.grenades --[[@as MetaEngineTagDataActorVariant]]
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            grenades.grenadeStimulus = 1 -- 1 = visible target
+            grenades.grenadeChance = grenades.grenadeChance + 0.2
+            grenades.grenadeCheckTime = grenades.grenadeCheckTime * 0.1
+            grenades.encounterGrenadeTimeout = grenades.encounterGrenadeTimeout * 0.7
+            actorVariant.flags.hasUnlimitedGrenades = true
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            actorVariant.items.grenadeCount = {
+                actorVariant.items.grenadeCount[1] + 1,
+                actorVariant.items.grenadeCount[2] + 1
+            }
             if not tagEntry.path:includes("odst") then
-                actorVariant.grenadeVelocity = actorVariant.grenadeVelocity * catchMultiplier
+                grenades.grenadeVelocity = grenades.grenadeVelocity * catchMultiplier
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    -- skullsManager.skulls.catch.active = isActive
-    -- logger:debug("Catch {}", isActive and "On" or "Off")
 end
 
 return catch

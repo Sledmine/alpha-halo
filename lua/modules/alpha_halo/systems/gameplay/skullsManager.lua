@@ -27,7 +27,7 @@ local skullsManager = {}
 
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
-    -- skullsManager.skullFogOnTick()
+    fog.onTick(skullsManager.skulls.fog)
     -- skullsManager.skullBlindOnTick()
     -- skullsManager.skullAssassinOnTick()
 end
@@ -232,7 +232,7 @@ local skullList = {
     skullsManager.skulls.catch,
     skullsManager.skulls.berserk,
     skullsManager.skulls.toughluck,
-    -- skullsManager.skulls.fog,
+    skullsManager.skulls.fog,
     skullsManager.skulls.knucklehead,
     skullsManager.skulls.cowbell,
     skullsManager.skulls.havok,
@@ -406,13 +406,13 @@ function skullsManager.enableSkull(name, multiplier)
         local randomIndex = math.random(1, #skullList)
         local randomSkull = skullList[randomIndex]
         randomSkull.isEnabled = true
-        randomSkull.state.multiplier = multiplier or randomSkull.state.multiplier or 1
+        randomSkull.state.count = multiplier or randomSkull.state.count or 1
     else
         -- Enable desired skull
         for skullName, skull in pairs(skullsManager.skulls) do
             if name == skullName:lower() or name == "all" then
                 skull.isEnabled = true
-                skull.state.multiplier = multiplier or skull.state.multiplier or 1
+                skull.state.count = multiplier or skull.state.count or 1
             end
         end
     end

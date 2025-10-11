@@ -20,7 +20,7 @@ function assassin.skullEffect(isActive)
     for _, tagEntry in ipairs(assassinTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            actorVariant.flags:activeCamouflage(true)
+            actorVariant.flags.activeCamouflage = true
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
@@ -35,8 +35,6 @@ function assassin.skullEffect(isActive)
         end
     end
     assassinOnTick = true
-    -- skullsManager.skulls.assassin.active = isActive
-    -- logger:debug("Assassin {}", isActive and "On" or "Off")
 end
 
 -- Assassin OnTick

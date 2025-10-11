@@ -24,8 +24,8 @@ function mythic.skullEffect(isActive, totalSkullPower)
     for _, tagEntry in ipairs(mythicTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            actorVariant.bodyVitality = actorVariant.bodyVitality * actorVariantVitals
-            actorVariant.shieldVitality = actorVariant.shieldVitality * actorVariantVitals
+            actorVariant.unitProperties.bodyVitality = actorVariant.unitProperties.bodyVitality * actorVariantVitals
+            actorVariant.unitProperties.shieldVitality = actorVariant.unitProperties.shieldVitality * actorVariantVitals
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
