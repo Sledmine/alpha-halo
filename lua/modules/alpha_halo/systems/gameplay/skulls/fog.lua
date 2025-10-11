@@ -1,4 +1,7 @@
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
+local engine = Engine
+local hscExecuteScript = engine.hsc.executeScript
+local hsc = require "hsc"
 
 local fog = {}
 
@@ -15,17 +18,14 @@ function fog.skullEffect(isActive)
     end
 end
 
---function fog.skullFogOnTick()
---    -- TODO Retrieve previous state of the motion sensor using transpilation
---    local previousMotionSensorState = false
---    if previousMotionSensorState then
---        if skullsManager.skulls.fog.spent > 0 then
---            execute_script("hud_show_motion_sensor 0")
---        else
---            execute_script("hud_show_motion_sensor 1")
---            fogOnTick = false
---        end
---    end
---end
+-- TODO Retrieve previous state of the motion sensor using transpilation
+local motionSensorState = true
+function fog.onTick(skullState)
+    if skullState.isEnabled then
+        hscExecuteScript("hud_show_motion_sensor 0")
+    else
+        hscExecuteScript("hud_show_motion_sensor 1")
+    end
+end
 
 return fog

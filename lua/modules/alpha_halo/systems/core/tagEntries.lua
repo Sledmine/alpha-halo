@@ -33,9 +33,10 @@ function tagEntries.actorVariant()
     if actorVariantTagEntries then
         return actorVariantTagEntries
     end
-    actorVariantTagEntries = findTags("", tagClasses.actorVariant)
+    --actorVariantTagEntries = findTags("", tagClasses.actorVariant)
+    actorVariantTagEntries = blam.tag.findTags("", blam.tag.groups.actorVariant)
     assert(actorVariantTagEntries)
-    return actorVariantTagEntries
+    return actorVariantTagEntries --[[@as MetaEngineActorVariantTag[] ]]
 end
 
 function tagEntries.biped()

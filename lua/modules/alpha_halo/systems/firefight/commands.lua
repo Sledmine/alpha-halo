@@ -73,6 +73,8 @@ commands = {
     spawn_allies = {
         description = "Spawn allied ODSTs in the firefight map.",
         category = "debug",
+        minArgs = 0,
+        maxArgs = 0,
         help = "",
         func = function()
             firefightManager.deployPlayerAllies()
