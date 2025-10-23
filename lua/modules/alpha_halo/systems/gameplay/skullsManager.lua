@@ -22,6 +22,8 @@ local eyePatch = require "alpha_halo.systems.gameplay.skulls.eyePatch"
 local triggerSwitch = require "alpha_halo.systems.gameplay.skulls.triggerSwitch"
 local slayer = require "alpha_halo.systems.gameplay.skulls.slayer"
 local assassin = require "alpha_halo.systems.gameplay.skulls.assassin"
+local bandana = require "alpha_halo.systems.gameplay.skulls.bandana"
+local gruntBirthday = require "alpha_halo.systems.gameplay.skulls.gruntBirthday"
 
 local skullsManager = {}
 
@@ -222,28 +224,50 @@ skullsManager.skulls = {
         isPermanent = false,
         onTick = function()
         end
+    },
+    bandana = {
+        name = "Bandana",
+        motto = "Never run out of ammo again.",
+        description = "Gives the player unlimited ammunition and grenades, but realoading is needed.",
+        effect = bandana.skullEffect,
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
+    gruntbirthday = {
+        name = "Grunt Birthday Party",
+        motto = "Make every grunt's day special.",
+        description = "Killing grunts with a headshot causes a harmless explosion of confetti.",
+        effect = gruntBirthday.skullEffect,
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
     }
 }
 
 local skullList = {
-    --skullsManager.skulls.famine,
-    skullsManager.skulls.mythic,
-    -- skullsManager.skulls.blind,
-    skullsManager.skulls.catch,
-    skullsManager.skulls.berserk,
-    skullsManager.skulls.toughluck,
-    skullsManager.skulls.fog,
-    skullsManager.skulls.knucklehead,
-    skullsManager.skulls.cowbell,
-    skullsManager.skulls.havok,
-    skullsManager.skulls.newton,
-    skullsManager.skulls.tilt,
-    skullsManager.skulls.banger,
-    skullsManager.skulls.doubledown,
-    skullsManager.skulls.eyepatch,
-    skullsManager.skulls.triggerswitch,
-    skullsManager.skulls.slayer,
-    -- skullsManager.skulls.assassin
+    ----skullsManager.skulls.famine,
+    --skullsManager.skulls.mythic,
+    ---- skullsManager.skulls.blind,
+    --skullsManager.skulls.catch,
+    --skullsManager.skulls.berserk,
+    --skullsManager.skulls.toughluck,
+    --skullsManager.skulls.fog,
+    --skullsManager.skulls.knucklehead,
+    --skullsManager.skulls.cowbell,
+    --skullsManager.skulls.havok,
+    --skullsManager.skulls.newton,
+    --skullsManager.skulls.tilt,
+    --skullsManager.skulls.banger,
+    --skullsManager.skulls.doubledown,
+    --skullsManager.skulls.eyepatch,
+    --skullsManager.skulls.triggerswitch,
+    --skullsManager.skulls.slayer,
+    ---- skullsManager.skulls.assassin
+    skullsManager.skulls.bandana,
+    skullsManager.skulls.gruntbirthday
 }
 skullsManager.skullList = skullList
 
