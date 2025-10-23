@@ -30,8 +30,7 @@ local skullsManager = {}
 -- This function is called each tick and it's needed for some skulls.
 function skullsManager.eachTick()
     fog.onTick(skullsManager.skulls.fog)
-    -- skullsManager.skullBlindOnTick()
-    -- skullsManager.skullAssassinOnTick()
+    blind.onTick(skullsManager.skulls.blind)
 end
 
 skullsManager.skulls = {
@@ -250,7 +249,7 @@ skullsManager.skulls = {
 local skullList = {
     skullsManager.skulls.famine,
     skullsManager.skulls.mythic,
-    -- skullsManager.skulls.blind,
+    skullsManager.skulls.blind,
     skullsManager.skulls.catch,
     skullsManager.skulls.berserk,
     skullsManager.skulls.toughluck,
