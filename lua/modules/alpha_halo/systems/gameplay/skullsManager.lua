@@ -248,24 +248,24 @@ skullsManager.skulls = {
 }
 
 local skullList = {
-    ----skullsManager.skulls.famine,
-    --skullsManager.skulls.mythic,
-    ---- skullsManager.skulls.blind,
-    --skullsManager.skulls.catch,
-    --skullsManager.skulls.berserk,
-    --skullsManager.skulls.toughluck,
-    --skullsManager.skulls.fog,
-    --skullsManager.skulls.knucklehead,
-    --skullsManager.skulls.cowbell,
-    --skullsManager.skulls.havok,
-    --skullsManager.skulls.newton,
-    --skullsManager.skulls.tilt,
-    --skullsManager.skulls.banger,
-    --skullsManager.skulls.doubledown,
-    --skullsManager.skulls.eyepatch,
-    --skullsManager.skulls.triggerswitch,
-    --skullsManager.skulls.slayer,
-    ---- skullsManager.skulls.assassin
+    skullsManager.skulls.famine,
+    skullsManager.skulls.mythic,
+    -- skullsManager.skulls.blind,
+    skullsManager.skulls.catch,
+    skullsManager.skulls.berserk,
+    skullsManager.skulls.toughluck,
+    skullsManager.skulls.fog,
+    skullsManager.skulls.knucklehead,
+    skullsManager.skulls.cowbell,
+    skullsManager.skulls.havok,
+    skullsManager.skulls.newton,
+    skullsManager.skulls.tilt,
+    skullsManager.skulls.banger,
+    skullsManager.skulls.doubledown,
+    skullsManager.skulls.eyepatch,
+    skullsManager.skulls.triggerswitch,
+    skullsManager.skulls.slayer,
+    -- skullsManager.skulls.assassin
     skullsManager.skulls.bandana,
     skullsManager.skulls.gruntbirthday
 }
