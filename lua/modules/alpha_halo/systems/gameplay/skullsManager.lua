@@ -227,7 +227,7 @@ skullsManager.skulls = {
     bandana = {
         name = "Bandana",
         motto = "Never run out of ammo again.",
-        description = "Gives the player unlimited ammunition and grenades, but realoading is needed.",
+        description = "Gives the player unlimited ammunition and grenades, but reloading is needed.",
         effect = bandana.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,

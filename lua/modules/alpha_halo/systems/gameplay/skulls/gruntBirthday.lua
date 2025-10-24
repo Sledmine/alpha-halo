@@ -29,6 +29,7 @@ function gruntBirthday.skullEffect(isActive)
                 if headRegion.name == "01+mask" or headRegion.name:includes("head") then
                     local headRegionEffect = headRegion.destroyedEffect
                     if isActive then
+                        -- Set the damage threshold for headshot detection; 0.3 is the value at which the engine registers a headshot on a grunt's head region.
                         headRegion.damageThreshold = 0.3
                         headRegionEffect.tagHandle.value = confettiExplosion.handle.value
                     else
