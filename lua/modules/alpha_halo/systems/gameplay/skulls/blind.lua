@@ -1,11 +1,13 @@
+local engine = Engine
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
 local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
+local hscExecuteScript = engine.hsc.executeScript
 
 local blind = {}
 
 local allUnits = dependencies.names.units
 
---local blindOnTick = false
+-- local blindOnTick = false
 -- Blind: Hides HUD and duplicates AI burst origin radius.
 ---@param isActive boolean
 function blind.skullEffect(isActive)
@@ -20,26 +22,22 @@ function blind.skullEffect(isActive)
     for _, tagEntry in ipairs(blindTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            actorVariant.burstOriginRadius = actorVariant.burstOriginRadius * 2
+            -- TODO Implement burst origin radius modification with blam2
+            logger:debug("Doubling burst origin radius is not implemented with blam2")
+            --actorVariant.burstOriginRadius = actorVariant.burstOriginRadius * 2
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    --blindOnTick = true
-    -- skullsManager.skulls.blind.active = isActive
-    -- logger:debug("Blind {}", isActive and "On" or "Off")
 end
 
--- Blind OnTick
---function blind.skullOnTick()
---    if blindOnTick == true then
---        if skullsManager.skulls.blind.spent > 0 then
---            execute_script("show_hud 0")
---        else
---            execute_script("show_hud 1")
---            blindOnTick = false
---        end
---    end
---end
+-- TODO Retrieve previous state of the motion sensor using transpilation
+function blind.onTick(skullState)
+    if skullState.isEnabled then
+        hscExecuteScript("show_hud 0")
+    else
+        hscExecuteScript("show_hud 1")
+    end
+end
 
 return blind
