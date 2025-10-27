@@ -17,7 +17,12 @@ function slayer.skullEffect(isActive, totalSkullPower)
                 local trigger = tagEntry.data.triggers.elements[i]
                 -- trigger.roundsPerShot = trigger.roundsPerShot * 2
                 trigger.projectilesPerShot = trigger.projectilesPerShot * slayerMultiplier
-                trigger.errorAngle[2] = trigger.errorAngle[2] * slayerMultiplier
+                local upperErrorAngle = trigger.errorAngle[1]
+                local lowerErrorAngle = trigger.errorAngle[2]
+                trigger.errorAngle = {
+                    upperErrorAngle,
+                    lowerErrorAngle * slayerMultiplier
+                }
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)

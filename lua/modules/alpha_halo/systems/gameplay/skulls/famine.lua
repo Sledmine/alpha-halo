@@ -21,21 +21,25 @@ function famine.skullEffect(isActive, totalSkullPower)
     for _, tagEntry in ipairs(famineTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            local dropWeaponLoadedLower = actorVariant.dropWeaponLoaded[1]
-            local dropWeaponLoadedUpper = actorVariant.dropWeaponLoaded[2]
+            local dropWeaponLoadedLower = actorVariant.items.dropWeaponLoaded[1]
+            local dropWeaponLoadedUpper = actorVariant.items.dropWeaponLoaded[2]
+
             ---@diagnostic disable-next-line: assign-type-mismatch
-            actorVariant.dropWeaponLoaded = {
+            actorVariant.items.dropWeaponLoaded = {
                 dropWeaponLoadedLower * famineMultiplier,
                 dropWeaponLoadedUpper * famineMultiplier
             }
-            local dropWeaponAmmoLower = actorVariant.dropWeaponAmmo[1]
-            local dropWeaponAmmoUpper = actorVariant.dropWeaponAmmo[2]
+
+            local dropWeaponAmmoLower = actorVariant.items.dropWeaponAmmo[1]
+            local dropWeaponAmmoUpper = actorVariant.items.dropWeaponAmmo[2]
+
             ---@diagnostic disable-next-line: assign-type-mismatch
-            actorVariant.dropWeaponAmmo = {
-                dropWeaponAmmoLower * famineMultiplier,
-                dropWeaponAmmoUpper * famineMultiplier
+            actorVariant.items.dropWeaponAmmo = {
+                math.round(dropWeaponAmmoLower * famineMultiplier),
+                math.round(dropWeaponAmmoUpper * famineMultiplier)
             }
-            actorVariant.dontDropGrenadesChance = actorVariant.dontDropGrenadesChance * 0
+
+            actorVariant.items.dontDropGrenadesChance = 0
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
