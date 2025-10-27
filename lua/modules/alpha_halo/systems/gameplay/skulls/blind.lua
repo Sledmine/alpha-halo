@@ -22,9 +22,8 @@ function blind.skullEffect(isActive)
     for _, tagEntry in ipairs(blindTagsFiltered) do
         local actorVariant = tagEntry.data
         if isActive then
-            -- TODO Implement burst origin radius modification with blam2
-            logger:debug("Doubling burst origin radius is not implemented with blam2")
-            --actorVariant.burstOriginRadius = actorVariant.burstOriginRadius * 2
+            ---@diagnostic disable-next-line: undefined-field
+            actorVariant.burstGeometry.burstOriginRadius = actorVariant.burstGeometry.burstOriginRadius * 2
         else
             Balltze.features.reloadTagData(tagEntry.handle)
         end
