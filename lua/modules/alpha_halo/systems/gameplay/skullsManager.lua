@@ -246,7 +246,7 @@ skullsManager.skulls = {
     }
 }
 
-local skullList = {
+skullsManager.skullList = {
     skullsManager.skulls.famine,
     skullsManager.skulls.mythic,
     skullsManager.skulls.blind,
@@ -268,7 +268,7 @@ local skullList = {
     skullsManager.skulls.bandana,
     skullsManager.skulls.gruntbirthday
 }
-skullsManager.skullList = skullList
+local skullList = skullsManager.skullList
 
 skullsManager.skullsHudOrder = {
     "assassin",

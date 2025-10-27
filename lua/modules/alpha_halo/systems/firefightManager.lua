@@ -84,6 +84,7 @@ function firefightManager.whenMapLoads(call, sleep)
     logger:debug("Welcome to Alpha Firefight")
     logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
+    firefightManager.loadSettings()
     logger:debug("Waiting 30 ticks before starting game")
     sleep(30)
     script.startup(firefightManager.startGame)
@@ -797,7 +798,7 @@ function firefightManager.scriptEndGame(call, sleep)
     execute_script("sv_end_game")
 end
 
-function firefightManager.loadSettings()
+local function loadFirefightSettings()
     logger:debug("Loading Firefight settings from file...")
     local path = balltze.filesystem.getPluginPath():split("\\")
     local pluginsPath = table.concat(path, "\\", 1, #path - 1)
@@ -817,13 +818,46 @@ function firefightManager.loadSettings()
             loadEvent(firefightManager.conditionedResetAllTemporalSkulls,
                       settings.resetTemporalSkullEach)
             loadEvent(firefightManager.deployPlayerAllies, settings.deployAlliesEach)
-            logger:info("Firefight settings loaded from file.")
+            logger:debug("Firefight settings loaded from file.")
             return
         end
         logger:warn("Failed to decode settings file, using default settings. Error: {}", data)
         return
     end
     logger:warn("Settings file not found, using default settings.")
+end
+
+local function loadSkullsSettings()
+    logger:debug("Loading Firefight skull settings from file...")
+    local path = balltze.filesystem.getPluginPath():split("\\")
+    local pluginsPath = table.concat(path, "\\", 1, #path - 1)
+    local skullsSettingsPath = pluginsPath .. "\\lua_insurrection\\firefight_skulls_settings.json"
+    logger:debug("Skulls settings path: {}", skullsSettingsPath)
+    local skullsSettingsFile = luna.file.read(skullsSettingsPath)
+    if skullsSettingsFile then
+        local success, data = pcall(json.decode, skullsSettingsFile)
+        if success and type(data) == "table" then
+            for skullName, skullData in pairs(data) do
+                local skullObj = skullsManager.skulls[skullName]
+                if skullObj then
+                    --skullObj.isPermanent = skullData.isPermanent or false
+                    --skullObj.state.count = skullData.state and skullData.state.count or 0
+                    --skullObj.state.max = skullData.state and skullData.state.max or 1
+                    skullObj.isEnabled = skullData.isEnabled or false
+                end
+            end
+            logger:debug("Firefight skull settings loaded from file.")
+            return
+        end
+        logger:warn("Failed to decode skulls settings file, using default skull settings. Error: {}",
+                     data)
+        return
+    end
+end
+
+function firefightManager.loadSettings()
+    loadFirefightSettings()
+    loadSkullsSettings()
 end
 
 return firefightManager
