@@ -29,7 +29,7 @@ function gruntBirthday.skullEffect(isActive)
                 if headRegion.name == "01+mask" or headRegion.name:includes("head") then
                     local headRegionEffect = headRegion.destroyedEffect
                     if isActive then
-                        headRegion.damageThreshold = 0.3
+                        headRegion.damageThreshold = 0.01
                         headRegionEffect.tagHandle.value = confettiExplosion.handle.value
                     else
                         Balltze.features.reloadTagData(tagEntry.handle)
