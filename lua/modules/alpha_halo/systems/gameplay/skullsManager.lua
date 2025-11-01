@@ -24,6 +24,10 @@ local slayer = require "alpha_halo.systems.gameplay.skulls.slayer"
 local assassin = require "alpha_halo.systems.gameplay.skulls.assassin"
 local bandana = require "alpha_halo.systems.gameplay.skulls.bandana"
 local gruntBirthday = require "alpha_halo.systems.gameplay.skulls.gruntBirthday"
+local cliffhanger = require "alpha_halo.systems.gameplay.skulls.cliffhanger"
+local tarkov = require "alpha_halo.systems.gameplay.skulls.tarkov"
+local thunderstorm = require "alpha_halo.systems.gameplay.skulls.thunderstorm"
+-------------------------------------------------------
 
 local skullsManager = {}
 
@@ -226,7 +230,7 @@ skullsManager.skulls = {
     },
     bandana = {
         name = "Bandana",
-        motto = "Never run out of ammo again.",
+        motto = "Infinite Ammo.",
         description = "Gives the player unlimited ammunition and grenades, but reloading is needed.",
         effect = bandana.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
@@ -236,9 +240,39 @@ skullsManager.skulls = {
     },
     gruntbirthday = {
         name = "Grunt Birthday Party",
-        motto = "Make every grunt's day special.",
+        motto = "Light a match...",
         description = "Killing grunts with a headshot causes a harmless explosion of confetti.",
         effect = gruntBirthday.skullEffect,
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
+    cliffhanger = {
+        name = "Cliffhanger",
+        motto = "Hold on your breath.",
+        description = "Randomizes the detonation delay for all explosives.",
+        effect = cliffhanger.skullEffect,
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
+    tarkov = {
+        name = "Tarkov",
+        motto = "Control your manias.",
+        description = "Players have limited ammo capacity and must scavenge for more.",
+        effect = tarkov.skullEffect,
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
+    thunderstorm = {
+        name = "Thunderstorm",
+        motto = "Field promotions for everyone.",
+        description = "Every character advances to it's major variant if available.",
+        effect = thunderstorm.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
@@ -266,7 +300,10 @@ skullsManager.skullList = {
     skullsManager.skulls.slayer,
     -- skullsManager.skulls.assassin
     skullsManager.skulls.bandana,
-    skullsManager.skulls.gruntbirthday
+    skullsManager.skulls.gruntbirthday,
+    skullsManager.skulls.cliffhanger,
+    skullsManager.skulls.tarkov,
+    skullsManager.skulls.thunderstorm
 }
 local skullList = skullsManager.skullList
 
