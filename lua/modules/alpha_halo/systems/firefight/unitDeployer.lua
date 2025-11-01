@@ -144,13 +144,13 @@ function unitDeployer.waveDeployer(waveType)
         randomizedTeam = availableFireteams[math.random(#availableFireteams)]
         if settings.dropshipsLeft == settings.dropshipsAssigned then
             -- The first Dropship will drop a Support Squad, and...
-            logger:info("Support Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
+            logger:debug("Support Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
                         tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
         else
             -- The rest of them will drop the Main Squads, which will not repeat!
             -- We only want to make this once, despite this whole function being call again.
             randomizedTeam.available = false -- Mark this team as unavailable for the next randomization.
-            logger:info("Main Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
+            logger:debug("Main Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
                         tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
             isWaveRandomizable = false
         end -- We need to restore availability if we reach 0.

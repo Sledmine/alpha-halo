@@ -81,7 +81,7 @@ firefightManager.gameProgression = { --------------
 local progression = firefightManager.gameProgression
 
 function firefightManager.whenMapLoads(call, sleep)
-    logger:debug("Welcome to Alpha Firefight")
+    logger:info("Welcome to Alpha Firefight")
     logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
     firefightManager.loadSettings()
@@ -127,7 +127,7 @@ function firefightManager.startGame(call, sleep)
 
     firefightManager.enableStartingSkulls()
 
-    logger:debug("Game is on! Pain is coming in hot!")
+    logger:info("Game is on! Pain is coming in hot!")
 end
 
 -- Functions that are being called each tick.
@@ -452,12 +452,12 @@ function firefightManager.enableStartingSkulls()
         return skull.isEnabled
     end)
     if #startingSkulls > 0 then
-        logger:info("Activating initial skulls...")
+        logger:debug("Activating initial skulls...")
         -- Enable skull with balance
         skullsManager.enableSkulls(startingSkulls, true)
         return
     end
-    logger:info("No starting skulls to enable.")
+    logger:debug("No starting skulls to enable.")
 end
 
 -- Turn on a random temporal skull.
@@ -470,7 +470,7 @@ function firefightManager.enableTemporalSkull()
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
         local selectedSkull = temporalSkulls[randomIndex]
-        logger:info("Chosen random skull: {}", selectedSkull.name)
+        logger:debug("Chosen random skull: {}", selectedSkull.name)
         -- Enable skull with balance
         skullsManager.enableSkulls({selectedSkull}, true)
     end
@@ -490,7 +490,7 @@ function firefightManager.enablePermanentSkull()
     if #permanentSkulls > 0 then
         local randomIndex = math.random(1, #permanentSkulls)
         local selectedSkull = permanentSkulls[randomIndex]
-        logger:info("Chosen permanent skull: {}", selectedSkull.name)
+        logger:debug("Chosen permanent skull: {}", selectedSkull.name)
         -- Enable skull with balance
         selectedSkull.isPermanent = true
         skullsManager.enableSkulls({selectedSkull}, true)
@@ -629,6 +629,10 @@ function firefightManager.updateSkullsHud()
 end
 
 function firefightManager.onEachFrame()
+    if console_is_open() or skullsManager.skulls.blind.isEnabled then
+        return
+    end
+
     local drawText = balltze.chimera.draw_text
     local align = "right"
     local bounds = {left = -8, top = 390, right = 640, bottom = 480}
@@ -840,10 +844,10 @@ local function loadSkullsSettings()
             for skullName, skullData in pairs(data) do
                 local skullObj = skullsManager.skulls[skullName]
                 if skullObj then
-                    --skullObj.isPermanent = skullData.isPermanent or false
                     --skullObj.state.count = skullData.state and skullData.state.count or 0
                     --skullObj.state.max = skullData.state and skullData.state.max or 1
                     skullObj.isEnabled = skullData.isEnabled or false
+                    skullObj.isPermanent = skullData.isPermanent or false
                 end
             end
             logger:debug("Firefight skull settings loaded from file.")

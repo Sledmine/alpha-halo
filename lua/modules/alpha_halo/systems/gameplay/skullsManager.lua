@@ -391,7 +391,7 @@ function skullsManager.enableSkulls(skulls, useBalance)
         elseif not useBalance then
             skull.isEnabled = true
         end
-        logger:info("Enabling Skull: {} ({})", skull.name, skull.description)
+        logger:debug("Enabling Skull: {} ({})", skull.name, skull.description)
     end
 
     -- Initiate the effect of the enabled skulls
@@ -420,7 +420,7 @@ end
 ---@param multiplier? number
 function skullsManager.enableSkull(name, multiplier)
     local name = name:lower()
-    logger:info("Enabling Skull: {}", name)
+    logger:debug("Enabling Skull: {}", name)
 
     -- Revert all skull effects
     revertAllSkullEffects()
@@ -464,7 +464,7 @@ function skullsManager.disableSkull(name)
     -- Revert the effect of the disabled skulls
     for _, skull in ipairs(skullList) do
         if not skull.isEnabled then
-            logger:info("Disabling Skull: {}", skull.name)
+            logger:debug("Disabling Skull: {}", skull.name)
             skull.effect(false)
         end
     end

@@ -132,11 +132,11 @@ function pigPen.recursivePrintTable(theTable, thePadding)
     end
     for key, value in pairs(theTable) do
         if type(value) == "table" then
-            logger:info(padding..key.." = {")
+            logger:debug(padding..key.." = {")
             pigPen.recursivePrintTable(value, padding)
-            logger:info(padding.."}")
+            logger:debug(padding.."}")
         else
-            logger:info(padding..key.." = "..value)
+            logger:debug(padding..key.." = "..value)
         end
     end
 end
