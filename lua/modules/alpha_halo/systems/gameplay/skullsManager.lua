@@ -250,7 +250,7 @@ skullsManager.skulls = {
     },
     cliffhanger = {
         name = "Cliffhanger",
-        motto = "Hold on your breath.",
+        motto = "Hold your breath...",
         description = "Randomizes the detonation delay for all explosives.",
         effect = cliffhanger.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
@@ -260,8 +260,8 @@ skullsManager.skulls = {
     },
     tarkov = {
         name = "Tarkov",
-        motto = "Control your manias.",
-        description = "Players have limited ammo capacity and must scavenge for more.",
+        motto = "You'll learn to control that mania.",
+        description = "Discards loaded rounds when changing magazines, but its capacity doubles!",
         effect = tarkov.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
@@ -270,7 +270,7 @@ skullsManager.skulls = {
     },
     thunderstorm = {
         name = "Thunderstorm",
-        motto = "Field promotions for everyone.",
+        motto = "Field promotions for everyone!",
         description = "Every character advances to it's major variant if available.",
         effect = thunderstorm.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
