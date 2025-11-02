@@ -17,7 +17,7 @@ function knucklehead.skullEffect(isActive, totalSkullPower)
         end
         return false
     end)
-    local bipedColissionMultiplier = (24 * finalSkullPower)
+    local bipedColissionMultiplier = (25 * finalSkullPower)
     for _, tagEntry in ipairs(knuckleheadTagsFiltered) do
         for i = 1, tagEntry.data.materials.count do
             local material = tagEntry.data.materials.elements[i]
