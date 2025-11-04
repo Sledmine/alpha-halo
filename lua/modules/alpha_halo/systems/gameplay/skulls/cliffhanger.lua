@@ -9,8 +9,10 @@ function cliffhanger.skullEffect(isActive)
         local projectile = tagEntry.data
         if isActive then
             if not projectile.effect.tagHandle:isNull() then
+                projectile.aiPerceptionRadius = projectile.aiPerceptionRadius + 1
+                projectile.dangerRadius = projectile.dangerRadius + 1
                 ---@diagnostic disable-next-line: assign-type-mismatch
-                projectile.timer = {1, 10}
+                projectile.timer = {0.5, 5}
                 for i = 1, projectile.materialResponse.count do
                     local materialResponse = projectile.materialResponse.elements[i]
                     if materialResponse.defaultResponse ~= 2 then -- 2 = reflect
