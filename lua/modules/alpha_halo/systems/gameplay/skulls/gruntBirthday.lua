@@ -12,7 +12,7 @@ local effects = dependencies.paths.effects
 function gruntBirthday.skullEffect(isActive)
     local confettiExplosion = findTags(effects.confetti, tagClasses.effect)[1]
     if not confettiExplosion then
-        logger:warning("Confetti effect not found.")
+        logger:error("Confetti effect not found.")
         return
     end
 

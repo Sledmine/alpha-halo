@@ -139,7 +139,7 @@ function unitDeployer.waveDeployer(waveType)
         if #availableFireteams == 0 then
             resetFireteamsAvailability()
             availableFireteams = getAvailableRandomFireteams(fireTeamList)
-            logger:warning("All random fireteams have been used. Resetting availability.")
+            logger:debug("All random fireteams have been used. Resetting availability.")
         end
         randomizedTeam = availableFireteams[math.random(#availableFireteams)]
         if settings.dropshipsLeft == settings.dropshipsAssigned then

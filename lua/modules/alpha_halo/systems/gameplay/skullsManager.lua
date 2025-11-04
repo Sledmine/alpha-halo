@@ -360,7 +360,7 @@ local function spendSkull(skull)
     skull.state.count = skull.state.count + 1
     if skull.state.count > skull.state.max then
         skull.state.count = skull.state.max
-        logger:warning("Skull '{}' has reached its maximum count of {}.", skull.name,
+        logger:debug("Skull '{}' has reached its maximum count of {}.", skull.name,
                        skull.state.max)
     end
     skull.isEnabled = true
@@ -370,7 +370,7 @@ local function restoreSkull(skull)
     skull.state.count = skull.state.count - 1
     if skull.state.count < 0 then
         skull.state.count = 0
-        logger:warning("Skull '{}' is already at its minimum count of 0.", skull.name)
+        logger:debug("Skull '{}' is already at its minimum count of 0.", skull.name)
     end
     if skull.state.count == 0 then
         skull.isEnabled = false
