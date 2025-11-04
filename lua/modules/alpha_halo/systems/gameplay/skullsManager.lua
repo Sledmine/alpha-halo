@@ -44,7 +44,7 @@ skullsManager.skulls = {
         motto = "Trust us, bring a magazine.",
         description = "Enemies dropped weapons with half ammo.",
         effect = famine.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -54,7 +54,7 @@ skullsManager.skulls = {
         motto = "Coverage under the Covenant Health Plan!",
         description = " Enemies have double health and shields, and player gets a x1.5 bonus of it.",
         effect = mythic.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -76,7 +76,7 @@ skullsManager.skulls = {
         motto = "Pull pin. Count to three. Throw.",
         description = "Enemies launch grenades with more frequency, and throwing speed increases a little.",
         effect = catch.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -119,7 +119,7 @@ skullsManager.skulls = {
         motto = "All brawn and no brain...",
         description = "Body damage gets reduced to 1/5th, and head damage gets a 500% bonus.",
         effect = knucklehead.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -129,7 +129,7 @@ skullsManager.skulls = {
         motto = "More bang for your buck.",
         description = "Acceleration effects are duplicated.",
         effect = cowbell.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -139,7 +139,7 @@ skullsManager.skulls = {
         motto = "Deliver hope... and tactical warheads.",
         description = "Doubles explosions radius effect.",
         effect = havok.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         enabledFromTheStart = true,
         isEnabled = false,
@@ -150,7 +150,7 @@ skullsManager.skulls = {
         motto = "That is... not how the 3rd law works.",
         description = "Melee hits now inflict knockback... To both ends.",
         effect = newton.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         enabledFromTheStart = true,
         isEnabled = false,
@@ -161,7 +161,7 @@ skullsManager.skulls = {
         motto = "What was once resistance is now immunity.",
         description = "Material resistances and weakness are doubled.",
         effect = tilt.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -181,7 +181,7 @@ skullsManager.skulls = {
         motto = "Do I feel lucky?",
         description = "Doubles your shield... As well as the stun and recovering time.",
         effect = doubleDown.skullEffect,
-        state = {count = 0, max = 2, multiplier = 1},
+        state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
@@ -277,7 +277,34 @@ skullsManager.skulls = {
         allowedInRandom = true,
         isEnabled = false,
         isPermanent = false
-    }
+    },
+    sputnik = {
+        name = "Sputnik",
+        motto = "Pigs might fly.",
+        description = "Gravity is reduced by half. Shooting causes a small pushback.",
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
+    acrophobia = {
+        name = "Acrophobia",
+        motto = "Wololo",
+        description = "Wololo",
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
+    bloodlust = {
+        name = "Bloodlust",
+        motto = "Wololo",
+        description = "Wololo",
+        state = {count = 0, max = 1, multiplier = 1},
+        allowedInRandom = true,
+        isEnabled = false,
+        isPermanent = false
+    },
 }
 
 skullsManager.skullList = {
@@ -303,17 +330,23 @@ skullsManager.skullList = {
     skullsManager.skulls.gruntbirthday,
     skullsManager.skulls.cliffhanger,
     skullsManager.skulls.tarkov,
-    skullsManager.skulls.thunderstorm
+    skullsManager.skulls.thunderstorm,
+    --skullsManager.skulls.sputnik,
+    --skullsManager.skulls.acrophobia,
+    --skullsManager.skulls.bloodlust
 }
 local skullList = skullsManager.skullList
 
 skullsManager.skullsHudOrder = {
+    --"acrophobia",
     "assassin",
     "bandana",
     "banger",
     "berserk",
     "blind",
+    --"bloodlust",
     "catch",
+    "cliffhanger",
     "cowbell",
     "doubledown",
     "eyepatch",
@@ -325,9 +358,12 @@ skullsManager.skullsHudOrder = {
     "mythic",
     "newton",
     "slayer",
+    "sputnik",
+    "tarkov",
+    "thunderstorm",
     "tilt",
     "toughluck",
-    "triggerswitch"
+    "triggerswitch",
 }
 
 skullsManager.enabledSkullsQueue = skullsManager.enabledSkullsQueue or {}
