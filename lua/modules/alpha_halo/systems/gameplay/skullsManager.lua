@@ -27,6 +27,7 @@ local gruntBirthday = require "alpha_halo.systems.gameplay.skulls.gruntBirthday"
 local cliffhanger = require "alpha_halo.systems.gameplay.skulls.cliffhanger"
 local tarkov = require "alpha_halo.systems.gameplay.skulls.tarkov"
 local thunderstorm = require "alpha_halo.systems.gameplay.skulls.thunderstorm"
+local acrophobia = require "alpha_halo.systems.gameplay.skulls.acrophobia"
 -------------------------------------------------------
 
 local skullsManager = {}
@@ -35,6 +36,8 @@ local skullsManager = {}
 function skullsManager.eachTick()
     fog.onTick(skullsManager.skulls.fog)
     blind.onTick(skullsManager.skulls.blind)
+    assassin.onTick(skullsManager.skulls.assassin)
+    acrophobia.onTick(skullsManager.skulls.acrophobia)
 end
 
 skullsManager.skulls = {
@@ -289,8 +292,9 @@ skullsManager.skulls = {
     },
     acrophobia = {
         name = "Acrophobia",
-        motto = "Wololo",
-        description = "Wololo",
+        motto = "L1-L2-R1-R2-UP-DOWN-LEFT-RIGHT-L1-L2-R1-R2-UP-DOWN-LEFT-RIGHT",
+        description = "Gives player a jetpack.",
+        effect = acrophobia.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
@@ -325,14 +329,14 @@ skullsManager.skullList = {
     skullsManager.skulls.eyepatch,
     skullsManager.skulls.triggerswitch,
     skullsManager.skulls.slayer,
-    -- skullsManager.skulls.assassin
+    skullsManager.skulls.assassin,
     skullsManager.skulls.bandana,
     skullsManager.skulls.gruntbirthday,
     skullsManager.skulls.cliffhanger,
     skullsManager.skulls.tarkov,
     skullsManager.skulls.thunderstorm,
     --skullsManager.skulls.sputnik,
-    --skullsManager.skulls.acrophobia,
+    skullsManager.skulls.acrophobia,
     --skullsManager.skulls.bloodlust
 }
 local skullList = skullsManager.skullList
