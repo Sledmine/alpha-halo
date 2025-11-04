@@ -137,7 +137,8 @@ local addressList = {
     screenResolution = 0x637CF0,
     currentWidgetIdAddress = 0x6B401C,
     cinematicGlobals = 0x0068c83c,
-    hscGlobalsPointer = 0x0064bab0
+    hscGlobalsPointer = 0x0064bab0,
+    globalGravity = 0x637BE4
 }
 
 -- Server side addresses adjustment
@@ -2060,6 +2061,17 @@ end
 function blam.getGameDifficultyIndex()
     local hscGlobals = read_dword(addressList.hscGlobalsPointer)
     return read_byte(hscGlobals + 0xe)
+end
+
+--- Set or get global gravity value for current game
+---@param gravity number
+function blam.globalGravity(gravity)
+    local gravityAddress = addressList.globalGravity
+    if gravity then
+        write_float(gravityAddress, gravity)
+    else
+        return read_float(gravityAddress)
+    end
 end
 
 return blam

@@ -3,6 +3,7 @@ local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local luna = require "luna"
+local blam = require "blam2"
 
 local commands = {}
 
@@ -101,6 +102,21 @@ commands = {
             elseif eventType == "sentinel" then
                 eventsManager.sentinelEvent()
             end
+        end
+    },
+    global_gravity = {
+        description = "Set the gravity level in the firefight map.",
+        category = "debug",
+        help = "<number>",
+        example = "set_gravity 0.5",
+        minArgs = 0,
+        maxArgs = 1,
+        func = function(gravityLevel)
+            local gravityLevel = tonumber(gravityLevel)
+            if gravityLevel then
+                blam.globalGravity(gravityLevel)
+            end
+            logger:info("Gravity level set to {}.", blam.globalGravity())
         end
     }
 }
