@@ -13,12 +13,10 @@ function cliffhanger.skullEffect(isActive)
                 projectile.timer = {1, 10}
                 for i = 1, projectile.materialResponse.count do
                     local materialResponse = projectile.materialResponse.elements[i]
-                    if not materialResponse.defaultResponse == 2 then -- 2 = bounce
-                        ---@diagnostic disable-next-line: assign-type-mismatch
+                    if materialResponse.defaultResponse ~= 2 then -- 2 = reflect
                         materialResponse.defaultResponse = 4 -- 4 = attach
                     end
-                    if not materialResponse.potentialResponse == 2 then -- 2 = bounce
-                        ---@diagnostic disable-next-line: assign-type-mismatch
+                    if materialResponse.potentialResponse ~= 2 then -- 2 = reflect
                         materialResponse.potentialResponse = 4 -- 4 = attach
                     end
                 end
@@ -27,8 +25,6 @@ function cliffhanger.skullEffect(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    -- skullsManager.skulls.cliffhanger.active = isActive
-    -- logger:debug("Cliffhanger {}", isActive and "On" or "Off")
 end
 
 return cliffhanger

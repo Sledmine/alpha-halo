@@ -34,7 +34,6 @@ function assassin.skullEffect(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    assassinOnTick = true
 end
 
 -- Assassin OnTick
