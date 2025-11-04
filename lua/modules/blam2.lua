@@ -1179,12 +1179,15 @@ local function getFieldMetadata(struct, key, baseAddress, parentStruct)
     return fieldMeta, address
 end
 
+hardcodedBindings = hardcodedBindings or {}
+
 --- Create a table binded to a structure properties
 ---@param struct table
 ---@param baseAddress integer
 ---@param parentStruct? table
+---@param parentMeta? table
 ---@return table
-local function createBindStruct(baseAddress, struct, parentStruct)
+local function createBindStruct(baseAddress, struct, parentStruct, parentMeta)
     -- print("Creating bind struct for address: " .. string.format("0x%x", address))
 
     -- Support non list like structures
@@ -1198,6 +1201,14 @@ local function createBindStruct(baseAddress, struct, parentStruct)
 
     setmetatable(tableStruct, {
         __index = function(t, key)
+            -- Check for meta methods first
+            if parentMeta and parentMeta.metaName and hardcodedBindings[parentMeta.metaName] then
+                local method = hardcodedBindings[parentMeta.metaName].methods[key]
+                if method then
+                    return method
+                end
+            end
+
             local fieldMeta, address = getFieldMetadata(struct, key, baseAddress, parentStruct)
             assert(fieldMeta and address, "Field '" .. key .. "' not found in struct")
             local value
@@ -1205,7 +1216,7 @@ local function createBindStruct(baseAddress, struct, parentStruct)
             if cTypes[fieldMeta.type] and cTypes[fieldMeta.type].read then
                 value = cTypes[fieldMeta.type].read(address, fieldMeta.offset)
             elseif fieldMeta.is == "struct" or fieldMeta.is == "union" or fieldMeta.fields then
-                value = createBindStruct(address, fieldMeta.fields, struct)
+                value = createBindStruct(address, fieldMeta.fields, struct, fieldMeta)
             elseif fieldMeta.is == "array" and fieldMeta.count then
                 local array = {}
                 for i = 0, fieldMeta.count - 1 do
@@ -1230,14 +1241,16 @@ local function createBindStruct(baseAddress, struct, parentStruct)
                 print("Unsupported type: " .. tostring(fieldMeta.type) .. " for field: " ..
                           tostring(fieldMeta.name))
             end
-            printdebug(string.format("0x%x", address), key .. " (" .. tostring(fieldMeta.type) .. ") READ = " .. tostring(value))
+            printdebug(string.format("0x%x", address),
+                       key .. " (" .. tostring(fieldMeta.type) .. ") READ = " .. tostring(value))
+
             return value
         end,
         __newindex = function(t, key, value)
             local fieldMeta, address = getFieldMetadata(struct, key, baseAddress)
             assert(fieldMeta and address, "Field '" .. key .. "' not found in struct")
             printdebug(string.format("0x%x", address),
-                  key .. " (" .. tostring(fieldMeta.type) .. ") WRITE = " .. tostring(value))
+                       key .. " (" .. tostring(fieldMeta.type) .. ") WRITE = " .. tostring(value))
 
             if cTypes[fieldMeta.type] and cTypes[fieldMeta.type].write then
                 cTypes[fieldMeta.type].write(address, value, fieldMeta.offset)
@@ -1254,7 +1267,7 @@ local function createBindStruct(baseAddress, struct, parentStruct)
                 if type(value) ~= "table" then
                     error("Expected a table for array assignment")
                 end
-                --for i = 1, fieldMeta.count do
+                -- for i = 1, fieldMeta.count do
                 local writeCount = math.min(#value, fieldMeta.count)
                 for i = 1, writeCount do
                     local elementAddress = address + (i - 1) * fieldMeta.elementSize
@@ -1352,7 +1365,7 @@ local tagDataHeaderStructure = {
 ---@field primaryGroup string Primary group of the tag
 ---@field secondaryGroup string Secondary group of the tag
 ---@field tertiaryGroup string Tertiary group of the tag
---@field handle number Tag handle, used for tag references
+-- @field handle number Tag handle, used for tag references
 ---@field handle { value: number, index: number, id: number } Handle of the tag, it is a struct with value, index and id
 ---@field path string Path of the tag
 ---@field data number Data of the tag, it represents the actual tag data in get_object_memory
@@ -1367,10 +1380,18 @@ local tagEntryStructure = {
     tertiaryGroup = {type = "dword", offset = 0x8},
     index = {type = "word", offset = 0xC}, -- Deprecated, use handle instead
     id = {type = "dword", offset = 0xC}, -- Deprecated, use handle instead
-    handle = { is = "struct", offset = 0xC, fields = {
-        value = {type = "dword", offset = 0x0},
-        index = {type = "word", offset = 0x0},
-        id = {type = "dword", offset = 0x2}
+    handle = {
+        is = "struct",
+        offset = 0xC,
+        fields = {
+            value = {type = "dword", offset = 0x0},
+            index = {type = "word", offset = 0x0},
+            id = {type = "dword", offset = 0x2}
+        },
+        methods = {
+            isNull = function (handle)
+                return isNull(handle.value)
+            end
         }
     },
     path = {type = "string", offset = 0x10, is = "ptr"},
@@ -1386,6 +1407,11 @@ local cinematicGlobalsStructure = {
     isInProgress = {type = "bit", offset = 0x9, bitLevel = 0},
     isShowingLetterbox = {type = "bit", offset = 0x8, bitLevel = 0}
 }
+
+hardcodedBindings = {
+    TableResourceHandle = tagEntryStructure.handle
+}
+
 
 ------------------------------------------------------------------------------
 -- LuaBlam globals

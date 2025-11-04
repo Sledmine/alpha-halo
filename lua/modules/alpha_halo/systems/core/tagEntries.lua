@@ -124,9 +124,10 @@ function tagEntries.projectile()
     if projectileTagEntries then
         return projectileTagEntries
     end
-    projectileTagEntries = findTags("", tagClasses.projectile)
+    --projectileTagEntries = findTags("", tagClasses.projectile)
+    projectileTagEntries = blam.tag.findTags("", blam.tag.groups.projectile)
     assert(projectileTagEntries)
-    return projectileTagEntries
+    return projectileTagEntries --[[@as MetaEngineProjectileTag[] ]]
 end
 
 function tagEntries.vehicle()
