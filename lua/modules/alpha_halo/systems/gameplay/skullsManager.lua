@@ -28,6 +28,7 @@ local cliffhanger = require "alpha_halo.systems.gameplay.skulls.cliffhanger"
 local tarkov = require "alpha_halo.systems.gameplay.skulls.tarkov"
 local thunderstorm = require "alpha_halo.systems.gameplay.skulls.thunderstorm"
 local acrophobia = require "alpha_halo.systems.gameplay.skulls.acrophobia"
+local sputnik = require "alpha_halo.systems.gameplay.skulls.sputnik"
 -------------------------------------------------------
 
 local skullsManager = {}
@@ -285,6 +286,7 @@ skullsManager.skulls = {
         name = "Sputnik",
         motto = "Pigs might fly.",
         description = "Gravity is reduced by half. Shooting causes a small pushback.",
+        effect = sputnik.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
@@ -335,7 +337,7 @@ skullsManager.skullList = {
     skullsManager.skulls.cliffhanger,
     skullsManager.skulls.tarkov,
     skullsManager.skulls.thunderstorm,
-    --skullsManager.skulls.sputnik,
+    skullsManager.skulls.sputnik,
     skullsManager.skulls.acrophobia,
     --skullsManager.skulls.bloodlust
 }

@@ -16,6 +16,7 @@ local vehicleTagEntries
 local weaponTagEntries
 local impactDamageEffect
 local meleeDamageEffect
+local triggerDamageEffect
 local explosionDamageEffect
 
 local tagEntries = {}
@@ -86,6 +87,20 @@ function tagEntries.meleeDamageEffect()
     end)
     assert(meleeDamageEffect)
     return meleeDamageEffect
+end
+
+function tagEntries.triggerDamageEffect()
+    if triggerDamageEffect then
+        return triggerDamageEffect
+    end
+    triggerDamageEffect = table.filter(tagEntries.damageEffect(), function(tagEntry)
+        if tagEntry.path:includes("trigger") then
+            return true
+        end
+        return false
+    end)
+    assert(triggerDamageEffect)
+    return triggerDamageEffect
 end
 
 function tagEntries.explosionDamageEffect()
