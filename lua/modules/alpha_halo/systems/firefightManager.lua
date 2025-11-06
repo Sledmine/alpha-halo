@@ -116,18 +116,20 @@ function firefightManager.startGame(call, sleep)
     -- script.thread(announcer.gameStart)() -- Sound not available?
     progression.isGameOn = true
     firefightManager.waveDefinition()
-
-    -- Start the first set.
-    script.wake(firefightManager.startSet)
-
-    -- TODO For testing purposes only, remove for release.
-    -- Enable some skulls from the start.
-    -- skullsManager.skulls.havok.isEnabled = true
-    -- skullsManager.skulls.newton.isEnabled = true
-
-    firefightManager.enableStartingSkulls()
-
-    logger:info("Game is on! Pain is coming in hot!")
+    
+    if not DebugMode then
+        -- Start the first set.
+        script.wake(firefightManager.startSet)
+        
+        -- TODO For testing purposes only, remove for release.
+        -- Enable some skulls from the start.
+        -- skullsManager.skulls.havok.isEnabled = true
+        -- skullsManager.skulls.newton.isEnabled = true
+        
+        firefightManager.enableStartingSkulls()
+        
+        logger:info("Game is on! Pain is coming in hot!")
+    end
 end
 
 -- Functions that are being called each tick.
@@ -834,6 +836,7 @@ function firefightManager.startWave(call, sleep)
         unitDeployer.waveDeployer("boss")
     end
     hsc.garbage_collect_now()
+    hsc.rasterizer_decals_flush()
     -- This will be eventually replaced by a proper UI message.
     logger:debug("Wave {}, Round {}, Set {}.", progression.wave, progression.round, progression.set)
     if isLastWave then
@@ -864,7 +867,9 @@ function firefightManager.reloadGame()
     hsc.object_destroy_containing("ghost")
     hsc.object_destroy_containing("warthog")
     hsc.object_destroy_containing("banshee")
+    hsc.object_destroy_containing("foehammer")
     hsc.garbage_collect_now()
+    hsc.rasterizer_decals_flush()
     skullsManager.disableSkull("all")
     logger:debug("Game reload completed")
 end
@@ -875,7 +880,12 @@ function firefightManager.scriptEndGame(call, sleep)
     waveIsOn = false
     hsc.ai_erase_all()
     hsc.object_destroy_containing("dropship")
+    hsc.object_destroy_containing("ghost")
+    hsc.object_destroy_containing("warthog")
+    hsc.object_destroy_containing("banshee")
+    hsc.object_destroy_containing("foehammer")
     hsc.garbage_collect_now()
+    hsc.rasterizer_decals_flush()
     sleep(utils.secondsToTicks(3))
     execute_script("sv_end_game")
 end

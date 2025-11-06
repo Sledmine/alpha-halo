@@ -19,7 +19,7 @@ function assert(...)
     end
 end
 
---Project modules
+-- Project modules
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
@@ -28,10 +28,7 @@ local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 
 -- Encapsular Funcion
 function OnMapLoad()
-    --if not DebugMode then
-        script.startup(firefightManager.whenMapLoads)
-        --logger:debug("Firefight Manager Loaded")
-    --end
+    script.startup(firefightManager.whenMapLoads)
 end
 
 local isLoaded = false

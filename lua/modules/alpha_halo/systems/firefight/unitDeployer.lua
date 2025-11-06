@@ -232,18 +232,19 @@ local odstPelicanSquad = "standby_pelican"
 function unitDeployer.scriptDeployPelicans(call, sleep)
     sleep(constants.pelicanDeploymentDelay)
     hsc.ai_place(odstSquadName)
+    hsc.ai_place(pelicanPilotName)
     -- TODO Make a custom biped for the Pelican turrets that can attack while in the Pelican.
-    --hsc.ai_place(pelicanPilotName)
     -- TODO Prevent ODSTs from receiving damage while in the Pelican.
     hsc.object_create_anew(pelicanVehicleName)
+    --hsc.unit_close(pelicanVehicleName)
     hsc.vehicle_load_magic(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName))
-    --hsc.vehicle_load_magic(pelicanVehicleName, "driver", hsc.ai_actors(pelicanPilotName))
+    hsc.vehicle_load_magic(pelicanVehicleName, "driver", hsc.ai_actors(pelicanPilotName))
     hsc.ai_migrate(odstSquadName, odstPelicanSquad)
+    hsc.ai_migrate(pelicanPilotName, odstPelicanSquad)
     -- TODO This should be a dynamic encounter based on the current wave.
     -- Otherwise it just forces the AI to only see Covenant
     --hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
     hsc.unit_set_enterable_by_player(pelicanVehicleName, false)
-    hsc.unit_close(pelicanVehicleName)
     hsc.object_teleport(pelicanVehicleName, "foehammer_cliff_flag")
     hsc.ai_braindead_by_unit(hsc.ai_actors(odstPelicanSquad), true)
     hsc.recording_play_and_hover(pelicanVehicleName, "foehammer_cliff_in")
@@ -252,11 +253,11 @@ function unitDeployer.scriptDeployPelicans(call, sleep)
     sleep(70)
     hsc.ai_braindead_by_unit(hsc.ai_actors(odstPelicanSquad), false)
     hsc.ai_migrate(odstPelicanSquad, odstSquadName)
-    hsc.vehicle_unload(pelicanVehicleName, "rider")
+    hsc.vehicle_unload(pelicanVehicleName, "")
     sleep(120)
     if not hsc.vehicle_test_seat_list(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName)) then
+        sleep(300)
         hsc.unit_close(pelicanVehicleName)
-        sleep(120)
         hsc.vehicle_hover(pelicanVehicleName, false)
         hsc.recording_play_and_delete(pelicanVehicleName, "foehammer_cliff_out")
     end
