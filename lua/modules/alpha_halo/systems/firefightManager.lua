@@ -494,8 +494,8 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
 
     if warthogHumanOccupied or warthogCovOccupied or warthogPlayerOccupied then
         logger:debug("Warthog occupied — skipping replacement.")
-        --hsc.object_create(selectedWarthog) -- Still spawn new warthog elsewhere
-        --hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
+        -- hsc.object_create(selectedWarthog) -- Still spawn new warthog elsewhere
+        -- hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
     else
         logger:debug("No occupants detected. Replacing warthog...")
         hsc.object_destroy_containing(generalWarthogName)
@@ -504,11 +504,11 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
     end
 end
 
-function firefightManager.conditionedSpawnPlayerAssistances()
-    if not isFirstGameWave then
-        firefightManager.spawnPlayerAssistances()
-    end
-end
+-- function firefightManager.conditionedSpawnPlayerAssistances()
+--    if not isFirstGameWave then
+--        firefightManager.spawnPlayerAssistances()
+--    end
+-- end
 
 function firefightManager.vehicleAssistances(call, sleep)
     script.wake(firefightManager.spawnPlayerAssistances)
@@ -932,7 +932,7 @@ local function loadSkullsSettings()
             logger:debug("Firefight skull settings loaded from file.")
             return
         end
-        logger:warn(
+        logger:warning(
             "Failed to decode skulls settings file, using default skull settings. Error: {}", data)
         return
     end
