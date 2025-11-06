@@ -12,7 +12,7 @@ function sputnik.skullEffect(isActive, totalSkullPower)
     local finalSkullPower = totalSkullPower or 1
     for _, tagEntry in ipairs(tagEntries.triggerDamageEffect()) do
         local damageEffect = tagEntry.data
-        local impulsePushback = (damageEffect.temporaryCameraImpulsePushback * 3)
+        local impulsePushback = (damageEffect.temporaryCameraImpulsePushback * 10)
         local accelerationMultiplier = impulsePushback * finalSkullPower
         if isActive then
             damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + accelerationMultiplier
