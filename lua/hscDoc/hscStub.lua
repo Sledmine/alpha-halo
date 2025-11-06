@@ -161,9 +161,9 @@ function hsc.players()
 end
 
 ---Returns a list of the living player units on the MP team
----@param team 0 | 1 Player team
+---@param playerTeams short 0 for Red Team, 1 for Blue Team
 ---@return object_list
-function hsc.players_on_multiplayer_team(team)
+function hsc.players_on_multiplayer_team(playerTeams)
 end
 
 ---Teleport all players that are not inside a given volume trigger to a specified flag
@@ -261,8 +261,8 @@ function hsc.object_destroy_all()
 end
 
 ---Deletes all objects of type <definition>
----@param objDefinition object_definition
-function hsc.objects_delete_by_definition(objDefinition)
+---@param objectPath object_definition
+function hsc.objects_delete_by_definition(objectPath)
 end
 
 ---Returns an item in an object list.
@@ -418,13 +418,15 @@ end
 function hsc.breakable_surfaces_enable(isEnabled)
 end
 
----@param arg1 unit
----@param arg2 cutscene_recording
+---Make the specified unit run the specified cutscene recording.
+---@param unitName unit Name of a unit in "name objects" scenario tag block.
+---@param recAnimsName cutscene_recording Name of a cutscene recording in "Recorded Animations" scenario tag block.
 ---@return boolean
-function hsc.recording_play()
+---Example: hsc.recording_play("foehammer_cliff", "foehammer_cliff_in")
+function hsc.recording_play(unitName, recAnimsName)
 end
 
----make the specified unit run the specified cutscene recording, deletes the unit when the animation finishes.
+---Make the specified unit run the specified cutscene recording, deletes the unit when the animation finishes.
 ---@param unitName unit Name of a unit in "name objects" scenario tag block.
 ---@param recAnimsName cutscene_recording Name of a cutscene recording in "Recorded Animations" scenario tag block.
 ---@return boolean
@@ -440,49 +442,65 @@ end
 function hsc.recording_play_and_hover(vehicleName, recAnimsName)
 end
 
----@param arg1 unit
-function hsc.recording_kill()
+---Kill the specified unit's cutscene recording.
+---@param unitName unit Name of a unit in "name objects" scenario tag block.
+function hsc.recording_kill(unitName)
 end
 
----@param arg1 unit
+---Return the time remaining in the specified unit's cutscene recording.
+---@param unitName unit Name of a unit in "name objects" scenario tag block.
 ---@return short
-function hsc.recording_time()
+---Example: hsc.recording_time("foehammer_cliff")
+---Output: time remaining in milliseconds
+function hsc.recording_time(unitName)
 end
 
----@param arg1 object
----@param arg2 boolean
-function hsc.object_set_ranged_attack_inhibited()
+---FALSE prevents object from using ranged attack.
+---@param objectName object
+---@param isInhibited boolean
+---Example: hsc.object_set_ranged_attack_inhibited("grunt_1", true) -- Prevents the grunt_1 from using ranged attacks.
+function hsc.object_set_ranged_attack_inhibited(objectName, isInhibited)
 end
 
----@param arg1 object
----@param arg2 boolean
-function hsc.object_set_melee_attack_inhibited()
+---FALSE prevents object from using melee attack.
+---@param objectName object 
+---@param isInhibited boolean
+---Example: hsc.object_set_melee_attack_inhibited("grunt_1", true) -- Prevents the grunt_1 from using melee attacks.
+function hsc.object_set_melee_attack_inhibited(objectName, isInhibited)
 end
 
+---Debugs object memory usage.
 function hsc.objects_dump_memory()
 end
 
----@param arg1 object
----@param arg2 boolean
-function hsc.object_set_collideable()
+---FALSE prevents any object from colliding with the given object.
+---@param objectName object
+---@param isCollidable boolean
+function hsc.object_set_collideable(objectName, isCollidable)
 end
 
----@param arg1 object
----@param arg2 real
----@param arg3 short
-function hsc.object_set_scale()
+---Sets the scale for a given object and interpolates over the given number of frames to achieve that scale.
+---@param objectName object
+---@param scale real
+---@param transitionScaleFrames short
+---Example: hsc.object_set_scale("ghost_1", 1.5, 30) -- Sets the scale of ghost_1 to 1.5 over 30 frames.
+function hsc.object_set_scale(objectName, scale, transitionScaleFrames)
 end
 
----@param arg1 object
----@param arg2 string
----@param arg3 object
----@param arg4 string
-function hsc.objects_attach()
+---Attaches the second object to the first within the specified markers; both strings can be empty, if so, the objects will be attached at their origin frame/bone.
+---@param parentObjectName object
+---@param parentMarker string
+---@param childObjectName object
+---@param childMarker string
+---Example: hsc.objects_attach("marine_1", "right_hand", "pistol_1", "") -- Attaches pistol_1 to the right hand of marine_1.
+function hsc.objects_attach(parentObjectName, parentMarker, childObjectName, childMarker)
 end
 
----@param arg1 object
----@param arg2 object
-function hsc.objects_detach()
+---Detaches from the given parent object the given child object.
+---@param parentObjectName object
+---@param childObjectName object
+---Example: hsc.objects_detach("marine_1", "pistol_1") -- Detaches pistol_1 from marine_1.
+function hsc.objects_detach(parentObjectName, childObjectName)
 end
 
 ---Causes all garbage objects except those visible to a player to be collected immediately.
@@ -495,68 +513,92 @@ end
 function hsc.object_cannot_take_damage(objectList)
 end
 
----@param arg1 object_list
-function hsc.object_can_take_damage()
+---Allows an object to take damage again
+---@param objectList object_list -- A list of objects (e.g., "players", "enemies", "allies") to allow to take damage.
+---Example: hsc.object_can_take_damage("players") -- Allows all players to take damage.
+function hsc.object_can_take_damage(objectList)
 end
 
----@param arg1 object
----@param arg2 boolean
-function hsc.object_beautify()
+---Makes an object pretty for the remainder of the levels' cutscenes.
+---@param objectName object
+---@param isBeautiful boolean
+---Example: hsc.object_beautify("cortana", true) -- Makes the object named "cortana" beautiful for cutscenes.
+function hsc.object_beautify(objectName, isBeautiful)
 end
 
----@param arg1 object_list
-function hsc.objects_predict()
+---Loads textures necessary to draw a objects that are about to come on-screen.
+---@param objectList object_list
+---Example: hsc.objects_predict("enemies") -- Loads textures for all enemy objects.
+function hsc.objects_predict(objectList)
 end
 
----@param arg1 object_definition
-function hsc.object_type_predict()
+---Loads textures necessary to draw an object that's about to come on-screen.
+---@param objectPath object_definition
+function hsc.object_type_predict(objectPath)
 end
 
----@param arg1 object
-function hsc.object_pvs_activate()
+---Just another (old) name for object_pvs_set_object.
+---@param objectName object
+---@deprecated
+function hsc.object_pvs_activate(objectName)
 end
 
----@param arg1 object
-function hsc.object_pvs_set_object()
+---Sets the specified object as the special place that activates everything it sees.
+---@param objectName object
+---Example: hsc.object_pvs_set_object("camera_1") -- Sets the object named "camera_1" as the PVS activator.
+function hsc.object_pvs_set_object(objectName)
 end
 
----@param arg1 cutscene_camera_point
-function hsc.object_pvs_set_camera()
+---Sets the specified cutscene camera point as the special place that activates everything it sees.
+---@param cameraPointName cutscene_camera_point
+---Example: hsc.object_pvs_set_camera("cutscene_camera_1") -- Sets the cutscene camera point named "cutscene_camera_1" as the PVS activator.
+function hsc.object_pvs_set_camera(cameraPointName)
 end
 
+---Removes the special place that activates everything it sees.
 function hsc.object_pvs_clear()
 end
 
----@param arg1 boolean
+---Enables/disables dynamic lights.
+---@param enableDynamicLights boolean
 ---@return boolean
-function hsc.render_lights()
+---Example: hsc.render_lights(false) -- Disables dynamic lights.
+function hsc.render_lights(enableDynamicLights)
 end
 
----@param arg1 scenery
+---Returns the number of ticks remaining in a custom animation (or zero, if the animation is over).
+---@param sceneryName scenery
 ---@return short
-function hsc.scenery_get_animation_time()
+function hsc.scenery_get_animation_time(sceneryName)
 end
 
----@param arg1 scenery
----@param arg2 animation_graph
----@param arg3 string
-function hsc.scenery_animation_start()
+---Starts a custom animation playing on a piece of scenery.
+---@param sceneryName scenery
+---@param modelAnimationPath animation_graph
+---@param animationName string
+---Example: hsc.scenery_animation_start("tree_1", "environment\\\trees\\\tree_oak", "sway")
+function hsc.scenery_animation_start(sceneryName, modelAnimationPath, animationName)
 end
 
----@param arg1 scenery
----@param arg2 animation_graph
----@param arg3 string
----@param arg4 short
-function hsc.scenery_animation_start_at_frame()
+---Starts a custom animation playing on a piece of scenery at a specific frame.
+---@param sceneryName scenery
+---@param modelAnimationPath animation_graph
+---@param animationName string
+---@param startAtFrame short
+---Example: hsc.scenery_animation_start_at_frame("tree_1", "environment\\\trees\\\tree_oak", "sway", 10)
+function hsc.scenery_animation_start_at_frame(sceneryName, modelAnimationPath, animationName, startAtFrame)
 end
 
----@param arg1 boolean
-function hsc.render_effects()
+---Renders or stops rendering special effects.
+---@param enableEffects boolean
+function hsc.render_effects(enableEffects)
 end
 
----@param arg1 unit
----@param arg2 boolean
-function hsc.unit_can_blink()
+---Allows a unit to blink on motion sensor or not (units never blink when they are dead).
+---@param unitName unit
+---@param canBlink boolean
+---Example: hsc.unit_can_blink("elite_1", false) -- Prevents the unit named "elite_1" from blinking on motion sensor.
+function hsc.unit_can_blink(unitName, canBlink)
 end
 
 ---Opens the hatches on the given unit.
@@ -571,50 +613,62 @@ end
 function hsc.unit_close(unitName)
 end
 
----@param arg1 unit
-function hsc.unit_kill()
+---Kills a given unit, no saving throw.
+---@param unitName unit
+---Example: hsc.unit_kill("grunt_1") -- Kills the unit named "grunt_1".
+function hsc.unit_kill(unitName)
 end
 
----@param arg1 unit
-function hsc.unit_kill_silent()
+---Kills a given unit silently (doesn't make them play their normal death animation or sound)
+---@param unitName unit
+---Example: hsc.unit_kill_silent("grunt_1") -- Silently kills the unit named "grunt_1".
+function hsc.unit_kill_silent(unitName)
 end
 
----@param arg1 unit
+---Returns the number of ticks remaining in a unit's custom animation (or zero, if the animation is over).
+---@param unitName unit
 ---@return short
-function hsc.unit_get_custom_animation_time()
+---Example: hsc.unit_get_custom_animation_time("cyborg")
+---Output: number of ticks remaining in the custom animation.
+function hsc.unit_get_custom_animation_time(unitName)
 end
 
----@param arg1 unit
-function hsc.unit_stop_custom_animation()
+---Stops the custom animation running on the given unit.
+---@param unitName unit
+---Example: hsc.unit_stop_custom_animation("cyborg")
+---Output: stops the custom animation on the unit named "cyborg".
+function hsc.unit_stop_custom_animation(unitName)
 end
 
----@param arg1 unit
----@param arg2 animation_graph
----@param arg3 string
----@param arg4 boolean
----@param arg5 short
+---Starts a custom animation playing on a unit at a specific frame index(interpolates into animation if next to last parameter is TRUE).
+---@param unitName unit
+---@param modelAnimationPath animation_graph
+---@param animationName string
+---@param interpolate boolean
+---@param startAtFrame short
 ---@return boolean
-function hsc.unit_custom_animation_at_frame()
+---Example: hsc.unit_custom_animation_at_frame("marine_1", "characters\\\marine\\\marine", "walk", true, 10)
+function hsc.unit_custom_animation_at_frame(unitName, modelAnimationPath, animationName, interpolate, startAtFrame)
 end
 
 ---Starts a custom animation playing on a unit (interpolates into animation if last parameter is TRUE).
 ---@param unitName unit -- Name of a unit in "name objects" scenario tag block.
----@param animPath animation_graph -- Path to the animation tag
+---@param modelAnimationPath animation_graph -- Path to the animation tag
 ---@param animationName string -- Name of the animation to play inside animation tag (e.g., "walk")
 ---@param interpolate boolean -- If true, the animation will interpolate from the current state to the new animation; if false, it will snap to the new animation immediately.
 ---@return boolean
 ---Example: hsc.custom_animation("marine_1", "characters\\\marine\\\marine", "walk", true)
-function hsc.custom_animation(unitName, animPath, animationName, interpolate)
+function hsc.custom_animation(unitName, modelAnimationPath, animationName, interpolate)
 end
 
 ---Starts a custom animation playing on a unit list (interpolates into animation if last parameter is TRUE).
 ---@param objectList object_list A list of objects (units) to play the animation on.
----@param animPath animation_graph Path to the animation tag
+---@param modelAnimationPath animation_graph Path to the animation tag
 ---@param animationName string Name of the animation to play inside animation tag
 ---@param interpolate boolean
 ---@return boolean
 ---Example: hsc.custom_animation_list("players", "characters\\\cinematic\\\stage2", "battle", false)
-function hsc.custom_animation_list(objectList, animPath, animationName, interpolate)
+function hsc.custom_animation_list(objectList, modelAnimationPath, animationName, interpolate)
 end
 
 ---Returns TRUE if the given unit is still playing a custom animation
@@ -643,58 +697,79 @@ end
 function hsc.unit_set_enterable_by_player(unitName, isEnterable)
 end
 
----@param unitName unit
----@param vehicleName vehicle
----@param seatName string
+---Puts the specified unit in the specified vehicle (in the named seat).
+---@param unitName unit Name of a unit in scenario tag.
+---@param vehicleName vehicle Name of a vehicle in scenario tag.
+---@param seatName string  Name of the seat in the vehicle.
+---Example: hsc.unit_enter_vehicle("marine_1", "pelican_2", "P-passenger") -- Puts the unit named "marine_1" into the "P-passenger" seat of the vehicle named "pelican_2".
 function hsc.unit_enter_vehicle(unitName, vehicleName, seatName)
 end
 
----Tests whether the named seat has an object in the object list
----@param vehicleName vehicle
----@param seatName string
----@param objectList object_list
+---Tests whether the named seat has an object in the object list.
+---@param vehicleName vehicle Name of a vehicle in scenario tag.
+---@param seatName string Name of the seat in the vehicle. Use "" to match all seats.
+---@param unitList object_list A list of objects (units) to test for in the seat.
+---@see hsc.ai_actors for creating unit lists.
 ---@return boolean
-function hsc.vehicle_test_seat_list(vehicleName, seatName, objectList)
+---Example: hsc.vehicle_test_seat_list("pelican_2", "P-passenger", "players")
+---Tests whether any player units are in the "P-passenger" seat of the vehicle named "pelican_2".
+---Example 2: hsc.vehicle_test_seat_list("dropship", "CD-passenger", hsc.ai_actors("dropship/dropship_troopers")).
+---Tests whether any of the units in the AI encounter "dropship/dropship_troopers" are in the "CD-passenger" seat of the vehicle named "dropship".
+function hsc.vehicle_test_seat_list(vehicleName, seatName, unitList)
 end
 
----@param arg1 vehicle
----@param arg2 string
----@param arg3 unit
+---Tests whether the named seat has a specified unit in it.
+---@param vehicleName vehicle Name of a vehicle in scenario tag.
+---@param seatName string Name of the seat in the vehicle.
+---@param unitName unit Name of a unit in scenario tag.
 ---@return boolean
-function hsc.vehicle_test_seat()
+---Example: hsc.vehicle_test_seat("pelican_2", "P-passenger", "marine_1") -- Tests whether the unit named "marine_1" is in the "P-passenger" seat of the vehicle named "pelican_2".
+function hsc.vehicle_test_seat(vehicleName, seatName, unitName)
 end
 
----@param arg1 unit
----@param arg2 string
-function hsc.unit_set_emotion_animation()
+---Sets the emotion animation to be used for the given unit.
+---@param unitName unit Name of a unit in scenario tag.
+---@param animationName string Name of the emotion animation to set.
+---Example: hsc.unit_set_emotion_animation("cortana", "happy") -- Sets Cortana's emotion animation to "happy".
+function hsc.unit_set_emotion_animation(unitName, animationName)
 end
 
----@param unitName unit
+---Makes a unit exit its vehicle.
+---@param unitName unit Name of a unit in scenario tag.
+---Example: hsc.unit_exit_vehicle("marine_1") -- Makes the unit named "marine_1" exit its vehicle.
 function hsc.unit_exit_vehicle(unitName)
 end
 
----@param arg1 unit
----@param arg2 real
----@param arg3 real
-function hsc.unit_set_maximum_vitality()
+---Sets a unit's maximum body and shield vitality [0,1].
+---@param unitName unit Name of a unit in scenario tag.
+---@param maxBody real Number for maximum body vitality.
+---@param maxShield real Number for maximum shield vitality.
+---Example: hsc.unit_set_maximum_vitality("marine_1", 1, 0.5) -- Sets the maximum body vitality of the unit named "marine_1" to 1 and maximum shield vitality to 0.5.
+function hsc.unit_set_maximum_vitality(unitName, maxBody, maxShield)
 end
 
----@param arg1 object_list
----@param arg2 real
----@param arg3 real
-function hsc.units_set_maximum_vitality()
+---Sets a group of units' maximum body and shield vitality.
+---@param unitList object_list A list of objects (units) to set the maximum vitality for.
+---@param maxBody real Number for maximum body vitality.
+---@param maxShield real Number for maximum shield vitality.
+---Example: hsc.units_set_maximum_vitality("players", 1, 0.5) -- Sets the maximum body vitality of all player units to 1 and maximum shield vitality to 0.5.
+function hsc.units_set_maximum_vitality(unitList, maxBody, maxShield)
 end
 
----@param arg1 unit
----@param arg2 real
----@param arg3 real
-function hsc.unit_set_current_vitality()
+---Sets a unit's current body and shield vitality.
+---@param unitName unit Name of a unit in scenario tag.
+---@param currentBody real Number for current body vitality.
+---@param currentShield real Number for current shield vitality.
+---Example: hsc.unit_set_current_vitality("marine_1", 0.8, 0.3) -- Sets the current body vitality of the unit named "marine_1" to 0.8 and current shield vitality to 0.3.
+function hsc.unit_set_current_vitality(unitName, currentBody, currentShield)
 end
 
----@param arg1 object_list
----@param arg2 real
----@param arg3 real
-function hsc.units_set_current_vitality()
+---Sets a group of units' current body and shield vitality.
+---@param unitList object_list A list of objects (units) to set the current vitality for.
+---@param currentBody real Number for current body vitality.
+---@param currentShield real Number for current shield vitality.
+---Example: hsc.units_set_current_vitality("players", 0.8, 0.3) -- Sets the current body vitality of all player units to 0.8 and current shield vitality to 0.3.
+function hsc.units_set_current_vitality(unitList, currentBody, currentShield)
 end
 
 ---Makes a list of units (named or by encounter) magically get into a vehicle, in the substring-specified seats.
@@ -715,218 +790,294 @@ end
 function hsc.vehicle_unload(unitName, seatName)
 end
 
+---All units controlled by the player will assume the given seat name (valid values are 'asleep', 'alert', 'stand', 'crouch' and 'flee') ???.
 ---@param seatName string 
 function hsc.magic_seat_name(seatName)
 end
 
----@param arg1 unit @Name of a unit in scenario tag.
----@param arg2 string
-function hsc.unit_set_seat()
+---This unit will assume the named seat.
+---@param unitName unit Name of a unit in scenario tag.
+---@param seatName string Name of the seat in the vehicle. Use "" to match all seats.
+---Example: hsc.unit_set_seat("marine_1", "P-passenger")
+function hsc.unit_set_seat(unitName, seatName)
 end
 
+---Causes player's unit to start a melee attack.
 function hsc.magic_melee_attack()
 end
 
 -- Returns a list of all riders in a vehicle.
 ---@param unitName unit @Name of a unit in scenario tag.
 ---@return object_list vehicle_riders
--- Example: hsc.vehicle_riders("pelican_3")
+--Example: hsc.vehicle_riders("pelican_3")
 function hsc.vehicle_riders(unitName)
 end
 
----@param arg1 unit
+---Returns the driver of a vehicle.
+---@param unitName unit Name of a unit in scenario tag.
 ---@return unit
-function hsc.vehicle_driver()
+---Example: hsc.vehicle_driver("warthog_1")
+---Output: the unit driving the warthog_1
+function hsc.vehicle_driver(unitName)
 end
 
----@param arg1 unit
+---Returns the gunner of a vehicle.
+---@param unitName unit Name of a unit in scenario tag.
 ---@return unit
-function hsc.vehicle_gunner()
+---Example: hsc.vehicle_gunner("warthog_1")
+---Output: the unit manning the turret of warthog_1
+function hsc.vehicle_gunner(unitName)
 end
 
----@param arg1 unit
+---Returns the health [0,1] of the unit, returns -1 if the unit does not exists.
+---@param unitName unit Name of a unit in scenario tag.
 ---@return real
-function hsc.unit_get_health()
+---Example: hsc.unit_get_health("marine_1")
+---Output: the health of the unit marine_1
+function hsc.unit_get_health(unitName)
 end
 
----@param arg1 unit
+---Returns the shield [0,1] of the unit, returns -1 if the unit does not exists.
+---@param unitName unit Name of a unit in scenario tag.
 ---@return real
-function hsc.unit_get_shield()
+---Example: hsc.unit_get_shield("marine_1")
+---Output: the shield of the unit marine_1
+function hsc.unit_get_shield(unitName)
 end
 
----@param arg1 unit
+---Returns the total number of grenades for the given unit, 0 if it does not exist
+---@param unitName unit Name of a unit in scenario tag.
 ---@return short
-function hsc.unit_get_total_grenade_count()
+---Example: hsc.unit_get_total_grenade_count("marine_1")
+---Output: the total number of grenades for the unit marine_1
+function hsc.unit_get_total_grenade_count(unitName)
 end
 
----@param arg1 unit
----@param arg2 object_definition
+---Returns TRUE if the <unit> has <object> as a weapon, FALSE otherwise
+---@param unitName unit Name of a unit in scenario tag.
+---@param weaponPath weapon Object definition must be a weapon
 ---@return boolean
-function hsc.unit_has_weapon()
+---Example: hsc.unit_has_weapon("marine_1", "weapons\\\pistol\\\pistol")
+---Output: TRUE if the unit marine_1 has the pistol as a weapon, FALSE otherwise
+function hsc.unit_has_weapon(unitName, weaponPath)
 end
 
----@param arg1 unit
----@param arg2 object_definition
+---Returns TRUE if the <unit> has <object> as the primary weapon, FALSE otherwise.
+---@param unitName unit Name of a unit in scenario tag.
+---@param weaponPath weapon
 ---@return boolean
-function hsc.unit_has_weapon_readied()
+---Example: hsc.unit_has_weapon_readied("player0", "weapons\\\pistol\\\pistol")
+---Output: TRUE if the unit player0 has the pistol as the primary weapon, FALSE otherwise
+function hsc.unit_has_weapon_readied(unitName, weaponPath)
 end
 
----@param arg1 object_list
-function hsc.unit_doesnt_drop_items()
+---Prevents any of the given units from dropping weapons or grenades when they die.
+---@param objectList object_list
+---@see hsc.ai_actors Go to reference
+---Example: hsc.unit_doesnt_drop_items(hsc.ai_actors("rocks/elites_2"))
+function hsc.unit_doesnt_drop_items(objectList)
 end
 
----@param arg1 object_list
----@param arg2 boolean
-function hsc.unit_impervious()
+---Prevents any of the given units from being knocked around or playing ping animations.
+---@param objectList object_list
+---@param isImpervious boolean
+---@see hsc.ai_actors Go to reference
+---Example: hsc.unit_impervious(hsc.ai_actors("rocks/elites_2"), true)
+function hsc.unit_impervious(objectList, isImpervious)
 end
 
----@param arg1 unit
----@param arg2 boolean
-function hsc.unit_suspended()
+---Stops gravity from working on the given unit.
+---@param unitName unit Name of a unit in scenario tag.
+---@param isSuspendedGravity boolean
+---@see hsc.ai_actors Go to reference
+---Example: hsc.unit_suspended("elite_1", true)
+function hsc.unit_suspended(unitName, isSuspendedGravity)
 end
 
+---Returns whether the night-vision mode could be activated via the flashlight button.
 ---@return boolean
 function hsc.unit_solo_player_integrated_night_vision_is_active()
 end
 
----@param arg1 object_list
----@param arg2 boolean
-function hsc.units_set_desired_flashlight_state()
+---Sets the units' desired flashlight state.
+---@param objectList object_list
+---@param isEnabled boolean
+---@see hsc.ai_actors Go to reference
+---Example: hsc.units_set_desired_flashlight_state(hsc.ai_actors("rocks/marines_2"), true) -- Enables the flashlight for all units in the "rocks/marines_2" encounter.
+---Example: hsc.units_set_desired_flashlight_state("players", true) -- Enables the flashlight for all player units.
+function hsc.units_set_desired_flashlight_state(objectList, isEnabled)
 end
 
----@param arg1 unit
----@param arg2 boolean
-function hsc.unit_set_desired_flashlight_state()
+---Sets the unit's desired flashlight state.
+---@param unitName unit Name of a unit in scenario tag.
+---@param isEnabled boolean
+---Example: hsc.unit_set_desired_flashlight_state("marine_1", true) -- Enables the flashlight for the unit named "marine_1".
+function hsc.unit_set_desired_flashlight_state(unitName, isEnabled)
 end
 
----@param arg1 unit
+---Gets the unit's current flashlight state.
+---@param unitName unit Name of a unit in scenario tag.
 ---@return boolean
-function hsc.unit_get_current_flashlight_state()
+---Example: hsc.unit_get_current_flashlight_state("marine_1") -- Returns TRUE if the flashlight is currently enabled for the unit named "marine_1", FALSE otherwise
+function hsc.unit_get_current_flashlight_state(unitName)
 end
 
----@param arg1 device
----@param arg2 boolean
-function hsc.device_set_never_appears_locked()
+---Changes a machine's never_appears_locked flag, but only if paul is a BLAM! (WTF with the last quote).
+---@param deviceName device Name of a device in scenario tag.
+---@param isNeverAppearsLocked boolean
+---Example: hsc.device_set_never_appears_locked("main_gate", true) -- Sets the never_appears_locked flag for the device named "main_gate" to true.
+function hsc.device_set_never_appears_locked(deviceName, isNeverAppearsLocked)
 end
 
----@param arg1 device
+---Gets the current power of a named device.
+---@param deviceName device Name of a device in scenario tag.
 ---@return real
-function hsc.device_get_power()
+---Example: hsc.device_get_power("main_gate") -- Returns the current power level of the device named "main_gate".
+---Output: power level as a real number between [0, 1]
+function hsc.device_get_power(deviceName)
 end
 
----@param arg1 device
----@param arg2 real
-function hsc.device_set_power()
+---Immediately sets the power of a named device to the given value.
+---@param deviceName device Name of a device in scenario tag.
+---@param powerValue real Desired power value [0, 1]
+---Example: hsc.device_set_power("main_gate", 1) -- Sets the power level of the device named "main_gate" to 1 immediately.
+function hsc.device_set_power(deviceName, powerValue)
 end
 
----@param arg1 device
----@param arg2 real
+---Set the desired position of the given device (used for devices without explicit device groups).
+---@param deviceName device Name of a device in scenario tag.
+---@param positionValue real Desired position value [0.0, 1.0]
 ---@return boolean
-function hsc.device_set_position()
+---Example: hsc.device_set_position("main_gate", 0.5) -- Sets the desired position of the device named "main_gate" to 0.5
+function hsc.device_set_position(deviceName, positionValue)
 end
 
----@param arg1 device
+---Gets the current position of the given device (used for devices without explicit device groups).
+---@param deviceName device Name of a device in scenario tag.
 ---@return real
-function hsc.device_get_position()
+---Example: hsc.device_get_position("main_gate") -- Returns the current position of the device named "main_gate".
+---Output: position value as a real number between [0.0, 1.0]
+function hsc.device_get_position(deviceName)
 end
 
----@param arg1 device
----@param arg2 real
-function hsc.device_set_position_immediate()
+---Instantaneously changes the position of the given device (used for devices without explicit device groups).
+---@param deviceName device Name of a device in scenario tag.
+---@param positionValue real Desired position value [0.0, 1.0]
+---Example: hsc.device_set_position_immediate("main_gate", 0.75) -- Sets the position of the device named "main_gate" to 0.75 immediately.
+function hsc.device_set_position_immediate(deviceName, positionValue)
 end
 
----@param arg1 device_group
+---Returns the desired value of the specified device group.
+---@param deviceGroupName device_group Name of a device group in scenario tag.
 ---@return real
-function hsc.device_group_get()
+---Example: hsc.device_group_get("main_gate_position") -- Returns the desired value of the device group named "main_gate_position".
+function hsc.device_group_get(deviceGroupName)
 end
 
----@param arg1 device_group
----@param arg2 real
+---Changes the desired value of the specified device group.
+---@param deviceGroupName device_group Name of a device group in scenario tag.
+---@param deviceValue real Desired value [0.0, 1.0]
 ---@return boolean
-function hsc.device_group_set()
+---Example: hsc.device_group_set("main_gate_position", 0.5) -- Sets the desired value of the device group named "main_gate_position" to 0.5
+function hsc.device_group_set(deviceGroupName, deviceValue)
 end
 
----@param arg1 device_group
----@param arg2 real
-function hsc.device_group_set_immediate()
+---Instantaneously changes the value of the specified device group.
+---@param deviceGroupName device_group Name of a device group in scenario tag.
+---@param deviceValue real Desired value [0.0, 1.0]
+---Example: hsc.device_group_set_immediate("main_gate_position", 0.75) -- Sets the value of the device group named "main_gate_position" to 0.75 immediately.
+function hsc.device_group_set_immediate(deviceGroupName, deviceValue)
 end
 
----@param arg1 device
----@param arg2 boolean
-function hsc.device_one_sided_set()
+---TRUE makes the given device one-sided (only able to be opened from one direction), FALSE makes it two-sided
+---@param deviceName device Name of a device in scenario tag.
+---@param isOneSided boolean
+---Example: hsc.device_one_sided_set("main_gate", true) -- Makes the device named "main_gate" one-sided.
+function hsc.device_one_sided_set(deviceName, isOneSided)
 end
 
----@param arg1 device
----@param arg2 boolean
-function hsc.device_operates_automatically_set()
+---TRUE makes the given device open automatically when any biped is nearby, FALSE makes it not.
+---@param deviceName device Name of a device in scenario tag.
+---@param operatesAutomatically boolean
+---Example: hsc.device_operates_automatically_set("main_gate", true) -- Makes the device named "main_gate" operate automatically.
+function hsc.device_operates_automatically_set(deviceName, operatesAutomatically)
 end
 
----@param arg1 device_group
----@param arg2 boolean
-function hsc.device_group_change_only_once_more_set()
+---TRUE allows a device to change states only once.
+---@param deviceGroupName device_group Name of a device group in scenario tag.
+---@param allowChange boolean
+---Example: hsc.device_group_change_only_once_more_set("main_gate_position", true) -- Allows the device group named "main_gate_position" to change states only once more.
+function hsc.device_group_change_only_once_more_set(deviceGroupName, allowChange)
 end
 
+---Restores all breakable surfaces.
 function hsc.breakable_surfaces_reset()
 end
 
+---Drops all powerups from globals near player.
 function hsc.cheat_all_powerups()
 end
 
+---Drops all weapons from globals near player.
 function hsc.cheat_all_weapons()
 end
 
+---Drops a warthog near player.
 function hsc.cheat_spawn_warthog()
 end
 
+---Drops all vehicles from globals near player.
 function hsc.cheat_all_vehicles()
 end
 
+---Teleports player to camera location.
 function hsc.cheat_teleport_to_camera()
 end
 
+---Gives the player active camouflage.
 function hsc.cheat_active_camouflage()
 end
 
----@param arg1 short
-function hsc.cheat_active_camouflage_local_player()
+---Gives the player active camouflage
+---Check what is unknownValue for
+---@param unknownValue short
+function hsc.cheat_active_camouflage_local_player(unknownValue)
 end
 
+---Reloads the cheats.txt file
 function hsc.cheats_load()
 end
 
 -- Removes a group of actors from their encounter and sets them free
 ---@param encounterName ai
+---Example: hsc.ai_free("rocks/elites_2")
 function hsc.ai_free(encounterName)
 end
 
 ---Removes a set of units from their encounter (if any) and sets them free
 ---@param objectList object_list An object list | After choose one, concatenate the target name in each case.
----@return nil
 ---@see hsc.vehicle_riders Go to reference
 ---@see hsc.ai_actors Go to reference
----Example 1: hsc.ai_free_units("vehicle_riders jeep") | Example 2: hsc.ai_free_units("ai_actors first_wave/wave_2_lz_toon")
+---Example 1: hsc.ai_free_units(hsc.vehicle_riders("jeep")) | Example 2: hsc.ai_free_units(hsc.ai_actors("first_wave/wave_2_lz_toon"))
 function hsc.ai_free_units(objectList)
 end
 
 -- Attaches the specified unit to the specified encounter.
 ---@param unitName unit @Name of a unit in the scenario.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_attach("marine_1", "control_room/marines2")
 function hsc.ai_attach(unitName, encounterName)
 end
 
 -- Attaches a unit to a newly created free actor of the specified type.
 ---@param unitName unit @Name of a unit in the scenario.
----@param tagPath actor_variant Actor Variant Tag Path
----@return nil
+---@param actorVariantPath actor_variant Actor Variant Tag Path
 -- Example: hsc.ai_attach_free("bridge_sentinel_3", "characters\monitor\monitor")
-function hsc.ai_attach_free(unitName, tagPath)
+function hsc.ai_attach_free(unitName, actorVariantPath)
 end
 
 -- Detaches the specified unit from all AI.
 ---@param unitName unit
----@return nil
 -- Example: hsc.ai_detach("marine_1")
 function hsc.ai_detach(unitName)
 end
@@ -939,42 +1090,34 @@ end
 
 -- Instantly kills the specified encounter and/or squad.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_kill("woods/grunts1")
 function hsc.ai_kill(encounterName)
 end
 
 -- Instantly kills the specified encounter and/or squad without any sound and death animation.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_kill_silent("woods/grunts1")
 function hsc.ai_kill_silent(encounterName)
 end
 
 -- Erases the specified encounter and/or squad.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_erase("myEncounter/mySquad")
 function hsc.ai_erase(encounterName)
 end
 
 -- Erases all AI.
----@return nil
 function hsc.ai_erase_all()
 end
 
 -- Selects the specified encounter.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_select("control_room/marines2")
 function hsc.ai_select(encounterName)
 end
 
--- function hsc.ai_deselect() end
-
 -- Spawns an actor in the specified encounter and/or squad.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_spawn_actor("enc2_7/leapers")
 function hsc.ai_spawn_actor(encounterName)
 end
@@ -987,152 +1130,186 @@ function hsc.ai_set_respawn(encounterName, isEnabled)
 end
 
 -- Enables or disables hearing for actors in the specified encounter.
----@param encountrName ai An "Encounters" name value (a block in the scenario tag).
----@param bool boolean @True to enable hearing, false to disable.
----@return nil
+---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
+---@param isEnabled boolean @True to enable hearing, false to disable.
 -- Example: hsc.ai_set_deaf("encounter_name/squad_name", false)
-function hsc.ai_set_deaf(encountrName, bool)
+function hsc.ai_set_deaf(encounterName, isEnabled)
 end
 
 -- Enables or disables sight for actors in the specified encounter.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@param bool boolean @True to enable sight, false to disable.
----@return nil
+---@param isEnabled boolean @True to enable sight, false to disable.
 -- Example: hsc.ai_set_blind("encounter_name/squad_name", true)
-function hsc.ai_set_blind(encounterName, bool)
+function hsc.ai_set_blind(encounterName, isEnabled)
 end
 
 -- Makes encounter 1 magically aware of encounter 2.
 ---@param encounter1 ai An "Encounters" name value (a block in the scenario tag).
 ---@param encounter2 ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_magically_see_encounter("first_marine", "first_wave")
 function hsc.ai_magically_see_encounter(encounter1, encounter2)
 end
 
--- Makes an encounter magically aware of nearby players.
+---Makes an encounter magically aware of nearby players.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_magically_see_players("jackals_lz")
 function hsc.ai_magically_see_players(encounterName)
 end
 
--- Makes an encounter magically aware of the specified unit.
+---Makes an encounter magically aware of the specified unit.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
 ---@param unitName unit A "Unit" name from the scenario.
----@return nil
 -- Example: hsc.ai_magically_see_unit("control_room/elites_2", "marines_support")
 function hsc.ai_magically_see_unit(encounterName, unitName)
 end
 
----@param arg1 ai
-function hsc.ai_timer_start()
+---Makes a squad's delay timer start counting.
+---@param encounterName ai
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_timer_start("rocks/elites_2")
+function hsc.ai_timer_start(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_timer_expire()
+---Makes a squad's delay timer expire and releases them to enter combat.
+---@param encounterName ai
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_timer_expire("rocks/elites_2")
+function hsc.ai_timer_expire(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_attack()
+---Makes the specified platoon(s) go into the attacking state.
+---@param encounterName ai
+---Example: hsc.ai_attack("rocks/elites_2")
+function hsc.ai_attack(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_defend()
+---Makes the specified platoon(s) go into the defending state.
+---@param encounterName ai
+---Example: hsc.ai_defend("rocks/elites_2")
+function hsc.ai_defend(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_retreat()
+---Makes all squads in the specified platoon(s) retreat to their designated maneuver squads.
+---@param encounterName ai
+---Example: hsc.ai_retreat("rocks/elites_2")
+function hsc.ai_retreat(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_maneuver()
+---Makes all squads in the specified platoon(s) maneuver to their designated maneuver squads.
+---@param encounterName ai
+---Example: hsc.ai_maneuver("rocks/elites_2")
+function hsc.ai_maneuver(encounterName)
 end
 
----@param arg1 ai
----@param arg2 boolean
-function hsc.ai_maneuver_enable()
+---Enables or disables the maneuver/retreat rule for an encounter or platoon. the rule will still trigger, but none of the actors will be given the order to change squads.
+---@param encounterName ai
+---@param isEnabled boolean
+---Example: hsc.ai_maneuver_enable("rocks/elites_2", true)
+function hsc.ai_maneuver_enable(encounterName, isEnabled)
 end
 
--- Makes a named vehicle or group of units move from one encounter to another.
+---Makes a named vehicle or group of units move from one encounter to another.
 ---@param encounter1 ai An "Encounters" name value (a block in the scenario tag).
 ---@param encounter2 ai An "Encounters" name value (a block in the scenario tag).
----@return nil
 -- Example: hsc.ai_migrate(airlock_1/main airlock_1/advance). | Note: *Also you can type just the encounter name and migrate all inside it.
 function hsc.ai_migrate(encounter1, encounter2)
 end
 
----@param arg1 ai
----@param arg2 ai
----@param arg3 string
-function hsc.ai_migrate_and_speak()
+---Makes all or part of an encounter move to another encounter, and say their 'advance' or 'retreat' speech lines.
+---@param encounter1 ai An "Encounters" name value (a block in the scenario tag).
+---@param encounter2 ai An "Encounters" name value (a block in the scenario tag).
+---@param speechLine string The speech line to play. Valid values are "advance" and "retreat".
+-- Example: hsc.ai_migrate_and_speak("airlock_1/main", "airlock_1/deck", "advance")
+function hsc.ai_migrate_and_speak(encounter1, encounter2, speechLine)
 end
 
----@param arg1 object_list
----@param arg2 ai
-function hsc.ai_migrate_by_unit()
+---Makes a named vehicle or group of units move to another encounter.
+---@param unitList object_list A list of units to move.
+---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
+---@see hsc.vehicle_riders Go to reference
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_migrate_by_unit(hsc.vehicle_riders("jeep"), hsc.ai_actors("airlock_1/advance"))
+function hsc.ai_migrate_by_unit(unitList, encounterName)
 end
 
----@param arg1 team
----@param arg2 team
-function hsc.ai_allegiance()
+---Creates an allegiance between two teams.
+---@param teamName1 team
+---@param teamName2 team
+---Example: hsc.ai_allegiance(sentinel, player)
+function hsc.ai_allegiance(teamName1, teamName2)
 end
 
----@param arg1 team
----@param arg2 team
-function hsc.ai_allegiance_remove()
+---Removes an allegiance between two teams.
+---@param teamName1 team
+---@param teamName2 team
+---Example: hsc.ai_allegiance_remove(sentinel, player)
+function hsc.ai_allegiance_remove(teamName1, teamName2)
 end
 
 -- Return the number of living actors in the specified encounter and/or squad.
----@param string ai An "Encounters" value (a block in the scenario tag)
+---@param encounterName ai An "Encounters" value (a block in the scenario tag)
 ---@return short
 ---@see using_ai_living_count Ussage example in context
--- Example: hsc.ai_living_count("first_marine")
-function hsc.ai_living_count(string)
+-- Example: hsc.ai_living_count("hills/marines_2")
+function hsc.ai_living_count(encounterName)
 end
 
----@param arg1 ai
+---Return the fraction [0-1] of living actors in the specified encounter and/or squad.
+---@param encounterName ai
 ---@return real
-function hsc.ai_living_fraction()
+---Example: hsc.ai_living_fraction("hills/marines_2")
+function hsc.ai_living_fraction(encounterName)
 end
 
----@param arg1 ai
+---Return the current strength (average body vitality from 0-1) of the specified encounter and/or squad.
+---@param encounterName ai
 ---@return real
-function hsc.ai_strength()
+---Example: hsc.ai_strength("hills/marines_2")
+function hsc.ai_strength(encounterName)
 end
 
----@param arg1 ai
+---Return the number of swarm actors in the specified encounter and/or squad. (Not used in Halo CE Campaign) Unknown what is a swarm actor.
+---@param encounterName ai
 ---@return short
-function hsc.ai_swarm_count()
+function hsc.ai_swarm_count(encounterName)
 end
 
----@param arg1 ai
+---Return the number of non-swarm actors in the specified encounter and/or squad.
+---@param encounterName ai
 ---@return short
-function hsc.ai_nonswarm_count()
+function hsc.ai_nonswarm_count(encounterName)
 end
 
--- Converts an encounter and/or squad reference to an object list.
----@param encounter ai An "Encounters" name value (a block in the scenario tag)
+---Converts an encounter and/or squad reference to an object list.
+---@param encounterName ai An "Encounters" name value (a block in the scenario tag)
 ---@return object_list ai_actors
 -- Example: hsc.ai_actors("ext_c_cov/ghost_a")
-function hsc.ai_actors(encounter)
+function hsc.ai_actors(encounterName)
 end
 
----@param arg1 ai
----@param arg2 unit
----@param arg3 string
-function hsc.ai_go_to_vehicle()
+---Tells a group of actors to get into a vehicle, in the substring-specified seats (e.g. passenger for pelican)...
+---does not interrupt any actors who are already going to vehicles
+---@param encounterName ai
+---@param vehicleName unit
+---@param seatName string
+---Example: hsc.ai_go_to_vehicle("ext_beach/marine_support_2", "pelican_2", "P-passenger")
+function hsc.ai_go_to_vehicle(encounterName, vehicleName, seatName)
 end
 
----@param arg1 ai
----@param arg2 unit
----@param arg3 string
-function hsc.ai_go_to_vehicle_override()
+---Tells a group of actors to get into a vehicle, in the substring-specified seats (e.g. passenger for pelican)...
+---NB: any actors who are already going to vehicles will stop and go to this one instead!
+---@param encounterName ai
+---@param vehicleName unit
+---@param seatName string
+---Example: hsc.ai_go_to_vehicle_override("ext_beach/marine_support_2", "pelican_2", "P-passenger")
+function hsc.ai_go_to_vehicle_override(encounterName, vehicleName, seatName)
 end
 
----@param arg1 unit
+---Return the number of actors that are still trying to get into the specified vehicle.
+---@param vehicleName unit
 ---@return short
-function hsc.ai_going_to_vehicle()
+---Example: hsc.ai_going_to_vehicle("pelican_2")
+function hsc.ai_going_to_vehicle(vehicleName)
 end
 
 -- Tells a group of actors from encounter/squad? to get out of any vehicles that they are in. 
@@ -1141,98 +1318,143 @@ end
 function hsc.ai_exit_vehicle(encounterName)
 end
 
+---Makes a group of actors braindead, or restores them to life (in their initial state).
 ---@param encounterName ai
----@param boolean boolean
-function hsc.ai_braindead(encounterName, boolean)
+---@param inBraindead boolean
+---Example: hsc.ai_braindead("encounter", true) -- Makes encounter braindead.
+function hsc.ai_braindead(encounterName, inBraindead)
 end
 
----makes a list of objects braindead, or restores them to life. if you pass in a vehicle index, it makes all actors in that vehicle braindead (including any built-in guns).
----@param objectList object_list
+---Makes a list of objects braindead, or restores them to life. if you pass in a vehicle name, it makes all actors in that vehicle braindead (including any built-in guns).
+---@param objectList object_list 
 ---@param isBraindead boolean
----Example: hsc.ai_braindead_by_unit("encounter", true) -- Makes encounter braindead.
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_braindead_by_unit(hsc.ai_actors("rocks/elites_2"), true)
+---Example with a vehicle: hsc.ai_braindead_by_unit("pelican_2", true)
 function hsc.ai_braindead_by_unit(objectList, isBraindead)
 end
 
----@param arg1 object_list
----@param arg2 boolean
-function hsc.ai_disregard()
+---If TRUE, forces all actors to completely disregard the specified units, otherwise lets them acknowledge the units again.
+---@param objectList object_list
+---@param isDisregard boolean
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_disregard(hsc.ai_actors("rocks/elites_2"), true)
+function hsc.ai_disregard(objectList, isDisregard)
 end
 
----@param arg1 object_list
----@param arg2 boolean
-function hsc.ai_prefer_target()
+---If TRUE, *ALL* enemies will prefer to attack the specified units. if FALSE, removes the preference.
+---@param objectList object_list
+---@param isPrefer boolean
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_prefer_target(hsc.ai_actors("rocks/elites_2"), true)
+---Example 2: hsc.ai_prefer_target("players", true)
+function hsc.ai_prefer_target(objectList, isPrefer)
 end
 
----@param arg1 ai
-function hsc.ai_teleport_to_starting_location()
+---Teleports a group of actors to the starting locations of their current squad(s)
+---@param encounterName ai
+---Example: hsc.ai_teleport_to_starting_location("rocks/elites_2")
+function hsc.ai_teleport_to_starting_location(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_teleport_to_starting_location_if_unsupported()
+---Teleports a group of actors to the starting locations of their current squad(s), only if they are not supported by solid ground
+---(i.e. if they are falling after switching BSPs)
+---@param encounterName ai
+---Example: hsc.ai_teleport_to_starting_location_if_unsupported("rocks/elites_2")
+function hsc.ai_teleport_to_starting_location_if_unsupported(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_renew()
+---Refreshes the health and grenade count of a group of actors, so they are as good as new.
+---@param encounterName ai
+---Example: hsc.ai_renew("rocks/elites_2")
+function hsc.ai_renew(encounterName)
 end
 
----@param arg1 ai
-function hsc.ai_try_to_fight_nothing()
+---Removes the preferential target setting from a group of actors.
+---@param encounterName ai
+---Example: hsc.ai_try_to_fight_nothing("rocks/elites_2")
+function hsc.ai_try_to_fight_nothing(encounterName)
 end
 
----@param arg1 ai
----@param arg2 ai
-function hsc.ai_try_to_fight()
+---Causes a group of actors to preferentially target another group of actors.
+---@param encounterName ai
+---@param targetEncounterName ai
+---Example: hsc.ai_try_to_fight("rocks/elites_2", "woods/marines_2")
+function hsc.ai_try_to_fight(encounterName, targetEncounterName)
 end
 
----@param arg1 ai
-function hsc.ai_try_to_fight_player()
+---Causes a group of actors to preferentially target the player.
+---@param encounterName ai
+---Example: hsc.ai_try_to_fight_player("rocks/elites_2")
+function hsc.ai_try_to_fight_player(encounterName)
 end
 
----@param arg1 ai
----@param arg2 ai_command_list
-function hsc.ai_command_list()
+---Tells a group of actors to begin executing the specified command list.
+---@param encounterName ai
+---@param commandList ai_command_list
+---Example: hsc.ai_command_list("rocks/elites_2", "ambush_player")
+function hsc.ai_command_list(encounterName, commandList)
 end
 
----@param arg1 unit
----@param arg2 ai_command_list
-function hsc.ai_command_list_by_unit()
+---Tells a named unit to begin executing the specified command list.
+---@param unitName unit
+---@param commandList ai_command_list
+---Example: hsc.ai_command_list_by_unit("keyesa10", "keyes_2")
+function hsc.ai_command_list_by_unit(unitName, commandList)
 end
 
----@param arg1 ai
-function hsc.ai_command_list_advance()
+---Tells a group of actors that are running a command list that they may advance further along the list
+---(if they are waiting for a stimulus).
+---@param encounterName ai
+---Example: hsc.ai_command_list_advance("rocks/elites_2")
+function hsc.ai_command_list_advance(encounterName)
 end
 
----@param arg1 unit
-function hsc.ai_command_list_advance_by_unit()
+---Just like ai_command_list_advance but operates upon a unit instead.
+---@param unitName unit
+---Example: hsc.ai_command_list_advance_by_unit("keyesa10")
+function hsc.ai_command_list_advance_by_unit(unitName)
 end
 
----@param arg1 object_list
----@return short
-function hsc.ai_command_list_status()
+---Gets the status of a number of units running command lists.
+---@param objectList object_list
+---@return short | 0 = none, 1 = finished command list, 2 = waiting for stimulus, 3 = running command list
+---@see hsc.ai_actors Go to reference
+---Example: hsc.ai_command_list_status(hsc.ai_actors("rocks/elites_2"))
+function hsc.ai_command_list_status(objectList)
 end
 
----@param arg1 ai
+---Returns whether a platoon is in the attacking mode (or if an encounter is specified, returns whether any platoon in that encounter is attacking).
+---@param encounterName ai
 ---@return boolean
-function hsc.ai_is_attacking()
+---Example: hsc.ai_is_attacking("rocks/elites_2")
+function hsc.ai_is_attacking(encounterName)
 end
 
----@param arg1 ai
----@param arg2 boolean
-function hsc.ai_force_active()
+---Forces an encounter to remain active (i.e. not freeze in place) even if there are no players nearby.
+---@param encounterName ai
+---@param bool boolean
+---Example: hsc.ai_force_active("rocks/elites_2", true)
+function hsc.ai_force_active(encounterName, bool)
 end
 
----@param arg1 unit
----@param arg2 boolean
-function hsc.ai_force_active_by_unit()
+---Forces a named actor that is NOT in an encounter to remain active (i.e. not freeze in place) even if there are no players nearby.
+---@param unitName unit
+---@param bool boolean
+---Example: hsc.ai_force_active_by_unit("elite_1", true)
+function hsc.ai_force_active_by_unit(unitName, bool)
 end
 
 ---Sets the state that a group of actors will return to when they have nothing to do
+---Idk what value is valid for "ai_default_state", this function was never used in Halo CE Campaign.
 ---@param encounterName ai
----@param state ai_default_state
-function hsc.ai_set_return_state(encounterName, state)
+---@param aiDefaultState ai_default_state
+---Example: hsc.ai_set_return_state("ext_c_cov/ghost_a", 0)
+function hsc.ai_set_return_state(encounterName, aiDefaultState)
 end
 
 ---Sets the current state of a group of actors. WARNING: may have unpredictable results on actors that are in combat
+---Idk what value is valid for "ai_default_state", this function was never used in Halo CE Campaign.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
 ---@param aiDefaultState ai_default_state An "AI Default State" value (a block in the scenario tag).
 function hsc.ai_set_current_state(encounterName, aiDefaultState)
@@ -1240,213 +1462,264 @@ end
 
 ---Sets an encounter to be playfighting or not.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@param bool boolean @True to enable playfighting, false to disable.
----@return nil
+---@param isPlayfighting boolean @True to enable playfighting, false to disable.
 -- Example: hsc.ai_playfight("crossfire_anti", true)
-function hsc.ai_playfight(encounterName, bool)
+function hsc.ai_playfight(encounterName, isPlayfighting)
 end
 
--- Returns the most severe combat status of a group of actors | 0 = inactive | 1 = noncombat | 2 = guarding | 3 = search/suspicious | 4 = definite enemy(heard or magic awareness) | 5 = visible enemy | 6 = engaging in combat.
+---Returns the most severe combat status of a group of actors 
+---| 0 = "inactive"
+---| 1 = "noncombat"
+---| 2 = "guarding"
+---| 3 = "search/suspicious"
+---| 4 = "definite enemy(heard or magic awareness)"
+---| 5 = "visible enemy"
+---| 6 = "engaging in combat."
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
 ---@return short
 ---@see using_ai_status Usage example in context
--- Example: hsc.ai_status("ext_c_cov/ghost_a")
+---Example: hsc.ai_status("ext_c_cov/ghost_a")
 function hsc.ai_status(encounterName)
 end
 
--- Reconnects all AI information to the current structure bsp (use this after you create encounters or command lists in sapien, or place new firing points or command list points).
----@return nil
--- Note: Use after "ai_erase_all" and before "garbage_collect_now" functions.
+---Reconnects all AI information to the current structure bsp (use this after you create encounters or command lists in sapien,
+---or place new firing points or command list points).
+---Note: Use after "ai_erase_all" and before "garbage_collect_now" functions.
 function hsc.ai_reconnect()
 end
 
--- Sets a vehicle to 'belong' to a particular encounter/squad. any actors who get into the vehicle will be placed in this squad. NB: vehicles potentially drivable by multiple teams need their own encounter!.
----@param unitName unit @Name of a unit in the scenario.
+---Sets a vehicle to 'belong' to a particular encounter/squad. any actors who get into the vehicle will be placed in this squad.
+---NB: vehicles potentially drivable by multiple teams need their own encounter!.
+---@param unitName unit Name of a unit in the scenario.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
--- Example: hsc.ai_vehicle_encounter("ext_a_dropship_wraith_a" "ext_a_area_a_wraith/squad_i")
+---Example: hsc.ai_vehicle_encounter("ext_a_dropship_wraith_a", "ext_a_area_a_wraith/squad_i")
 function hsc.ai_vehicle_encounter(unitName, encounterName)
 end
 
 ---Sets a vehicle as being impulsively enterable for actors within a certain distance. 
 ---@param unitName unit Name of the unit in the scenario.
----@param distance real The distance in world units within which actors can enter the vehicle.
+---@param worldUnitsDistance real The distance in world units within which actors can enter the vehicle.
 ---Example: hsc.ai_vehicle_enterable_distance("warthog_1", 10.0)
-function hsc.ai_vehicle_enterable_distance(unitName, distance)
+function hsc.ai_vehicle_enterable_distance(unitName, worldUnitsDistance)
 end
 
--- Sets a vehicle as being impulsively enterable for actors of a certain team.
----@param unitName unit @Name of a unit in the scenario.
----@param teamIndex team An "Encounters" enum value (a block in the scenario tag).
----@return nil
--- Example: hsc.ai_vehicle_enterable_team("warthog_1", "human")
-function hsc.ai_vehicle_enterable_team(unitName, teamIndex)
+---Sets a vehicle as being impulsively enterable for actors of a certain team.
+---Idk what value is valid for "team" parameter, maybe a string or an integer.
+---@param unitName unit Name of a unit in the scenario.
+---@param teamName team An "Encounters" enum value (a block in the scenario tag).
+---Example: hsc.ai_vehicle_enterable_team("warthog_1", "human")
+function hsc.ai_vehicle_enterable_team(unitName, teamName)
 end
 
--- Sets a vehicle as being impulsively enterable for actors of a certain type (grunt, elite, marine etc).
----@param unitName unit @Name of a unit in the scenario.
----@param actorType actor_type @Enum value in actor tag (e.g. "marine", "elite", "grunt", etc).
----@return nil
--- Example: hsc.ai_vehicle_enterable_actor_type("warthog_1", "marine")
-function hsc.ai_vehicle_enterable_actor_type(unitName, actorType)
+---Sets a vehicle as being impulsively enterable for actors of a certain type (grunt, elite, marine etc).
+---@param unitName unit Name of a unit in the scenario.
+---@param actorTypeName actor_type Enum value in actor tag (e.g. "marine", "elite", "grunt", etc).
+---Example: hsc.ai_vehicle_enterable_actor_type("warthog_1", "marine")
+function hsc.ai_vehicle_enterable_actor_type(unitName, actorTypeName)
 end
 
--- sets a vehicle as being impulsively enterable for a certain encounter/squad of actors.
----@param unitName unit @Name of a unit in the scenario.
----@param squadName ai An "Encounters" name value (a block in the scenario tag).
----@return nil
--- Example: hsc.ai_vehicle_enterable_actors("warthog_1", "encounter_name/squad_name")
-function hsc.ai_vehicle_enterable_actors(unitName, squadName)
+---Sets a vehicle as being impulsively enterable for a certain encounter/squad of actors.
+---@param unitName unit Name of a unit in the scenario.
+---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
+---Example: hsc.ai_vehicle_enterable_actors("warthog_1", "encounter_name/squad_name")
+function hsc.ai_vehicle_enterable_actors(unitName, encounterName)
 end
 
--- Disables actors from impulsively getting into a vehicle (this is the default state for newly placed vehicles).
----@param unitName unit @Name of a unit in the scenario.
----@return nil
--- Example: hsc.ai_vehicle_enterable_disable("cyborg_4")
+---Disables actors from impulsively getting into a vehicle (this is the default state for newly placed vehicles).
+---@param unitName unit Name of a unit in the scenario.
+---Example: hsc.ai_vehicle_enterable_disable("cyborg_4")
 function hsc.ai_vehicle_enterable_disable(unitName)
 end
 
--- Makes the specified unit look at the specified object.
----@param unitName unit @Name of a unit in the scenario.
----@param objectName object @Name of an object in the scenario.
----@return nil
--- Example: hsc.ai_look_at_object("marine_1", "ghost_1")
+---Makes the specified unit look at the specified object.
+---@param unitName unit Name of a unit in the scenario.
+---@param objectName object Name of an object in the scenario.
+---Example: hsc.ai_look_at_object("marine_1", "ghost_1")
 function hsc.ai_look_at_object(unitName, objectName)
 end
 
--- Stops the specified unit from looking at anything.
----@param unitName unit
----@return nil
--- Example: hsc.ai_stop_looking("marine_1")
+---Stops the specified unit from looking at anything.
+---@param unitName unit Name of a unit in the scenario.
+---Example: hsc.ai_stop_looking("marine_1")
 function hsc.ai_stop_looking(unitName)
 end
 
--- Enables or disables a squad as being an automatic migration target.
+---Enables or disables a squad as being an automatic migration target.
 ---@param encounterName ai An "Encounters" name value (a block in the scenario tag).
----@param bool boolean @True to enable automatic migration, false to disable.
----@return nil
--- Example: hsc.ai_automatic_migration_target("encounter_name/squad_name", true)
-function hsc.ai_automatic_migration_target(encounterName, bool)
+---@param enableMigration boolean True to enable automatic migration, false to disable.
+---Example: hsc.ai_automatic_migration_target("encounter_name/squad_name", true)
+function hsc.ai_automatic_migration_target(encounterName, enableMigration)
 end
 
--- Turns off following for an encounter
----@param string ai An "Encounters" value (a block in the scenario tag)
----@return nil
--- Example: hsc.ai_follow_target_disable("cliff_marine")
-function hsc.ai_follow_target_disable(string)
+---Turns off following for an encounter.
+---@param encounterName ai An "Encounters" value (a block in the scenario tag)
+---Example: hsc.ai_follow_target_disable("cliff_marine")
+function hsc.ai_follow_target_disable(encounterName)
 end
 
--- Sets the follow target for an encounter to be the closest player
----@param string ai An "Encounters" value (a block in the scenario tag)
----@return nil
--- Example: hsc.ai_follow_target_players("cliff_marine")
-function hsc.ai_follow_target_players(string)
+---Sets the follow target for an encounter to be the closest player.
+---@param encounterName ai An "Encounters" value (a block in the scenario tag)
+---Example: hsc.ai_follow_target_players("cliff_marine")
+function hsc.ai_follow_target_players(encounterName)
 end
 
----@param arg1 ai
----@param arg2 unit
-function hsc.ai_follow_target_unit()
+---Sets the follow target for an encounter to be a specific unit.
+---@param encounterName ai An "Encounters" value (a block in the scenario tag)
+---@param unitTargetName unit Name of the unit to follow
+---Example: hsc.ai_follow_target_unit("cliff_marine", "grunt_2")
+function hsc.ai_follow_target_unit(encounterName, unitTargetName)
 end
 
----@param arg1 ai
----@param arg2 ai
-function hsc.ai_follow_target_ai()
+---Sets the follow target for an encounter to be a group of AI (encounter, squad or platoon).
+---@param encounterName ai An "Encounters" value (a block in the scenario tag)
+---@param encounterTargetName ai An "Encounters" value (a block in the scenario tag)
+---Example: hsc.ai_follow_target_ai("cliff/marines_2", "rocks/grunts_1")
+function hsc.ai_follow_target_ai(encounterName, encounterTargetName)
 end
 
----@param arg1 ai
----@param arg2 real
-function hsc.ai_follow_distance()
+---Sets the distance threshold which will cause squads to migrate when following someone.
+---@param encounterName ai An "Encounters" value (a block in the scenario tag)
+---@param worldUnitsDistance real The distance threshold for migration
+---Example: hsc.ai_follow_distance("cliff/marines_2", 5.0)
+function hsc.ai_follow_distance(encounterName, worldUnitsDistance)
 end
 
----@param arg1 conversation
+---Tries to add an entry to the list of conversations waiting to play. returns FALSE if the required units 
+---could not be found to play the conversation, or if the player is too far away and the 'delay' flag is not set.
+---@param aiConversationName conversation
 ---@return boolean
-function hsc.ai_conversation()
+---Example: hsc.ai_conversation("intro_conversation")
+---Output: returns TRUE if the conversation was successfully started, FALSE otherwise.
+function hsc.ai_conversation(aiConversationName)
 end
 
----@param arg1 conversation
-function hsc.ai_conversation_stop()
+---Stops a conversation from playing or trying to play.
+---@param aiConversationName conversation
+---Example: hsc.ai_conversation_stop("intro_conversation")
+function hsc.ai_conversation_stop(aiConversationName)
 end
 
----@param arg1 conversation
-function hsc.ai_conversation_advance()
+---Tells a conversation that it may advance.
+---@param aiConversationName conversation
+---Example: hsc.ai_conversation_advance("intro_conversation")
+function hsc.ai_conversation_advance(aiConversationName)
 end
 
----@param arg1 conversation
+---Returns which line the conversation is currently playing, or 999 if the conversation is not currently playing.
+---@param aiConversationName conversation
 ---@return short
-function hsc.ai_conversation_line()
+---Example: hsc.ai_conversation_line("intro_conversation")
+function hsc.ai_conversation_line(aiConversationName)
 end
 
----@param arg1 conversation
+---Returns the status of a conversation.
+---| 0 = "none" 
+---| 1 = "trying to begin" 
+---| 2 = "waiting for guys to get in position" 
+---| 3 = "playing" 
+---| 4 = "waiting to advance" 
+---| 5 = "could not begin" 
+---| 6 = "finished successfully" 
+---| 7 = "aborted midway"
+---@param aiConversationName conversation
 ---@return short
-function hsc.ai_conversation_status()
+---Example: hsc.ai_conversation_status("intro_conversation")
+function hsc.ai_conversation_status(aiConversationName)
 end
 
----@param arg1 ai
----@param arg2 ai
-function hsc.ai_link_activation()
+---Links the first encounter so that it will be made active whenever it detects that the second encounter is active.
+---@param encounterName1 ai
+---@param encounterName2 ai
+---Example: hsc.ai_link_activation("rocks/elites_2", "woods/grunts1")
+function hsc.ai_link_activation(encounterName1, encounterName2)
 end
 
----@param arg1 ai
----@param arg2 boolean
-function hsc.ai_berserk()
+---Forces a group of actors to start or stop berserking.
+---@param encounterName ai
+---@param isBerserk boolean
+---Example: hsc.ai_berserk("rocks/elites_2", true)
+function hsc.ai_berserk(encounterName, isBerserk)
 end
 
----@param arg1 ai
----@param arg2 team
-function hsc.ai_set_team()
+---Makes an encounter change to a new team.
+---@param encounterName ai
+---@param teamName team
+---Example: hsc.ai_set_team("rocks/marines_2", "covenant")
+function hsc.ai_set_team(encounterName, teamName)
 end
 
----@param arg1 ai
----@param arg2 boolean
-function hsc.ai_allow_charge()
+---Either enables or disables charging behavior for a group of actors.
+---@param encounterName ai
+---@param isCharging boolean
+---Example: hsc.ai_allow_charge("rocks/elites_2", true)
+function hsc.ai_allow_charge(encounterName, isCharging)
 end
 
----@param arg1 ai
----@param arg2 boolean
-function hsc.ai_allow_dormant()
+---Either enables or disables automatic dormancy for a group of actors.
+---@param encounterName ai
+---@param isDormant boolean
+---Example: hsc.ai_allow_dormant("rocks/elites_2", true)
+function hsc.ai_allow_dormant(encounterName, isDormant)
 end
 
----@param arg1 team
----@param arg2 team
+---Returns whether two teams have an allegiance that is currently broken by traitorous behavior.
+---@param teamName1 team
+---@param teamName2 team
 ---@return boolean
-function hsc.ai_allegiance_broken()
+---Example: hsc.ai_allegiance_broken(player, human)
+function hsc.ai_allegiance_broken(teamName1, teamName2)
 end
 
----@param arg1 boolean
-function hsc.camera_control()
+---Toggles script control of the camera.
+---@param isTrue boolean
+function hsc.camera_control(isTrue)
 end
 
----@param arg1 cutscene_camera_point
----@param arg2 short
-function hsc.camera_set()
+---Moves the camera to the specified camera point over the specified number of ticks.
+---@param cameraPointName cutscene_camera_point
+---@param ticksNumber short
+---Example: hsc.camera_set("intro_camera_point", 30) -- Moves the camera to "intro_camera_point" over 30 ticks (1 second).
+function hsc.camera_set(cameraPointName, ticksNumber)
 end
 
----@param arg1 cutscene_camera_point
----@param arg2 short
----@param arg3 object
-function hsc.camera_set_relative()
+---Moves the camera to the specified camera point over the specified number of ticks (position is relative to the specified object).
+---@param cameraPointName cutscene_camera_point
+---@param ticksNumber short
+---@param objectName object
+---Example: hsc.camera_set_relative("chief_lift_2a", 0, "chief_lift") -- Moves the camera to "chief_lift_2a" relative to "chief_lift" instantly.
+function hsc.camera_set_relative(cameraPointName, ticksNumber, objectName)
 end
 
----@param arg1 animation_graph
----@param arg2 string
-function hsc.camera_set_animation()
+---Begins a prerecorded camera animation.
+---Idk how it works exactly, need to test it.
+---@param modelAnimationPath animation_graph
+---@param animationName string
+---Example: hsc.camera_set_animation("models\cinematics\intro_camera\intro_camera", "intro_camera_anim") -- Plays the "intro_camera_anim" animation from the specified model animation graph.
+function hsc.camera_set_animation(modelAnimationPath, animationName)
 end
 
----@param arg1 unit
-function hsc.camera_set_first_person()
+---Makes the scripted camera follow a unit.
+---@param unitName unit
+---Example: hsc.camera_set_third_person("masterchief") -- Makes the camera follow the "masterchief" unit in third-person view.
+function hsc.camera_set_first_person(unitName)
 end
 
----@param arg1 unit
-function hsc.camera_set_dead()
+---Makes the scripted camera zoom out around a unit as if it were dead.
+---@param unitName unit
+---Example: hsc.camera_set_dead("masterchief") -- Makes the camera zoom out around the "masterchief" unit as if it were dead.
+function hsc.camera_set_dead(unitName)
 end
 
+---Returns the number of ticks remaining in the current camera interpolation.
 ---@return short
 function hsc.camera_time()
 end
 
+---Loads the saved camera position and facing from camera_<map_name>.txt
 function hsc.debug_camera_load()
 end
 
+---Saves the camera position and facing to camera_<map_name>.txt
 function hsc.debug_camera_save()
 end
 
@@ -1465,16 +1738,21 @@ end
 -----@param arg1 string
 -- function hsc.debug_camera_load_text() end
 
----@param arg1 real
-function hsc.game_speed()
+---Changes the game speed (Only works in single-player).
+---@param speedNumber real
+---Example: hsc.game_speed(1.5) -- Sets the game speed to 1.5x normal speed.
+function hsc.game_speed(speedNumber)
 end
 
+---Gets ticks elapsed since the start of the game.
 ---@return long
 function hsc.game_time()
 end
 
----@param arg1 string
-function hsc.game_variant()
+---Set the game engine.
+---Idk how it works exactly, need to test it.
+---@param engineName string
+function hsc.game_variant(engineName)
 end
 
 -----@return game_difficulty
@@ -1483,178 +1761,171 @@ end
 -----@return game_difficulty
 -- function hsc.game_difficulty_get_real() end
 
+---Starts the map from the beginning. (Only works in single-player).
 function hsc.map_reset()
 end
 
----@param arg1 string
-function hsc.map_name()
+---Opens a map (This is intended for single-player maps)
+---@param mapName string
+---Example: hsc.map_name("a50_coop_evolved") -- Opens the "a50_coop_evolved" map.
+function hsc.map_name(mapName)
 end
 
----@param arg1 string
-function hsc.multiplayer_map_name()
+---Opens a multiplayer map (Leftover from Halo CE, this function is deprecated).
+---@deprecated
+---@param mapName string
+function hsc.multiplayer_map_name(mapName)
 end
 
----@param arg1 game_difficulty
-function hsc.game_difficulty_set()
+---Changes the difficulty setting for the next map to be loaded.
+---@param difficultyName game_difficulty "easy = easy", "normal = normal", "hard = heroic", or "impossible = legendary".
+---Example: hsc.game_difficulty_set("hard") -- Sets the game difficulty to "heroic" for the next map.
+function hsc.game_difficulty_set(difficultyName)
 end
 
----@param arg1 string
-function hsc.crash()
+---Crashes (for debugging).
+---@param unknownString string
+function hsc.crash(unknownString)
 end
 
----@param arg1 short
-function hsc.switch_bsp()
+---Switch to a different structure bsp by it's index.
+---@param bspIndex short
+---Example: hsc.switch_bsp(1) -- Switches to the structure BSP with index 1.
+function hsc.switch_bsp(bspIndex)
 end
 
+---Returns the current structure bsp index.
 ---@return short
 function hsc.structure_bsp_index()
 end
 
+---Prints the build version.
 function hsc.version()
 end
 
+---Starts game in film playback mode. (Huh?)
 function hsc.playback()
 end
 
+---Quits the game.
 function hsc.quit()
 end
 
-function hsc.texture_cache_flush()
+--function hsc.texture_cache_flush()
+--end
+
+--function hsc.sound_cache_flush()
+--end
+
+--function hsc.sound_cache_dump_to_file()
+--end
+
+---Displays the current pvs.
+---@param displayPVS boolean
+function hsc.debug_pvs(displayPVS)
 end
 
-function hsc.sound_cache_flush()
-end
-
-function hsc.sound_cache_dump_to_file()
-end
-
-function hsc.debug_tags()
-end
-
-function hsc.profile_reset()
-end
-
----@param arg1 string
-function hsc.profile_dump()
-end
-
----@param arg1 string
-function hsc.profile_activate()
-end
-
----@param arg1 string
-function hsc.profile_deactivate()
-end
-
----@param arg1 string
-function hsc.profile_graph_toggle()
-end
-
----@param arg1 boolean
-function hsc.debug_pvs()
-end
-
+---Starts radiosity computation.
 function hsc.radiosity_start()
 end
 
+---Saves radiosity solution.
 function hsc.radiosity_save()
 end
 
+---Tests sun occlusion at a point.
 function hsc.radiosity_debug_point()
 end
 
----@param arg1 boolean
-function hsc.ai()
+---Turns all AI on or off.
+---@param turnAI boolean
+function hsc.ai(turnAI)
 end
 
----@param arg1 boolean
-function hsc.ai_dialogue_triggers()
+---Turns impromptu dialogue on or off.
+---@param improDialog boolean
+function hsc.ai_dialogue_triggers(improDialog)
 end
 
----@param arg1 boolean
-function hsc.ai_grenades()
+---Turns grenade inventory on or off.
+---@param grenadeInventory boolean
+function hsc.ai_grenades(grenadeInventory)
 end
 
-function hsc.ai_lines()
+---Does a screen fade in from a particular color over a number of ticks.
+---@param red real
+---@param green real
+---@param blue real
+---@param ticksNumber short
+function hsc.fade_in(red, green, blue, ticksNumber)
 end
 
-function hsc.ai_debug_sound_point_set()
+---Does a screen fade out to a particular color over a number of ticks.
+---@param red real
+---@param green real
+---@param blue real
+---@param ticksNumber short
+function hsc.fade_out(red, green, blue, ticksNumber)
 end
 
----@param arg1 string
----@param arg2 string
-function hsc.ai_debug_vocalize()
-end
-
----@param arg1 ai
-function hsc.ai_debug_teleport_to()
-end
-
----@param arg1 string
-function hsc.ai_debug_speak()
-end
-
----@param arg1 string
-function hsc.ai_debug_speak_list()
-end
-
----@param arg1 real
----@param arg2 real
----@param arg3 real
----@param arg4 short
-function hsc.fade_in()
-end
-
----@param arg1 real
----@param arg2 real
----@param arg3 real
----@param arg4 short
-function hsc.fade_out()
-end
-
+---Initializes game to start a cinematic (interruptive) cutscene.
 function hsc.cinematic_start()
 end
 
+---Initializes the game to end a cinematic (interruptive) cutscene.
 function hsc.cinematic_stop()
 end
 
+---Aborts a cinematic.
 function hsc.cinematic_abort()
 end
 
--- function hsc.cinematic_skip_start_internal() end
-
--- function hsc.cinematic_skip_stop_internal() end
-
----@param arg1 boolean
-function hsc.cinematic_show_letterbox()
+function hsc.cinematic_skip_start_internal()
 end
 
----@param arg1 cutscene_title
-function hsc.cinematic_set_title()
+function hsc.cinematic_skip_stop_internal()
 end
 
----@param arg1 cutscene_title
----@param arg2 real
-function hsc.cinematic_set_title_delayed()
+---Sets or removes the letterbox bars.
+---@param removesLetterboxBars boolean
+function hsc.cinematic_show_letterbox(removesLetterboxBars)
 end
 
----@param arg1 boolean
-function hsc.cinematic_suppress_bsp_object_creation()
+---Activates the chapter title.
+---@param cutsceneTitleName cutscene_title
+---Example: hsc.cinematic_set_title("chapter_1_intro") -- Displays the "chapter_1_intro" title.
+function hsc.cinematic_set_title(cutsceneTitleName)
+end
+
+---Activates the chapter title, delayed in seconds.
+---@param cutsceneTitleName cutscene_title
+---@param delayInSeconds real
+---Example: hsc.cinematic_set_title_delayed("chapter_1_intro", 2.0) -- Displays the "chapter_1_intro" title after a delay of 2 seconds.
+function hsc.cinematic_set_title_delayed(cutsceneTitleName, delayInSeconds)
+end
+
+---Suppresses or enables the automatic creation of objects during cutscenes due to a bsp switch.
+---@param suppressObjects boolean
+function hsc.cinematic_suppress_bsp_object_creation(suppressObjects)
 end
 
 -- function hsc.game_won() end
 
+---Causes the player to revert to their previous saved game.
 function hsc.game_lost()
 end
 
+---Returns FALSE if it would be a bad idea to save the player's game right now.
 ---@return boolean
 function hsc.game_safe_to_save()
 end
 
+---Returns FALSE if there are bad guys around, projectiles in the air, etc.
 ---@return boolean
 function hsc.game_all_quiet()
 end
 
+---Returns FALSE if it would be a bad idea to save the player's game right now.
 ---@return boolean
 function hsc.game_safe_to_speak()
 end
@@ -1662,142 +1933,181 @@ end
 -----@return boolean
 -- function hsc.game_is_cooperative() end
 
----@return boolean
-function hsc.game_is_authoritative()
-end
+-----@return boolean
+--function hsc.game_is_authoritative()
+--end
 
 -- function hsc.game_save() end
 
-function hsc.game_save_cancel()
-end
+--function hsc.game_save_cancel()
+--end
 
 -- function hsc.game_save_no_timeout() end
 
 -- function hsc.game_save_totally_unsafe() end
 
----@return boolean
-function hsc.game_saving()
-end
+-----@return boolean
+--function hsc.game_saving()
+--end
 
-function hsc.game_revert()
-end
+--function hsc.game_revert()
+--end
 
----@return boolean
-function hsc.game_reverted()
-end
+-----@return boolean
+--function hsc.game_reverted()
+--end
 
+---Saves debug game state to "My Games\Halo CE\core\core.bin"
 function hsc.core_save()
 end
 
----@param arg1 string
+---Saves debug game state to My Games\Halo CE\core\<path>
+---@deprecated Use hsc.core_save instead.
+---@param pathName string path from core.bin to save to
 ---@return boolean
-function hsc.core_save_name()
+---Example: hsc.core_save_name("test_save") -- Saves the debug game state to "My Games\Halo CE\core\test_save.bin"
+function hsc.core_save_name(pathName)
 end
 
+---Loads debug game state from "My Games\Halo CE\core\core.bin"
 function hsc.core_load()
 end
 
+---Loads debug game state from "My Games\Halo CE\core\core.bin" as soon as the map is initialized
 function hsc.core_load_at_startup()
 end
 
----@param arg1 string
-function hsc.core_load_name()
+---Loads debug game state from "My Games\Halo CE\core\<path>"
+---@deprecated Use hsc.core_load instead.
+---@param pathName string
+function hsc.core_load_name(pathName)
 end
 
----@param arg1 string
-function hsc.core_load_name_at_startup()
+---Loads debug game state from "My Games\Halo CE\core\<path>" as soon as the map is initialized
+---@deprecated Use hsc.core_load_at_startup instead.
+---@param pathName string
+function hsc.core_load_name_at_startup(pathName)
 end
 
----@param arg1 string
----@return boolean
-function hsc.mcc_mission_segment()
+-----@param arg1 string
+-----@return boolean
+--function hsc.mcc_mission_segment()
+--end
+
+---Skips an amount of game ticks. ONLY USE IN CUTSCENES!
+---@param ticksNumber short
+---Example: hsc.game_skip_ticks(60) -- Skips 60 ticks (2 seconds) of game time.
+function hsc.game_skip_ticks(ticksNumber)
 end
 
----@param arg1 short
-function hsc.game_skip_ticks()
+---Loads an impulse sound into the sound cache ready for playback.
+---@param soundPath sound
+---@param loadSound boolean
+function hsc.sound_impulse_predict(soundPath, loadSound)
 end
 
----@param arg1 sound
----@param arg2 boolean
-function hsc.sound_impulse_predict()
+---Plays an impulse sound from the specified source object (or "none"), with the specified volume.
+---@param soundPath sound
+---@param objectName object | "none"
+---@param soundVolume real
+---Example: hsc.sound_impulse_start("sounds\explosion", "grenade_1", 1.0) -- Plays the "explosion" sound from the "grenade_1" object at full volume.
+function hsc.sound_impulse_start(soundPath, objectName, soundVolume)
 end
 
----@param arg1 sound
----@param arg2 object
----@param arg3 real
-function hsc.sound_impulse_start()
-end
-
----@param arg1 sound
+---Returns the time remaining for the specified impulse sound.
+---@param soundPath sound
 ---@return long
-function hsc.sound_impulse_time()
+function hsc.sound_impulse_time(soundPath)
 end
 
----@param arg1 sound
-function hsc.sound_impulse_stop()
+---Stops the specified impulse sound.
+---@param soundPath sound
+function hsc.sound_impulse_stop(soundPath)
 end
 
----@param arg1 looping_sound
-function hsc.sound_looping_predict()
+-----Your mom
+-----@param arg1 looping_sound
+--function hsc.sound_looping_predict()
+--end
+
+---Plays a looping sound from the specified source object (or "none"), with the specified scale.
+---@param loopingSoundPath looping_sound
+---@param objectName object | "none"
+---@param soundVolume real
+---Example: hsc.sound_looping_start("sounds\engine_loop", "warthog_1", 0.5) -- Plays the "engine_loop" sound from the "warthog_1" object at half volume.
+function hsc.sound_looping_start(loopingSoundPath, objectName, soundVolume)
 end
 
----@param arg1 looping_sound
----@param arg2 object
----@param arg3 real
-function hsc.sound_looping_start()
+---Stops the specified looping sound.
+---@param loopingSoundPath looping_sound
+function hsc.sound_looping_stop(loopingSoundPath)
 end
 
----@param arg1 looping_sound
-function hsc.sound_looping_stop()
+---Changes the volume of the sound within the range 0 to 1.
+---@param loopingSoundPath looping_sound
+---@param soundVolume real
+---Example: hsc.sound_looping_set_scale("sounds\engine_loop", 0.8) -- Sets the volume of the "engine_loop" sound to 0.8.
+function hsc.sound_looping_set_scale(loopingSoundPath, soundVolume)
 end
 
----@param arg1 looping_sound
----@param arg2 real
-function hsc.sound_looping_set_scale()
+---Enables or disables the alternate loop/alternate end for a looping sound.
+---@param loopingSoundPath looping_sound
+---@param isEnabled boolean
+---Example: hsc.sound_looping_set_alternate("sounds\engine_loop", true) -- Enables the alternate loop/alternate end for the "engine_loop" sound.
+function hsc.sound_looping_set_alternate(loopingSoundPath, isEnabled)
 end
 
----@param arg1 looping_sound
----@param arg2 boolean
-function hsc.sound_looping_set_alternate()
+---Enables or disables all sound classes matching the substring.
+---@param soundClass sound_classes
+---@param isEnabled boolean
+---Example: hsc.debug_sounds_enable("music", false) -- Disables all sound classes containing "music" in their name.
+function hsc.debug_sounds_enable(soundClass, isEnabled)
 end
 
----@param arg1 string
----@param arg2 boolean
-function hsc.debug_sounds_enable()
+---Enables or disables all sound.
+---@param isEnabled boolean
+function hsc.sound_enable(isEnabled)
 end
 
----@param arg1 boolean
-function hsc.sound_enable()
+---Set the game's master gain.
+---@param masterGain real
+---Example: hsc.sound_set_master_gain(0.8) -- Sets the game's master gain to 0.8.
+function hsc.sound_set_master_gain(masterGain)
 end
 
----@param arg1 real
-function hsc.sound_set_master_gain()
-end
-
+---Returns the game's master gain.
 ---@return real
 function hsc.sound_get_master_gain()
 end
 
----@param arg1 real
-function hsc.sound_set_music_gain()
+---Set the game's music gain.
+---@param musicGain real
+---Example: hsc.sound_set_music_gain(0.8) -- Sets the game's music gain to 0.8.
+function hsc.sound_set_music_gain(musicGain)
 end
 
+---Returns the game's music gain.
 ---@return real
 function hsc.sound_get_music_gain()
 end
 
----@param arg1 real
-function hsc.sound_set_effects_gain()
+---Set the game's effects gain.
+---@param effectsGain real
+---Example: hsc.sound_set_effects_gain(0.8) -- Sets the game's effects gain to 0.8.
+function hsc.sound_set_effects_gain(effectsGain)
 end
 
+---Returns the game's effects gain.
 ---@return real
 function hsc.sound_get_effects_gain()
 end
 
----@param arg1 string
----@param arg2 real
----@param arg3 short
-function hsc.sound_class_set_gain()
+---Changes the gain on the specified sound class(es) to the specified game over the specified number of ticks.
+---@param soundClass sound_classes
+---@param soundGain real
+---@param soundDuration short
+---Example: hsc.sound_class_set_gain("unit dialog", 0.5, 30) -- Sets the gain of the "unit dialog" sound class to 0.5 over 30 ticks (1 second).
+function hsc.sound_class_set_gain(soundClass, soundGain, soundDuration)
 end
 
 ---Stops the vehicle from running real physics and runs fake hovering physics instead.
@@ -1807,446 +2117,582 @@ end
 function hsc.vehicle_hover(vehicleName, isHovering)
 end
 
+---Resets zoom levels on all players.
 function hsc.players_unzoom_all()
 end
 
----@param arg1 boolean
-function hsc.player_enable_input()
+---Enables or disables player input. the player can still free-look, but nothing else.
+---@param enablePlayerInput boolean
+---Example: hsc.player_enable_input(false) -- Disables player input.
+function hsc.player_enable_input(enablePlayerInput)
 end
 
----@param arg1 boolean
+---Enables/disables camera control globally.
+---@param enableCameraControl boolean
 ---@return boolean
-function hsc.player_camera_control()
+function hsc.player_camera_control(enableCameraControl)
 end
 
+---Resets the player action test state so that all tests will return false.
 function hsc.player_action_test_reset()
 end
 
+---Returns true if any player has jumped since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_jump()
 end
 
+---Returns true if any player has used primary trigger since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_primary_trigger()
 end
 
+---Returns true if any player has used grenade trigger since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_grenade_trigger()
 end
 
+---Returns true if any player has hit the zoom button since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_zoom()
 end
 
+---Returns true if any player has hit the action key since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_action()
 end
 
+---Returns true if any player has hit accept since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_accept()
 end
 
+---Returns returns true if any player has hit the back key since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_back()
 end
 
+---Returns true if any player has looked up since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_look_relative_up()
 end
 
+---Returns true if any player has looked down since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_look_relative_down()
 end
 
+---Returns true if any player has looked left since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_look_relative_left()
 end
 
+---Returns true if any player has looked right since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_look_relative_right()
 end
 
+---Returns true if any player has looked up, down, left, and right since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_look_relative_all_directions()
 end
 
+---Returns true if any player has moved forward, backward, left, and right since the last call to (player_action_test_reset).
 ---@return boolean
 function hsc.player_action_test_move_relative_all_directions()
 end
 
----@param arg1 unit
----@param arg2 starting_profile
----@param arg3 boolean
-function hsc.player_add_equipment()
+---Adds/resets the player's health, shield, and inventory (weapons and grenades) to the named profile. 
+---Resets if third parameter is true, adds if false.
+---@param unitName unit
+---@param profileName profile
+---@param isResetProfile boolean
+---Example: hsc.player_add_equipment("masterchief", "spartan_mk_v", false) -- Adds the equipment from the "spartan_mk_v" profile to the "masterchief" unit.
+---Example: hsc.player_add_equipment("masterchief", "spartan_mk_v", true) -- Resets the "masterchief" unit's equipment to the "spartan_mk_v" profile.
+function hsc.player_add_equipment(unitName, profileName, isResetProfile)
 end
 
----@param arg1 short
----@param arg2 short
-function hsc.debug_teleport_player()
-end
+-----@param arg1 short
+-----@param arg2 short
+--function hsc.debug_teleport_player()
+--end
 
----@param arg1 boolean
+---Shows or hides the hud.
+---@param isShowHud boolean
 ---@return boolean
-function hsc.show_hud()
+function hsc.show_hud(isShowHud)
 end
 
----@param arg1 boolean
+---Shows or hides the hud help text.
+---@param isShowHelpText boolean
 ---@return boolean
-function hsc.show_hud_help_text()
+function hsc.show_hud_help_text(isShowHelpText)
 end
 
----@param arg1 boolean
-function hsc.enable_hud_help_flash()
+---Starts/stops the help text flashing
+---@param isFlashing boolean
+function hsc.enable_hud_help_flash(isFlashing)
 end
 
+---Resets the timer for the help text flashing
 function hsc.hud_help_flash_restart()
 end
 
----@param navNave navpoint
----@param arg2 unit
----@param arg3 cutscene_flag
----@param arg4 real
-function hsc.activate_nav_point_flag()
+---Activates a nav point attached to local player anchored to a flag with a vertical offset.
+---If the player is not local to the machine, this will fail.
+---@param navPointName navpoint
+---@param unitName unit
+---@param flagName cutscene_flag
+---@param zOffset real
+---Example: hsc.activate_nav_point_flag("default_red", "masterchief", "flag_objective_1", 2.0)
+function hsc.activate_nav_point_flag(navPointName, unitName, flagName, zOffset)
 end
 
----Activates a nav point type <string> attached to (local) player <unit> anchored to an object with a vertical offset <real>. If the player is not local to the machine, this will fail
+---Activates a nav point attached to local player anchored to an object with a vertical offset. 
+---If the player is not local to the machine, this will fail.
 ---@param navName navpoint
 ---@param unitName unit
 ---@param objectName object
 ---@param zOffset real
+---Example: hsc.activate_nav_point_object("default_red", "masterchief", "objectives_marker_1", 2.0)
 function hsc.activate_nav_point_object(navName, unitName, objectName, zOffset)
 end
 
----@param arg1 navpoint
----@param arg2 team
----@param arg3 cutscene_flag
----@param arg4 real
-function hsc.activate_team_nav_point_flag()
+---Activates a nav point attached to a team anchored to a flag with a vertical offset.
+---If the player is not local to the machine, this will fail.
+---@param navPointName navpoint
+---@param teamName team
+---@param flagName cutscene_flag
+---@param zOffset real
+---Example: hsc.activate_team_nav_point_flag("default_red", "player", "flag_objective_1", 2.0)
+function hsc.activate_team_nav_point_flag(navPointName, teamName, flagName, zOffset)
 end
 
----@param arg1 navpoint
----@param arg2 team
----@param arg3 object
----@param arg4 real
-function hsc.activate_team_nav_point_object()
+---Activates a nav point attached to a team anchored to an object with a vertical offset.
+---If the player is not local to the machine, this will fail.
+---@param navPointName navpoint
+---@param teamName team
+---@param objectName object
+---@param zOffset real
+---Example: hsc.activate_team_nav_point_object("default_red", "human", "pelican_2", 2.0)
+function hsc.activate_team_nav_point_object(navPointName, teamName, objectName, zOffset)
 end
 
----@param arg1 unit
----@param arg2 cutscene_flag
-function hsc.deactivate_nav_point_flag()
+---Deactivates a nav point attached to a player anchored to a flag.
+---@param unitName unit
+---@param flagName cutscene_flag
+function hsc.deactivate_nav_point_flag(unitName, flagName)
 end
 
----@param arg1 unit
----@param arg2 object
-function hsc.deactivate_nav_point_object()
+---Deactivates a nav point attached to a player anchored to an object.
+---@param unitName unit
+---@param objectName object
+function hsc.deactivate_nav_point_object(unitName, objectName)
 end
 
----@param arg1 team
----@param arg2 cutscene_flag
-function hsc.deactivate_team_nav_point_flag()
+---Deactivates a nav point attached to a team anchored to a flag.
+---@param teamName team
+---@param flagName cutscene_flag
+function hsc.deactivate_team_nav_point_flag(teamName, flagName)
 end
 
----@param arg1 team
----@param arg2 object
-function hsc.deactivate_team_nav_point_object()
+---Deactivates a nav point attached to a team anchored to an object.
+---@param teamName team
+---@param objectName object
+function hsc.deactivate_team_nav_point_object(teamName, objectName)
 end
 
+---Clears console text from the screen.
 function hsc.cls()
 end
 
----@param arg1 boolean
-function hsc.error_overflow_suppression()
+---Enables or disables the suppression of error spamming.
+---@param isSuppressed boolean
+function hsc.error_overflow_suppression(isSuppressed)
 end
 
----@param arg1 real
----@param arg2 real
----@param arg3 real
-function hsc.player_effect_set_max_translation()
+---Sets the maximum translation values for the player effect. Used for camera shaking.
+---@param x real
+---@param y real
+---@param z real
+function hsc.player_effect_set_max_translation(x, y, z)
 end
 
----@param arg1 real
----@param arg2 real
----@param arg3 real
-function hsc.player_effect_set_max_rotation()
+---Sets the maximum rotation values for the player effect. Used for camera shaking?.
+---@param yaw real
+---@param pitch real
+---@param roll real
+function hsc.player_effect_set_max_rotation(yaw, pitch, roll)
 end
 
----@param arg1 real
----@param arg2 real
-function hsc.player_effect_set_max_vibrate()
+---Sets the maximum vibration values for the player effect. Used for controller rumble?.
+---@param left real
+---@param right real
+function hsc.player_effect_set_max_vibrate(left, right)
 end
 
----@param arg1 real
----@param arg2 real
-function hsc.player_effect_set_max_rumble()
+---Use player_effect_set_max_vibrate, this is only to keep compatibility with Custom Edition
+---@param maxLow real
+---@param maxHigh real
+function hsc.player_effect_set_max_rumble(maxLow, maxHigh)
 end
 
----@param arg1 real
----@param arg2 real
-function hsc.player_effect_start()
+---Player effect start with specified intensity and attack time.
+---@param maxIntensity real
+---@param attackTime real
+---@see hsc.real_random_range
+---Example: hsc.player_effect_start(1.0, 0.5) -- Starts a player effect with maximum intensity of 1.0 and an attack time of 0.5 seconds.
+---Example: hsc.player_effect_start(hsc.real_random_range(0.5, 1.0), 0.2) -- Starts a player effect with random intensity between 0.5 and 1.0 and an attack time of 0.2 seconds.
+function hsc.player_effect_start(maxIntensity, attackTime)
 end
 
----@param arg1 real
-function hsc.player_effect_stop()
+---Player effect stop with specified release time.
+---@param decayTime real
+---@see hsc.real_random_range
+---Example: hsc.player_effect_stop(0.5) -- Stops the player effect with a release time of 0.5 seconds.
+---Example: hsc.player_effect_stop(hsc.real_random_range(0.2, 1.0)) -- Stops the player effect with a random release time between 0.2 and 1.0 seconds.
+function hsc.player_effect_stop(decayTime)
 end
 
----@param arg1 boolean
-function hsc.hud_show_health()
+---Hides/shows the health panel.
+---@param IsShowHealth boolean
+function hsc.hud_show_health(IsShowHealth)
 end
 
----@param arg1 boolean
-function hsc.hud_blink_health()
+---Starts/stops manual blinking of the health panel.
+---@param IsBlinking boolean
+function hsc.hud_blink_health(IsBlinking)
 end
 
----@param arg1 boolean
-function hsc.hud_show_shield()
+---Hides/shows the shield panel.
+---@param IsShowShield boolean
+function hsc.hud_show_shield(IsShowShield)
 end
 
----@param arg1 boolean
-function hsc.hud_blink_shield()
+---Starts/stops manual blinking of the shield panel.
+---@param IsBlinking boolean
+function hsc.hud_blink_shield(IsBlinking)
 end
 
----@param arg1 boolean
-function hsc.hud_show_motion_sensor()
+---Hides/shows the motion sensor panel.
+---@param IsShowMotionSensor boolean
+function hsc.hud_show_motion_sensor(IsShowMotionSensor)
 end
 
----@param arg1 boolean
-function hsc.hud_blink_motion_sensor()
+---Starts/stops manual blinking of the motion sensor panel.
+---@param IsBlinking boolean
+function hsc.hud_blink_motion_sensor(IsBlinking)
 end
 
----@param arg1 boolean
-function hsc.hud_show_crosshair()
+---Hides/shows the crosshair.
+---@param IsShowCrosshair boolean
+function hsc.hud_show_crosshair(IsShowCrosshair)
 end
 
+---Clears all non-state messages on the hud.
 function hsc.hud_clear_messages()
 end
 
----@param arg1 hud_message
-function hsc.hud_set_help_text()
+---Displays a message as the help text.
+---@param hudMessageName hud_message
+function hsc.hud_set_help_text(hudMessageName)
 end
 
----@param arg1 hud_message
-function hsc.hud_set_objective_text()
+---Sets a message as the current objective.
+---@param hudMessageName hud_message
+function hsc.hud_set_objective_text(hudMessageName)
 end
 
----@param arg1 short
----@param arg2 short
-function hsc.hud_set_timer_time()
+---Sets the time for the timer to minutes and seconds, and starts and displays timer.
+---@param minutes short
+---@param seconds short
+function hsc.hud_set_timer_time(minutes, seconds)
 end
 
----@param arg1 short
----@param arg2 short
-function hsc.hud_set_timer_warning_time()
+---Sets the warning time for the timer to minutes and seconds.
+---@param minutes short
+---@param seconds short
+function hsc.hud_set_timer_warning_time(minutes, seconds)
 end
 
----@param arg1 short
----@param arg2 short
----@param arg3 hud_corner
-function hsc.hud_set_timer_position()
+---Sets the timer position on screen.
+---@param x short
+---@param y short
+---@param anchorOffset hud_corner
+---Example: hsc.hud_set_timer_position(100, 50, "top_right") -- Sets the hud timer position to (100, 50) relative to the top-right corner of the screen.
+function hsc.hud_set_timer_position(x, y, anchorOffset)
 end
 
----@param arg1 boolean
-function hsc.show_hud_timer()
+---Displays the hud timer.
+---@param isShowHudTimer boolean
+function hsc.show_hud_timer(isShowHudTimer)
 end
 
----@param arg1 boolean
-function hsc.pause_hud_timer()
+---Pauses or unpauses the hud timer.
+---@param isPauseHudTimer boolean
+function hsc.pause_hud_timer(isPauseHudTimer)
 end
 
+---Returns the ticks left on the hud timer.
 ---@return short
 function hsc.hud_get_timer_ticks()
 end
 
----@param arg1 boolean
-function hsc.time_code_show()
+---Shows the time code timer.
+---@param isShowTimeCodeTimer boolean
+function hsc.time_code_show(isShowTimeCodeTimer)
 end
 
----@param arg1 boolean
-function hsc.time_code_start()
+---Starts/stops the time code timer.
+---@param isStart boolean
+function hsc.time_code_start(isStart)
 end
 
+---Resets the time code timer.
 function hsc.time_code_reset()
 end
 
+---Reloads the transparent chicago shaders.
 function hsc.reload_shader_transparent_chicago()
 end
 
+---Check for shader changes.
 function hsc.rasterizer_reload_effects()
 end
 
+---Flush all decals.
 function hsc.rasterizer_decals_flush()
 end
 
+---Average fps.
 function hsc.rasterizer_fps_accumulate()
 end
 
----@param arg1 real
----@param arg2 real
----@param arg3 real
----@param arg4 real
-function hsc.rasterizer_model_ambient_reflection_tint()
+---Sets the tint color for ambient reflection on models.
+---@param alpha real
+---@param red real
+---@param green real
+---@param blue real
+function hsc.rasterizer_model_ambient_reflection_tint(alpha, red, green, blue)
 end
 
+---Reset lights for new map.
 function hsc.rasterizer_lights_reset_for_new_map()
 end
 
----@param arg1 short
----@param arg2 real
-function hsc.script_screen_effect_set_value()
+---Sets a screen effect script value.
+---Idk what are the values for.
+---@param value1 short
+---@param value2 real
+function hsc.script_screen_effect_set_value(value1, value2)
 end
 
----@param arg1 boolean
-function hsc.cinematic_screen_effect_start()
+---Starts screen effect; pass TRUE to clear
+---@param isStart boolean
+function hsc.cinematic_screen_effect_start(isStart)
 end
 
----@param arg1 short
----@param arg2 short
----@param arg3 real
----@param arg4 real
----@param arg5 real
-function hsc.cinematic_screen_effect_set_convolution()
+---Sets the convolution effect parameters.
+---@param bias short higher values smoother image but worse framerate
+---@param blurType short 0 = no blur, 1 = radial blur, 2 = gaussian blur
+---| 0 = "no blur"
+---| 1 = "radial blur"
+---| 2 = "gaussian blur"
+---@param startBlurPercent real
+---@param endBlurPercent real
+---@param transitionTicks real
+---Example: hsc.cinematic_screen_effect_set_convolution(0, 1, 0.0, 1.0, 30)
+---Sets the convolution effect to type 1 (radial blur) with a bias of 0, starting at 0% blur and ending at 100% blur over 30 ticks (1 second).
+function hsc.cinematic_screen_effect_set_convolution(bias, blurType, startBlurPercent, endBlurPercent, transitionTicks)
 end
 
----@param arg1 real
----@param arg2 real
----@param arg3 real
----@param arg4 real
----@param arg5 boolean
----@param arg6 real
-function hsc.cinematic_screen_effect_set_filter()
+---Sets the filter effect.
+---Idk what the parameters do. Need more research.
+---@param startGammaPercent real
+---@param endGammaPercent real
+---@param startTintPercent real
+---@param endTintPercent real
+---@param AdditiveBlend boolean
+---@param transitionTicks real
+---Example: hsc.cinematic_screen_effect_set_filter(0.5, 1.0, 0.0, 1.0, false, 30)
+---Sets the filter effect to start at 50% gamma and 0% tint, ending at 100% gamma and 100% tint over 30 ticks (1 second), with no additive blending.
+function hsc.cinematic_screen_effect_set_filter(startGammaPercent, endGammaPercent, startTintPercent, endTintPercent, AdditiveBlend, transitionTicks)
 end
 
----@param arg1 real
----@param arg2 real
----@param arg3 real
-function hsc.cinematic_screen_effect_set_filter_desaturation_tint()
+---Sets the desaturation filter tint color.
+---@param red real
+---@param green real
+---@param blue real
+---Example: hsc.cinematic_screen_effect_set_filter_desaturation_tint(1.0, 0.0, 0.0)
+---Sets the desaturation filter tint color to red.
+function hsc.cinematic_screen_effect_set_filter_desaturation_tint(red, green, blue)
 end
 
----@param arg1 short
----@param arg2 real
-function hsc.cinematic_screen_effect_set_video()
+---Sets the video effect: <noise intensity[0,1]>, <overbright: 0=none, 1=2x, 2=4x>
+---@param noiseIntensity short
+---@param overbright real 0 = none, 1 = 2x, 2 = 4x
+---| 0 = "none"
+---| 1 = "2x"
+---| 2 = "4x"
+function hsc.cinematic_screen_effect_set_video(noiseIntensity, overbright)
 end
 
+---Returns control of the screen effects to the rest of the game.
 function hsc.cinematic_screen_effect_stop()
 end
 
----@param arg1 real
-function hsc.cinematic_set_near_clip_distance()
+---Sets the near clip distance for cinematics.
+---@param nearClipDistance real
+function hsc.cinematic_set_near_clip_distance(nearClipDistance)
 end
 
----@param arg1 boolean
-function hsc.player0_look_invert_pitch()
+---Inverts player0's look.
+---@param isLookInvert boolean
+function hsc.player0_look_invert_pitch(isLookInvert)
 end
 
+---Returns TRUE if player0's look pitch is inverted.
 ---@return boolean
 function hsc.player0_look_pitch_is_inverted()
 end
 
+---Returns TRUE if player0 is using the normal joystick set.
 ---@return boolean
 function hsc.player0_joystick_set_is_normal()
 end
 
----@param arg1 boolean
-function hsc.ui_widget_show_path()
+---Show or hide the ui widget path.
+---@param isShow boolean
+function hsc.ui_widget_show_path(isShow)
 end
 
----@param arg1 short
-function hsc.display_scenario_help()
+---Display in-game help dialog.
+---@param isHelpDisplay short
+function hsc.display_scenario_help(isHelpDisplay)
 end
 
----@param arg1 boolean
-function hsc.sound_enable_eax()
+---Enable or disable EAX extensions.
+---@param isEnable boolean
+function hsc.sound_enable_eax(isEnable)
 end
 
+---Returns true if EAX extensions are enabled.
 ---@return boolean
 function hsc.sound_eax_enabled()
 end
 
----@param arg1 short
-function hsc.sound_set_env()
+---Change environment preset.
+---Idk what "preset" value is for.
+---@param preset short
+function hsc.sound_set_env(preset)
 end
 
----@param arg1 boolean
----@param arg2 boolean
-function hsc.sound_enable_hardware()
+---Enable or disable hardware sound buffers.
+---Idk if this values are correct.
+---@param isEnable boolean
+---@param is3D boolean
+function hsc.sound_enable_hardware(isEnable, is3D)
 end
 
----@param arg1 short
----@param arg2 boolean
-function hsc.sound_set_supplementary_buffers()
+---Set the amount of supplementary buffers.
+---Idk what this function is for, neither the values means of.
+---@param supplementaryBuffers short
+---@param isActive boolean
+function hsc.sound_set_supplementary_buffers(supplementaryBuffers, isActive)
 end
 
+---Returns the amount of supplementary buffers.
 ---@return short
 function hsc.sound_get_supplementary_buffers()
 end
 
----@param arg1 real
-function hsc.sound_set_rolloff()
+---Set the DSound rolloff value.
+---@param rolloff real
+function hsc.sound_set_rolloff(rolloff)
 end
 
----@param arg1 real
-function hsc.sound_set_factor()
+---Set the sound factor value.
+---@param factor real
+function hsc.sound_set_factor(factor)
 end
 
----@param arg1 short
+---Gets the yaw rate for the given player number.
+---@param playerNumber short
 ---@return real
-function hsc.get_yaw_rate()
+function hsc.get_yaw_rate(playerNumber)
 end
 
----@param arg1 short
+---Gets the pitch rate for the given player number.
+---@param playerNumber short
 ---@return real
-function hsc.get_pitch_rate()
+function hsc.get_pitch_rate(playerNumber)
 end
 
----@param arg1 short
----@param arg2 real
-function hsc.set_yaw_rate()
+---Sets the yaw rate for the given player number.
+---@param playerNumber short
+---@param yawRate real
+function hsc.set_yaw_rate(playerNumber, yawRate)
 end
 
----@param arg1 short
----@param arg2 real
-function hsc.set_pitch_rate()
+---Sets the pitch rate for the given player number.
+---@param playerNumber short
+---@param pitchRate real
+function hsc.set_pitch_rate(playerNumber, pitchRate)
 end
 
----@param arg1 string
----@param arg2 string
----@param arg3 string
-function hsc.bind()
+---Binds an input device/button combination to a game control.
+---Idk what are the valid values for this function.
+---@param device string
+---@param button string
+---@param control string
+function hsc.bind(device, button, control)
 end
 
----@param arg1 string
----@param arg2 string
-function hsc.unbind()
+---Unbinds an input device/button combination.
+---@param device string
+---@param button string
+function hsc.unbind(device, button)
 end
 
+---Prints a list of all input bindings.
 function hsc.print_binds()
 end
 
----@param arg1 string
----@param arg2 string
-function hsc.sv_map()
+---Opens a multiplayer map with a specified gametype.
+---@param mapName string
+---@param gameType string
+---Example: hsc.sv_map("bloodgulch", "slayer") -- Opens the "bloodgulch" map with the "slayer" gametype.
+function hsc.sv_map(mapName, gameType)
 end
 
----@param arg1 string
-function hsc.profile_load()
+---Load any included builtin profiles and create profiles on disk.
+---Idk what means this value.
+---@param profile string
+function hsc.profile_load(profile)
 end
 
+---Save a checkpoint.
 function hsc.checkpoint_save()
 end
 
----@param arg1 string
-function hsc.checkpoint_load()
+---load a saved checkpoint.
+---Idk what does checkpointName value.
+---@param checkpointName string
+function hsc.checkpoint_load(checkpointName)
 end
 
----@param arg1 string
----@param arg2 boolean
-function hsc.TestPrintBool()
-end
+-----Prints the specified boolean with the format '<string> = '<boolean>' to the Shell.
+-----@param boolName string
+-----@param boolValue boolean
+--function hsc.TestPrintBool(boolName, boolValue)
+--end
 
----@param arg1 string
----@param arg2 real
-function hsc.TestPrintReal()
-end
+-----@param arg1 string
+-----@param arg2 real
+--function hsc.TestPrintReal()
+--end
 
+---Places lens flares in the structure bsp.
 function hsc.structure_lens_flares_place()
 end
 
@@ -3973,7 +4419,7 @@ end
 
 
 -------------------------------------------------------
--- Example sintaxis 
+-- Example sintaxis in Lua
 -------------------------------------------------------
 
 -- Functions that return a "short" (integer) value have the option 
@@ -4012,7 +4458,7 @@ function using_ai_status(call, sleep)
         return hsc.ai_status("encounter") == statusCombat.guarding
     end)
     if hsc.ai_status("encounter") < 5 then
-        print("wololo")
+        print("AI Status {}: ", hsc.ai_status("encounter"))
     end
 end
 
