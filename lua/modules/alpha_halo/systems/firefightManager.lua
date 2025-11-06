@@ -12,7 +12,6 @@ local json = require "json"
 
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
-local pigPen = require "alpha_halo.systems.core.pigPen"
 local announcer = require "alpha_halo.systems.combat.announcer"
 local utils = require "alpha_halo.utils"
 local const = require "alpha_halo.systems.core.constants"
@@ -54,7 +53,8 @@ firefightManager.firefightSettings = {
     resetTemporalSkullEach = eventNames.eachSet,
     activatePermanentSkullEach = eventNames.eachSet,
     permanentSkullsCanBeRandom = true,
-    deployAlliesEach = eventNames.eachBossWave
+    deployAlliesEach = eventNames.eachBossWave,
+    playerAssistancesEach = eventNames.eachRound
 }
 local settings = firefightManager.firefightSettings
 -- By default, boss waves are the last wave of each round.
@@ -197,7 +197,8 @@ events = {
     eachWave = {},
     eachRound = {
         firefightManager.enableTemporalSkull,
-        firefightManager.conditionedSpawnPlayerAssistances,
+        -- firefightManager.conditionedSpawnPlayerAssistances,
+        firefightManager.vehicleAssistances,
         firefightManager.conditionalAddPlayerLives
     },
     eachSet = {
@@ -420,24 +421,98 @@ function firefightManager.conditionedSwitchTeams()
 end
 
 -- Spawn player assistances (Warthogs and Ghosts).
-function firefightManager.spawnPlayerAssistances()
-    logger:debug("Spawning player assistances...")
+function firefightManager.spawnPlayerAssistances(call, sleep)
+    local vehicleSpawnDelay = utils.secondsToTicks(5)
+    sleep(vehicleSpawnDelay)
+    local odstSquadName = "Human_Team/ODSTs"
+    local covenantWaveName = "Covenant_Wave"
+    local players = "players"
+
+    -- Spawn Ghost assist
     local ghostAssistTemplate = "reward_ghost_var%s"
     local randomGhost = math.random(1, 3)
-    local selectedAssistGhost = ghostAssistTemplate:format(randomGhost)
-    pigPen.compactSpawnNamedVehicle(selectedAssistGhost)
-    hsc.ai_vehicle_enterable_distance(selectedAssistGhost, 20.0)
+    local selectedGhost = ghostAssistTemplate:format(randomGhost)
+    local ghostNames = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
+    local generalGhostName = "ghost"
+
+    local ghostHumanOccupied = false
+    local ghostCovOccupied = false
+    local ghostPlayerOccupied = false
+
+    for _, ghostName in ipairs(ghostNames) do
+        if hsc.vehicle_test_seat_list(ghostName, "", hsc.ai_actors(odstSquadName)) then
+            ghostHumanOccupied = true
+            break
+        end
+        if hsc.vehicle_test_seat_list(ghostName, "", hsc.ai_actors(covenantWaveName)) then
+            ghostCovOccupied = true
+            break
+        end
+        if hsc.vehicle_test_seat_list(ghostName, "", players) then
+            ghostPlayerOccupied = true
+            break
+        end
+    end
+
+    if ghostHumanOccupied or ghostCovOccupied or ghostPlayerOccupied then
+        logger:debug("Ghost occupied — skipping replacement")
+        -- hsc.object_create(selectedGhost) -- still spawn new ghost elsewhere
+        -- hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
+    else
+        logger:debug("No occupants detected. Replacing ghost...")
+        hsc.object_destroy_containing(generalGhostName)
+        hsc.object_create_anew(selectedGhost)
+        hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
+    end
+
+    -- Spawn Warthog assist
     local warthogTemplate = "warthog_%s"
     local randomWarthog = math.random(1, 3)
     local selectedWarthog = warthogTemplate:format(randomWarthog)
-    pigPen.compactSpawnNamedVehicle(selectedWarthog)
-    hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
+    local warthogNames = {"warthog_1", "warthog_2", "warthog_3"}
+    local generalWarthogName = "warthog"
+
+    -- Check if ANY Warthog seats are occupied
+    local warthogHumanOccupied = false
+    local warthogCovOccupied = false
+    local warthogPlayerOccupied = false
+
+    for _, warthogName in ipairs(warthogNames) do
+        if hsc.vehicle_test_seat_list(warthogName, "", hsc.ai_actors(odstSquadName)) then
+            warthogHumanOccupied = true
+            break
+        end
+        if hsc.vehicle_test_seat_list(warthogName, "", hsc.ai_actors(covenantWaveName)) then
+            warthogCovOccupied = true
+            break
+        end
+        if hsc.vehicle_test_seat_list(warthogName, "", players) then
+            warthogPlayerOccupied = true
+            break
+        end
+    end
+
+    if warthogHumanOccupied or warthogCovOccupied or warthogPlayerOccupied then
+        logger:debug("Warthog occupied — skipping replacement.")
+        --hsc.object_create(selectedWarthog) -- Still spawn new warthog elsewhere
+        --hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
+    else
+        logger:debug("No occupants detected. Replacing warthog...")
+        hsc.object_destroy_containing(generalWarthogName)
+        hsc.object_create_anew(selectedWarthog)
+        hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
+    end
 end
 
 function firefightManager.conditionedSpawnPlayerAssistances()
     if not isFirstGameWave then
         firefightManager.spawnPlayerAssistances()
     end
+end
+
+function firefightManager.vehicleAssistances(call, sleep)
+    script.wake(firefightManager.spawnPlayerAssistances)
+    logger:debug("Vehicle assistances are arriving!")
 end
 
 -- Deploy allies in a Pelican. (ODSTs for now)
@@ -786,6 +861,9 @@ function firefightManager.reloadGame()
     progression.wave = 1
     hsc.ai_erase_all()
     hsc.object_destroy_containing("dropship")
+    hsc.object_destroy_containing("ghost")
+    hsc.object_destroy_containing("warthog")
+    hsc.object_destroy_containing("banshee")
     hsc.garbage_collect_now()
     skullsManager.disableSkull("all")
     logger:debug("Game reload completed")
@@ -822,6 +900,7 @@ local function loadFirefightSettings()
             loadEvent(firefightManager.conditionedResetAllTemporalSkulls,
                       settings.resetTemporalSkullEach)
             loadEvent(firefightManager.deployPlayerAllies, settings.deployAlliesEach)
+            loadEvent(firefightManager.vehicleAssistances, settings.playerAssistancesEach)
             logger:debug("Firefight settings loaded from file.")
             return
         end
@@ -844,8 +923,8 @@ local function loadSkullsSettings()
             for skullName, skullData in pairs(data) do
                 local skullObj = skullsManager.skulls[skullName]
                 if skullObj then
-                    --skullObj.state.count = skullData.state and skullData.state.count or 0
-                    --skullObj.state.max = skullData.state and skullData.state.max or 1
+                    -- skullObj.state.count = skullData.state and skullData.state.count or 0
+                    -- skullObj.state.max = skullData.state and skullData.state.max or 1
                     skullObj.isEnabled = skullData.isEnabled or false
                     skullObj.isPermanent = skullData.isPermanent or false
                 end
@@ -853,8 +932,8 @@ local function loadSkullsSettings()
             logger:debug("Firefight skull settings loaded from file.")
             return
         end
-        logger:warn("Failed to decode skulls settings file, using default skull settings. Error: {}",
-                     data)
+        logger:warn(
+            "Failed to decode skulls settings file, using default skull settings. Error: {}", data)
         return
     end
 end
