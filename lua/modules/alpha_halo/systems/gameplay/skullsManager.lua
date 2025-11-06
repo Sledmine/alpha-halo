@@ -344,7 +344,7 @@ skullsManager.skullList = {
 local skullList = skullsManager.skullList
 
 skullsManager.skullsHudOrder = {
-    --"acrophobia",
+    "acrophobia",
     "assassin",
     "bandana",
     "banger",
