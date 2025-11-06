@@ -265,7 +265,7 @@ skullsManager.skulls = {
     tarkov = {
         name = "Tarkov",
         motto = "You'll learn to control that mania.",
-        description = "Discards loaded rounds when changing magazines, but its capacity doubles!",
+        description = "Discards remaining rounds when reloading, but doubles magazine capacity!",
         effect = tarkov.skullEffect,
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
