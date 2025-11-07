@@ -7,7 +7,6 @@ local assassin = {}
 local allUnits = dependencies.names.units
 
 -- Assassin: Makes the AI and player invisible. Reduces weapon's cammo recovery. Melee also damages cammo.
-local assassinOnTick = false
 ---@param isActive boolean
 function assassin.skullEffect(isActive)
     local assassinTagsFiltered = table.filter(tagEntries.actorVariant(), function(tagEntry)
@@ -35,41 +34,33 @@ function assassin.skullEffect(isActive)
             Balltze.features.reloadTagData(tagEntry.handle)
         end
     end
-    if isActive then
-        assassinOnTick = true
-    else
-        assassinOnTick = false
-    end
 end
 
 -- Assassin OnTick
 local activeCammoCounter = 0
 local activeCammoTimer = 300
 function assassin.onTick(skullState)
-    if assassinOnTick then
-        local player = blam.biped(get_dynamic_player())
-        if not player then
-            return
+    local player = blam.biped(get_dynamic_player())
+    if not player then
+        return
+    end
+    if skullState.isEnabled then
+        player.isCamoActive = true
+        if player.meleeKey or player.grenadeHold then
+            player.camoScale = 0
         end
-        if skullState.isEnabled then
-            player.isCamoActive = true
-            if player.meleeKey or player.grenadeHold then
-                player.camoScale = 0
-            end
-            if player.camoScale > 0 then
-                if activeCammoCounter > 0 then
-                    activeCammoCounter = activeCammoCounter - 1
-                else
-                    player.camoScale = 0
-                    activeCammoCounter = activeCammoTimer
-                end
+        if player.camoScale > 0 then
+            if activeCammoCounter > 0 then
+                activeCammoCounter = activeCammoCounter - 1
             else
+                player.camoScale = 0
                 activeCammoCounter = activeCammoTimer
             end
-        else -- We add onTick variable in order to only set isCamoActive to false one tick, and not constantly.
-            player.isCamoActive = false -- Otherwise, it will permanently turn off active cammo, even with powerups.
-            assassinOnTick = false
+        else
+            activeCammoCounter = activeCammoTimer
         end
+    else
+        player.isCamoActive = false -- Otherwise, it will permanently turn off active cammo, even with powerups.
     end
 end
 
