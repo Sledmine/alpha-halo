@@ -11,13 +11,13 @@ local defaultGravity = 0.00356518
 function sputnik.skullEffect(isActive, totalSkullPower)
     local finalSkullPower = totalSkullPower or 1
     for _, tagEntry in ipairs(tagEntries.triggerDamageEffect()) do
-        local damageEffect = tagEntry.data
-        local impulsePushback = (damageEffect.temporaryCameraImpulsePushback * 10)
-        local accelerationMultiplier = impulsePushback * finalSkullPower
+        --local damageEffect = tagEntry.data
+        --local impulsePushback = (damageEffect.temporaryCameraImpulsePushback * 10)
+        --local accelerationMultiplier = impulsePushback * finalSkullPower
         if isActive then
-            damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + accelerationMultiplier
-            damageEffect.damageFlags:skipsShields(true)
-            damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 0.001 -- This should not increase by any means.
+            --damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + accelerationMultiplier
+            --damageEffect.damageFlags:skipsShields(true)
+            --damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 0.001 -- This should not increase by any means.
             blam.globalGravity(defaultGravity / (2 * finalSkullPower))
         else
             Balltze.features.reloadTagData(tagEntry.handle)
