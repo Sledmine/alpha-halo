@@ -457,7 +457,7 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
     end
 
     if ghostHumanOccupied or ghostCovOccupied or ghostPlayerOccupied then
-        logger:debug("Ghost occupied — skipping replacement")
+        logger:debug("Ghost occupied - skipping replacement")
         -- hsc.object_create(selectedGhost) -- still spawn new ghost elsewhere
         -- hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
     else
@@ -495,7 +495,7 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
     end
 
     if warthogHumanOccupied or warthogCovOccupied or warthogPlayerOccupied then
-        logger:debug("Warthog occupied — skipping replacement.")
+        logger:debug("Warthog occupied - skipping replacement.")
         -- hsc.object_create(selectedWarthog) -- Still spawn new warthog elsewhere
         -- hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
     else
