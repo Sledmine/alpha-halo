@@ -56,7 +56,9 @@ firefightManager.firefightSettings = {
     deployAlliesEach = eventNames.eachBossWave,
     playerAssistancesEach = eventNames.eachRound
 }
+
 local settings = firefightManager.firefightSettings
+
 -- By default, boss waves are the last wave of each round.
 settings.bossWaveFrequency = settings.wavesPerRound or 0
 
@@ -68,8 +70,8 @@ local isCurrentWaveBoss = false -- Is the current wave a boss wave?
 
 ---This is the progression of the Firefight.
 ---It gets updated with firefightManager.progression()
----@enum
-firefightManager.gameProgression = { --------------
+---@enum firefightProgression
+firefightManager.gameProgression = {
     totalWaves = 1,
     wave = 1,
     round = 1,
@@ -78,6 +80,7 @@ firefightManager.gameProgression = { --------------
     isGameOn = false,
     deploymentAllowed = unitDeployer.deployerSettings.deploymentAllowed
 }
+
 local progression = firefightManager.gameProgression
 
 function firefightManager.whenMapLoads(call, sleep)
@@ -116,20 +119,16 @@ function firefightManager.startGame(call, sleep)
     -- script.thread(announcer.gameStart)() -- Sound not available?
     progression.isGameOn = true
     firefightManager.waveDefinition()
-    
-    if not DebugMode then
         -- Start the first set.
         script.wake(firefightManager.startSet)
-        
         -- TODO For testing purposes only, remove for release.
+
         -- Enable some skulls from the start.
         -- skullsManager.skulls.havok.isEnabled = true
         -- skullsManager.skulls.newton.isEnabled = true
-        
+
         firefightManager.enableStartingSkulls()
-        
         logger:info("Game is on! Pain is coming in hot!")
-    end
 end
 
 -- Functions that are being called each tick.
@@ -143,7 +142,7 @@ function firefightManager.eachTick()
 
     if progression.isGameOn then
         firefightManager.aiCheck()
-        if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
+        if waveIsOn and progression.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
             if not isLastWave and
                 ((not isCurrentWaveBoss and livingCount <= settings.waveLivingMin) or
                     (isCurrentWaveBoss and livingCount <= settings.bossWaveLivingMin)) then
