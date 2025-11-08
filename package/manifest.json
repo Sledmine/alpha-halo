@@ -1,0 +1,21 @@
+{
+    "manifestVersion": "2.0.0",
+    "files": [],
+    "label": "alphahalo",
+    "version": "1.0.0",
+    "category": "map",
+    "author": "Insurrection Team",
+    "name": "Alpha Halo",
+    "description": "Custom Firefight experience inspired in Halo Combat Evolved most iconic locations",
+    "dependencies": [
+        {
+            "label": "insurrection",
+            "version": "2.9.0"
+        },
+        {
+            "label": "balltze",
+            "version": "1.3.5"
+        }
+    ],
+    "deletes": []
+}

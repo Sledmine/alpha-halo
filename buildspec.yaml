@@ -5,7 +5,17 @@ extend_limits: true
 scenarios:
   - alpha_firefight/levels/alpha_halo/alpha_halo_dev
 commands:
+  package:
+    - mkdir -p package/game-maps
+    - mkdir -p package/balltze-plugins
+    - rm -f dist/alpha_halo.lua
+    - mercury luabundle
+    - cp dist/alpha_halo.lua package/balltze-plugins/alpha_halo.lua
+    - mercury pack package/ dist/
+    - rm package/balltze-plugins/*.lua
+    - rm package/game-maps/*.map
   release:
     - mercury build --release --output package/game-maps/
+    - mercury build package
   symlinks:
   - ln -f -s "$PWD/dist/alpha_halo.lua" "$HALO_CE_DATA_PATH/chimera/lua/scripts/map/alpha_halo_dev.lua"
