@@ -25,6 +25,8 @@ local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local healthManager = require "alpha_halo.systems.combat.healthManager"
 local skullsManager = require "alpha_halo.systems.gameplay.skullsManager"
 local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
+local extendedHud = require "alpha_halo.systems.interface.extendedHud"
+--local extendedWeapon = require "alpha_halo.systems.weapons.extendedWeapon"
 
 -- Encapsular Funcion
 function OnMapLoad()
@@ -35,17 +37,21 @@ local isLoaded = false
 function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
-    if firefightManager.gameProgression.isGameOn then
-        eventsManager.eachTick()
-    end
     skullsManager.eachTick()
     vehiclePosition.positionUpdater()
+    extendedHud.hideMetersOnZoom()
+    --extendedWeapon.noZoomWhenOverheating()
     script.poll()
-    -- Execute the function one time
-    if not isLoaded then
-        isLoaded = true
-        OnMapLoad()
-        return
+    if not DebugMode then
+        if firefightManager.gameProgression.isGameOn then
+            eventsManager.eachTick()
+        end
+        -- Execute the function one time
+        if not isLoaded then
+            isLoaded = true
+            OnMapLoad()
+            return
+        end
     end
 end
 
