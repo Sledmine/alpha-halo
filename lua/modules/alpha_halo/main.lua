@@ -35,16 +35,19 @@ local isLoaded = false
 function OnTick()
     firefightManager.eachTick()
     healthManager.eachTick()
-    if firefightManager.gameProgression.isGameOn then
-        eventsManager.eachTick()
-    end
     skullsManager.eachTick()
-    vehiclePosition.positionUpdater()
     script.poll()
-    -- Execute the function one time
-    if not isLoaded then
-        isLoaded = true
-        OnMapLoad()
+    if not DebugMode then
+        if firefightManager.gameProgression.isGameOn then
+            eventsManager.eachTick()
+            vehiclePosition.positionUpdater()
+        end
+        -- Execute the function one time
+        if not isLoaded then
+            isLoaded = true
+            OnMapLoad()
+            return
+        end
         return
     end
 end
