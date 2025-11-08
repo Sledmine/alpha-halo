@@ -39,16 +39,27 @@ end
 -- Assassin OnTick
 local activeCammoCounter = 0
 local activeCammoTimer = 300
+local wasActive = false
+
 function assassin.onTick(skullState)
     local player = blam.biped(get_dynamic_player())
     if not player then
         return
     end
+
     if skullState.isEnabled then
+
+        if not wasActive then
+            wasActive = true
+            logger:debug("Assassin skull activated: enabling camo.")
+        end
+
         player.isCamoActive = true
+
         if player.meleeKey or player.grenadeHold then
             player.camoScale = 0
         end
+
         if player.camoScale > 0 then
             if activeCammoCounter > 0 then
                 activeCammoCounter = activeCammoCounter - 1
@@ -59,8 +70,13 @@ function assassin.onTick(skullState)
         else
             activeCammoCounter = activeCammoTimer
         end
+
     else
-        player.isCamoActive = false -- Otherwise, it will permanently turn off active cammo, even with powerups.
+        if wasActive then
+            wasActive = false
+            player.isCamoActive = false -- disable camo only once
+            logger:debug("Assassin skull deactivated: camo disabled.")
+        end
     end
 end
 
