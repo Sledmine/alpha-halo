@@ -1,6 +1,6 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = false
+DebugMode = true
 package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
@@ -87,6 +87,15 @@ function PluginLoad()
                 Balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right,
                                           bounds.bottom, font, align, table.unpack(textColor))
             end
+        end
+        if event.time == "before" then
+            local wipFont = "smaller"
+            local wipAlign = "center"
+            local wipBounds = {left = 0, top = 430, right = 640, bottom = 480}
+            local wipTextColor = {1.0, 0.7, 0.7, 0.7}
+            local wipText = "PRE-RELEASE BUILD. WORK IN PROGRESS."
+            Balltze.chimera.draw_text(wipText, wipBounds.left, wipBounds.top, wipBounds.right,
+                                      wipBounds.bottom, wipFont, wipAlign, table.unpack(wipTextColor))
         end
     end)
 
