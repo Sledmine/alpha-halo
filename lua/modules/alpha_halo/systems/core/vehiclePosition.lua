@@ -3,9 +3,7 @@ local engine = Engine
 local getObject = Engine.gameState.getObject
 local objectTypes = Engine.tag.objectType
 local tagClasses = Engine.tag.classes
-local blam = require "blam"
 local read_float = balltze.memory.readFloat
-local hsc = require "hsc"
 
 local vehiclePosition = {}
 
