@@ -57,11 +57,13 @@ function constants.get()
     constants.hud = {
         skullsIcons = findTags([[alpha_firefight\ui\chud\skulls_icons]], engine.tag.classes.weaponHudInterface)[1],
         skullsInfo = findTags([[alpha_firefight\ui\chud\skulls_info]], engine.tag.classes.weaponHudInterface)[1],
-        extBeamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1]
+        extBeamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1],
+        extSniperRifle = findTags([[alpha_firefight\weapons\sniper_rifle\sniper_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1]
     }
 
     constants.weapons = {
-        beamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle]], engine.tag.classes.weapon)[1]
+        beamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle]], engine.tag.classes.weapon)[1],
+        sniperRifle = findTags([[weapons\sniper_rifle\sniper_rifle]], engine.tag.classes.weapon)[1]
     }
 end
 
