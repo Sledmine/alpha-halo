@@ -1,7 +1,7 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = true
-local luaMemory = true
+DebugMode = false
+DebugLuaMemory = true
 package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
@@ -79,7 +79,7 @@ function PluginLoad()
         if event.time == "before" then
             local font = "smaller"
             local align = "center"
-            if DebugMode and luaMemory then
+            if DebugMode and DebugLuaMemory then
                 local bounds = {left = 0, top = 400, right = 640, bottom = 480}
                 local textColor = {1.0, 0.45, 0.72, 1.0}
                 local memory = collectgarbage("count")

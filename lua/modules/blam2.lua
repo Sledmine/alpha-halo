@@ -2064,7 +2064,7 @@ function blam.getGameDifficultyIndex()
 end
 
 --- Set or get global gravity value for current game
----@param gravity number
+---@param gravity? number
 function blam.globalGravity(gravity)
     local gravityAddress = addressList.globalGravity
     if gravity then
