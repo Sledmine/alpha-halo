@@ -46,15 +46,24 @@ function constants.get()
     }
 
     constants.fonts = {
-        title = findTags("geogrotesque-regular-title", engine.tag.classes.font)[1],
-        subtitle = findTags("geogrotesque-regular-subtitle", engine.tag.classes.font)[1],
-        text = findTags("geogrotesque-regular-text", engine.tag.classes.font)[1],
-        smaller = findTags("geogrotesque-regular-smaller", engine.tag.classes.font)[1]
+        geogrotesqueRegular = {
+            title = findTags("geogrotesque-regular-title", engine.tag.classes.font)[1],
+            subtitle = findTags("geogrotesque-regular-subtitle", engine.tag.classes.font)[1],
+            text = findTags("geogrotesque-regular-text", engine.tag.classes.font)[1],
+            smaller = findTags("geogrotesque-regular-smaller", engine.tag.classes.font)[1]
+        }
     }
 
     constants.hud = {
         skullsIcons = findTags([[alpha_firefight\ui\chud\skulls_icons]], engine.tag.classes.weaponHudInterface)[1],
-        skullsInfo = findTags([[alpha_firefight\ui\chud\skulls_info]], engine.tag.classes.weaponHudInterface)[1]
+        skullsInfo = findTags([[alpha_firefight\ui\chud\skulls_info]], engine.tag.classes.weaponHudInterface)[1],
+        extBeamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1],
+        extSniperRifle = findTags([[alpha_firefight\weapons\sniper_rifle\sniper_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1]
+    }
+
+    constants.weapons = {
+        beamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle]], engine.tag.classes.weapon)[1],
+        sniperRifle = findTags([[weapons\sniper_rifle\sniper_rifle]], engine.tag.classes.weapon)[1]
     }
 end
 

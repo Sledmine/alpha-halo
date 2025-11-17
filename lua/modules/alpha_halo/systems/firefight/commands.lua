@@ -118,6 +118,22 @@ commands = {
             end
             logger:info("Gravity level set to {}.", blam.globalGravity())
         end
+    },
+    debug_lua_memory = {
+        description = "Toggle Lua memory usage display on screen.",
+        category = "debug",
+        help = "<boolean>",
+        example = "debug_lua_memory true",
+        minArgs = 1,
+        maxArgs = 1,
+        func = function(isEnabled)
+            DebugLuaMemory = luna.bool(isEnabled)
+            if DebugLuaMemory then
+                logger:info("Lua memory usage display enabled.")
+            else
+                logger:info("Lua memory usage display disabled.")
+            end
+        end
     }
 }
 

@@ -715,8 +715,8 @@ function firefightManager.onEachFrame()
     local bounds = {left = -8, top = 390, right = 640, bottom = 480}
     local r, g, b = 255, 187, 0
     local textColor = {1.0, r / 255, g / 255, b / 255}
-    local titleText = const.fonts.title.handle.value
-    local standardText = const.fonts.text.handle.value
+    local titleText = const.fonts.geogrotesqueRegular.title.handle.value
+    local standardText = const.fonts.geogrotesqueRegular.text.handle.value
     local textColorW = {1.0, 1.0, 1.0, 1.0}
 
     -- Show current game progression info

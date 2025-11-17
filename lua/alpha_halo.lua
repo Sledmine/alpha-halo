@@ -1,6 +1,7 @@
 local balltze = Balltze
 local engine = Engine
 DebugMode = false
+DebugLuaMemory = true
 package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
@@ -70,7 +71,7 @@ end
 function PluginLoad()
     logger = balltze.logger.createLogger("Alpha Halo") -- this means Alpha Firefight
     logger:muteDebug(not DebugMode)
-    --logger:muteIngame(not DebugMode)
+    -- logger:muteIngame(not DebugMode)
     ---@diagnostic disable-next-line: inject-field
     logger.warn = logger.warning -- alias warning to warn
     loadChimeraCompatibility()
@@ -78,7 +79,7 @@ function PluginLoad()
         if event.time == "before" then
             local font = "smaller"
             local align = "center"
-            if DebugMode then
+            if DebugMode and DebugLuaMemory then
                 local bounds = {left = 0, top = 400, right = 640, bottom = 480}
                 local textColor = {1.0, 0.45, 0.72, 1.0}
                 local memory = collectgarbage("count")
@@ -88,6 +89,16 @@ function PluginLoad()
                                           bounds.bottom, font, align, table.unpack(textColor))
             end
         end
+        if event.time == "before" then
+            local wipFont = "smaller"
+            local wipAlign = "center"
+            local wipBounds = {left = 0, top = 430, right = 640, bottom = 480}
+            local wipTextColor = {1.0, 0.7, 0.7, 0.7}
+            local wipText = "PRE-RELEASE BUILD. WORK IN PROGRESS."
+            Balltze.chimera.draw_text(wipText, wipBounds.left, wipBounds.top, wipBounds.right,
+                                      wipBounds.bottom, wipFont, wipAlign,
+                                      table.unpack(wipTextColor))
+        end
     end)
 
     -- Commands for Alpha Firefight
@@ -96,9 +107,11 @@ function PluginLoad()
         balltze.command.registerCommand(command, command, data.description, data.help,
                                         data.save or false, data.minArgs or 0, data.maxArgs or 0,
                                         false, true, function(args)
-            --logger:debug("{}", inspect(args))
-            if (args and data.minArgs and data.maxArgs) and (#args < data.minArgs) or (#args > data.maxArgs) then
-                logger:error("Invalid number of arguments. Usage: {}, Example: {}", data.help, data.example)
+            -- logger:debug("{}", inspect(args))
+            if (args and data.minArgs and data.maxArgs) and (#args < data.minArgs) or
+                (#args > data.maxArgs) then
+                logger:error("Invalid number of arguments. Usage: {}, Example: {}", data.help,
+                             data.example)
                 return true
             end
             data.func(table.unpack(args or {}))
