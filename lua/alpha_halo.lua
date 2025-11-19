@@ -6,6 +6,12 @@ package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
 
+-- Pre require structures for blam2
+-- This helps the bundler to include modules properly
+require "structures.actorVariant"
+require "structures.projectile"
+require "structures.weapon"
+
 local commands = require "alpha_halo.systems.firefight.commands"
 local constants = require "alpha_halo.systems.core.constants"
 
