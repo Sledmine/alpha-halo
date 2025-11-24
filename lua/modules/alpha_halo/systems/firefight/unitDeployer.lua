@@ -60,21 +60,9 @@ local fireTeams = {
 }
 
 unitDeployer.unitTeams = {
-    convenant = {
-        index = 1,
-        name = "Covenant",
-        fireTeams = unitDeployer.covenantFireteams
-    },
-    flood = {
-        index = 2,
-        name = "Flood",
-        fireTeams = unitDeployer.floodFireteams
-    },
-    sentinel = {
-        index = 3,
-        name = "Sentinel",
-        fireTeams = unitDeployer.sentinelFireteams
-    }
+    convenant = {index = 1, name = "Covenant", fireTeams = unitDeployer.covenantFireteams},
+    flood = {index = 2, name = "Flood", fireTeams = unitDeployer.floodFireteams},
+    sentinel = {index = 3, name = "Sentinel", fireTeams = unitDeployer.sentinelFireteams}
 }
 
 unitDeployer.deployerSettings = {
@@ -122,7 +110,7 @@ function unitDeployer.waveDeployer(waveType)
         return t.index == deployerState.currentTeam
     end)
     if not team then
-        --logger:error("Invalid team index: {}", tostring(deployerState.currentTeam))
+        -- logger:error("Invalid team index: {}", tostring(deployerState.currentTeam))
         error("Invalid team index: " .. tostring(deployerState.currentTeam))
         return
     end
@@ -166,13 +154,13 @@ function unitDeployer.waveDeployer(waveType)
         if deployerState.dropshipsLeft == deployerState.dropshipsAssigned then
             -- The first Dropship will drop a Support Squad, and...
             logger:debug("Support Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
-                        tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
+                         tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
         else
             -- The rest of them will drop the Main Squads, which will not repeat!
             -- We only want to make this once, despite this whole function being call again.
             randomizedTeam.available = false -- Mark this team as unavailable for the next randomization.
             logger:debug("Main Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
-                        tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
+                         tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
             isWaveRandomizable = false
         end -- We need to restore availability if we reach 0.
         if randomizedTeam then
@@ -184,18 +172,20 @@ function unitDeployer.waveDeployer(waveType)
         -- Define and create the Dropship.
         local selectedDropship = deployerState.dropshipTemplate:format(deployerState.dropshipsLeft)
         hsc.object_create_anew(selectedDropship)
-        -- Place and load it's troopers & turrets.
+        -- Place and load troopers
         hsc.ai_place(selectedSquad)
+        -- Place turret Gunner
         hsc.ai_place(currentTeam .. "_Fireteams/Spirit_Gunner")
+
+        -- Load AI into the Dropship.
         hsc.vehicle_load_magic(selectedDropship, "gunseat",
                                hsc.ai_actors(currentTeam .. "_Fireteams/Spirit_Gunner"))
         hsc.vehicle_load_magic(selectedDropship, "passenger", hsc.ai_actors(selectedSquad))
+
         -- Migrate them to their respective deployment encounters.
         hsc.ai_migrate(selectedSquad, "Standby_Dropship")
         hsc.ai_migrate(currentTeam .. "_Fireteams/Spirit_Gunner", currentTeam .. "_Support")
-        hsc.custom_animation(selectedDropship,
-                             "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
-                             selectedDropship, false)
+
         deployerState.dropshipsLeft = deployerState.dropshipsLeft - 1
         unitDeployer.waveDeployer(waveType)
     else
@@ -204,26 +194,71 @@ function unitDeployer.waveDeployer(waveType)
         deployerState.dropshipsLeft = deployerState.dropshipsAssigned
         isWaveRandomizable = true
         deployerState.deploymentAllowed = false -- We cap this so no dropships can be deployed 'till the Spirits are out.
-        script.startup(unitDeployer.aiExitVehicle)
+        script.startup(unitDeployer.dispatchDropships)
     end
 end
 
-function unitDeployer.aiExitVehicle(call, sleep)
-    -- Set the troops onboard braindead (Does not apply to Ghost, but it doesn't matter).
+script.continuous(function()
+    local animationTime = hsc.unit_get_custom_animation_time("dropship_1_1")
+    logger:debug("Dropship Animation Time: {}", tostring(animationTime))
+end)
+
+local function getLeftAnimationTime(unitName)
+    return hsc.unit_get_custom_animation_time(unitName)
+end
+
+function unitDeployer.dispatchDropships(_, sleep)
+    -- Final encounter name where the troops will be migrated.
+    local currentEncounter = currentTeam .. "_Wave"
+
+    -- Set the previously used global encounter for troops deployment.
+    -- We use this to prevent making already in field troops to become braindead.
+    -- While the dropship is deploying troops, we set this temp encounter to braindead.
     hsc.ai_braindead("Standby_Dropship", true)
-    sleep(690)
-    -- Migrate troops onboard to the current wave encounter.
-    hsc.ai_migrate("Standby_Dropship", currentTeam .. "_Wave")
-    sleep(30)
-    -- We reestablish the brain of the units. Yes, this is very much necessary.
-    hsc.ai_braindead(currentTeam .. "_Wave", false)
-    sleep(30)
-    -- Make the encounter to exit it's vehicles.
-    -- This will make the pilot drop from it's ghost, but will try to climb in again after.
-    hsc.vehicle_unload("dropship_1_1", "")
-    hsc.vehicle_unload("dropship_2_1", "")
-    hsc.vehicle_unload("dropship_3_1", "")
-    sleep(900)
+
+    local availableDropships = {}
+    for i = 1, deployerState.dropshipsAssigned do
+        table.insert(availableDropships, deployerState.dropshipTemplate:format(i))
+    end
+
+    -- Play the Dropship deployment animation.
+    for i = 1, deployerState.dropshipsAssigned do
+        script.startup(function(_, sleep)
+            sleep(constants.dropshipDelayTicks * (i - 1)) -- Stagger the deployment of each Dropship.
+            local selectedDropship = table.remove(availableDropships, math.random(#availableDropships))
+            logger:debug("Deploying troops from Dropship: {}", selectedDropship)
+            hsc.custom_animation(selectedDropship,
+                                 "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
+                                 selectedDropship, false)
+
+            -- Wait for desired frame to drop troops.
+            sleep(function()
+                return getLeftAnimationTime(selectedDropship) <= constants.dropshipDeploymentDropTick
+            end)
+
+            -- Migrate troops onboard to the current wave encounter.
+            hsc.ai_migrate("Standby_Dropship", currentEncounter)
+            sleep(1)
+            -- We reestablish the brain of the units.
+            hsc.ai_braindead(currentEncounter, false)
+            sleep(1)
+
+            -- Make the encounter to exit it's vehicles.
+            -- This will make the pilot drop from it's ghost, but will try to climb in again after.
+            hsc.vehicle_unload(selectedDropship, "")
+        end)
+    end
+
+    sleep(function ()
+        local leftAnimationTime = 0
+        for i = 1, deployerState.dropshipsAssigned do
+            local selectedDropship = deployerState.dropshipTemplate:format(i)
+            leftAnimationTime = leftAnimationTime + getLeftAnimationTime(selectedDropship)
+        end
+        return leftAnimationTime <= 0
+    end)
+
+    logger:debug("All Dropships have finished deploying troops.")
     deployerState.deploymentAllowed = true -- Now Spirits can run wild.
 end
 
@@ -240,14 +275,14 @@ function unitDeployer.scriptDeployPelicans(call, sleep)
     -- TODO Make a custom biped for the Pelican turrets that can attack while in the Pelican.
     -- TODO Prevent ODSTs from receiving damage while in the Pelican.
     hsc.object_create_anew(pelicanVehicleName)
-    --hsc.unit_close(pelicanVehicleName)
+    -- hsc.unit_close(pelicanVehicleName)
     hsc.vehicle_load_magic(pelicanVehicleName, "rider", hsc.ai_actors(odstSquadName))
     hsc.vehicle_load_magic(pelicanVehicleName, "driver", hsc.ai_actors(pelicanPilotName))
     hsc.ai_migrate(odstSquadName, odstPelicanSquad)
     hsc.ai_migrate(pelicanPilotName, odstPelicanSquad)
     -- TODO This should be a dynamic encounter based on the current wave.
     -- Otherwise it just forces the AI to only see Covenant
-    --hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
+    -- hsc.ai_magically_see_encounter("human_support", "Covenant_Wave")
     hsc.unit_set_enterable_by_player(pelicanVehicleName, false)
     hsc.object_teleport(pelicanVehicleName, "foehammer_cliff_flag")
     hsc.ai_braindead_by_unit(hsc.ai_actors(odstPelicanSquad), true)
@@ -265,6 +300,15 @@ function unitDeployer.scriptDeployPelicans(call, sleep)
         hsc.vehicle_hover(pelicanVehicleName, false)
         hsc.recording_play_and_delete(pelicanVehicleName, "foehammer_cliff_out")
     end
+end
+
+function unitDeployer.testDropshipDeployment()
+    hsc.object_create_anew("dropship_1_1")
+    hsc.ai_place(currentTeam .. "_Fireteams/Starting_Squad")
+    hsc.vehicle_load_magic("dropship_1_1", "passenger",
+                           hsc.ai_actors(currentTeam .. "_Fireteams/Starting_Squad"))
+    hsc.ai_migrate(currentTeam .. "_Fireteams/Starting_Squad", "Standby_Dropship")
+    script.startup(unitDeployer.dispatchDropships)
 end
 
 return unitDeployer

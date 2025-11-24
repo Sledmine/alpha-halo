@@ -134,6 +134,16 @@ commands = {
                 logger:info("Lua memory usage display disabled.")
             end
         end
+    },
+    test_dropship = {
+        description = "Test the dropship deployment sequence.",
+        category = "debug",
+        minArgs = 0,
+        maxArgs = 0,
+        help = "",
+        func = function()
+            unitDeployer.testDropshipDeployment()
+        end
     }
 }
 

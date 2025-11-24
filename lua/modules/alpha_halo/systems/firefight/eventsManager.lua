@@ -8,26 +8,25 @@ local objectTypes = Engine.tag.objectType
 local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
 
--- Esta función es llamada cada tick, desde el firefightManager. Se encarga de llamar otras funciones.
 function eventsManager.eachTick()
     eventsManager.randomEventTimer()
     eventsManager.aiCheck()
 end
 
-eventsManager.deployerSettings = {
-    randomEventFrequency = 4200,
-}
+eventsManager.deployerSettings = {randomEventFrequency = 4200}
 local settings = eventsManager.deployerSettings
 
 local bansheeLivingCount
 local snipersLivingCount
 local sentinelsLivingCount
---local mortarLivingCount
--- Esta función es llamada cada tick, desde el eachTick. Se encarga del timer.
+-- local mortarLivingCount
 local randomEventTimer = settings.randomEventFrequency
 local randomEventCountdown = randomEventTimer
+
+-- TODO Migrate this to a script.continuous function that uses sleep instead of each tick
 function eventsManager.randomEventTimer()
-    if bansheeLivingCount == 0 or snipersLivingCount == 0 or sentinelsLivingCount == 0 then -- or mortarLivingCount == 0 (Mortar is not working)
+    local anyDead = bansheeLivingCount == 0 or snipersLivingCount == 0 or sentinelsLivingCount == 0 -- or mortarLivingCount == 0 (Mortar is not working)
+    if anyDead then
         if randomEventCountdown > 0 then
             randomEventCountdown = randomEventCountdown - 1
         else
@@ -37,18 +36,16 @@ function eventsManager.randomEventTimer()
     end
 end
 
--- Esta función es llamada por randomEventTimer. Se encarga de randomizar el evento.
 function eventsManager.randomEncounterEventGenerator()
-    local encounterEvents =  {
+    local encounterEvents = {
         eventsManager.bansheeEvent,
         eventsManager.sniperEvent,
-        eventsManager.sentinelEvent,
+        eventsManager.sentinelEvent
     }
     local selectedEvent = math.random(1, #encounterEvents)
     encounterEvents[selectedEvent]()
 end
 
--- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covennat Banshee.
 function eventsManager.bansheeEvent()
     if bansheeLivingCount == 0 then
         script.startup(announcer.enemyIncoming)
@@ -60,50 +57,40 @@ function eventsManager.bansheeEvent()
         hsc.vehicle_load_magic("banshee_2", "B-driver", hsc.ai_actors("Covenant_Banshees/banshee_b"))
         hsc.object_teleport("banshee_1", "Banshee_1")
         hsc.object_teleport("banshee_2", "Banshee_2")
-        hsc.ai_magically_see_players("Covenant_Banshees") -- They get to see the players one tick after being created.
-    else
-        eventsManager.randomEncounterEventGenerator()
+        -- They get to see the players one tick after being created.
+        hsc.ai_magically_see_players("Covenant_Banshees")
     end
 end
 
--- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Sniper.
 function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
         script.startup(announcer.enemySniper)
         logger:debug("Sniper event!")
         hsc.ai_place("Covenant_Snipers")
-        hsc.ai_magically_see_players("Covenant_Snipers") -- They get to see the players one tick after being created.
-    else
-        eventsManager.randomEncounterEventGenerator()
+        -- They get to see the players one tick after being created.
+        hsc.ai_magically_see_players("Covenant_Snipers")
     end
 end
 
--- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Sentinel.
 function eventsManager.sentinelEvent()
     if sentinelsLivingCount == 0 then
         script.startup(announcer.enemyIncoming)
         logger:debug("Sentinel event!")
         hsc.ai_place("Sentinel_Team/Sentinels_1")
-        hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1") -- They get to see the players one tick after being created.
-    else
-        eventsManager.randomEncounterEventGenerator()
+        -- They get to see the players one tick after being created
+        hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1")
     end
 end
 
--- Esta función es llamada desde el randomEventGenerator. Se encarga del evento Covenant Mortar.
--- Por ahora, esto no se está llamando, dado que el Mortero no dispara en lo absoluto.
---function eventsManager.mortarEvent()
+-- function eventsManager.mortarEvent()
 --    if mortarLivingCount == 0 then
 --        logger:debug("Mortar event!")
 --        hsc.ai_place(1, "Covenant_Mortars")
 --        hsc.vehicle_load_magic("mortar_1", "W-gunner", "(ai_actors Covenant_Mortars/mortar_b)")
 --        hsc.vehicle_load_magic("mortar_2", "W-gunner", "(ai_actors Covenant_Mortars/mortar_b)")
---    else
---        eventsManager.randomEventGenerator()
 --    end
---end
+-- end
 
--- Esta función es llamada cada tick, desde el eachTick. Se encarga de revisar el estado de los squads.
 function eventsManager.aiCheck()
     bansheeLivingCount = hsc.ai_living_count("Covenant_Banshees")
     snipersLivingCount = hsc.ai_living_count("Covenant_Snipers")

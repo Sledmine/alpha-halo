@@ -18,6 +18,9 @@ constants.healthRegenAiAmount = 0.02
 constants.raycastOffset = 0.3
 constants.raycastVelocity = 80
 constants.pelicanDeploymentDelay = utils.secondsToTicks(0)
+constants.dropshipDeploymentDelay = utils.secondsToTicks(5)
+constants.dropshipDeploymentDropTick = 950 -- Tick when the units will drop from the dropship
+constants.dropshipDelayTicks = utils.secondsToTicks(20) -- Delay between each dropship deployment
 
 constants.hsc = {playSound = [[(begin (sound_impulse_start "%s" (list_get (players) %s) %s))]]}
 
