@@ -53,7 +53,7 @@ firefightManager.firefightSettings = {
     resetTemporalSkullEach = eventNames.eachSet,
     activatePermanentSkullEach = eventNames.eachSet,
     permanentSkullsCanBeRandom = true,
-    deployAlliesEach = eventNames.eachBossWave,
+    deployAlliesEach = eventNames.eachRound,
     playerAssistancesEach = eventNames.eachRound
 }
 local settings = firefightManager.firefightSettings
@@ -203,14 +203,15 @@ events = {
         firefightManager.enableTemporalSkull,
         -- firefightManager.conditionedSpawnPlayerAssistances,
         firefightManager.vehicleAssistances,
-        firefightManager.conditionalAddPlayerLives
+        firefightManager.conditionalAddPlayerLives,
+        firefightManager.deployPlayerAllies
     },
     eachSet = {
         firefightManager.conditionedResetAllTemporalSkulls,
         -- firefightManager.conditionedSwitchTeams,
         firefightManager.enablePermanentSkull
     },
-    eachBossWave = {firefightManager.deployPlayerAllies}
+    eachBossWave = {}
 }
 
 -- Helper function to get function name from its reference, for debug purposes.
@@ -326,8 +327,10 @@ local badGuys = {
 local magicalSightCounter = 300
 local magicalSightTimer = 0
 function firefightManager.aiCheck()
-    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") +
-                      hsc.ai_living_count("Standby_Dropship")
+    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") + hsc.ai_living_count("Standby_Dropship")
+    -- ODSTs see and follow players.
+    hsc.ai_follow_target_players("Human_Team")
+    hsc.ai_magically_see_players("Human_Team")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -338,10 +341,6 @@ end
 
 -- Enemy AI will magically see and pursuit each other. Will try against players if they're not invisible.
 function firefightManager.aiSight()
-    -- ODSTs see and follow players.
-    hsc.ai_follow_target_players("Human_Team")
-    hsc.ai_magically_see_players("Human_Team")
-
     -- Each enemy team sees and follows ODSTs.
     for _, badGuy in pairs(badGuys) do
         hsc.ai_magically_see_encounter("Human_Team", badGuy)
