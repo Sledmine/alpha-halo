@@ -26,7 +26,7 @@ function extendedHud.hideMetersOnZoom()
     -------------------------------------------------------
 
     if not const.hud.extBeamRifle then
-        logger:warning("Extended Beam Rifle HUD not found, skipping hide meters on zoom")
+        logger:warning("{} not found", const.hud.extBeamRifle.path)
         return
     end
 
@@ -46,7 +46,7 @@ function extendedHud.hideMetersOnZoom()
     -------------------------------------------------------
 
     if not const.hud.extSniperRifle then
-        logger:warning("Extended Sniper Rifle HUD not found, skipping hide meters on zoom")
+        logger:warning("{} not found", const.hud.extSniperRifle.path)
         return
     end
 
