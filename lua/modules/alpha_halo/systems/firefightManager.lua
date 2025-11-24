@@ -117,18 +117,18 @@ function firefightManager.startGame(call, sleep)
     -- script.thread(announcer.gameStart)() -- Sound not available?
     progression.isGameOn = true
     firefightManager.waveDefinition()
-    
+
     if not DebugMode then
         -- Start the first set.
         script.wake(firefightManager.startSet)
-        
+
         -- TODO For testing purposes only, remove for release.
         -- Enable some skulls from the start.
         -- skullsManager.skulls.havok.isEnabled = true
         -- skullsManager.skulls.newton.isEnabled = true
-        
+
         firefightManager.enableStartingSkulls()
-        
+
         logger:info("Game is on! Pain is coming in hot!")
     end
 end
@@ -141,7 +141,8 @@ local livingCount = 0
 
 function firefightManager.eachTick()
     firefightManager.updateSkullsHud()
-
+    --script.thread(firefightManager.garbageCollector)()
+    script.thread(firefightManager.scriptVehicleDestroyer)()
     if progression.isGameOn then
         firefightManager.aiCheck()
         if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
@@ -465,14 +466,16 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
         logger:debug("No occupants detected. Replacing ghost...")
         hsc.object_destroy_containing(generalGhostName)
         hsc.object_create_anew(selectedGhost)
-        hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
+        hsc.ai_vehicle_enterable_distance("reward_ghost_var1", 20.0)
+        hsc.ai_vehicle_enterable_distance("reward_ghost_var2", 20.0)
+        hsc.ai_vehicle_enterable_distance("reward_ghost_var3", 20.0)
     end
 
     -- Spawn Warthog assist
     local warthogTemplate = "warthog_%s"
-    local randomWarthog = math.random(1, 3)
+    local randomWarthog = math.random(1, 4)
     local selectedWarthog = warthogTemplate:format(randomWarthog)
-    local warthogNames = {"warthog_1", "warthog_2", "warthog_3"}
+    local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
     local generalWarthogName = "warthog"
 
     -- Check if ANY Warthog seats are occupied
@@ -503,7 +506,30 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
         logger:debug("No occupants detected. Replacing warthog...")
         hsc.object_destroy_containing(generalWarthogName)
         hsc.object_create_anew(selectedWarthog)
-        hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
+        hsc.ai_vehicle_enterable_distance("warthog_1", 20.0)
+        hsc.ai_vehicle_enterable_distance("warthog_2", 20.0)
+        hsc.ai_vehicle_enterable_distance("warthog_3", 20.0)
+        hsc.ai_vehicle_enterable_distance("warthog_4", 20.0)
+    end
+end
+
+function firefightManager.scriptVehicleDestroyer(call, sleep)
+
+    local hog1Health = hsc.unit_get_health("warthog_1")
+    local hog2Health = hsc.unit_get_health("warthog_2")
+    local hog3Health = hsc.unit_get_health("warthog_3")
+    local hog4Health = hsc.unit_get_health("warthog_4")
+    --logger:debug("Warthog 4 health: {}", hog4Health)
+    if hog1Health == 0 or hog2Health == 0 or hog3Health == 0 or hog4Health == 0 then
+        sleep(utils.secondsToTicks(0.5))
+        hsc.object_teleport("warthog_1", "vehicle_destroy_bypass")
+        hsc.object_teleport("warthog_2", "vehicle_destroy_bypass")
+        hsc.object_teleport("warthog_3", "vehicle_destroy_bypass")
+        hsc.object_teleport("warthog_4", "vehicle_destroy_bypass")
+        sleep(utils.secondsToTicks(5))
+        hsc.object_destroy_containing("warthog")
+        sleep(utils.secondsToTicks(15))
+        hsc.garbage_collect_now()
     end
 end
 
@@ -888,6 +914,12 @@ function firefightManager.scriptEndGame(call, sleep)
     sleep(utils.secondsToTicks(3))
     execute_script("sv_end_game")
 end
+
+--function firefightManager.garbageCollector(call, sleep)
+--    sleep(utils.secondsToTicks(30))
+--    hsc.garbage_collect_now()
+--    hsc.rasterizer_decals_flush()
+--end
 
 local function loadFirefightSettings()
     logger:debug("Loading Firefight settings from file...")
