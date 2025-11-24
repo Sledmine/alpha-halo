@@ -837,10 +837,8 @@ function firefightManager.startWave(call, sleep)
     end
     hsc.garbage_collect_now()
     hsc.rasterizer_decals_flush()
-    -- This will be eventually replaced by a proper UI message.
-    logger:debug("Wave {}, Round {}, Set {}.", progression.wave, progression.round, progression.set)
     if isLastWave then
-        logger:debug("Hang in there, just one final effort...")
+        logger:info("Hang in there, just one final effort...")
     end
     waveIsOn = true
     drawNavPoint = false
