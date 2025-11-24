@@ -72,6 +72,17 @@ function eventsManager.sniperEvent()
     end
 end
 
+-- Here we put all out encounter blocks that had bad guys in it.
+local badGuys = {
+    "Covenant_Wave",
+    "Covenant_Support",
+    "Flood_Wave",
+    "Flood_Support",
+    "Covenant_Banshee",
+    "Covenant_Snipers",
+    "Sentinel_Team",
+    "Standby_Dropship"
+}
 function eventsManager.sentinelEvent()
     if sentinelsLivingCount == 0 then
         script.startup(announcer.enemyIncoming)
@@ -79,6 +90,10 @@ function eventsManager.sentinelEvent()
         hsc.ai_place("Sentinel_Team/Sentinels_1")
         -- They get to see the players one tick after being created
         hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1")
+        for _, badGuy in pairs(badGuys) do
+            hsc.ai_magically_see_encounter("Sentinel_Team/Sentinels_1", badGuy)
+            hsc.ai_try_to_fight("Sentinel_Team/Sentinels_1", badGuy)
+        end
     end
 end
 
