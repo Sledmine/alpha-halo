@@ -54,6 +54,7 @@ package/game-maps/*.map
 combatmaps/
 
 # Map files
+_data
 tags
 data
 six-shooter.ini
