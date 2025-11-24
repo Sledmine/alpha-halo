@@ -97,6 +97,7 @@ function firefightManager.startGame(call, sleep)
     if progression.isGameOn then
         return
     end
+    -- TODO Please!!!!! refactor this to use the unitTeams table from unitDeployer.
     -- We set the starting enemy team based on the settings.
     if settings.startingEnemyTeam == 1 then
         progression.currentEnemyTeam = 1 -- "Covenant_Wave"

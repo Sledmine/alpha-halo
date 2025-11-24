@@ -198,11 +198,6 @@ function unitDeployer.waveDeployer(waveType)
     end
 end
 
-script.continuous(function()
-    local animationTime = hsc.unit_get_custom_animation_time("dropship_1_1")
-    logger:debug("Dropship Animation Time: {}", tostring(animationTime))
-end)
-
 local function getLeftAnimationTime(unitName)
     return hsc.unit_get_custom_animation_time(unitName)
 end
