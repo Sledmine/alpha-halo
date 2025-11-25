@@ -5,8 +5,10 @@ local balltze = Balltze
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 local objectTypes = Engine.tag.objectType
-local announcer = require "alpha_halo.systems.combat.announcer"
 local script = require "script"
+
+local announcer = require "alpha_halo.systems.combat.announcer"
+local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 
 function eventsManager.eachTick()
     eventsManager.randomEventTimer()
@@ -79,6 +81,10 @@ function eventsManager.sentinelEvent()
         hsc.ai_place("Sentinel_Team/Sentinels_1")
         -- They get to see the players one tick after being created
         hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1")
+        for _, badGuy in pairs(unitDeployer.badGuys) do
+            hsc.ai_magically_see_encounter("Sentinel_Team/Sentinels_1", badGuy)
+            hsc.ai_try_to_fight("Sentinel_Team/Sentinels_1", badGuy)
+        end
     end
 end
 

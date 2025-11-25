@@ -53,7 +53,7 @@ firefightManager.firefightSettings = {
     resetTemporalSkullEach = eventNames.eachSet,
     activatePermanentSkullEach = eventNames.eachSet,
     permanentSkullsCanBeRandom = true,
-    deployAlliesEach = eventNames.eachBossWave,
+    deployAlliesEach = eventNames.eachRound,
     playerAssistancesEach = eventNames.eachRound
 }
 local settings = firefightManager.firefightSettings
@@ -203,14 +203,15 @@ events = {
         firefightManager.enableTemporalSkull,
         -- firefightManager.conditionedSpawnPlayerAssistances,
         firefightManager.vehicleAssistances,
-        firefightManager.conditionalAddPlayerLives
+        firefightManager.conditionalAddPlayerLives,
+        firefightManager.deployPlayerAllies
     },
     eachSet = {
         firefightManager.conditionedResetAllTemporalSkulls,
         -- firefightManager.conditionedSwitchTeams,
         firefightManager.enablePermanentSkull
     },
-    eachBossWave = {firefightManager.deployPlayerAllies}
+    eachBossWave = {}
 }
 
 -- Helper function to get function name from its reference, for debug purposes.
@@ -310,24 +311,14 @@ function firefightManager.playerCheck(call, sleep)
     end
 end
 
--- Here we put all out encounter blocks that had bad guys in it.
-local badGuys = {
-    "Covenant_Wave",
-    "Covenant_Support",
-    "Flood_Wave",
-    "Flood_Support",
-    "Covenant_Banshee",
-    "Covenant_Snipers",
-    "Sentinel_Team",
-    "Standby_Dropship"
-}
-
 -- We check how many living enemies we have. Also, we call magicalSight every 10 seconds.
 local magicalSightCounter = 300
 local magicalSightTimer = 0
 function firefightManager.aiCheck()
-    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") +
-                      hsc.ai_living_count("Standby_Dropship")
+    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") + hsc.ai_living_count("Standby_Dropship")
+    -- ODSTs see and follow players.
+    hsc.ai_follow_target_players("Human_Team")
+    hsc.ai_magically_see_players("Human_Team")
     if magicalSightTimer > 0 then
         magicalSightTimer = magicalSightTimer - 1
     else
@@ -338,12 +329,8 @@ end
 
 -- Enemy AI will magically see and pursuit each other. Will try against players if they're not invisible.
 function firefightManager.aiSight()
-    -- ODSTs see and follow players.
-    hsc.ai_follow_target_players("Human_Team")
-    hsc.ai_magically_see_players("Human_Team")
-
     -- Each enemy team sees and follows ODSTs.
-    for _, badGuy in pairs(badGuys) do
+    for _, badGuy in pairs(unitDeployer.badGuys) do
         hsc.ai_magically_see_encounter("Human_Team", badGuy)
         hsc.ai_magically_see_encounter(badGuy, "Human_Team")
     end
@@ -354,7 +341,7 @@ function firefightManager.aiSight()
         return
     end
     if player.camoScale < 1 then
-        for _, badGuy in pairs(badGuys) do
+        for _, badGuy in pairs(unitDeployer.badGuys) do
             hsc.ai_magically_see_players(badGuy)
             if not (badGuy == "Covenant_Banshee") then
                 hsc.ai_follow_target_players(badGuy)

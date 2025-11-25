@@ -6,6 +6,17 @@ local constants = require "alpha_halo.systems.core.constants"
 
 local unitDeployer = {}
 
+unitDeployer.badGuys = {
+    "Covenant_Wave",
+    "Covenant_Support",
+    "Flood_Wave",
+    "Flood_Support",
+    "Covenant_Banshee",
+    "Covenant_Snipers",
+    "Sentinel_Team",
+    "Standby_Dropship"
+}
+
 unitDeployer.covenantFireteams = {
     startingSquad = {name = "Starting_Squad", isRandom = false, available = true},
     eliteSquad = {name = "Elite_Squad", isRandom = true, available = true},
