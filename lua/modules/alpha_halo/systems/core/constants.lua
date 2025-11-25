@@ -8,9 +8,6 @@ local utils = require "alpha_halo.utils"
 
 local constants = {}
 
--- Constant core values
-constants.localPlayerAddress = 0x815918
-
 -- Constant gameplay values
 constants.healthRegenerationAmount = 0.005
 -- health recharged on 90 ticks or 3 seconds
@@ -21,6 +18,7 @@ constants.pelicanDeploymentDelay = utils.secondsToTicks(0)
 constants.dropshipDeploymentDelay = utils.secondsToTicks(5)
 constants.dropshipDeploymentDropTick = 950 -- Tick when the units will drop from the dropship
 constants.dropshipDelayTicks = utils.secondsToTicks(20) -- Delay between each dropship deployment
+constants.maximumMusicTime = utils.minutesToTicks(3) -- Maximum time a music track can play
 
 constants.hsc = {playSound = [[(begin (sound_impulse_start "%s" (list_get (players) %s) %s))]]}
 
@@ -41,6 +39,10 @@ function constants.get()
         enemySniper = findTags("survival_enemy_sniper_incoming", engine.tag.classes.sound)[1],
         enemyIncoming = findTags("survival_enemy_incoming", engine.tag.classes.sound)[1],
         hillMove = findTags("hill_move", engine.tag.classes.sound)[1],
+    }
+
+    constants.music = {
+        drumrun = findTags("drumrun", engine.tag.classes.soundLooping)[1],
     }
 
     constants.bipeds = {

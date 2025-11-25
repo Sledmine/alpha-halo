@@ -144,6 +144,16 @@ commands = {
         func = function()
             unitDeployer.testDropshipDeployment()
         end
+    },
+    test_music_system = {
+        description = "Test the firefight music system.",
+        category = "debug",
+        minArgs = 0,
+        maxArgs = 0,
+        help = "",
+        func = function()
+            firefightManager.playMusic()
+        end
     }
 }
 

@@ -141,7 +141,7 @@ local livingCount = 0
 
 function firefightManager.eachTick()
     firefightManager.updateSkullsHud()
-    --script.thread(firefightManager.garbageCollector)()
+    -- script.thread(firefightManager.garbageCollector)()
     script.thread(firefightManager.scriptVehicleDestroyer)()
     if progression.isGameOn then
         firefightManager.aiCheck()
@@ -315,7 +315,8 @@ end
 local magicalSightCounter = 300
 local magicalSightTimer = 0
 function firefightManager.aiCheck()
-    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") + hsc.ai_living_count("Standby_Dropship")
+    livingCount = hsc.ai_living_count("Covenant_Wave") + hsc.ai_living_count("Flood_Wave") +
+                      hsc.ai_living_count("Standby_Dropship")
     -- ODSTs see and follow players.
     hsc.ai_follow_target_players("Human_Team")
     hsc.ai_magically_see_players("Human_Team")
@@ -506,7 +507,7 @@ function firefightManager.scriptVehicleDestroyer(call, sleep)
     local hog2Health = hsc.unit_get_health("warthog_2")
     local hog3Health = hsc.unit_get_health("warthog_3")
     local hog4Health = hsc.unit_get_health("warthog_4")
-    --logger:debug("Warthog 4 health: {}", hog4Health)
+    -- logger:debug("Warthog 4 health: {}", hog4Health)
     if hog1Health == 0 or hog2Health == 0 or hog3Health == 0 or hog4Health == 0 then
         sleep(utils.secondsToTicks(0.5))
         hsc.object_teleport("warthog_1", "vehicle_destroy_bypass")
@@ -843,10 +844,12 @@ function firefightManager.startWave(call, sleep)
     sleep(utils.secondsToTicks(settings.waveCooldownSeconds))
     -- script.thread(announcer.waveStart)() -- Sound not available?
     if (isFirstGameWave or isFirstRoundWave) and (not isCurrentWaveBoss) then
+        firefightManager.playMusic()
         unitDeployer.waveDeployer("starting")
     elseif intermediateWave then
         unitDeployer.waveDeployer("random")
     elseif isCurrentWaveBoss then
+        firefightManager.playMusic()
         unitDeployer.waveDeployer("boss")
     end
     hsc.garbage_collect_now()
@@ -902,11 +905,11 @@ function firefightManager.scriptEndGame(call, sleep)
     execute_script("sv_end_game")
 end
 
---function firefightManager.garbageCollector(call, sleep)
+-- function firefightManager.garbageCollector(call, sleep)
 --    sleep(utils.secondsToTicks(30))
 --    hsc.garbage_collect_now()
 --    hsc.rasterizer_decals_flush()
---end
+-- end
 
 local function loadFirefightSettings()
     logger:debug("Loading Firefight settings from file...")
@@ -969,6 +972,34 @@ end
 function firefightManager.loadSettings()
     loadFirefightSettings()
     loadSkullsSettings()
+end
+
+local latestPlayedMusic = ""
+
+function firefightManager.stopMusic()
+    local musicLoops = table.values(const.music)
+    for _, loop in ipairs(musicLoops) do
+        hsc.sound_looping_stop(loop.path)
+    end
+end
+
+function firefightManager.playMusic()
+    firefightManager.stopMusic()
+    script.startup(function(_, sleep)
+        local musicLoops = table.values(const.music)
+        sleep(utils.secondsToTicks(10))
+        local randomIndex = math.random(1, #musicLoops)
+        local selectedMusic = musicLoops[randomIndex]
+        latestPlayedMusic = selectedMusic.path
+        hsc.sound_looping_start(selectedMusic.path, "none", 1)
+        -- Wait for the maximum music time, then stop if it's still the same music.
+        sleep(const.maximumMusicTime)
+        if latestPlayedMusic ~= selectedMusic.path then
+            return
+        end
+        logger:debug("Stopping music loop: {}", selectedMusic.path)
+        hsc.sound_looping_stop(selectedMusic.path)
+    end)
 end
 
 return firefightManager

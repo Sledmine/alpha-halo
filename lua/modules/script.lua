@@ -223,6 +223,7 @@ function script.startup(func)
     local foundScript = findScriptThreadByFunc(func)
     if foundScript then
         logger:error("Tried to add a script that already exists.")
+        logger:debug("Existing script trace: {}", debug.traceback(foundScript.thread))
         return
     end
     local metadata = {type = "startup"}
@@ -233,6 +234,7 @@ function script.continuous(func)
     local foundScript = findScriptThreadByFunc(func)
     if foundScript then
         logger:error("Tried to add a script that already exists.")
+        logger:debug("Existing script trace: {}", debug.traceback(foundScript.thread))
         return
     end
     local metadata = {type = "continuous"}
