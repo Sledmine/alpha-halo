@@ -43,6 +43,9 @@ function constants.get()
 
     constants.music = {
         drumrun = findTags("drumrun", engine.tag.classes.soundLooping)[1],
+        covenantDance = findTags("covenant_dance", engine.tag.classes.soundLooping)[1],
+        onAPaleHorse = findTags("on_a_pale_horse", engine.tag.classes.soundLooping)[1],
+        theLongRun = findTags("the_long_run", engine.tag.classes.soundLooping)[1]
     }
 
     constants.bipeds = {
