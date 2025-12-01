@@ -54,7 +54,7 @@ end
 ---@param ticks number
 local function sleepThreadFor(ticks)
     if ticks == -1 then
-        logger:debug("Sleeping until woken up")
+        -- logger:debug("Sleeping until woken up")
     else
         -- logger:debug("Sleeping for " .. ticks .. " ticks")
     end
@@ -108,7 +108,8 @@ local function handleScriptThread(scriptThread, result)
             if scriptThread.parent then
                 local result = pcall(handleScriptThread, scriptThread.parent, threadResult)
                 if not result then
-                    logger:warning(debug.traceback(scriptThread.parent.thread))
+                    --error(debug.traceback(scriptThread.parent.thread), 2)
+                    logger:error(debug.traceback(scriptThread.parent.thread))
                 end
             end
         end
@@ -152,9 +153,12 @@ function script.thread(func, metadata)
             -- This case is usually just executed when you are trying to call a function immediately
             -- while sleeping, so is somewhat safe to assume "call" and "sleep" are not being used.
             -- 
-            -- error("Cannot call a function while another function is being called", 2)/
-            return funcToCall(function ()
-                logger:error("Cannot call a function while another function is being called")
+            return funcToCall(function (func, ...)
+                --error("Cannot call a function while another function is being called", 2)
+                logger:debug("Cannot call a function while another function is being called")
+
+                -- Just return the function result directly, we cannot yield here
+                return func(...)
             end, function ()
                 logger:error("Cannot sleep while another function is being called")
             end, ...)
