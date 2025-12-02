@@ -17,7 +17,7 @@ function sputnik.skullEffect(isActive, totalSkullPower)
         if isActive then
             --damageEffect.damageInstantaneousAcceleration.i = damageEffect.damageInstantaneousAcceleration.i + accelerationMultiplier
             --damageEffect.damageFlags:skipsShields(true)
-            --damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 0.001 -- This should not increase by any means.
+            --damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 0.001 -- I'll come back for you, just you wait.
             blam.globalGravity(defaultGravity / (2 * finalSkullPower))
         else
             Balltze.features.reloadTagData(tagEntry.handle)
