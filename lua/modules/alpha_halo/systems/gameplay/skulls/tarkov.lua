@@ -19,7 +19,7 @@ function tarkov.skullEffect(isActive)
             end
             for i = 1, weapon.triggers.count do
                 local trigger = weapon.triggers.elements[i]
-                if trigger.heatGeneratedPerRound < 1 then
+                if (trigger.magazine == 0) and (trigger.heatGeneratedPerRound < 1) then
                     trigger.heatGeneratedPerRound = trigger.heatGeneratedPerRound * 0.4
                 end
             end
