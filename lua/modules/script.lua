@@ -291,4 +291,10 @@ function script.wake(func)
     end
 end
 
+--- Creates a script thread and runs it immediately
+---@param func fun()
+function script.create(func)
+    script.thread(func)()
+end
+
 return script

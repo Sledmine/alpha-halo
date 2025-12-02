@@ -10,6 +10,7 @@ function assert(...)
     local message = args[2]
     if not condition then
         if message then
+            logger:error(message)
             local err = debug.traceback(message, 2)
             luaAssert(condition, err)
         else

@@ -986,7 +986,7 @@ end
 
 function firefightManager.playMusic()
     firefightManager.stopMusic()
-    script.startup(function()
+    script.create(function()
         local musicLoops = table.values(const.music)
         sleep(utils.secondsToTicks(10))
         local randomIndex = math.random(1, #musicLoops)
