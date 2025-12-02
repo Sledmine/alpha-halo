@@ -1,4 +1,5 @@
 ---@class hsc
+---@diagnostic disable: duplicate-set-field
 local hsc = {}
 
 local luna = require "luna"
@@ -131,6 +132,8 @@ function hsc.cond(...)
 end
 
 local difficulties = {"easy", "normal", "hard", "impossible"}
+---Get the current game difficulty
+---@return "easy" | "normal" | "hard" | "impossible"
 function hsc.game_difficulty_get()
     return difficulties[blam.getGameDifficultyIndex() + 1]
 end

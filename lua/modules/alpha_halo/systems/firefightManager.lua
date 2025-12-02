@@ -6,6 +6,7 @@ local playSound = engine.userInterface.playSound
 
 local blam = require "blam"
 local script = require "script"
+local sleep = script.sleep
 local hsc = require "hsc"
 local luna = require "luna"
 local json = require "json"
@@ -80,7 +81,7 @@ firefightManager.gameProgression = { --------------
 }
 local progression = firefightManager.gameProgression
 
-function firefightManager.whenMapLoads(call, sleep)
+function firefightManager.whenMapLoads()
     logger:info("Welcome to Alpha Firefight")
     logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
@@ -92,7 +93,7 @@ function firefightManager.whenMapLoads(call, sleep)
 end
 
 ---Game Start. This begins the process that cycles the firefight to move forward.
-function firefightManager.startGame(call, sleep)
+function firefightManager.startGame()
     -- If the game is already on, we don't need to start it again.
     if progression.isGameOn then
         return
@@ -261,7 +262,7 @@ local playerLives
 local playerIsDead = false -- This by default is false, obviously.
 
 --- Handle player respawn and lives.
-function firefightManager.playerCheck(call, sleep)
+function firefightManager.playerCheck()
     if not playerLives then
         playerLives = settings.playerInitialLives
         logger:debug("Player initial lives: {}", playerLives)
@@ -413,7 +414,7 @@ function firefightManager.conditionedSwitchTeams()
 end
 
 -- Spawn player assistances (Warthogs and Ghosts).
-function firefightManager.spawnPlayerAssistances(call, sleep)
+function firefightManager.spawnPlayerAssistances()
     local vehicleSpawnDelay = utils.secondsToTicks(5)
     sleep(vehicleSpawnDelay)
     local odstSquadName = "Human_Team/ODSTs"
@@ -501,7 +502,7 @@ function firefightManager.spawnPlayerAssistances(call, sleep)
     end
 end
 
-function firefightManager.scriptVehicleDestroyer(call, sleep)
+function firefightManager.scriptVehicleDestroyer()
 
     local hog1Health = hsc.unit_get_health("warthog_1")
     local hog2Health = hsc.unit_get_health("warthog_2")
@@ -527,13 +528,13 @@ end
 --    end
 -- end
 
-function firefightManager.vehicleAssistances(call, sleep)
+function firefightManager.vehicleAssistances()
     script.wake(firefightManager.spawnPlayerAssistances)
     logger:debug("Vehicle assistances are arriving!")
 end
 
 -- Deploy allies in a Pelican. (ODSTs for now)
-function firefightManager.deployPlayerAllies(call, sleep)
+function firefightManager.deployPlayerAllies()
     script.wake(unitDeployer.scriptDeployPelicans)
     logger:debug("ODSTs are coming in hot!")
 end
@@ -591,7 +592,7 @@ end
 
 -- Reset only temporal skulls.
 function firefightManager.resetAllTemporalSkulls()
-    playSound(const.sounds.skullsReset.handle)
+    announcer.skullsReset(2)
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
         return not skull.isPermanent
     end)
@@ -825,21 +826,21 @@ function firefightManager.waveDefinition()
 end
 
 ---Set Start. Calls round start.
-function firefightManager.startSet(call, sleep)
+function firefightManager.startSet()
     sleep(utils.secondsToTicks(settings.setCooldownSeconds))
     script.thread(announcer.setStart)()
     script.wake(firefightManager.startRound)
 end
 
 ---Round Start. Calls wave start.
-function firefightManager.startRound(call, sleep)
+function firefightManager.startRound()
     sleep(utils.secondsToTicks(settings.roundCooldownSeconds))
     script.thread(announcer.roundStart)()
     script.wake(firefightManager.startWave)
 end
 
 ---Wave Starts. Deploys wave units.
-function firefightManager.startWave(call, sleep)
+function firefightManager.startWave()
     eventDispatcher()
     sleep(utils.secondsToTicks(settings.waveCooldownSeconds))
     -- script.thread(announcer.waveStart)() -- Sound not available?
@@ -890,7 +891,7 @@ function firefightManager.reloadGame()
 end
 
 ---End Game.
-function firefightManager.scriptEndGame(call, sleep)
+function firefightManager.scriptEndGame()
     progression.isGameOn = false
     waveIsOn = false
     hsc.ai_erase_all()
@@ -905,7 +906,7 @@ function firefightManager.scriptEndGame(call, sleep)
     execute_script("sv_end_game")
 end
 
--- function firefightManager.garbageCollector(call, sleep)
+-- function firefightManager.garbageCollector()
 --    sleep(utils.secondsToTicks(30))
 --    hsc.garbage_collect_now()
 --    hsc.rasterizer_decals_flush()
@@ -985,7 +986,7 @@ end
 
 function firefightManager.playMusic()
     firefightManager.stopMusic()
-    script.startup(function(_, sleep)
+    script.startup(function()
         local musicLoops = table.values(const.music)
         sleep(utils.secondsToTicks(10))
         local randomIndex = math.random(1, #musicLoops)

@@ -33,6 +33,7 @@ function OnMapLoad()
     firefightManager.stopMusic()
     if not DebugMode then
         script.startup(firefightManager.whenMapLoads)
+        script.continuous(eventsManager.randomEventTimerThread)
     end
 end
 

@@ -2,6 +2,7 @@ local engine = Engine
 local balltze = Balltze
 local hsc = require "hsc"
 local script = require "script"
+local sleep = script.sleep
 local constants = require "alpha_halo.systems.core.constants"
 
 local unitDeployer = {}
@@ -213,7 +214,7 @@ local function getLeftAnimationTime(unitName)
     return hsc.unit_get_custom_animation_time(unitName)
 end
 
-function unitDeployer.dispatchDropships(_, sleep)
+function unitDeployer.dispatchDropships()
     -- Final encounter name where the troops will be migrated.
     local currentEncounter = currentTeam .. "_Wave"
 
@@ -229,7 +230,7 @@ function unitDeployer.dispatchDropships(_, sleep)
 
     -- Play the Dropship deployment animation.
     for i = 1, deployerState.dropshipsAssigned do
-        script.startup(function(_, sleep)
+        script.startup(function()
             sleep(constants.dropshipDelayTicks * (i - 1)) -- Stagger the deployment of each Dropship.
             local selectedDropship = table.remove(availableDropships, math.random(#availableDropships))
             logger:debug("Deploying troops from Dropship: {}", selectedDropship)
@@ -274,7 +275,7 @@ local odstSquadName = "Human_Team/ODSTs"
 local odstPelicanSquad = "standby_pelican"
 
 -- Deploy allied ODSTs in a Pelican.
-function unitDeployer.scriptDeployPelicans(call, sleep)
+function unitDeployer.scriptDeployPelicans()
     sleep(constants.pelicanDeploymentDelay)
     hsc.ai_place(odstSquadName)
     hsc.ai_place(pelicanPilotName)

@@ -1,17 +1,18 @@
 local eventsManager = {}
 local hsc = require "hsc"
+local utils = require "alpha_halo.utils"
 local engine = Engine
 local balltze = Balltze
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
 local objectTypes = Engine.tag.objectType
 local script = require "script"
+local sleep = script.sleep
 
 local announcer = require "alpha_halo.systems.combat.announcer"
 local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 
 function eventsManager.eachTick()
-    eventsManager.randomEventTimer()
     eventsManager.aiCheck()
 end
 
@@ -25,20 +26,25 @@ local sentinelsLivingCount
 local randomEventTimer = settings.randomEventFrequency
 local randomEventCountdown = randomEventTimer
 
--- TODO Migrate this to a script.continuous function that uses sleep instead of each tick
-function eventsManager.randomEventTimer()
-    local anyDead = bansheeLivingCount == 0 or snipersLivingCount == 0 or sentinelsLivingCount == 0 -- or mortarLivingCount == 0 (Mortar is not working)
-    if anyDead then
-        if randomEventCountdown > 0 then
-            randomEventCountdown = randomEventCountdown - 1
-        else
-            eventsManager.randomEncounterEventGenerator()
-            randomEventCountdown = randomEventTimer
-        end
+function eventsManager.randomEventTimerThread()
+    -- TODO Use sleep until to wait for all ai to be dead before starting the event timer
+    sleep(utils.minutesToTicks(2.5))
+    local difficulty = hsc.game_difficulty_get()
+    -- An event can not spawn if there are enemies alive from previous events
+    local isEventReadyToSpawn = bansheeLivingCount == 0 and snipersLivingCount == 0 and
+    sentinelsLivingCount == 0
+    -- Decide if event should spawn based on enemy living counts and difficulty
+    if difficulty == "impossible" then
+        -- On higher difficulties, events can spawn at the same time as others
+        isEventReadyToSpawn = bansheeLivingCount == 0 or snipersLivingCount == 0 or
+                                  sentinelsLivingCount == 0
+    end
+    if isEventReadyToSpawn then
+        eventsManager.spawnEncounterEvent()
     end
 end
 
-function eventsManager.randomEncounterEventGenerator()
+function eventsManager.spawnEncounterEvent()
     local encounterEvents = {
         eventsManager.bansheeEvent,
         eventsManager.sniperEvent,
