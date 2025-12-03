@@ -1,4 +1,5 @@
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
+local const = require "alpha_halo.systems.core.constants"
 
 local tarkov = {}
 
@@ -7,12 +8,17 @@ local tarkov = {}
 function tarkov.skullEffect(isActive)
     for _, tagEntry in ipairs(tagEntries.weapon()) do
         if isActive then
+            if not const.hud.extAssaultRifle then
+                return
+            end
+            local arHUD = const.hud.extAssaultRifle.data
+            for i = 1, arHUD.numberElements.count do
+                local hudElement = arHUD.numberElements.elements[i]
+                hudElement.maximumNumberOfDigits = 3
+            end
             local weapon = tagEntry.data
-            weapon.heatRecoveryThreshold = 0.001
-            weapon.heatLossRate = weapon.heatLossRate * 0.5
             for i = 1, weapon.magazines.count do
                 local magazine = weapon.magazines.elements[i]
-                magazine.flags.everyRoundMustBeChambered = true
                 magazine.flags.wastesRoundsWhenReloaded = true
                 magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
                 magazine.roundsReloaded = magazine.roundsReloaded * 2
@@ -20,6 +26,8 @@ function tarkov.skullEffect(isActive)
             for i = 1, weapon.triggers.count do
                 local trigger = weapon.triggers.elements[i]
                 if (trigger.magazine == 0) and (trigger.heatGeneratedPerRound < 1) then
+                    weapon.heatRecoveryThreshold = 0.001
+                    weapon.heatLossRate = weapon.heatLossRate * 0.5
                     trigger.heatGeneratedPerRound = trigger.heatGeneratedPerRound * 0.4
                 end
             end
