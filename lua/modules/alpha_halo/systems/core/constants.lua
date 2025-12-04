@@ -76,6 +76,13 @@ function constants.get()
         beamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle]], engine.tag.classes.weapon)[1],
         sniperRifle = findTags([[weapons\sniper_rifle\sniper_rifle]], engine.tag.classes.weapon)[1]
     }
+
+    constants.shaders = {
+        transparentChicago = {
+            brCounter = findTags([[gdd\weapons\battle_rifle\shaders\br_numbers]], engine.tag.classes.shaderTransparentChicago)[1],
+            glCounter = findTags([[alpha_firefight\weapons\assault_rifle_gl\shaders\gl_numers]], engine.tag.classes.shaderTransparentChicago)[1]
+        }
+    }
 end
 
 return constants
