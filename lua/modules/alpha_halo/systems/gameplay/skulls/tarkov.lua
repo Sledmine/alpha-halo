@@ -25,9 +25,14 @@ function tarkov.skullEffect(isActive)
             local weapon = tagEntry.data
             for i = 1, weapon.magazines.count do
                 local magazine = weapon.magazines.elements[i]
-                magazine.flags.wastesRoundsWhenReloaded = true
-                magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
-                magazine.roundsReloaded = magazine.roundsReloaded * 2
+                if magazine.roundsReloaded == 1 then
+                    magazine.roundsReloaded = magazine.roundsLoadedMaximum
+                    magazine.flags.wastesRoundsWhenReloaded = true
+                else
+                    magazine.flags.wastesRoundsWhenReloaded = true
+                    magazine.roundsLoadedMaximum = magazine.roundsLoadedMaximum * 2
+                    magazine.roundsReloaded = magazine.roundsReloaded * 2
+                end
             end
 
             local glCounterLimit = glCountershader.numericCounterLimit
