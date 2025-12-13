@@ -143,7 +143,6 @@ local livingCount = 0
 function firefightManager.eachTick()
     firefightManager.updateSkullsHud()
     -- script.thread(firefightManager.garbageCollector)()
-    script.thread(firefightManager.scriptVehicleDestroyer)()
     if progression.isGameOn then
         firefightManager.aiCheck()
         if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
@@ -503,7 +502,6 @@ function firefightManager.spawnPlayerAssistances()
 end
 
 function firefightManager.scriptVehicleDestroyer()
-
     local hog1Health = hsc.unit_get_health("warthog_1")
     local hog2Health = hsc.unit_get_health("warthog_2")
     local hog3Health = hsc.unit_get_health("warthog_3")

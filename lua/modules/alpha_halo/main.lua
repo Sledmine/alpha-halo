@@ -39,12 +39,19 @@ function OnMapLoad()
         script.continuous(eventsManager.randomEventTimerThread)
     end
 
+    script.continuous(function ()
+        firefightManager.scriptVehicleDestroyer()
+        extendedHud.hideMetersOnZoom()
+
+        -- Sleep to reduce CPU usage
+        sleep(1)
+    end)
+
     script.continuous(function()
         firefightManager.eachTick()
         healthManager.eachTick()
         skullsManager.eachTick()
         vehiclePosition.positionUpdater()
-        extendedHud.hideMetersOnZoom()
         -- extendedWeapon.noZoomWhenOverheating()
         if not DebugFirefight then
             if firefightManager.gameProgression.isGameOn then
@@ -52,6 +59,7 @@ function OnMapLoad()
             end
         end
 
+        -- Add a small sleep to reduce CPU usage
         sleep(3)
     end)
 end

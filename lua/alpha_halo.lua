@@ -1,6 +1,6 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = true
+DebugMode = false
 DebugLuaMemory = false
 DebugPerformance = false
 DebugFirefight = false
