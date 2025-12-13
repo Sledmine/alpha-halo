@@ -1,7 +1,10 @@
 local balltze = Balltze
 local engine = Engine
-DebugMode = false
-DebugLuaMemory = true
+DebugMode = true
+DebugLuaMemory = false
+DebugPerformance = false
+DebugFirefight = false
+DebugTimes = {}
 package.preload["luna"] = nil
 package.loaded["luna"] = nil
 require "luna"
@@ -64,18 +67,21 @@ end
 local main
 
 function PluginFirstTick()
-    balltze.event.tick.subscribe(function(event)
+    local onTick
+    onTick = balltze.event.tick.subscribe(function(event)
         if event.time == "before" then
+            logger:debug("First Tick Event")
             if not main then
                 constants.get()
                 main = require "alpha_halo.main"
+                onTick:remove()
             end
         end
     end)
 end
 
 function PluginLoad()
-    logger = balltze.logger.createLogger("Alpha Halo") -- this means Alpha Firefight
+    logger = balltze.logger.createLogger("Alpha Halo")
     logger:muteDebug(not DebugMode)
     -- logger:muteIngame(not DebugMode)
     ---@diagnostic disable-next-line: inject-field
@@ -94,16 +100,6 @@ function PluginLoad()
                 Balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right,
                                           bounds.bottom, font, align, table.unpack(textColor))
             end
-        end
-        if event.time == "before" then
-            local wipFont = "smaller"
-            local wipAlign = "center"
-            local wipBounds = {left = 0, top = 430, right = 640, bottom = 480}
-            local wipTextColor = {1.0, 0.7, 0.7, 0.7}
-            local wipText = "PRE-RELEASE BUILD. WORK IN PROGRESS."
-            Balltze.chimera.draw_text(wipText, wipBounds.left, wipBounds.top, wipBounds.right,
-                                      wipBounds.bottom, wipFont, wipAlign,
-                                      table.unpack(wipTextColor))
         end
     end)
 

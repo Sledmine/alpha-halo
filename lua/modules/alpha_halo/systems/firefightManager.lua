@@ -119,7 +119,7 @@ function firefightManager.startGame()
     progression.isGameOn = true
     firefightManager.waveDefinition()
 
-    if not DebugMode then
+    if not DebugFirefight then
         -- Start the first set.
         script.wake(firefightManager.startSet)
 
@@ -721,30 +721,31 @@ function firefightManager.updateSkullsHud()
     end
 end
 
+local align = "right"
+local bounds = {left = -8, top = 390, right = 640, bottom = 480}
+local r, g, b = 255, 187, 0
+local defaultTextColor = {1.0, r / 255, g / 255, b / 255}
+local whiteTextColor = {1.0, 1.0, 1.0, 1.0}
+
 function firefightManager.onEachFrame()
+    local drawText = balltze.chimera.draw_text
+    local titleFont = const.fonts.geogrotesqueRegular.title.handle.value
+    local textFont = const.fonts.geogrotesqueRegular.text.handle.value
+
     if console_is_open() or skullsManager.skulls.blind.isEnabled then
         return
     end
 
-    local drawText = balltze.chimera.draw_text
-    local align = "right"
-    local bounds = {left = -8, top = 390, right = 640, bottom = 480}
-    local r, g, b = 255, 187, 0
-    local textColor = {1.0, r / 255, g / 255, b / 255}
-    local titleText = const.fonts.geogrotesqueRegular.title.handle.value
-    local standardText = const.fonts.geogrotesqueRegular.text.handle.value
-    local textColorW = {1.0, 1.0, 1.0, 1.0}
-
     -- Show current game progression info
     local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
                      firefightManager.gameProgression)
-    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleText, align,
-             table.unpack(textColor))
+    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleFont, align,
+             table.unpack(defaultTextColor))
 
     -- Draw current lifes
     local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
-    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleText, align,
-             table.unpack(textColor))
+    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleFont, align,
+             table.unpack(defaultTextColor))
 
     -- Draw the number of times each skull was activated
     if const.hud.skullsIcons then
@@ -765,7 +766,7 @@ function firefightManager.onEachFrame()
                         local y = bounds.top - skullElement.anchorOffset.y + 80
                         local multText = "x" .. tostring(count)
                         drawText(multText, bounds.left, y, bounds.right + 5, bounds.bottom,
-                                 standardText, align, table.unpack(textColorW))
+                                 textFont, align, table.unpack(whiteTextColor))
                     end
                 end
             end

@@ -1,6 +1,7 @@
 local balltze = Balltze
 local engine = Engine
 local script = require "script"
+local sleep = script.sleep
 inspect = require "inspect"
 math.randomseed(os.time())
 local luaAssert = assert
@@ -31,43 +32,68 @@ local extendedHud = require "alpha_halo.systems.interface.extendedHud"
 
 -- Encapsular Funcion
 function OnMapLoad()
+    logger:debug("Map Loaded")
     firefightManager.stopMusic()
-    if not DebugMode then
+    if not DebugFirefight then
         script.startup(firefightManager.whenMapLoads)
         script.continuous(eventsManager.randomEventTimerThread)
     end
+
+    script.continuous(function()
+        firefightManager.eachTick()
+        healthManager.eachTick()
+        skullsManager.eachTick()
+        vehiclePosition.positionUpdater()
+        extendedHud.hideMetersOnZoom()
+        -- extendedWeapon.noZoomWhenOverheating()
+        if not DebugFirefight then
+            if firefightManager.gameProgression.isGameOn then
+                eventsManager.eachTick()
+            end
+        end
+
+        sleep(3)
+    end)
 end
 
 local isLoaded = false
 function OnTick()
-    firefightManager.eachTick()
-    healthManager.eachTick()
-    skullsManager.eachTick()
-    vehiclePosition.positionUpdater()
-    extendedHud.hideMetersOnZoom()
-    -- extendedWeapon.noZoomWhenOverheating()
-    script.poll()
-    if not DebugMode then
-        if firefightManager.gameProgression.isGameOn then
-            eventsManager.eachTick()
-        end
-    end
     -- Execute the function one time
     if not isLoaded then
         isLoaded = true
         OnMapLoad()
         return
     end
+
+    script.poll()
 end
 
 local onTickEvent = balltze.event.tick.subscribe(function(event)
     if event.time == "before" then
+        local startTime
+        if DebugPerformance then
+            startTime = os.clock()
+        end
         OnTick()
+        if DebugPerformance then
+            local endTime = os.clock()
+            local elapsedTime = endTime - startTime
+            DebugTimes.tickTime = elapsedTime
+        end
     end
 end)
 
+local align = "left"
+local bounds = {left = 15, top = 300, right = 640, bottom = 480}
+local whiteTextColor = {1.0, 1.0, 1.0, 1.0}
+
 Balltze.event.frame.subscribe(function(event)
     if event.time == "before" then
+        local drawText = balltze.chimera.draw_text
+        local startTime
+        if DebugPerformance then
+            startTime = os.clock()
+        end
         if console_is_open() then
             return
         end
@@ -82,6 +108,17 @@ Balltze.event.frame.subscribe(function(event)
             return
         end
         firefightManager.onEachFrame()
+        if DebugPerformance then
+            local endTime = os.clock()
+            local elapsedTime = endTime - startTime
+            DebugTimes.frameTime = elapsedTime
+
+            drawText(string.format("Tick Time: %.6f s\nFrame Time: %.6f s",
+                                   DebugTimes.tickTime or 0, DebugTimes.frameTime or 0),
+                     bounds.left, bounds.top, bounds.right, bounds.bottom, "smaller", align,
+                     table.unpack(whiteTextColor))
+        end
+
     end
 end)
 
