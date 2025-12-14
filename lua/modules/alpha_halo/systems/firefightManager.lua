@@ -412,18 +412,11 @@ function firefightManager.conditionedSwitchTeams()
     end
 end
 
-local function anyVehicleOccupiedBy(vehicleNames, seatName, unitList)
-    for _, vehicleName in ipairs(vehicleNames) do
-        if hsc.vehicle_test_seat_list(vehicleName, seatName, unitList) then
-            return true
-        end
-    end
-    return false
-end
-
-local function isVehicleGroupOccupied(vehicleNames, seatName, squads)
-    for _, unitList in ipairs(squads) do
-        if anyVehicleOccupiedBy(vehicleNames, seatName, unitList) then
+local function isVehicleOccupiedBy(vehicleName, seatName, squads)
+    for _, units in pairs(squads) do
+        -- logger:debug("Checking vehicle '{}' seat '{}' for units in squad {}", vehicleName, seatName, units)
+        if hsc.vehicle_test_seat_list(vehicleName, seatName, units) then
+            --logger:debug("Vehicle '{}' seat '{}' is occupied", vehicleName, seatName)
             return true
         end
     end
@@ -437,58 +430,81 @@ function firefightManager.spawnPlayerAssistances()
     assert(currentEnemyTeam, "Invalid current enemy team index: " ..
                tostring(unitDeployer.deployerSettings.currentTeam))
     local enemyEncounterName = currentEnemyTeam.name .. "_Fireteams"
-    logger:debug("Enemy Encounter Name: {}", enemyEncounterName)
 
     local occupants = {
         hsc.ai_actors(unitDeployer.names.odstSquad),
         hsc.ai_actors(enemyEncounterName),
-        "players"
+        hsc.players()
     }
 
     ----------------------------------------------------------------
     -- Ghost Assist
     ----------------------------------------------------------------
     local ghostVehicles = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
-    local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
-
-    -- Force testing code - to be removed
-    -- hsc.ai_erase_all()
-    -- hsc.object_create_anew(selectedGhost)
-    -- hsc.ai_place(enemyEncounterName)
-    -- hsc.object_teleport(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12), "generic_flag")
-    -- hsc.unit_enter_vehicle(hsc.unit(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12)), selectedGhost, "G-driver")
-
-    if not isVehicleGroupOccupied(ghostVehicles, "G-driver", occupants) then
-        logger:debug("No occupants detected. Replacing ghost...")
-        hsc.object_destroy_containing("ghost")
-        logger:debug("Spawning ghost: {}", selectedGhost)
-        hsc.object_create_anew(selectedGhost)
-
-        for _, ghostName in ipairs(ghostVehicles) do
-            hsc.ai_vehicle_enterable_distance(ghostName, 20.0)
+    local isNewVehicleRequired = false
+    local existingVehicleCount = 0
+    for _, vehicleName in pairs(ghostVehicles) do
+        -- If vehicle exists
+        local vehicleExists = hsc.unit_get_health(vehicleName) ~= -1
+        if vehicleExists then
+            existingVehicleCount = existingVehicleCount + 1
+            logger:debug("Checking ghost vehicle: {}", vehicleName)
+            -- Destroy it if no occupants are found and respawn it 
+            if not isVehicleOccupiedBy(vehicleName, "G-driver", occupants) then
+                logger:debug("No occupants detected. Removing ghost: {}", vehicleName)
+                hsc.object_destroy(vehicleName)
+                isNewVehicleRequired = true
+            else
+                isNewVehicleRequired = false
+                break
+            end
         end
-    else
-        logger:debug("Ghost occupied - skipping any ghost spawn")
+    end
+    if existingVehicleCount == 0 then
+        isNewVehicleRequired = true
+    end
+
+    if isNewVehicleRequired then
+        local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
+        logger:debug("Spawning ghost: {}", selectedGhost)
+        hsc.object_create(selectedGhost)
+        hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
     end
 
     ----------------------------------------------------------------
     -- Warthog Assist
     ----------------------------------------------------------------
+    isNewVehicleRequired = false
     local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
-    local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
-    if not isVehicleGroupOccupied(warthogNames, "W-driver", occupants) and
-        not isVehicleGroupOccupied(warthogNames, "W-gunner", occupants) and
-        not isVehicleGroupOccupied(warthogNames, "W-passenger", occupants) then
-        logger:debug("No occupants detected. Replacing warthog...")
-        hsc.object_destroy_containing("warthog")
-        logger:debug("Spawning warthog: {}", selectedWarthog)
-        hsc.object_create_anew(selectedWarthog)
-
-        for _, warthogName in ipairs(warthogNames) do
-            hsc.ai_vehicle_enterable_distance(warthogName, 20.0)
+    existingVehicleCount = 0
+    for _, warthogName in pairs(warthogNames) do
+        -- If vehicle exists
+        local vehicleExists = hsc.unit_get_health(warthogName) ~= -1
+        if vehicleExists then
+            logger:debug("Checking warthog vehicle: {}", warthogName)
+            existingVehicleCount = existingVehicleCount + 1
+            -- Destroy it if no occupants are found and respawn it 
+            if not isVehicleOccupiedBy(warthogName, "W-driver", occupants) and
+                not isVehicleOccupiedBy(warthogName, "W-gunner", occupants) and
+                not isVehicleOccupiedBy(warthogName, "W-passenger", occupants) then
+                logger:debug("No occupants detected. Removing warthog: {}", warthogName)
+                hsc.object_destroy(warthogName)
+                isNewVehicleRequired = true
+            else
+                isNewVehicleRequired = false
+                break
+            end
         end
-    else
-        logger:debug("Warthog occupied - skipping any warthog spawn")
+    end
+    if existingVehicleCount == 0 then
+        isNewVehicleRequired = true
+    end
+
+    if isNewVehicleRequired then
+        local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
+        logger:debug("Spawning warthog: {}", selectedWarthog)
+        hsc.object_create(selectedWarthog)
+        hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
     end
 end
 

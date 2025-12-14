@@ -242,9 +242,9 @@ end
 local pelicanVehicleName = "foehammer_cliff"
 local pelicanPilotName = "human_support/pelican_pilot"
 unitDeployer.names = {
-    odstSquad = "Human_Team/ODSTs"
+    odstSquad = "Human_Team"
 }
-local odstSquadName = unitDeployer.names.odstSquad
+local odstSquadName = unitDeployer.names.odstSquad .. "/ODSTs"
 local odstPelicanSquad = "standby_pelican"
 
 -- Deploy allied ODSTs in a Pelican.
