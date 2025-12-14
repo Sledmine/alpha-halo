@@ -450,14 +450,14 @@ function firefightManager.spawnPlayerAssistances()
     ----------------------------------------------------------------
     local ghostVehicles = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
     local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
-    
+
     -- Force testing code - to be removed
-    --hsc.ai_erase_all()
-    --hsc.object_create_anew(selectedGhost)
-    --hsc.ai_place(enemyEncounterName)
-    --hsc.object_teleport(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12), "generic_flag")
-    --hsc.unit_enter_vehicle(hsc.unit(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12)), selectedGhost, "G-driver")
-    
+    -- hsc.ai_erase_all()
+    -- hsc.object_create_anew(selectedGhost)
+    -- hsc.ai_place(enemyEncounterName)
+    -- hsc.object_teleport(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12), "generic_flag")
+    -- hsc.unit_enter_vehicle(hsc.unit(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12)), selectedGhost, "G-driver")
+
     if not isVehicleGroupOccupied(ghostVehicles, "G-driver", occupants) then
         logger:debug("No occupants detected. Replacing ghost...")
         hsc.object_destroy_containing("ghost")
@@ -476,8 +476,9 @@ function firefightManager.spawnPlayerAssistances()
     ----------------------------------------------------------------
     local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
     local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
-
-    if not isVehicleGroupOccupied(warthogNames, "W-driver", occupants) then
+    if not isVehicleGroupOccupied(warthogNames, "W-driver", occupants) and
+        not isVehicleGroupOccupied(warthogNames, "W-gunner", occupants) and
+        not isVehicleGroupOccupied(warthogNames, "W-passenger", occupants) then
         logger:debug("No occupants detected. Replacing warthog...")
         hsc.object_destroy_containing("warthog")
         logger:debug("Spawning warthog: {}", selectedWarthog)
@@ -527,7 +528,7 @@ end
 -- end
 
 function firefightManager.vehicleAssistances()
-    script.thread(function ()
+    script.thread(function()
         sleep(utils.secondsToTicks(5))
         firefightManager.spawnPlayerAssistances()
     end)()
