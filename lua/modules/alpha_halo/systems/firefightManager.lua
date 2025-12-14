@@ -412,18 +412,18 @@ function firefightManager.conditionedSwitchTeams()
     end
 end
 
-local function anyVehicleOccupiedBy(vehicleNames, unitList)
+local function anyVehicleOccupiedBy(vehicleNames, seatName, unitList)
     for _, vehicleName in ipairs(vehicleNames) do
-        if hsc.vehicle_test_seat_list(vehicleName, "", unitList) then
+        if hsc.vehicle_test_seat_list(vehicleName, seatName, unitList) then
             return true
         end
     end
     return false
 end
 
-local function isVehicleGroupOccupied(vehicleNames, squads)
+local function isVehicleGroupOccupied(vehicleNames, seatName, squads)
     for _, unitList in ipairs(squads) do
-        if anyVehicleOccupiedBy(vehicleNames, unitList) then
+        if anyVehicleOccupiedBy(vehicleNames, seatName, unitList) then
             return true
         end
     end
@@ -431,27 +431,40 @@ local function isVehicleGroupOccupied(vehicleNames, squads)
 end
 
 function firefightManager.spawnPlayerAssistances()
-    --sleep(utils.secondsToTicks(5))
+    local currentEnemyTeam = table.find(unitDeployer.unitTeams, function(t)
+        return t.index == unitDeployer.deployerSettings.currentTeam
+    end)
+    assert(currentEnemyTeam, "Invalid current enemy team index: " ..
+               tostring(unitDeployer.deployerSettings.currentTeam))
+    local enemyEncounterName = currentEnemyTeam.name .. "_Fireteams"
+    logger:debug("Enemy Encounter Name: {}", enemyEncounterName)
 
-    local odstSquadName = "Human_Team/ODSTs"
-    local covenantWaveName = "Covenant_Wave"
-    --local players = "players"
-
-    local occupantLists = {hsc.ai_actors(odstSquadName), hsc.ai_actors(covenantWaveName), "players"}
+    local occupants = {
+        hsc.ai_actors(unitDeployer.names.odstSquad),
+        hsc.ai_actors(enemyEncounterName),
+        "players"
+    }
 
     ----------------------------------------------------------------
     -- Ghost Assist
     ----------------------------------------------------------------
-    local ghostNames = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
+    local ghostVehicles = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
     local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
-
-    if not isVehicleGroupOccupied(ghostNames, occupantLists) then
+    
+    -- Force testing code - to be removed
+    --hsc.ai_erase_all()
+    --hsc.object_create_anew(selectedGhost)
+    --hsc.ai_place(enemyEncounterName)
+    --hsc.object_teleport(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12), "generic_flag")
+    --hsc.unit_enter_vehicle(hsc.unit(hsc.list_get(hsc.ai_actors(enemyEncounterName), 12)), selectedGhost, "G-driver")
+    
+    if not isVehicleGroupOccupied(ghostVehicles, "G-driver", occupants) then
         logger:debug("No occupants detected. Replacing ghost...")
         hsc.object_destroy_containing("ghost")
         logger:debug("Spawning ghost: {}", selectedGhost)
         hsc.object_create_anew(selectedGhost)
 
-        for _, ghostName in ipairs(ghostNames) do
+        for _, ghostName in ipairs(ghostVehicles) do
             hsc.ai_vehicle_enterable_distance(ghostName, 20.0)
         end
     else
@@ -464,7 +477,7 @@ function firefightManager.spawnPlayerAssistances()
     local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
     local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
 
-    if not isVehicleGroupOccupied(warthogNames, occupantLists) then
+    if not isVehicleGroupOccupied(warthogNames, "W-driver", occupants) then
         logger:debug("No occupants detected. Replacing warthog...")
         hsc.object_destroy_containing("warthog")
         logger:debug("Spawning warthog: {}", selectedWarthog)
@@ -481,12 +494,7 @@ end
 local lastVehicleHealth = {}
 
 function firefightManager.scriptVehicleDestroyer()
-    local vehicleNames = {
-        "warthog_1",
-        "warthog_2",
-        "warthog_3",
-        "warthog_4"
-    }
+    local vehicleNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
     for i = 1, #vehicleNames do
         local name = vehicleNames[i]
         local health = hsc.unit_get_health(name)
@@ -519,7 +527,10 @@ end
 -- end
 
 function firefightManager.vehicleAssistances()
-    script.wake(firefightManager.spawnPlayerAssistances)
+    script.thread(function ()
+        sleep(utils.secondsToTicks(5))
+        firefightManager.spawnPlayerAssistances()
+    end)()
     logger:debug("Vehicle assistances are arriving!")
 end
 

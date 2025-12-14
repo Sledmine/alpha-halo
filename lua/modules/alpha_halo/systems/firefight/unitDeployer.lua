@@ -40,7 +40,7 @@ unitDeployer.fireTeams = {
         specOpsSquad = {name = "SpecOps_Squad", isRandom = false, available = true},
         zealotSquad = {name = "Zealot_Squad", isRandom = false, available = true}
     },
-    human = {odstSquad = {name = "ODST Squad", isRandom = false, available = true}},
+    human = {odstSquad = {name = "ODSTs", isRandom = false, available = true}},
     sentinel = {sentinelSquad = {name = "Sentinel Squad", isRandom = false, available = true}}
 }
 
@@ -241,7 +241,10 @@ end
 
 local pelicanVehicleName = "foehammer_cliff"
 local pelicanPilotName = "human_support/pelican_pilot"
-local odstSquadName = "Human_Team/ODSTs"
+unitDeployer.names = {
+    odstSquad = "Human_Team/ODSTs"
+}
+local odstSquadName = unitDeployer.names.odstSquad
 local odstPelicanSquad = "standby_pelican"
 
 -- Deploy allied ODSTs in a Pelican.

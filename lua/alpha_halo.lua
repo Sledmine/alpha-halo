@@ -116,7 +116,11 @@ function PluginLoad()
                              data.example)
                 return true
             end
-            data.func(table.unpack(args or {}))
+            --data.func(table.unpack(args or {}))
+            local ok, message = pcall(data.func, table.unpack(args or {}))
+            if not ok then
+                logger:error("Error executing command \"{}\": {}", command, message)
+            end
             return true
         end)
     end
