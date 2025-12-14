@@ -412,111 +412,103 @@ function firefightManager.conditionedSwitchTeams()
     end
 end
 
--- Spawn player assistances (Warthogs and Ghosts).
+local function anyVehicleOccupiedBy(vehicleNames, unitList)
+    for _, vehicleName in ipairs(vehicleNames) do
+        if hsc.vehicle_test_seat_list(vehicleName, "", unitList) then
+            return true
+        end
+    end
+    return false
+end
+
+local function isVehicleGroupOccupied(vehicleNames, squads)
+    for _, unitList in ipairs(squads) do
+        if anyVehicleOccupiedBy(vehicleNames, unitList) then
+            return true
+        end
+    end
+    return false
+end
+
 function firefightManager.spawnPlayerAssistances()
-    local vehicleSpawnDelay = utils.secondsToTicks(5)
-    sleep(vehicleSpawnDelay)
+    --sleep(utils.secondsToTicks(5))
+
     local odstSquadName = "Human_Team/ODSTs"
     local covenantWaveName = "Covenant_Wave"
-    local players = "players"
+    --local players = "players"
 
-    -- Spawn Ghost assist
-    local ghostAssistTemplate = "reward_ghost_var%s"
-    local randomGhost = math.random(1, 3)
-    local selectedGhost = ghostAssistTemplate:format(randomGhost)
+    local occupantLists = {hsc.ai_actors(odstSquadName), hsc.ai_actors(covenantWaveName), "players"}
+
+    ----------------------------------------------------------------
+    -- Ghost Assist
+    ----------------------------------------------------------------
     local ghostNames = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
-    local generalGhostName = "ghost"
+    local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
 
-    local ghostHumanOccupied = false
-    local ghostCovOccupied = false
-    local ghostPlayerOccupied = false
-
-    for _, ghostName in ipairs(ghostNames) do
-        if hsc.vehicle_test_seat_list(ghostName, "", hsc.ai_actors(odstSquadName)) then
-            ghostHumanOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(ghostName, "", hsc.ai_actors(covenantWaveName)) then
-            ghostCovOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(ghostName, "", players) then
-            ghostPlayerOccupied = true
-            break
-        end
-    end
-
-    if ghostHumanOccupied or ghostCovOccupied or ghostPlayerOccupied then
-        logger:debug("Ghost occupied - skipping replacement")
-        -- hsc.object_create(selectedGhost) -- still spawn new ghost elsewhere
-        -- hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
-    else
+    if not isVehicleGroupOccupied(ghostNames, occupantLists) then
         logger:debug("No occupants detected. Replacing ghost...")
-        hsc.object_destroy_containing(generalGhostName)
+        hsc.object_destroy_containing("ghost")
+        logger:debug("Spawning ghost: {}", selectedGhost)
         hsc.object_create_anew(selectedGhost)
-        hsc.ai_vehicle_enterable_distance("reward_ghost_var1", 20.0)
-        hsc.ai_vehicle_enterable_distance("reward_ghost_var2", 20.0)
-        hsc.ai_vehicle_enterable_distance("reward_ghost_var3", 20.0)
-    end
 
-    -- Spawn Warthog assist
-    local warthogTemplate = "warthog_%s"
-    local randomWarthog = math.random(1, 4)
-    local selectedWarthog = warthogTemplate:format(randomWarthog)
-    local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
-    local generalWarthogName = "warthog"
-
-    -- Check if ANY Warthog seats are occupied
-    local warthogHumanOccupied = false
-    local warthogCovOccupied = false
-    local warthogPlayerOccupied = false
-
-    for _, warthogName in ipairs(warthogNames) do
-        if hsc.vehicle_test_seat_list(warthogName, "", hsc.ai_actors(odstSquadName)) then
-            warthogHumanOccupied = true
-            break
+        for _, ghostName in ipairs(ghostNames) do
+            hsc.ai_vehicle_enterable_distance(ghostName, 20.0)
         end
-        if hsc.vehicle_test_seat_list(warthogName, "", hsc.ai_actors(covenantWaveName)) then
-            warthogCovOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(warthogName, "", players) then
-            warthogPlayerOccupied = true
-            break
-        end
-    end
-
-    if warthogHumanOccupied or warthogCovOccupied or warthogPlayerOccupied then
-        logger:debug("Warthog occupied - skipping replacement.")
-        -- hsc.object_create(selectedWarthog) -- Still spawn new warthog elsewhere
-        -- hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
     else
+        logger:debug("Ghost occupied - skipping any ghost spawn")
+    end
+
+    ----------------------------------------------------------------
+    -- Warthog Assist
+    ----------------------------------------------------------------
+    local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
+    local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
+
+    if not isVehicleGroupOccupied(warthogNames, occupantLists) then
         logger:debug("No occupants detected. Replacing warthog...")
-        hsc.object_destroy_containing(generalWarthogName)
+        hsc.object_destroy_containing("warthog")
+        logger:debug("Spawning warthog: {}", selectedWarthog)
         hsc.object_create_anew(selectedWarthog)
-        hsc.ai_vehicle_enterable_distance("warthog_1", 20.0)
-        hsc.ai_vehicle_enterable_distance("warthog_2", 20.0)
-        hsc.ai_vehicle_enterable_distance("warthog_3", 20.0)
-        hsc.ai_vehicle_enterable_distance("warthog_4", 20.0)
+
+        for _, warthogName in ipairs(warthogNames) do
+            hsc.ai_vehicle_enterable_distance(warthogName, 20.0)
+        end
+    else
+        logger:debug("Warthog occupied - skipping any warthog spawn")
     end
 end
 
+local lastVehicleHealth = {}
+
 function firefightManager.scriptVehicleDestroyer()
-    local hog1Health = hsc.unit_get_health("warthog_1")
-    local hog2Health = hsc.unit_get_health("warthog_2")
-    local hog3Health = hsc.unit_get_health("warthog_3")
-    local hog4Health = hsc.unit_get_health("warthog_4")
-    -- logger:debug("Warthog 4 health: {}", hog4Health)
-    if hog1Health == 0 or hog2Health == 0 or hog3Health == 0 or hog4Health == 0 then
-        sleep(utils.secondsToTicks(0.1))
-        hsc.object_teleport("warthog_1", "vehicle_destroy_bypass")
-        hsc.object_teleport("warthog_2", "vehicle_destroy_bypass")
-        hsc.object_teleport("warthog_3", "vehicle_destroy_bypass")
-        hsc.object_teleport("warthog_4", "vehicle_destroy_bypass")
-        sleep(utils.secondsToTicks(10))
-        hsc.object_destroy_containing("warthog")
-        sleep(utils.secondsToTicks(15))
-        hsc.garbage_collect_now()
+    local vehicleNames = {
+        "warthog_1",
+        "warthog_2",
+        "warthog_3",
+        "warthog_4"
+    }
+    for i = 1, #vehicleNames do
+        local name = vehicleNames[i]
+        local health = hsc.unit_get_health(name)
+        -- Initialize cache
+        if lastVehicleHealth[name] == nil then
+            lastVehicleHealth[name] = health
+        end
+        -- Detect transition: alive -> dead
+        if lastVehicleHealth[name] > 0 and health <= 0 then
+            logger:debug("{} Destroyed", name)
+            sleep(1)
+            hsc.object_teleport(name, "vehicle_destroy_bypass")
+            sleep(utils.secondsToTicks(7))
+            logger:debug("Destroying {} Object", name)
+            hsc.object_destroy(name)
+            sleep(utils.secondsToTicks(7))
+            logger:debug("Collectiong garbage...")
+            hsc.garbage_collect_now()
+            lastVehicleHealth[name] = health
+            break
+        end
+        lastVehicleHealth[name] = health
     end
 end
 
