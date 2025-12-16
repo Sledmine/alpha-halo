@@ -9,7 +9,25 @@ function triggerSwitch.skullEffect(isActive)
         if isActive then
             for i = 1, tagEntry.data.triggers.count do
                 local trigger = tagEntry.data.triggers.elements[i]
-                trigger.flags.doesNotRepeatAutomatically = not trigger.flags.doesNotRepeatAutomatically
+                if trigger.maximumRateOfFire[2] <= 6 then
+                    for e = 1, tagEntry.data.magazines.count do
+                        local magazine = tagEntry.data.magazines.elements[e]
+                        magazine.flags.everyRoundMustBeChambered = false
+                    end
+                    trigger.flags.doesNotRepeatAutomatically = false
+                    ---@diagnostic disable-next-line: assign-type-mismatch
+                    trigger.maximumRateOfFire = {
+                        trigger.maximumRateOfFire[1],
+                        trigger.maximumRateOfFire[2] * 5
+                    }
+                else
+                    trigger.flags.doesNotRepeatAutomatically = true
+                    ---@diagnostic disable-next-line: assign-type-mismatch
+                    trigger.maximumRateOfFire = {
+                        trigger.maximumRateOfFire[1],
+                        trigger.maximumRateOfFire[2] * 0.2
+                    }
+                end
             end
         else
             Balltze.features.reloadTagData(tagEntry.handle)

@@ -43,6 +43,11 @@ function constants.get()
 
     constants.music = {
         drumrun = findTags("drumrun", engine.tag.classes.soundLooping)[1],
+        -- TODO Add proper stop sound into sound loops
+        covenantDance = findTags("covenant_dance", engine.tag.classes.soundLooping)[1],
+        onAPaleHorse = findTags("on_a_pale_horse", engine.tag.classes.soundLooping)[1],
+        theLongRun = findTags("the_long_run", engine.tag.classes.soundLooping)[1],
+        aWalkInTheWoods = findTags("a_walk_in_the_woods", engine.tag.classes.soundLooping)[1],
     }
 
     constants.bipeds = {
@@ -63,12 +68,20 @@ function constants.get()
         skullsIcons = findTags([[alpha_firefight\ui\chud\skulls_icons]], engine.tag.classes.weaponHudInterface)[1],
         skullsInfo = findTags([[alpha_firefight\ui\chud\skulls_info]], engine.tag.classes.weaponHudInterface)[1],
         extBeamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1],
-        extSniperRifle = findTags([[alpha_firefight\weapons\sniper_rifle\sniper_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1]
+        extSniperRifle = findTags([[alpha_firefight\weapons\sniper_rifle\sniper_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1],
+        extAssaultRifle = findTags([[alpha_firefight\weapons\assault_rifle\assault_rifle]], engine.tag.classes.weaponHudInterface)[1],
     }
 
     constants.weapons = {
         beamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle]], engine.tag.classes.weapon)[1],
         sniperRifle = findTags([[weapons\sniper_rifle\sniper_rifle]], engine.tag.classes.weapon)[1]
+    }
+
+    constants.shaders = {
+        transparentChicago = {
+            brCounter = findTags([[gdd\weapons\battle_rifle\shaders\br_numbers]], engine.tag.classes.shaderTransparentChicago)[1],
+            glCounter = findTags([[alpha_firefight\weapons\assault_rifle_gl\shaders\gl_numers]], engine.tag.classes.shaderTransparentChicago)[1]
+        }
     }
 end
 

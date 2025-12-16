@@ -7,7 +7,7 @@ local havok = {}
 function havok.skullEffect(isActive, totalSkullPower)
     local finalSkullPower = totalSkullPower or 1
     local radiusMultiplier = 1.5 * finalSkullPower
-    local damageMultiplier = 0.75 * finalSkullPower
+    local damageMultiplier = 0.75 / finalSkullPower
     for _, tagEntry in ipairs(tagEntries.explosionDamageEffect()) do
         local damageEffect = tagEntry.data
         if isActive then

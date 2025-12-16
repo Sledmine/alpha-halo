@@ -2,6 +2,7 @@ local engine = Engine
 local balltze = Balltze
 local hsc = require "hsc"
 local script = require "script"
+local sleep = script.sleep
 local constants = require "alpha_halo.systems.core.constants"
 
 local unitDeployer = {}
@@ -17,34 +18,7 @@ unitDeployer.badGuys = {
     "Standby_Dropship"
 }
 
-unitDeployer.covenantFireteams = {
-    startingSquad = {name = "Starting_Squad", isRandom = false, available = true},
-    eliteSquad = {name = "Elite_Squad", isRandom = true, available = true},
-    stealthSquad = {name = "Stealth_Squad", isRandom = true, available = true},
-    gruntSquad = {name = "Grunt_Squad", isRandom = true, available = true},
-    jackalSquad = {name = "Jackal_Squad", isRandom = true, available = true},
-    hunterSquad = {name = "Hunter_Squad", isRandom = true, available = true},
-    specOpsSquad = {name = "SpecOps_Squad", isRandom = false, available = true},
-    zealotSquad = {name = "Zealot_Squad", isRandom = false, available = true}
-}
-
-unitDeployer.floodFireteams = {
-    startingSquad = {name = "Starting_Squad", isRandom = false, available = true},
-    flameSquad = {name = "Flame_Squad", isRandom = true, available = true},
-    sniperSquad = {name = "Sniper_Squad", isRandom = true, available = true},
-    rocketSquad = {name = "Rocket_Squad", isRandom = true, available = true},
-    eliteSquad = {name = "Elite_Squad", isRandom = true, available = true},
-    stealthSquad = {name = "Stealth_Squad", isRandom = true, available = true},
-    carrierSquad = {name = "Mixed_Squad", isRandom = true, available = true},
-    specOpsSquad = {name = "SpecOps_Squad", isRandom = false, available = true},
-    zealotSquad = {name = "Zealot_Squad", isRandom = false, available = true}
-}
-
-unitDeployer.sentinelFireteams = {
-    sentinelSquad = {name = "Sentinel Squad", isRandom = false, available = true}
-}
-
-local fireTeams = {
+unitDeployer.fireTeams = {
     covenant = {
         startingSquad = {name = "Starting_Squad", isRandom = false, available = true},
         eliteSquad = {name = "Elite_Squad", isRandom = true, available = true},
@@ -66,14 +40,14 @@ local fireTeams = {
         specOpsSquad = {name = "SpecOps_Squad", isRandom = false, available = true},
         zealotSquad = {name = "Zealot_Squad", isRandom = false, available = true}
     },
-    human = {odstSquad = {name = "ODST Squad", isRandom = false, available = true}},
+    human = {odstSquad = {name = "ODSTs", isRandom = false, available = true}},
     sentinel = {sentinelSquad = {name = "Sentinel Squad", isRandom = false, available = true}}
 }
 
 unitDeployer.unitTeams = {
-    convenant = {index = 1, name = "Covenant", fireTeams = unitDeployer.covenantFireteams},
-    flood = {index = 2, name = "Flood", fireTeams = unitDeployer.floodFireteams},
-    sentinel = {index = 3, name = "Sentinel", fireTeams = unitDeployer.sentinelFireteams}
+    convenant = {index = 1, name = "Covenant", fireTeams = unitDeployer.fireTeams.covenant},
+    flood = {index = 2, name = "Flood", fireTeams = unitDeployer.fireTeams.flood},
+    sentinel = {index = 3, name = "Sentinel", fireTeams = unitDeployer.fireTeams.sentinel}
 }
 
 unitDeployer.deployerSettings = {
@@ -91,7 +65,7 @@ local deployerState = unitDeployer.deployerSettings
 
 -- Restore availability of all random fireteams.
 local function resetFireteamsAvailability()
-    for _, fireteam in pairs(fireTeams) do
+    for _, fireteam in pairs(unitDeployer.fireTeams) do
         for _, team in pairs(fireteam) do
             if team.isRandom then
                 team.available = true
@@ -120,13 +94,10 @@ function unitDeployer.waveDeployer(waveType)
     local team = table.find(unitDeployer.unitTeams, function(t)
         return t.index == deployerState.currentTeam
     end)
-    if not team then
-        -- logger:error("Invalid team index: {}", tostring(deployerState.currentTeam))
-        error("Invalid team index: " .. tostring(deployerState.currentTeam))
-        return
-    end
+    assert(team, "Invalid team index: " .. tostring(deployerState.currentTeam))
     currentTeam = team.name
     currentFireteams = team.fireTeams
+    logger:debug("Current Team: " .. currentTeam)
 
     -- By default, we deploy the starting squad.
     local selectedSquad = currentTeam .. "_Fireteams/" .. currentFireteams.startingSquad.name
@@ -155,12 +126,12 @@ function unitDeployer.waveDeployer(waveType)
     -- If we're on a random wave...
     if waveType == "random" and isWaveRandomizable then
         local fireTeamList = table.values(currentFireteams)
-        local availableFireteams = getAvailableRandomFireteams(fireTeamList)
-        if #availableFireteams == 0 then
-            resetFireteamsAvailability()
-            availableFireteams = getAvailableRandomFireteams(fireTeamList)
+        if #getAvailableRandomFireteams(fireTeamList) == 0 then
             logger:debug("All random fireteams have been used. Resetting availability.")
+            resetFireteamsAvailability()
         end
+        local availableFireteams = getAvailableRandomFireteams(fireTeamList)
+        assert(#availableFireteams > 0, "No available fireteams to select from.")
         randomizedTeam = availableFireteams[math.random(#availableFireteams)]
         if deployerState.dropshipsLeft == deployerState.dropshipsAssigned then
             -- The first Dropship will drop a Support Squad, and...
@@ -213,7 +184,7 @@ local function getLeftAnimationTime(unitName)
     return hsc.unit_get_custom_animation_time(unitName)
 end
 
-function unitDeployer.dispatchDropships(_, sleep)
+function unitDeployer.dispatchDropships()
     -- Final encounter name where the troops will be migrated.
     local currentEncounter = currentTeam .. "_Wave"
 
@@ -229,7 +200,7 @@ function unitDeployer.dispatchDropships(_, sleep)
 
     -- Play the Dropship deployment animation.
     for i = 1, deployerState.dropshipsAssigned do
-        script.startup(function(_, sleep)
+        script.startup(function()
             sleep(constants.dropshipDelayTicks * (i - 1)) -- Stagger the deployment of each Dropship.
             local selectedDropship = table.remove(availableDropships, math.random(#availableDropships))
             logger:debug("Deploying troops from Dropship: {}", selectedDropship)
@@ -270,11 +241,14 @@ end
 
 local pelicanVehicleName = "foehammer_cliff"
 local pelicanPilotName = "human_support/pelican_pilot"
-local odstSquadName = "Human_Team/ODSTs"
+unitDeployer.names = {
+    odstSquad = "Human_Team"
+}
+local odstSquadName = unitDeployer.names.odstSquad .. "/ODSTs"
 local odstPelicanSquad = "standby_pelican"
 
 -- Deploy allied ODSTs in a Pelican.
-function unitDeployer.scriptDeployPelicans(call, sleep)
+function unitDeployer.scriptDeployPelicans()
     sleep(constants.pelicanDeploymentDelay)
     hsc.ai_place(odstSquadName)
     hsc.ai_place(pelicanPilotName)

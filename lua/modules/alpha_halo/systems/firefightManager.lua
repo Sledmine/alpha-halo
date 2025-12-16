@@ -6,6 +6,7 @@ local playSound = engine.userInterface.playSound
 
 local blam = require "blam"
 local script = require "script"
+local sleep = script.sleep
 local hsc = require "hsc"
 local luna = require "luna"
 local json = require "json"
@@ -80,7 +81,7 @@ firefightManager.gameProgression = { --------------
 }
 local progression = firefightManager.gameProgression
 
-function firefightManager.whenMapLoads(call, sleep)
+function firefightManager.whenMapLoads()
     logger:info("Welcome to Alpha Firefight")
     logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
@@ -92,7 +93,7 @@ function firefightManager.whenMapLoads(call, sleep)
 end
 
 ---Game Start. This begins the process that cycles the firefight to move forward.
-function firefightManager.startGame(call, sleep)
+function firefightManager.startGame()
     -- If the game is already on, we don't need to start it again.
     if progression.isGameOn then
         return
@@ -118,7 +119,7 @@ function firefightManager.startGame(call, sleep)
     progression.isGameOn = true
     firefightManager.waveDefinition()
 
-    if not DebugMode then
+    if not DebugFirefight then
         -- Start the first set.
         script.wake(firefightManager.startSet)
 
@@ -142,7 +143,6 @@ local livingCount = 0
 function firefightManager.eachTick()
     firefightManager.updateSkullsHud()
     -- script.thread(firefightManager.garbageCollector)()
-    script.thread(firefightManager.scriptVehicleDestroyer)()
     if progression.isGameOn then
         firefightManager.aiCheck()
         if waveIsOn and unitDeployer.deployerSettings.deploymentAllowed then -- We hold the wave progression check until previous deployment is done.
@@ -261,7 +261,7 @@ local playerLives
 local playerIsDead = false -- This by default is false, obviously.
 
 --- Handle player respawn and lives.
-function firefightManager.playerCheck(call, sleep)
+function firefightManager.playerCheck()
     if not playerLives then
         playerLives = settings.playerInitialLives
         logger:debug("Player initial lives: {}", playerLives)
@@ -412,112 +412,128 @@ function firefightManager.conditionedSwitchTeams()
     end
 end
 
--- Spawn player assistances (Warthogs and Ghosts).
-function firefightManager.spawnPlayerAssistances(call, sleep)
-    local vehicleSpawnDelay = utils.secondsToTicks(5)
-    sleep(vehicleSpawnDelay)
-    local odstSquadName = "Human_Team/ODSTs"
-    local covenantWaveName = "Covenant_Wave"
-    local players = "players"
-
-    -- Spawn Ghost assist
-    local ghostAssistTemplate = "reward_ghost_var%s"
-    local randomGhost = math.random(1, 3)
-    local selectedGhost = ghostAssistTemplate:format(randomGhost)
-    local ghostNames = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
-    local generalGhostName = "ghost"
-
-    local ghostHumanOccupied = false
-    local ghostCovOccupied = false
-    local ghostPlayerOccupied = false
-
-    for _, ghostName in ipairs(ghostNames) do
-        if hsc.vehicle_test_seat_list(ghostName, "", hsc.ai_actors(odstSquadName)) then
-            ghostHumanOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(ghostName, "", hsc.ai_actors(covenantWaveName)) then
-            ghostCovOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(ghostName, "", players) then
-            ghostPlayerOccupied = true
-            break
+local function isVehicleOccupiedBy(vehicleName, seatName, squads)
+    for _, units in pairs(squads) do
+        -- logger:debug("Checking vehicle '{}' seat '{}' for units in squad {}", vehicleName, seatName, units)
+        if hsc.vehicle_test_seat_list(vehicleName, seatName, units) then
+            --logger:debug("Vehicle '{}' seat '{}' is occupied", vehicleName, seatName)
+            return true
         end
     end
+    return false
+end
 
-    if ghostHumanOccupied or ghostCovOccupied or ghostPlayerOccupied then
-        logger:debug("Ghost occupied - skipping replacement")
-        -- hsc.object_create(selectedGhost) -- still spawn new ghost elsewhere
-        -- hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
-    else
-        logger:debug("No occupants detected. Replacing ghost...")
-        hsc.object_destroy_containing(generalGhostName)
-        hsc.object_create_anew(selectedGhost)
-        hsc.ai_vehicle_enterable_distance("reward_ghost_var1", 20.0)
-        hsc.ai_vehicle_enterable_distance("reward_ghost_var2", 20.0)
-        hsc.ai_vehicle_enterable_distance("reward_ghost_var3", 20.0)
+function firefightManager.spawnPlayerAssistances()
+    local currentEnemyTeam = table.find(unitDeployer.unitTeams, function(t)
+        return t.index == unitDeployer.deployerSettings.currentTeam
+    end)
+    assert(currentEnemyTeam, "Invalid current enemy team index: " ..
+               tostring(unitDeployer.deployerSettings.currentTeam))
+    local enemyEncounterName = currentEnemyTeam.name .. "_Fireteams"
+
+    local occupants = {
+        hsc.ai_actors(unitDeployer.names.odstSquad),
+        hsc.ai_actors(enemyEncounterName),
+        hsc.players()
+    }
+
+    ----------------------------------------------------------------
+    -- Ghost Assist
+    ----------------------------------------------------------------
+    local ghostVehicles = {"reward_ghost_var1", "reward_ghost_var2", "reward_ghost_var3"}
+    local isNewVehicleRequired = false
+    local existingVehicleCount = 0
+    for _, vehicleName in pairs(ghostVehicles) do
+        -- If vehicle exists
+        local vehicleExists = hsc.unit_get_health(vehicleName) ~= -1
+        if vehicleExists then
+            existingVehicleCount = existingVehicleCount + 1
+            logger:debug("Checking ghost vehicle: {}", vehicleName)
+            -- Destroy it if no occupants are found and respawn it 
+            if not isVehicleOccupiedBy(vehicleName, "G-driver", occupants) then
+                logger:debug("No occupants detected. Removing ghost: {}", vehicleName)
+                hsc.object_destroy(vehicleName)
+                isNewVehicleRequired = true
+            else
+                isNewVehicleRequired = false
+                break
+            end
+        end
+    end
+    if existingVehicleCount == 0 then
+        isNewVehicleRequired = true
     end
 
-    -- Spawn Warthog assist
-    local warthogTemplate = "warthog_%s"
-    local randomWarthog = math.random(1, 4)
-    local selectedWarthog = warthogTemplate:format(randomWarthog)
+    if isNewVehicleRequired then
+        local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
+        logger:debug("Spawning ghost: {}", selectedGhost)
+        hsc.object_create(selectedGhost)
+        hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
+    end
+
+    ----------------------------------------------------------------
+    -- Warthog Assist
+    ----------------------------------------------------------------
+    isNewVehicleRequired = false
     local warthogNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
-    local generalWarthogName = "warthog"
-
-    -- Check if ANY Warthog seats are occupied
-    local warthogHumanOccupied = false
-    local warthogCovOccupied = false
-    local warthogPlayerOccupied = false
-
-    for _, warthogName in ipairs(warthogNames) do
-        if hsc.vehicle_test_seat_list(warthogName, "", hsc.ai_actors(odstSquadName)) then
-            warthogHumanOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(warthogName, "", hsc.ai_actors(covenantWaveName)) then
-            warthogCovOccupied = true
-            break
-        end
-        if hsc.vehicle_test_seat_list(warthogName, "", players) then
-            warthogPlayerOccupied = true
-            break
+    existingVehicleCount = 0
+    for _, warthogName in pairs(warthogNames) do
+        -- If vehicle exists
+        local vehicleExists = hsc.unit_get_health(warthogName) ~= -1
+        if vehicleExists then
+            logger:debug("Checking warthog vehicle: {}", warthogName)
+            existingVehicleCount = existingVehicleCount + 1
+            -- Destroy it if no occupants are found and respawn it 
+            if not isVehicleOccupiedBy(warthogName, "W-driver", occupants) and
+                not isVehicleOccupiedBy(warthogName, "W-gunner", occupants) and
+                not isVehicleOccupiedBy(warthogName, "W-passenger", occupants) then
+                logger:debug("No occupants detected. Removing warthog: {}", warthogName)
+                hsc.object_destroy(warthogName)
+                isNewVehicleRequired = true
+            else
+                isNewVehicleRequired = false
+                break
+            end
         end
     end
+    if existingVehicleCount == 0 then
+        isNewVehicleRequired = true
+    end
 
-    if warthogHumanOccupied or warthogCovOccupied or warthogPlayerOccupied then
-        logger:debug("Warthog occupied - skipping replacement.")
-        -- hsc.object_create(selectedWarthog) -- Still spawn new warthog elsewhere
-        -- hsc.ai_vehicle_enterable_distance(generalWarthogName, 20.0)
-    else
-        logger:debug("No occupants detected. Replacing warthog...")
-        hsc.object_destroy_containing(generalWarthogName)
-        hsc.object_create_anew(selectedWarthog)
-        hsc.ai_vehicle_enterable_distance("warthog_1", 20.0)
-        hsc.ai_vehicle_enterable_distance("warthog_2", 20.0)
-        hsc.ai_vehicle_enterable_distance("warthog_3", 20.0)
-        hsc.ai_vehicle_enterable_distance("warthog_4", 20.0)
+    if isNewVehicleRequired then
+        local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
+        logger:debug("Spawning warthog: {}", selectedWarthog)
+        hsc.object_create(selectedWarthog)
+        hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
     end
 end
 
-function firefightManager.scriptVehicleDestroyer(call, sleep)
+local lastVehicleHealth = {}
 
-    local hog1Health = hsc.unit_get_health("warthog_1")
-    local hog2Health = hsc.unit_get_health("warthog_2")
-    local hog3Health = hsc.unit_get_health("warthog_3")
-    local hog4Health = hsc.unit_get_health("warthog_4")
-    -- logger:debug("Warthog 4 health: {}", hog4Health)
-    if hog1Health == 0 or hog2Health == 0 or hog3Health == 0 or hog4Health == 0 then
-        sleep(utils.secondsToTicks(0.5))
-        hsc.object_teleport("warthog_1", "vehicle_destroy_bypass")
-        hsc.object_teleport("warthog_2", "vehicle_destroy_bypass")
-        hsc.object_teleport("warthog_3", "vehicle_destroy_bypass")
-        hsc.object_teleport("warthog_4", "vehicle_destroy_bypass")
-        sleep(utils.secondsToTicks(5))
-        hsc.object_destroy_containing("warthog")
-        sleep(utils.secondsToTicks(15))
-        hsc.garbage_collect_now()
+function firefightManager.scriptVehicleDestroyer()
+    local vehicleNames = {"warthog_1", "warthog_2", "warthog_3", "warthog_4"}
+    for i = 1, #vehicleNames do
+        local name = vehicleNames[i]
+        local health = hsc.unit_get_health(name)
+        -- Initialize cache
+        if lastVehicleHealth[name] == nil then
+            lastVehicleHealth[name] = health
+        end
+        -- Detect transition: alive -> dead
+        if lastVehicleHealth[name] > 0 and health <= 0 then
+            logger:debug("{} Destroyed", name)
+            sleep(1)
+            hsc.object_teleport(name, "vehicle_destroy_bypass")
+            sleep(utils.secondsToTicks(7))
+            logger:debug("Destroying {} Object", name)
+            hsc.object_destroy(name)
+            sleep(utils.secondsToTicks(7))
+            logger:debug("Collectiong garbage...")
+            hsc.garbage_collect_now()
+            lastVehicleHealth[name] = health
+            break
+        end
+        lastVehicleHealth[name] = health
     end
 end
 
@@ -527,13 +543,16 @@ end
 --    end
 -- end
 
-function firefightManager.vehicleAssistances(call, sleep)
-    script.wake(firefightManager.spawnPlayerAssistances)
+function firefightManager.vehicleAssistances()
+    script.thread(function()
+        sleep(utils.secondsToTicks(5))
+        firefightManager.spawnPlayerAssistances()
+    end)()
     logger:debug("Vehicle assistances are arriving!")
 end
 
 -- Deploy allies in a Pelican. (ODSTs for now)
-function firefightManager.deployPlayerAllies(call, sleep)
+function firefightManager.deployPlayerAllies()
     script.wake(unitDeployer.scriptDeployPelicans)
     logger:debug("ODSTs are coming in hot!")
 end
@@ -591,7 +610,7 @@ end
 
 -- Reset only temporal skulls.
 function firefightManager.resetAllTemporalSkulls()
-    playSound(const.sounds.skullsReset.handle)
+    announcer.skullsReset(2)
     local temporalSkulls = table.filter(skullsManager.skullList, function(skull)
         return not skull.isPermanent
     end)
@@ -720,30 +739,31 @@ function firefightManager.updateSkullsHud()
     end
 end
 
+local align = "right"
+local bounds = {left = -8, top = 390, right = 640, bottom = 480}
+local r, g, b = 255, 187, 0
+local defaultTextColor = {1.0, r / 255, g / 255, b / 255}
+local whiteTextColor = {1.0, 1.0, 1.0, 1.0}
+
 function firefightManager.onEachFrame()
+    local drawText = balltze.chimera.draw_text
+    local titleFont = const.fonts.geogrotesqueRegular.title.handle.value
+    local textFont = const.fonts.geogrotesqueRegular.text.handle.value
+
     if console_is_open() or skullsManager.skulls.blind.isEnabled then
         return
     end
 
-    local drawText = balltze.chimera.draw_text
-    local align = "right"
-    local bounds = {left = -8, top = 390, right = 640, bottom = 480}
-    local r, g, b = 255, 187, 0
-    local textColor = {1.0, r / 255, g / 255, b / 255}
-    local titleText = const.fonts.geogrotesqueRegular.title.handle.value
-    local standardText = const.fonts.geogrotesqueRegular.text.handle.value
-    local textColorW = {1.0, 1.0, 1.0, 1.0}
-
     -- Show current game progression info
     local text = ("Set: {set} Round: {round} Wave: {wave}"):template(
                      firefightManager.gameProgression)
-    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleText, align,
-             table.unpack(textColor))
+    drawText(text, bounds.left, bounds.top, bounds.right, bounds.bottom, titleFont, align,
+             table.unpack(defaultTextColor))
 
     -- Draw current lifes
     local livesText = ("Lives: {lives}"):template({lives = playerLives or 0})
-    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleText, align,
-             table.unpack(textColor))
+    drawText(livesText, bounds.left, bounds.top - 20, bounds.right, bounds.bottom, titleFont, align,
+             table.unpack(defaultTextColor))
 
     -- Draw the number of times each skull was activated
     if const.hud.skullsIcons then
@@ -764,7 +784,7 @@ function firefightManager.onEachFrame()
                         local y = bounds.top - skullElement.anchorOffset.y + 80
                         local multText = "x" .. tostring(count)
                         drawText(multText, bounds.left, y, bounds.right + 5, bounds.bottom,
-                                 standardText, align, table.unpack(textColorW))
+                                 textFont, align, table.unpack(whiteTextColor))
                     end
                 end
             end
@@ -825,21 +845,21 @@ function firefightManager.waveDefinition()
 end
 
 ---Set Start. Calls round start.
-function firefightManager.startSet(call, sleep)
+function firefightManager.startSet()
     sleep(utils.secondsToTicks(settings.setCooldownSeconds))
     script.thread(announcer.setStart)()
     script.wake(firefightManager.startRound)
 end
 
 ---Round Start. Calls wave start.
-function firefightManager.startRound(call, sleep)
+function firefightManager.startRound()
     sleep(utils.secondsToTicks(settings.roundCooldownSeconds))
     script.thread(announcer.roundStart)()
     script.wake(firefightManager.startWave)
 end
 
 ---Wave Starts. Deploys wave units.
-function firefightManager.startWave(call, sleep)
+function firefightManager.startWave()
     eventDispatcher()
     sleep(utils.secondsToTicks(settings.waveCooldownSeconds))
     -- script.thread(announcer.waveStart)() -- Sound not available?
@@ -890,7 +910,7 @@ function firefightManager.reloadGame()
 end
 
 ---End Game.
-function firefightManager.scriptEndGame(call, sleep)
+function firefightManager.scriptEndGame()
     progression.isGameOn = false
     waveIsOn = false
     hsc.ai_erase_all()
@@ -905,7 +925,7 @@ function firefightManager.scriptEndGame(call, sleep)
     execute_script("sv_end_game")
 end
 
--- function firefightManager.garbageCollector(call, sleep)
+-- function firefightManager.garbageCollector()
 --    sleep(utils.secondsToTicks(30))
 --    hsc.garbage_collect_now()
 --    hsc.rasterizer_decals_flush()
@@ -985,7 +1005,7 @@ end
 
 function firefightManager.playMusic()
     firefightManager.stopMusic()
-    script.startup(function(_, sleep)
+    script.create(function()
         local musicLoops = table.values(const.music)
         sleep(utils.secondsToTicks(10))
         local randomIndex = math.random(1, #musicLoops)

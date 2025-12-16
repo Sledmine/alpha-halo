@@ -154,6 +154,16 @@ commands = {
         func = function()
             firefightManager.playMusic()
         end
+    },
+    test_vehicle = {
+        description = "Test for spawning vehicle assistances",
+        category = "debug",
+        minArgs = 0,
+        maxArgs = 0,
+        help = "",
+        func = function()
+            firefightManager.spawnPlayerAssistances()
+        end
     }
 }
 
