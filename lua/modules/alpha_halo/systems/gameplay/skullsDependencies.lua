@@ -3,7 +3,8 @@ local skullsDependencies = {
         effects = {
             plasma = "alpha_firefight\\skulls\\banger\\_fx\\skull_banger_plasma",
             flood = "alpha_firefight\\skulls\\banger\\_fx\\skull_banger_flood",
-            confetti = "alpha_firefight\\skulls\\grunt_birthday\\_fx\\skull_grunt_birthday_confetti"
+            confetti = "alpha_firefight\\skulls\\grunt_birthday\\_fx\\skull_grunt_birthday_confetti",
+            sputnik = "alpha_firefight\\skulls\\sputnik\\_fx\\sputnik_acceleration"
         },
         bipeds = {player = "gdd\\characters\\spartan_mp\\spartan_mp"}
     },

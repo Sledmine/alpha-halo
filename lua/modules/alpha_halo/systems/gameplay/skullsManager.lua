@@ -39,6 +39,7 @@ function skullsManager.eachTick()
     blind.onTick(skullsManager.skulls.blind)
     assassin.onTick(skullsManager.skulls.assassin)
     acrophobia.onTick(skullsManager.skulls.acrophobia)
+    sputnik.onTick(skullsManager.skulls.sputnik)
 end
 
 skullsManager.skulls = {
@@ -290,7 +291,9 @@ skullsManager.skulls = {
         state = {count = 0, max = 1, multiplier = 1},
         allowedInRandom = true,
         isEnabled = false,
-        isPermanent = false
+        isPermanent = false,
+        onTick = function()
+        end
     },
     acrophobia = {
         name = "Acrophobia",
