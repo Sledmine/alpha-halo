@@ -1,19 +1,10 @@
 --local tagEntries = require "alpha_halo.systems.core.tagEntries"
-local hsc = require "hsc"
 local blam = require "blam"
 local blam2 = require "blam2"
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
-local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
-
 local getObject = Engine.gameState.getObject
 local getPlayer = Engine.gameState.getPlayer
-local findTags = Engine.tag.findTags
-
 local objectTypes = Engine.tag.objectType
-local tagClasses = Engine.tag.classes
-local damageEffects = dependencies.paths.damageEffects
-
-local sputnikTagEntry
 local finalSkullPower
 
 local sputnik = {}
@@ -27,14 +18,6 @@ function sputnik.skullEffect(isActive, totalSkullPower)
     finalSkullPower = totalSkullPower or 1
     if isActive then
         blam2.globalGravity(defaultGravity / (2 * finalSkullPower))
-        local sputnikAccelerationTag = findTags(damageEffects.sputnik, tagClasses.damageEffect)[1]
-        if not sputnikAccelerationTag then
-            return
-        end
-        sputnikTagEntry = table.find(tagEntries.damageEffect(), function(tagEntry)
-            return tagEntry.handle.value == sputnikAccelerationTag.handle.value
-        end)
-        assert(sputnikTagEntry)
     else
         blam2.globalGravity(defaultGravity)
     end
@@ -50,41 +33,37 @@ function sputnik.onTick(skullState)
         end
 
         for playerIndex = 0, 15 do
-            local player = getPlayer(playerIndex) -- Player.
+            local player = getPlayer(playerIndex)
             if not player then
                 return
             end
 
-            local playerBiped = getObject(player.objectHandle, objectTypes.biped) -- Player Object.
+            local playerBiped = getObject(player.objectHandle, objectTypes.biped)
             if not playerBiped then
                 return
             end
 
-            local blamBiped = blam.biped(get_object(player.objectHandle.value)) -- Blam Biped.
-            assert(blamBiped, "Biped tag must exist")
-
-            local playerUnit = hsc.unit(hsc.list_get(hsc.players(), playerIndex)) -- Hsc Unit.
-            assert(playerUnit, "Player unit must exist")
+            local blamBiped = blam.biped(get_object(player.objectHandle.value))
+            assert(blamBiped)
 
             local sputnikAcceleration
-            if blamBiped.shooting == 1 then --  or playerBiped.unitControlFlags.exchangeWeapon? Esto siempre se detecta por alguna razón, no sirve por ahora.
+            if blamBiped.shooting == 1 then --  CONDICION TEMPORAL. Esto debería ocurrir solo cuando el jugador cambie de arma.
                 logger:info("Player weapon swap detected.")
 
-                local weaponObjectHandle = playerBiped.weapons[blamBiped.weaponSlot + 1] -- Weapon Handler.
+                local weaponObjectHandle = playerBiped.weapons[blamBiped.weaponSlot + 1]
                 if not weaponObjectHandle or (weaponObjectHandle and weaponObjectHandle:isNull()) then
                     return
                 end
 
-                local weaponObject = getObject(weaponObjectHandle, objectTypes.weapon) -- Weapon Object.
+                local weaponObject = getObject(weaponObjectHandle, objectTypes.weapon)
                 if not weaponObject then
                     return
                 end
 
-                local weaponTag = table.find(tagEntries.weapon(), function(tagEntry) -- Weapon Tag.
+                local weaponTag = table.find(tagEntries.weapon(), function(tagEntry)
                     return tagEntry.handle.value == weaponObject.tagHandle.value
                 end)
                 if not weaponTag then
-                    logger:error("Weapon tag constant must exist")
                     return
                 end
 
@@ -95,13 +74,23 @@ function sputnik.onTick(skullState)
                 else
                     weaponMaxROF = 5
                 end
-                sputnikAcceleration = ((30 / weaponMaxROF) * 0.005) -- Get Acc Calc based on Weapon
+                if weaponMaxROF >= 10 then
+                    sputnikAcceleration = ((30 / weaponMaxROF) * 0.01)
+                else
+                    sputnikAcceleration = ((30 / weaponMaxROF) * 0.005) -- VALOR TEMPORAL. Cuando se arregle la condicion del trigger, la aceleración se reducirá al nivel del ROF del arma.
+                end -- Justo ahora se aplica la aceleración cada tick por culpa de la condicionante placeholder. *0.01 se volverá el estandar cuando se resuelva la condicionante.
             end
 
-            if blamBiped.shooting == 1 then
-                blamBiped.xVel = blamBiped.xVel - (blamBiped.cameraX * sputnikAcceleration)
-                blamBiped.yVel = blamBiped.yVel - (blamBiped.cameraY * sputnikAcceleration)
-                blamBiped.zVel = blamBiped.zVel - (blamBiped.cameraZ * sputnikAcceleration)
+            if blamBiped.shooting == 1 then  --  CONDICION TEMPORAL. Esto debería ocurrir solo cuando el arma dispare.
+                if blamBiped.isOnGround == false then
+                    blamBiped.xVel = blamBiped.xVel - (blamBiped.cameraX * sputnikAcceleration)
+                    blamBiped.yVel = blamBiped.yVel - (blamBiped.cameraY * sputnikAcceleration)
+                    blamBiped.zVel = blamBiped.zVel - (blamBiped.cameraZ * sputnikAcceleration)
+                else
+                    blamBiped.xVel = blamBiped.xVel - (blamBiped.cameraX * sputnikAcceleration * 2.5)
+                    blamBiped.yVel = blamBiped.yVel - (blamBiped.cameraY * sputnikAcceleration * 2.5)
+                    blamBiped.zVel = blamBiped.zVel - (blamBiped.cameraZ * sputnikAcceleration * 2.5)
+                end
                 logger:info("Acc per Shot: {}, {}, {}", blamBiped.xVel, blamBiped.yVel, blamBiped.zVel)
             end
         end
