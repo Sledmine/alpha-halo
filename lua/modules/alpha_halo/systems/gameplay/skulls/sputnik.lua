@@ -11,7 +11,7 @@ local findTags = Engine.tag.findTags
 
 local objectTypes = Engine.tag.objectType
 local tagClasses = Engine.tag.classes
-local effects = dependencies.paths.effects
+local damageEffects = dependencies.paths.damageEffects
 
 local sputnikTagEntry
 local finalSkullPower
@@ -27,7 +27,7 @@ function sputnik.skullEffect(isActive, totalSkullPower)
     finalSkullPower = totalSkullPower or 1
     if isActive then
         blam2.globalGravity(defaultGravity / (2 * finalSkullPower))
-        local sputnikAccelerationTag = findTags(effects.sputnik, tagClasses.damageEffect)[1]
+        local sputnikAccelerationTag = findTags(damageEffects.sputnik, tagClasses.damageEffect)[1]
         if not sputnikAccelerationTag then
             return
         end
@@ -63,8 +63,11 @@ function sputnik.onTick(skullState)
             local blamBiped = blam.biped(get_object(player.objectHandle.value)) -- Blam Biped.
             assert(blamBiped, "Biped tag must exist")
 
-            -- Esto solo sirve cuando recojes un arma, necesitamos que tambien funcione cuando cambias de arma.
-            if blamBiped.meleeKey then --  or playerBiped.unitControlFlags.exchangeWeapon? Esto siempre se detecta por alguna razón, no sirve por ahora.
+            local playerUnit = hsc.unit(hsc.list_get(hsc.players(), playerIndex)) -- Hsc Unit.
+            assert(playerUnit, "Player unit must exist")
+
+            local sputnikAcceleration
+            if blamBiped.shooting == 1 then --  or playerBiped.unitControlFlags.exchangeWeapon? Esto siempre se detecta por alguna razón, no sirve por ahora.
                 logger:info("Player weapon swap detected.")
 
                 local weaponObjectHandle = playerBiped.weapons[blamBiped.weaponSlot + 1] -- Weapon Handler.
@@ -92,19 +95,14 @@ function sputnik.onTick(skullState)
                 else
                     weaponMaxROF = 5
                 end
-                local sputnikAcceleration = ((30 / weaponMaxROF) * 0.25)
-                local accelerationMultiplier = sputnikAcceleration * finalSkullPower -- Get Acc Calc based on Weapon
-
-                local damageEffect = sputnikTagEntry.data
-                damageEffect.damageInstantaneousAcceleration.i = accelerationMultiplier
-                damageEffect.damageFlags:skipsShields(true)
-                damageEffect.damageUpperBound[2] = damageEffect.damageUpperBound[2] + 0.001
-                logger:info("Acc per Shot: {}", damageEffect.damageInstantaneousAcceleration.i) -- Apply Acc Calc to Damage Tag.
+                sputnikAcceleration = ((30 / weaponMaxROF) * 0.005) -- Get Acc Calc based on Weapon
             end
 
-            if blamBiped.weaponPTH then
-                hsc.damage_object("alpha_firefight\\skulls\\sputnik\\_fx\\sputnik_acceleration", blamBiped) -- Apply Damage Effect to Player.
-                logger:info("Applying Sputnik acceleration effect to player.")
+            if blamBiped.shooting == 1 then
+                blamBiped.xVel = blamBiped.xVel - (blamBiped.cameraX * sputnikAcceleration)
+                blamBiped.yVel = blamBiped.yVel - (blamBiped.cameraY * sputnikAcceleration)
+                blamBiped.zVel = blamBiped.zVel - (blamBiped.cameraZ * sputnikAcceleration)
+                logger:info("Acc per Shot: {}, {}, {}", blamBiped.xVel, blamBiped.yVel, blamBiped.zVel)
             end
         end
     else
