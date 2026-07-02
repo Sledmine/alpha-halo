@@ -922,7 +922,7 @@ function firefightManager.scriptEndGame()
     hsc.garbage_collect_now()
     hsc.rasterizer_decals_flush()
     sleep(utils.secondsToTicks(3))
-    execute_script("sv_end_game")
+    execute_script("sv_map_next")
 end
 
 -- function firefightManager.garbageCollector()

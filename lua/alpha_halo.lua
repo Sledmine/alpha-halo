@@ -15,6 +15,24 @@ require "structures.actorVariant"
 require "structures.projectile"
 require "structures.weapon"
 
+-- Override assert function to print traceback as well
+local luaAssert = assert
+function assert(...)
+    local args = {...}
+    local condition = args[1]
+    local message = args[2]
+    if not condition then
+        if message then
+            logger:error(message)
+            local err = debug.traceback(message, 2)
+            luaAssert(condition, err)
+        else
+            local err = debug.traceback("Assertion failed", 2)
+            luaAssert(condition, err)
+        end
+    end
+end
+
 local commands = require "alpha_halo.systems.firefight.commands"
 local constants = require "alpha_halo.systems.core.constants"
 
@@ -67,17 +85,10 @@ end
 local main
 
 function PluginFirstTick()
-    local onTick
-    onTick = balltze.event.tick.subscribe(function(event)
-        if event.time == "before" then
-            logger:debug("First Tick Event")
-            if not main then
-                constants.get()
-                main = require "alpha_halo.main"
-                onTick:remove()
-            end
-        end
-    end)
+    if event.time == "before" then
+        constants.get()
+        require "alpha_halo.main"
+    end
 end
 
 function PluginLoad()
@@ -102,6 +113,21 @@ function PluginLoad()
             end
         end
     end)
+
+    local onTickEvent = balltze.event.tick.subscribe(function(event)
+    if event.time == "before" then
+        local startTime
+        if DebugPerformance then
+            startTime = os.clock()
+        end
+        script.poll()
+        if DebugPerformance then
+            local endTime = os.clock()
+            local elapsedTime = endTime - startTime
+            DebugTimes.tickTime = elapsedTime
+        end
+    end
+end)
 
     -- Commands for Alpha Firefight
     for command, data in pairs(commands) do

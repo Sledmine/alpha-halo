@@ -4,22 +4,6 @@ local script = require "script"
 local sleep = script.sleep
 inspect = require "inspect"
 math.randomseed(os.time())
-local luaAssert = assert
-function assert(...)
-    local args = {...}
-    local condition = args[1]
-    local message = args[2]
-    if not condition then
-        if message then
-            logger:error(message)
-            local err = debug.traceback(message, 2)
-            luaAssert(condition, err)
-        else
-            local err = debug.traceback("Assertion failed", 2)
-            luaAssert(condition, err)
-        end
-    end
-end
 
 -- Project modules
 local firefightManager = require "alpha_halo.systems.firefightManager"
@@ -30,9 +14,6 @@ local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 local extendedHud = require "alpha_halo.systems.interface.extendedHud"
 -- local extendedWeapon = require "alpha_halo.systems.weapons.extendedWeapon"
 
--- Encapsular Funcion
-function OnMapLoad()
-    logger:debug("Map Loaded")
     firefightManager.stopMusic()
     if not DebugFirefight then
         script.startup(firefightManager.whenMapLoads)
@@ -62,34 +43,6 @@ function OnMapLoad()
         -- Add a small sleep to reduce CPU usage
         sleep(3)
     end)
-end
-
-local isLoaded = false
-function OnTick()
-    -- Execute the function one time
-    if not isLoaded then
-        isLoaded = true
-        OnMapLoad()
-        return
-    end
-
-    script.poll()
-end
-
-local onTickEvent = balltze.event.tick.subscribe(function(event)
-    if event.time == "before" then
-        local startTime
-        if DebugPerformance then
-            startTime = os.clock()
-        end
-        OnTick()
-        if DebugPerformance then
-            local endTime = os.clock()
-            local elapsedTime = endTime - startTime
-            DebugTimes.tickTime = elapsedTime
-        end
-    end
-end)
 
 local align = "left"
 local bounds = {left = 15, top = 300, right = 640, bottom = 480}
@@ -129,10 +82,3 @@ Balltze.event.frame.subscribe(function(event)
 
     end
 end)
-
-return {
-    unload = function()
-        logger:debug("Unloading main")
-        onTickEvent:remove()
-    end
-}
