@@ -23,10 +23,18 @@ Engine = Engine or
         map = {}
     }
 
+local ansiColorMap = {
+    [2] = 32,
+    [3] = 36,
+    [4] = 31,
+    [6] = 33
+}
+
 -- Override cprint to make it faster! (original cprint is very slow)
 function cprint(message, colorId)
-    if colorId then
-        message = "\x1b[1;" .. colorId .. "m" .. message .. "\x1b[0m"
+    local ansiColor = ansiColorMap[colorId]
+    if ansiColor then
+        message = "\x1b[1;" .. ansiColor .. "m" .. message .. "\x1b[0m"
     end
     print(message)
 end
@@ -135,7 +143,7 @@ function Balltze.logger.createLogger(name)
                 index = index + 1
                 return tostring(arg)
             end)
-            cprint((os.date("%H:%M:%S") .. " [" .. name .. "]  INFO - " .. formattedMessage),
+            cprint((os.date("%H:%M:%S") .. " [" .. name .. "] INFO - " .. formattedMessage),
                    color.info)
         end,
         warning = function(self, message, ...)
@@ -147,7 +155,7 @@ function Balltze.logger.createLogger(name)
                 index = index + 1
                 return tostring(arg)
             end)
-            cprint((os.date("%H:%M:%S") .. " [" .. name .. "]  WARN - " .. formattedMessage),
+            cprint((os.date("%H:%M:%S") .. " [" .. name .. "] WARN - " .. formattedMessage),
                    color.warning)
         end,
         error = function(self, message, ...)
