@@ -39,6 +39,7 @@ function cprint(message, colorId)
     print(message)
 end
 
+---@diagnostic disable-next-line: missing-fields
 Engine.tag.classes = {}
 for k, v in pairs(blam2.tag.groups) do
     Engine.tag.classes[k] = v
@@ -59,6 +60,7 @@ function Engine.tag.getTag(tagHandleOrPath, tagClass)
 end
 
 function Engine.tag.findTags(tagName, tagClass)
+    ---@diagnostic disable-next-line: param-type-mismatch
     local tags = blam.findTagsList(tagName, tagClass) or {}
     return table.map(tags, function(tag)
         return {handle = tag.id, path = tag.path, primaryClass = tag.class}
