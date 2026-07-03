@@ -11,7 +11,7 @@ require "compat53"
 local blam = require "blam"
 local blam2 = require "blam2"
 local luna = require "luna"
-Balltze = Balltze or {logger = {}, filesystem = {}}
+Balltze = Balltze or {logger = {}, filesystem = {}, memory = {}}
 Engine = Engine or
              {
         core = {},
@@ -184,6 +184,12 @@ end
 function Balltze.filesystem.writeFile(path, data)
     -- return luna.file.write(path, data)
 end
+
+Balltze.memory.writeBit = write_bit
+Balltze.memory.writeInt8 = write_byte
+Balltze.memory.writeInt16 = write_word
+Balltze.memory.writeInt32 = write_dword
+Balltze.memory.writeFloat = write_float
 
 function Engine.core.consolePrint(format, ...)
     -- Look for all "{}" in the message and replace them with the arguments
