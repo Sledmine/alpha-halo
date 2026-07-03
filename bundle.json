@@ -1,11 +1,10 @@
 {
     "target": "lua53",
     "output": "dist/alpha_halo.lua",
-    "main": "lua/alpha_halo",
+    "main": "alpha_halo",
     "include": [
         "lua",
-        "lua/modules",
-        "lua/modules/alpha_halo"
+        "lua/modules"
     ],
     "name": "Alpha Halo",
     "modules": []
