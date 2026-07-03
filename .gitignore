@@ -48,7 +48,7 @@ luac.out
 
 # Distribution and script files
 # Do not upload dist scripts as they should be handle by Mercury to avoid code mismatching
-dist/
+dist/*
 temp/
 package/game-maps/*.map
 combatmaps/
