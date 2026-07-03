@@ -19,6 +19,10 @@ constants.dropshipDeploymentDelay = utils.secondsToTicks(5)
 constants.dropshipDeploymentDropTick = 950 -- Tick when the units will drop from the dropship
 constants.dropshipDelayTicks = utils.secondsToTicks(20) -- Delay between each dropship deployment
 constants.maximumMusicTime = utils.minutesToTicks(3) -- Maximum time a music track can play
+constants.maximumObjectsCount = 4096
+if engine.netgame.getServerType() == "sapp" then
+    constants.maximumObjectsCount = 2048
+end
 
 constants.hsc = {playSound = [[(begin (sound_impulse_start "%s" (list_get (players) %s) %s))]]}
 

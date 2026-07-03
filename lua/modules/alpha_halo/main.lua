@@ -5,6 +5,9 @@ local sleep = script.sleep
 inspect = require "inspect"
 math.randomseed(os.time())
 
+local isGameClient = engine.netgame.getServerType() ~= "sapp"
+local isGameServer = engine.netgame.getServerType() == "sapp"
+
 -- Project modules
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
@@ -22,7 +25,10 @@ local extendedHud = require "alpha_halo.systems.interface.extendedHud"
 
     script.continuous(function ()
         firefightManager.scriptVehicleDestroyer()
-        extendedHud.hideMetersOnZoom()
+        if isGameClient then
+            extendedHud.hideMetersOnZoom()
+            firefightManager.updateSkullsHud()
+        end
 
         -- Sleep to reduce CPU usage
         sleep(1)
@@ -31,7 +37,9 @@ local extendedHud = require "alpha_halo.systems.interface.extendedHud"
     script.continuous(function()
         firefightManager.eachTick()
         healthManager.eachTick()
-        skullsManager.eachTick()
+        if isGameClient then
+            skullsManager.eachTick()
+        end
         vehiclePosition.positionUpdater()
         -- extendedWeapon.noZoomWhenOverheating()
         if not DebugFirefight then

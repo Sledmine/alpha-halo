@@ -1,19 +1,23 @@
+package.preload["luna"] = nil
+package.loaded["luna"] = nil
+require "luna"
+require "balltzeCompat"
+local blam = require "blam"
+local script = require "script"
 local balltze = Balltze
 local engine = Engine
+
+-- Pre require structures for blam2
+-- This helps the bundler to include modules properly
+require "structures.tag.actorVariant"
+require "structures.tag.projectile"
+require "structures.tag.weapon"
+
 DebugMode = false
 DebugLuaMemory = false
 DebugPerformance = false
 DebugFirefight = false
 DebugTimes = {}
-package.preload["luna"] = nil
-package.loaded["luna"] = nil
-require "luna"
-
--- Pre require structures for blam2
--- This helps the bundler to include modules properly
-require "structures.actorVariant"
-require "structures.projectile"
-require "structures.weapon"
 
 -- Override assert function to print traceback as well
 local luaAssert = assert
@@ -82,13 +86,9 @@ local function loadChimeraCompatibility()
     execute_script = engine.hsc.executeScript
 end
 
-local main
-
 function PluginFirstTick()
-    if event.time == "before" then
-        constants.get()
-        require "alpha_halo.main"
-    end
+    constants.get()
+    require "alpha_halo.main"
 end
 
 function PluginLoad()
@@ -97,7 +97,12 @@ function PluginLoad()
     -- logger:muteIngame(not DebugMode)
     ---@diagnostic disable-next-line: inject-field
     logger.warn = logger.warning -- alias warning to warn
-    loadChimeraCompatibility()
+    local isSapp = engine.netgame.getServerType() == "sapp"
+
+    if not isSapp then
+        loadChimeraCompatibility()
+    end
+
     Balltze.event.frame.subscribe(function(event)
         if event.time == "before" then
             local font = "smaller"
@@ -115,45 +120,62 @@ function PluginLoad()
     end)
 
     local onTickEvent = balltze.event.tick.subscribe(function(event)
-    if event.time == "before" then
-        local startTime
-        if DebugPerformance then
-            startTime = os.clock()
+        if event.time == "before" then
+            local startTime
+            if DebugPerformance then
+                startTime = os.clock()
+            end
+            script.poll()
+            if DebugPerformance then
+                local endTime = os.clock()
+                local elapsedTime = endTime - startTime
+                DebugTimes.tickTime = elapsedTime
+            end
         end
-        script.poll()
-        if DebugPerformance then
-            local endTime = os.clock()
-            local elapsedTime = endTime - startTime
-            DebugTimes.tickTime = elapsedTime
-        end
-    end
-end)
+    end)
 
-    -- Commands for Alpha Firefight
-    for command, data in pairs(commands) do
-        -- local command = command:replace("debug_", "")
-        balltze.command.registerCommand(command, command, data.description, data.help,
-                                        data.save or false, data.minArgs or 0, data.maxArgs or 0,
-                                        false, true, function(args)
-            -- logger:debug("{}", inspect(args))
-            if (args and data.minArgs and data.maxArgs) and (#args < data.minArgs) or
-                (#args > data.maxArgs) then
-                logger:error("Invalid number of arguments. Usage: {}, Example: {}", data.help,
-                             data.example)
+    if not isSapp then
+        -- Commands for Alpha Firefight
+        for command, data in pairs(commands) do
+            -- local command = command:replace("debug_", "")
+            balltze.command.registerCommand(command, command, data.description, data.help,
+                                            data.save or false, data.minArgs or 0,
+                                            data.maxArgs or 0, false, true, function(args)
+                -- logger:debug("{}", inspect(args))
+                if (args and data.minArgs and data.maxArgs) and (#args < data.minArgs) or
+                    (#args > data.maxArgs) then
+                    logger:error("Invalid number of arguments. Usage: {}, Example: {}", data.help,
+                                 data.example)
+                    return true
+                end
+                -- data.func(table.unpack(args or {}))
+                local ok, message = pcall(data.func, table.unpack(args or {}))
+                if not ok then
+                    logger:error("Error executing command \"{}\": {}", command, message)
+                end
                 return true
-            end
-            --data.func(table.unpack(args or {}))
-            local ok, message = pcall(data.func, table.unpack(args or {}))
-            if not ok then
-                logger:error("Error executing command \"{}\": {}", command, message)
-            end
-            return true
-        end)
+            end)
+        end
+        balltze.command.loadSettings()
     end
-    balltze.command.loadSettings()
+
+    if isSapp then
+        -- Register all SAPP callbacks now that all subscribers are in place
+        balltze.event.registerSappCallbacks()
+
+        blam.rcon.patch()
+    end
 
     return true
 end
 
 function PluginUnload()
+    if engine.netgame.getServerType() == "sapp" then
+        blam.rcon.unpatch()
+    end
+end
+
+function OnError(message)
+    print(message)
+    print(debug.traceback())
 end

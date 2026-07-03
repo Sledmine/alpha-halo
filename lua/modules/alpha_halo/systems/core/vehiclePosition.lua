@@ -6,6 +6,8 @@ local tagClasses = Engine.tag.classes
 local blam = require "blam"
 local read_float = balltze.memory.readFloat
 local hsc = require "hsc"
+local const = require "alpha_halo.systems.core.constants"
+
 
 local vehiclePosition = {}
 
@@ -49,7 +51,7 @@ local function setObjectPosition(object, x, y, z)
 end
 
 function vehiclePosition.positionUpdater()
-    for vehicleIndex = 0, 4095 do
+    for vehicleIndex = 0, const.maximumObjectsCount - 1 do
         local vehicleObject = getObject(vehicleIndex)
         if vehicleObject then
             if vehicleObject.type == objectTypes.vehicle then

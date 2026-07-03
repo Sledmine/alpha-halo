@@ -55,7 +55,7 @@ end
 
 ---- THIS FUNCTION REGENERATES THE HEALTH OF ALLIED BIPEDS ----
 function healthManager.regenerateAllyHealth()
-    for bipedIndex = 0, 4095 do
+    for bipedIndex = 0, const.maximumObjectsCount - 1 do
         local bipedObject = getObject(bipedIndex)
         if not bipedObject then
             return

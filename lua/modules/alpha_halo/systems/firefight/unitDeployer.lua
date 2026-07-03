@@ -200,6 +200,7 @@ function unitDeployer.dispatchDropships()
 
     -- Play the Dropship deployment animation.
     for i = 1, deployerState.dropshipsAssigned do
+        -- TODO Change this to an immediate script, this runs a tick after
         script.startup(function()
             sleep(constants.dropshipDelayTicks * (i - 1)) -- Stagger the deployment of each Dropship.
             local selectedDropship = table.remove(availableDropships, math.random(#availableDropships))

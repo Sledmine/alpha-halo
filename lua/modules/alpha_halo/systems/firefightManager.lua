@@ -128,7 +128,10 @@ function firefightManager.startGame()
         -- skullsManager.skulls.havok.isEnabled = true
         -- skullsManager.skulls.newton.isEnabled = true
 
-        firefightManager.enableStartingSkulls()
+        -- TODO We can not use skulls on the server side yet!
+        if engine.netgame.getServerType() ~= "sapp" then
+            firefightManager.enableStartingSkulls()
+        end
 
         logger:info("Game is on! Pain is coming in hot!")
     end
@@ -141,7 +144,6 @@ local drawNavPoint = false
 local livingCount = 0
 
 function firefightManager.eachTick()
-    firefightManager.updateSkullsHud()
     -- script.thread(firefightManager.garbageCollector)()
     if progression.isGameOn then
         firefightManager.aiCheck()
@@ -905,7 +907,9 @@ function firefightManager.reloadGame()
     hsc.object_destroy_containing("foehammer")
     hsc.garbage_collect_now()
     hsc.rasterizer_decals_flush()
-    skullsManager.disableSkull("all")
+    if engine.netgame.getServerType() ~= "sapp" then
+        skullsManager.disableSkull("all")
+    end
     logger:debug("Game reload completed")
 end
 
