@@ -1751,7 +1751,7 @@ end
 ---@param handle number Object handle, it can be an object index or id
 ---@param objectGroup objectGroup
 function blam.gameState.getObject(handle, objectGroup)
-    local handle
+    local handle = handle
     local objectAddress
 
     -- Get object address
@@ -1766,7 +1766,7 @@ function blam.gameState.getObject(handle, objectGroup)
                 return nil
             end
 
-            -- Calculate object ID (this may be invalid, be careful)
+            -- Calculate object handle (this may be invalid, be careful)
             handle = (read_word(table.firstElementAddress + index * table.elementSize) * 0x10000) +
                          index
         else
@@ -1776,14 +1776,14 @@ function blam.gameState.getObject(handle, objectGroup)
         objectAddress = get_object(handle)
 
         if objectAddress then
-            local objectStructName
+            local objectStructName = "object"
             for name, objectGroupValue in pairs(objectClasses) do
                 if objectGroup == objectGroupValue then
                     objectStructName = name
                     break
                 end
             end
-            createObject(objectAddress, objectStructName)
+            return createObject(objectAddress, objectStructName)
         end
     end
     return nil
