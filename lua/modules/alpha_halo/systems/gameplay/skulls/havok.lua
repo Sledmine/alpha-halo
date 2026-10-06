@@ -18,7 +18,7 @@ function havok.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.havok.active = isActive
-    -- logger:debug("Havok {}", isActive and "On" or "Off")
+    -- logger.debug("Havok {}", isActive and "On" or "Off")
 end
 
 return havok

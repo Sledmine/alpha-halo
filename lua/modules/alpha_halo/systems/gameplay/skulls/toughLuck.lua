@@ -42,7 +42,7 @@ function toughLuck.skullEffect(isActive)
         end
     end
     -- skullsManager.skulls.toughluck.active = isActive
-    -- logger:debug("Tough Luck {}", isActive and "On" or "Off")
+    -- logger.debug("Tough Luck {}", isActive and "On" or "Off")
 end
 
 return toughLuck

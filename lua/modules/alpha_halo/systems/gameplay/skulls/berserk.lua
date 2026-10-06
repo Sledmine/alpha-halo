@@ -34,7 +34,7 @@ function berserk.skullEffect(isActive)
         end
     end
     -- skullsManager.skulls.berserk.active = isActive
-    -- logger:debug("Berserk {}", isActive and "On" or "Off")
+    -- logger.debug("Berserk {}", isActive and "On" or "Off")
 end
 
 return berserk

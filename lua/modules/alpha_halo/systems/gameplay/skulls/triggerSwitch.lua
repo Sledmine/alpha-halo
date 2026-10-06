@@ -34,7 +34,7 @@ function triggerSwitch.skullEffect(isActive)
         end
     end
     -- skullsManager.skulls.triggerswitch.active = isActive
-    -- logger:debug("Trigger Switch {}", isActive and "On" or "Off")
+    -- logger.debug("Trigger Switch {}", isActive and "On" or "Off")
 end
 
 return triggerSwitch

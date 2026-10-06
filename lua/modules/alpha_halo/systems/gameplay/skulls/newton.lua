@@ -21,7 +21,7 @@ function newton.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.newton.active = isActive
-    -- logger:debug("Newton {}", isActive and "On" or "Off")
+    -- logger.debug("Newton {}", isActive and "On" or "Off")
 end
 
 return newton

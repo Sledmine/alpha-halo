@@ -3,8 +3,8 @@ local hsc = require "hsc"
 local utils = require "alpha_halo.utils"
 local engine = Engine
 local balltze = Balltze
-local getObject = Engine.gameState.getObject
-local getPlayer = Engine.gameState.getPlayer
+local getObject = Engine.object.getObject
+local getPlayer = Engine.player.getPlayer
 local objectTypes = Engine.tag.objectType
 local script = require "script"
 local sleep = script.sleep
@@ -57,7 +57,7 @@ end
 function eventsManager.bansheeEvent()
     if bansheeLivingCount == 0 then
         script.startup(announcer.enemyIncoming)
-        logger:debug("Banshee event!")
+        logger.debug("Banshee event!")
         hsc.ai_place("Covenant_Banshees")
         hsc.object_create_anew("banshee_1")
         hsc.object_create_anew("banshee_2")
@@ -73,7 +73,7 @@ end
 function eventsManager.sniperEvent()
     if snipersLivingCount == 0 then
         script.startup(announcer.enemySniper)
-        logger:debug("Sniper event!")
+        logger.debug("Sniper event!")
         hsc.ai_place("Covenant_Snipers")
         -- They get to see the players one tick after being created.
         hsc.ai_magically_see_players("Covenant_Snipers")
@@ -83,7 +83,7 @@ end
 function eventsManager.sentinelEvent()
     if sentinelsLivingCount == 0 then
         script.startup(announcer.enemyIncoming)
-        logger:debug("Sentinel event!")
+        logger.debug("Sentinel event!")
         hsc.ai_place("Sentinel_Team/Sentinels_1")
         -- They get to see the players one tick after being created
         hsc.ai_magically_see_players("Sentinel_Team/Sentinels_1")
@@ -96,7 +96,7 @@ end
 
 -- function eventsManager.mortarEvent()
 --    if mortarLivingCount == 0 then
---        logger:debug("Mortar event!")
+--        logger.debug("Mortar event!")
 --        hsc.ai_place(1, "Covenant_Mortars")
 --        hsc.vehicle_load_magic("mortar_1", "W-gunner", "(ai_actors Covenant_Mortars/mortar_b)")
 --        hsc.vehicle_load_magic("mortar_2", "W-gunner", "(ai_actors Covenant_Mortars/mortar_b)")

@@ -1,7 +1,7 @@
 local engine = Engine
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
 local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
-local hscExecuteScript = engine.hsc.executeScript
+local hscExecuteScript = engine.script.execute
 
 local blind = {}
 

@@ -3,13 +3,7 @@ local balltze = Balltze
 local const = require "alpha_halo.systems.core.constants"
 local utils = require "alpha_halo.utils"
 local hsc = require "hsc"
-local blam2 = require "blam2"
---local playSound = engine.userInterface.playSound
-local playSound = function (soundTagHandle)
-    local tag = blam2.tag.getTag(soundTagHandle, blam2.tag.groups.sound)
-    assert(tag)
-    hsc.sound_impulse_start(tag.path, "none", 1)
-end
+
 local script = require "script"
 local sleep = script.sleep
 

@@ -97,7 +97,7 @@ function unitDeployer.waveDeployer(waveType)
     assert(team, "Invalid team index: " .. tostring(deployerState.currentTeam))
     currentTeam = team.name
     currentFireteams = team.fireTeams
-    logger:debug("Current Team: " .. currentTeam)
+    logger.debug("Current Team: " .. currentTeam)
 
     -- By default, we deploy the starting squad.
     local selectedSquad = currentTeam .. "_Fireteams/" .. currentFireteams.startingSquad.name
@@ -106,7 +106,7 @@ function unitDeployer.waveDeployer(waveType)
     if waveType == "starting" then
         -- The 3 Dropships drops Starting Squads!
         selectedSquad = currentTeam .. "_Fireteams/" .. currentFireteams.startingSquad.name
-        logger:debug("Starting Fireteam: " .. selectedSquad)
+        logger.debug("Starting Fireteam: " .. selectedSquad)
     end
 
     -- If we're on a boss wave...
@@ -115,11 +115,11 @@ function unitDeployer.waveDeployer(waveType)
             -- The first Dropship will drop a Zealot Squad, and...
             selectedSquad = currentTeam .. "_Fireteams/" .. currentFireteams.zealotSquad.name
             -- randomizedGhost = math.random(1, 3) -- Randomize the Ghost for the boss wave.
-            logger:debug("Bodyguard Fireteam: " .. selectedSquad)
+            logger.debug("Bodyguard Fireteam: " .. selectedSquad)
         else
             -- The rest of them will deploy SpecOps Squads!
             selectedSquad = currentTeam .. "_Fireteams/" .. currentFireteams.specOpsSquad.name
-            logger:debug("Boss Fireteam: " .. selectedSquad)
+            logger.debug("Boss Fireteam: " .. selectedSquad)
         end
     end
 
@@ -127,7 +127,7 @@ function unitDeployer.waveDeployer(waveType)
     if waveType == "random" and isWaveRandomizable then
         local fireTeamList = table.values(currentFireteams)
         if #getAvailableRandomFireteams(fireTeamList) == 0 then
-            logger:debug("All random fireteams have been used. Resetting availability.")
+            logger.debug("All random fireteams have been used. Resetting availability.")
             resetFireteamsAvailability()
         end
         local availableFireteams = getAvailableRandomFireteams(fireTeamList)
@@ -135,13 +135,13 @@ function unitDeployer.waveDeployer(waveType)
         randomizedTeam = availableFireteams[math.random(#availableFireteams)]
         if deployerState.dropshipsLeft == deployerState.dropshipsAssigned then
             -- The first Dropship will drop a Support Squad, and...
-            logger:debug("Support Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
+            logger.debug("Support Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
                          tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
         else
             -- The rest of them will drop the Main Squads, which will not repeat!
             -- We only want to make this once, despite this whole function being call again.
             randomizedTeam.available = false -- Mark this team as unavailable for the next randomization.
-            logger:debug("Main Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
+            logger.debug("Main Team: {}, isRandom: {}, Available: {}", randomizedTeam.name,
                          tostring(randomizedTeam.isRandom), tostring(randomizedTeam.available))
             isWaveRandomizable = false
         end -- We need to restore availability if we reach 0.
@@ -172,7 +172,7 @@ function unitDeployer.waveDeployer(waveType)
         unitDeployer.waveDeployer(waveType)
     else
         -- Restore all the necesary variables and flags. Begin the exit vehicle process.
-        logger:debug("All Dropships have been sent!")
+        logger.debug("All Dropships have been sent!")
         deployerState.dropshipsLeft = deployerState.dropshipsAssigned
         isWaveRandomizable = true
         deployerState.deploymentAllowed = false -- We cap this so no dropships can be deployed 'till the Spirits are out.
@@ -204,7 +204,7 @@ function unitDeployer.dispatchDropships()
         script.startup(function()
             sleep(constants.dropshipDelayTicks * (i - 1)) -- Stagger the deployment of each Dropship.
             local selectedDropship = table.remove(availableDropships, math.random(#availableDropships))
-            logger:debug("Deploying troops from Dropship: {}", selectedDropship)
+            logger.debug("Deploying troops from Dropship: {}", selectedDropship)
             hsc.custom_animation(selectedDropship,
                                  "alpha_firefight\\vehicles\\c_dropship\\drop_enemies\\dropship_enemies",
                                  selectedDropship, false)
@@ -236,7 +236,7 @@ function unitDeployer.dispatchDropships()
         return leftAnimationTime <= 0
     end)
 
-    logger:debug("All Dropships have finished deploying troops.")
+    logger.debug("All Dropships have finished deploying troops.")
     deployerState.deploymentAllowed = true -- Now Spirits can run wild.
 end
 

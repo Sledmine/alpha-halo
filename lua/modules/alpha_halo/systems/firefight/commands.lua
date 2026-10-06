@@ -3,7 +3,6 @@ local unitDeployer = require "alpha_halo.systems.firefight.unitDeployer"
 local firefightManager = require "alpha_halo.systems.firefightManager"
 local eventsManager = require "alpha_halo.systems.firefight.eventsManager"
 local luna = require "luna"
-local blam = require "blam2"
 
 local commands = {}
 
@@ -18,11 +17,11 @@ commands = {
         func = function(isEnabled)
             DebugMode = luna.bool(isEnabled)
             if DebugMode then
-                logger:info("Debug mode enabled.")
+                logger.info("Debug mode enabled.")
             else
-                logger:info("Debug mode disabled.")
+                logger.info("Debug mode disabled.")
             end
-            logger:muteDebug(not DebugMode)
+            logger.muteDebug(not DebugMode)
         end
     },
     skull = {
@@ -37,15 +36,15 @@ commands = {
             local name = name:lower()
             -- Check if the skullList is valid and name is provided
             if not name or not skullsManager.skulls[name] and name ~= "random" and name ~= "all" then
-                logger:error("Invalid skull name '{}'. Usage: {}, {}", name, commands.skull.help,
+                logger.error("Invalid skull name '{}'. Usage: {}, {}", name, commands.skull.help,
                              commands.skull.example)
                 return
             end
-            logger:debug("Toggling skull '{}' to {}", name, isEnabled)
+            logger.debug("Toggling skull '{}' to {}", name, isEnabled)
             isEnabled = luna.bool(isEnabled)
             multiplier = tonumber(multiplier) or 1
             if multiplier <= 0 then
-                logger:error("Invalid multiplier '{}'. It must be a positive number.", multiplier)
+                logger.error("Invalid multiplier '{}'. It must be a positive number.", multiplier)
                 return
             end
             if isEnabled then
@@ -64,7 +63,7 @@ commands = {
         func = function(waveType)
             if not waveType or
                 (waveType ~= "starting" and waveType ~= "boss" and waveType ~= "random") then
-                logger:error("Invalid or missing wave type. Usage: {}",
+                logger.error("Invalid or missing wave type. Usage: {}",
                              commands.squad_assembler.help)
                 return
             end
@@ -74,6 +73,7 @@ commands = {
     spawn_allies = {
         description = "Spawn allied ODSTs in the firefight map.",
         category = "debug",
+        help = "",
         minArgs = 0,
         maxArgs = 0,
         help = "",
@@ -91,7 +91,7 @@ commands = {
         func = function(eventType)
             if not eventType or
                 (eventType ~= "banshee" and eventType ~= "sniper" and eventType ~= "sentinel") then
-                logger:error("Invalid or missing event type. Usage: {}",
+                logger.error("Invalid or missing event type. Usage: {}",
                              commands.spawn_encounter_event.help)
                 return
             end
@@ -104,21 +104,6 @@ commands = {
             end
         end
     },
-    global_gravity = {
-        description = "Set the gravity level in the firefight map.",
-        category = "debug",
-        help = "<number>",
-        example = "set_gravity 0.5",
-        minArgs = 0,
-        maxArgs = 1,
-        func = function(gravityLevel)
-            local gravityLevel = tonumber(gravityLevel)
-            if gravityLevel then
-                blam.globalGravity(gravityLevel)
-            end
-            logger:info("Gravity level set to {}.", blam.globalGravity())
-        end
-    },
     debug_lua_memory = {
         description = "Toggle Lua memory usage display on screen.",
         category = "debug",
@@ -129,9 +114,9 @@ commands = {
         func = function(isEnabled)
             DebugLuaMemory = luna.bool(isEnabled)
             if DebugLuaMemory then
-                logger:info("Lua memory usage display enabled.")
+                logger.info("Lua memory usage display enabled.")
             else
-                logger:info("Lua memory usage display disabled.")
+                logger.info("Lua memory usage display disabled.")
             end
         end
     },

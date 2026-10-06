@@ -1,5 +1,5 @@
 local engine = Engine
-local hscExecuteScript = engine.hsc.executeScript
+local hscExecuteScript = engine.script.execute
 local hsc = require "hsc"
 
 local bandana = {}

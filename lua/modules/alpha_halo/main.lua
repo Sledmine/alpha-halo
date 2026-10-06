@@ -5,7 +5,7 @@ local sleep = script.sleep
 inspect = require "inspect"
 math.randomseed(os.time())
 
-local isGameDedicated = engine.netgame.getServerType() == "dedicated"
+local isGameClient = engine.game.getGameConnectionType() == "networkClient"
 
 -- Project modules
 local firefightManager = require "alpha_halo.systems.firefightManager"
@@ -17,7 +17,7 @@ local extendedHud = require "alpha_halo.systems.interface.extendedHud"
 -- local extendedWeapon = require "alpha_halo.systems.weapons.extendedWeapon"
 
 firefightManager.stopMusic()
-if not DebugFirefight and not isGameDedicated then
+if not DebugFirefight and not isGameClient then
     script.startup(firefightManager.whenMapLoads)
     script.continuous(eventsManager.randomEventTimerThread)
 end
@@ -37,7 +37,7 @@ end)
 script.continuous(function()
     firefightManager.eachTick()
     healthManager.eachTick()
-    if not isGameDedicated then
+    if not isGameClient then
         skullsManager.eachTick()
     end
     vehiclePosition.positionUpdater()
@@ -55,37 +55,35 @@ local align = "left"
 local bounds = {left = 15, top = 300, right = 640, bottom = 480}
 local whiteTextColor = {1.0, 1.0, 1.0, 1.0}
 
-Balltze.event.frame.subscribe(function(event)
-    if event.time == "before" then
-        local drawText = balltze.chimera.draw_text
-        local startTime
-        if DebugPerformance then
-            startTime = os.clock()
-        end
-        if console_is_open() then
-            return
-        end
-
-        local rootWidget = engine.userInterface.getRootWidget()
-        local isPlayerOnMenu = rootWidget ~= nil
-        if isPlayerOnMenu then
-            return
-        end
-        local player = get_dynamic_player()
-        if not player then
-            return
-        end
-        firefightManager.onEachFrame()
-        if DebugPerformance then
-            local endTime = os.clock()
-            local elapsedTime = endTime - startTime
-            DebugTimes.frameTime = elapsedTime
-
-            drawText(string.format("Tick Time: %.6f s\nFrame Time: %.6f s",
-                                   DebugTimes.tickTime or 0, DebugTimes.frameTime or 0),
-                     bounds.left, bounds.top, bounds.right, bounds.bottom, "smaller", align,
-                     table.unpack(whiteTextColor))
-        end
-
-    end
+Balltze.addEventListener("frame", function()
+    -- BALLTZE MIGRATE
+    --local drawText = balltze.chimera.draw_text
+    --local startTime
+    --if DebugPerformance then
+    --    startTime = os.clock()
+    --end
+    --if console_is_open() then
+    --    return
+    --end
+--
+    --local rootWidget = engine.userInterface.getRootWidget and engine.userInterface.getRootWidget()
+    --local isPlayerOnMenu = rootWidget ~= nil
+    --if isPlayerOnMenu then
+    --    return
+    --end
+    --local player = get_dynamic_player()
+    --if not player then
+    --    return
+    --end
+    --firefightManager.onEachFrame()
+    --if DebugPerformance then
+    --    local endTime = os.clock()
+    --    local elapsedTime = endTime - startTime
+    --    DebugTimes.frameTime = elapsedTime
+--
+    --    drawText(string.format("Tick Time: %.6f s\nFrame Time: %.6f s",
+    --                           DebugTimes.tickTime or 0, DebugTimes.frameTime or 0),
+    --             bounds.left, bounds.top, bounds.right, bounds.bottom, "smaller", align,
+    --             table.unpack(whiteTextColor))
+    --end
 end)

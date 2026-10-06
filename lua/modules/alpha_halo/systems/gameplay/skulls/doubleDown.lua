@@ -23,7 +23,7 @@ function doubleDown.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.doubledown.active = isActive
-    -- logger:debug("Double Down {}", isActive and "On" or "Off")
+    -- logger.debug("Double Down {}", isActive and "On" or "Off")
 end
 
 return doubleDown

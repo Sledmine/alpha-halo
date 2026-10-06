@@ -24,7 +24,7 @@ function cowbell.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.cowbell.active = isActive
-    -- logger:debug("Cowbell {}", isActive and "On" or "Off")
+    -- logger.debug("Cowbell {}", isActive and "On" or "Off")
 end
 
 return cowbell

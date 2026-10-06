@@ -408,7 +408,7 @@ end
 
 --- Revert all Skull effects by calling their effect function with false.
 local function revertAllSkullEffects()
-    logger:debug("Reverting all Skull effects...")
+    logger.debug("Reverting all Skull effects...")
     for _, skull in ipairs(skullList) do
         skull.effect(false)
     end
@@ -420,7 +420,7 @@ local function initiateSkullEffect(skull)
     local timesStacked = skull.state.count > 0 and skull.state.count or 1
     local powerPerActivation = skull.state.multiplier > 0 and skull.state.multiplier or 1
     local totalSkullPower = timesStacked * powerPerActivation
-    logger:debug("Initiating Skull effect: {} ({}) x{}", skull.name, timesStacked, powerPerActivation)
+    logger.debug("Initiating Skull effect: {} ({}) x{}", skull.name, timesStacked, powerPerActivation)
     skull.effect(true, totalSkullPower)
     skull.isEnabled = true
     updateEnabledSkullsQueue(skull)
@@ -439,7 +439,7 @@ local function spendSkull(skull)
     skull.state.count = skull.state.count + 1
     if skull.state.count > skull.state.max then
         skull.state.count = skull.state.max
-        logger:debug("Skull '{}' has reached its maximum count of {}.", skull.name,
+        logger.debug("Skull '{}' has reached its maximum count of {}.", skull.name,
                        skull.state.max)
     end
     skull.isEnabled = true
@@ -449,7 +449,7 @@ local function restoreSkull(skull)
     skull.state.count = skull.state.count - 1
     if skull.state.count < 0 then
         skull.state.count = 0
-        logger:debug("Skull '{}' is already at its minimum count of 0.", skull.name)
+        logger.debug("Skull '{}' is already at its minimum count of 0.", skull.name)
     end
     if skull.state.count == 0 then
         skull.isEnabled = false
@@ -470,7 +470,7 @@ function skullsManager.enableSkulls(skulls, useBalance)
         elseif not useBalance then
             skull.isEnabled = true
         end
-        logger:debug("Enabling Skull: {} ({})", skull.name, skull.description)
+        logger.debug("Enabling Skull: {} ({})", skull.name, skull.description)
     end
 
     -- Initiate the effect of the enabled skulls
@@ -499,7 +499,7 @@ end
 ---@param multiplier? number
 function skullsManager.enableSkull(name, multiplier)
     local name = name:lower()
-    logger:debug("Enabling Skull: {}", name)
+    logger.debug("Enabling Skull: {}", name)
 
     -- Revert all skull effects
     revertAllSkullEffects()
@@ -543,7 +543,7 @@ function skullsManager.disableSkull(name)
     -- Revert the effect of the disabled skulls
     for _, skull in ipairs(skullList) do
         if not skull.isEnabled then
-            logger:debug("Disabling Skull: {}", skull.name)
+            logger.debug("Disabling Skull: {}", skull.name)
             skull.effect(false)
         end
     end

@@ -43,7 +43,7 @@ function mythic.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.mythic.active = isActive
-    -- logger:debug("Mythic {}", isActive and "On" or "Off")
+    -- logger.debug("Mythic {}", isActive and "On" or "Off")
 end
 
 return mythic

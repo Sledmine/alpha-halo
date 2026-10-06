@@ -34,7 +34,7 @@ function banger.skullEffect(isActive)
         end
     end
     -- skullsManager.skulls.banger.active = isActive
-    -- logger:debug("Banger {}", isActive and "On" or "Off")
+    -- logger.debug("Banger {}", isActive and "On" or "Off")
 end
 
 return banger

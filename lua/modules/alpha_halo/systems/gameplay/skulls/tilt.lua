@@ -70,7 +70,7 @@ function tilt.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.tilt.active = isActive
-    -- logger:debug("Tilt {}", isActive and "On" or "Off")
+    -- logger.debug("Tilt {}", isActive and "On" or "Off")
 end
 
 return tilt

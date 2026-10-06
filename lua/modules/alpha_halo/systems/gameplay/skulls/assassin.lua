@@ -1,6 +1,6 @@
 local tagEntries = require "alpha_halo.systems.core.tagEntries"
 local dependencies = require "alpha_halo.systems.gameplay.skullsDependencies"
-local blam = require "blam"
+local engine = Engine
 
 local assassin = {}
 
@@ -42,8 +42,18 @@ local activeCammoTimer = 300
 local wasActive = false
 
 function assassin.onTick(skullState)
-    local player = blam.biped(get_dynamic_player())
+    -- TODO WE NEED TO SUPPORT MULTIPLAYER PLAYERS FOR THIS!!!
+    local player = Engine.player.getPlayer()
     if not player then
+        return
+    end
+    local playerUnit = engine.object.getObject(player.unitHandle)
+    if not playerUnit then
+        return
+    end
+
+    -- TODO AHORITA VEMOS QUE PEDO
+    if true then
         return
     end
 
@@ -51,10 +61,10 @@ function assassin.onTick(skullState)
 
         if not wasActive then
             wasActive = true
-            logger:debug("Assassin skull activated: enabling camo.")
+            logger.debug("Assassin skull activated: enabling camo.")
         end
 
-        player.isCamoActive = true
+        playerUnit.flags0 = true
 
         if player.meleeKey or player.grenadeHold then
             player.camoScale = 0
@@ -75,7 +85,7 @@ function assassin.onTick(skullState)
         if wasActive then
             wasActive = false
             player.isCamoActive = false -- disable camo only once
-            logger:debug("Assassin skull deactivated: camo disabled.")
+            logger.debug("Assassin skull deactivated: camo disabled.")
         end
     end
 end

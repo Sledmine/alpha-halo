@@ -1,10 +1,9 @@
 local balltze = Balltze
+local logger = balltze.logger
 local engine = Engine
-local getObject = Engine.gameState.getObject
-local getPlayer = Engine.gameState.getPlayer
-local playSound = engine.userInterface.playSound
+local getObject = Engine.object.getObject
+local getPlayer = Engine.player.getPlayer
 
-local blam = require "blam"
 local script = require "script"
 local sleep = script.sleep
 local hsc = require "hsc"
@@ -82,10 +81,10 @@ firefightManager.gameProgression = { --------------
 local progression = firefightManager.gameProgression
 
 function firefightManager.whenMapLoads()
-    logger:info("Welcome to Alpha Firefight")
+    logger.info("Welcome to Alpha Firefight")
     firefightManager.reloadGame()
     firefightManager.loadSettings()
-    logger:debug("Waiting 30 ticks before starting game")
+    logger.debug("Waiting 30 ticks before starting game")
     sleep(30)
     script.startup(firefightManager.startGame)
     script.continuous(firefightManager.playerCheck)
@@ -109,10 +108,10 @@ function firefightManager.startGame()
         local randomTeam = math.random(1, 2)
         progression.currentEnemyTeam = randomTeam
         unitDeployer.deployerSettings.currentTeam = randomTeam -- Tell unitDeployer we're having whichever team was selected.
-        logger:debug("Randomly selected starting enemy team: {}", randomTeam)
+        logger.debug("Randomly selected starting enemy team: {}", randomTeam)
     end
     -- We wait for the game cooldown before starting the game.
-    logger:debug("Waiting {} seconds to start the game", settings.gameCooldownSeconds)
+    logger.debug("Waiting {} seconds to start the game", settings.gameCooldownSeconds)
     sleep(utils.secondsToTicks(settings.gameCooldownSeconds))
     -- script.thread(announcer.gameStart)() -- Sound not available?
     progression.isGameOn = true
@@ -128,11 +127,11 @@ function firefightManager.startGame()
         -- skullsManager.skulls.newton.isEnabled = true
 
         -- TODO We can not use skulls on the server side yet!
-        if engine.netgame.getServerType() ~= "sapp" then
-            firefightManager.enableStartingSkulls()
-        end
+        --if engine.game.getGameConnectionType() == "networkServer" then
+        --    firefightManager.enableStartingSkulls()
+        --end
 
-        logger:info("Game is on! Pain is coming in hot!")
+        logger.info("Game is on! Pain is coming in hot!")
     end
 end
 
@@ -173,22 +172,22 @@ local events = {}
 
 -- Event Dispatcher. Call events or functions depending on certain conditions.
 local function eventDispatcher()
-    logger:debug("Dispatching events...")
-    logger:debug("#events.eachWave: {}", #events.eachWave)
+    logger.debug("Dispatching events...")
+    logger.debug("#events.eachWave: {}", #events.eachWave)
     if isFirstGameWave or isFirstRoundWave then
-        logger:debug("First wave of the game or round!")
+        logger.debug("First wave of the game or round!")
         for _, event in pairs(events.eachSet) do
             event()
         end
     end
     if isFirstRoundWave then
-        logger:debug("First wave of the round!")
+        logger.debug("First wave of the round!")
         for _, event in pairs(events.eachRound) do
             event()
         end
     end
     if isCurrentWaveBoss then
-        logger:debug("Boss wave!")
+        logger.debug("Boss wave!")
         for _, event in pairs(events.eachBossWave) do
             event()
         end
@@ -232,12 +231,12 @@ end
 local function loadEvent(actionFunction, eventIndex)
     local actionFunctionName = getModuleFunctionName(actionFunction)
     if not eventIndex then
-        logger:debug("Skipping action {}, no event index provided", tostring(actionFunctionName))
+        logger.debug("Skipping action {}, no event index provided", tostring(actionFunctionName))
         return
     end
     local eventName = table.flip(eventNames)[eventIndex]
     if not eventName then
-        logger:debug("Skipping action {}, invalid index: {}", tostring(actionFunctionName),
+        logger.debug("Skipping action {}, invalid index: {}", tostring(actionFunctionName),
                      tostring(eventIndex))
         return
     end
@@ -254,7 +253,7 @@ local function loadEvent(actionFunction, eventIndex)
     if not isNever then
         table.insert(events[eventName], actionFunction)
     end
-    logger:debug("Loading event: {} into {}", tostring(actionFunctionName), tostring(eventName))
+    logger.debug("Loading event: {} into {}", tostring(actionFunctionName), tostring(eventName))
 end
 
 local objectTypes = Engine.tag.objectType
@@ -265,7 +264,7 @@ local playerIsDead = false -- This by default is false, obviously.
 function firefightManager.playerCheck()
     if not playerLives then
         playerLives = settings.playerInitialLives
-        logger:debug("Player initial lives: {}", playerLives)
+        logger.debug("Player initial lives: {}", playerLives)
     end
     -- We check if the game is on.
     if not progression.isGameOn then
@@ -277,13 +276,13 @@ function firefightManager.playerCheck()
         return
     end
     -- We get the player biped.
-    local biped = getObject(player.objectHandle, engine.tag.objectType.biped)
+    local biped = getObject(player.unitHandle, "biped")
     if not biped then
-        -- logger:debug("Player is dead.")
+        -- logger.debug("Player is dead.")
         playerIsDead = true
         -- If lifes are 0 and there's no player biped, then we end the game.
         if playerLives <= 0 then
-            logger:info("You lost, sucker!!!")
+            logger.info("You lost, sucker!!!")
             script.wake(firefightManager.scriptEndGame)
         end
         return
@@ -293,7 +292,7 @@ function firefightManager.playerCheck()
         playerIsDead = false
         playerLives = playerLives - settings.livesLostPerDead
         if playerLives > 0 then
-            logger:debug("Lifes left... {}", playerLives)
+            logger.debug("Lifes left... {}", playerLives)
         end
         if playerLives == 5 then
             sleep(15)
@@ -304,8 +303,8 @@ function firefightManager.playerCheck()
             script.thread(announcer.oneLiveLeft)()
         end
         if playerLives == 0 then
-            logger:debug("No lives left.")
-            logger:debug("You feel a sense of dread crawling up your spine...")
+            logger.debug("No lives left.")
+            logger.debug("You feel a sense of dread crawling up your spine...")
             sleep(15)
             script.thread(announcer.noLivesLeft)()
         end
@@ -370,16 +369,16 @@ end
 -- Give extra lives to the player.
 function firefightManager.addPlayerLives()
     -- We add a life to the player.
-    logger:info("Lives added!")
+    logger.info("Lives added!")
     playerLives = playerLives + settings.extraLivesGained
-    logger:debug("Current lives: {}", playerLives)
+    logger.debug("Current lives: {}", playerLives)
     script.thread(announcer.livesAdded)()
     -- If the player exist, then we restore his health.
     local player = getPlayer()
     if not player then
         return
     end
-    local biped = getObject(player.objectHandle, objectTypes.biped)
+    local biped = getObject(player.unitHandle, objectTypes.biped)
     if not biped then
         return
     end
@@ -399,11 +398,11 @@ function firefightManager.switchTeams()
     if progression.currentEnemyTeam == 1 then
         progression.currentEnemyTeam = 2 -- If we just had Covies, gimme Flood.
         unitDeployer.deployerSettings.currentTeam = 2 -- Tell unitDeployer we're having Floods.
-        logger:debug("Switching to Flood Team")
+        logger.debug("Switching to Flood Team")
     else
         progression.currentEnemyTeam = 1 -- If we just had Flood, gimme Covies.
         unitDeployer.deployerSettings.currentTeam = 1 -- Tell unitDeployer we're having Covies.
-        logger:debug("Switching to Covenant Team")
+        logger.debug("Switching to Covenant Team")
     end
 end
 
@@ -415,9 +414,9 @@ end
 
 local function isVehicleOccupiedBy(vehicleName, seatName, squads)
     for _, units in pairs(squads) do
-        -- logger:debug("Checking vehicle '{}' seat '{}' for units in squad {}", vehicleName, seatName, units)
+        -- logger.debug("Checking vehicle '{}' seat '{}' for units in squad {}", vehicleName, seatName, units)
         if hsc.vehicle_test_seat_list(vehicleName, seatName, units) then
-            --logger:debug("Vehicle '{}' seat '{}' is occupied", vehicleName, seatName)
+            --logger.debug("Vehicle '{}' seat '{}' is occupied", vehicleName, seatName)
             return true
         end
     end
@@ -449,10 +448,10 @@ function firefightManager.spawnPlayerAssistances()
         local vehicleExists = hsc.unit_get_health(vehicleName) ~= -1
         if vehicleExists then
             existingVehicleCount = existingVehicleCount + 1
-            logger:debug("Checking ghost vehicle: {}", vehicleName)
+            logger.debug("Checking ghost vehicle: {}", vehicleName)
             -- Destroy it if no occupants are found and respawn it 
             if not isVehicleOccupiedBy(vehicleName, "G-driver", occupants) then
-                logger:debug("No occupants detected. Removing ghost: {}", vehicleName)
+                logger.debug("No occupants detected. Removing ghost: {}", vehicleName)
                 hsc.object_destroy(vehicleName)
                 isNewVehicleRequired = true
             else
@@ -467,7 +466,7 @@ function firefightManager.spawnPlayerAssistances()
 
     if isNewVehicleRequired then
         local selectedGhost = ("reward_ghost_var%s"):format(math.random(1, 3))
-        logger:debug("Spawning ghost: {}", selectedGhost)
+        logger.debug("Spawning ghost: {}", selectedGhost)
         hsc.object_create(selectedGhost)
         hsc.ai_vehicle_enterable_distance(selectedGhost, 20.0)
     end
@@ -482,13 +481,13 @@ function firefightManager.spawnPlayerAssistances()
         -- If vehicle exists
         local vehicleExists = hsc.unit_get_health(warthogName) ~= -1
         if vehicleExists then
-            logger:debug("Checking warthog vehicle: {}", warthogName)
+            logger.debug("Checking warthog vehicle: {}", warthogName)
             existingVehicleCount = existingVehicleCount + 1
             -- Destroy it if no occupants are found and respawn it 
             if not isVehicleOccupiedBy(warthogName, "W-driver", occupants) and
                 not isVehicleOccupiedBy(warthogName, "W-gunner", occupants) and
                 not isVehicleOccupiedBy(warthogName, "W-passenger", occupants) then
-                logger:debug("No occupants detected. Removing warthog: {}", warthogName)
+                logger.debug("No occupants detected. Removing warthog: {}", warthogName)
                 hsc.object_destroy(warthogName)
                 isNewVehicleRequired = true
             else
@@ -503,7 +502,7 @@ function firefightManager.spawnPlayerAssistances()
 
     if isNewVehicleRequired then
         local selectedWarthog = ("warthog_%s"):format(math.random(1, 4))
-        logger:debug("Spawning warthog: {}", selectedWarthog)
+        logger.debug("Spawning warthog: {}", selectedWarthog)
         hsc.object_create(selectedWarthog)
         hsc.ai_vehicle_enterable_distance(selectedWarthog, 20.0)
     end
@@ -522,14 +521,14 @@ function firefightManager.scriptVehicleDestroyer()
         end
         -- Detect transition: alive -> dead
         if lastVehicleHealth[name] > 0 and health <= 0 then
-            logger:debug("{} Destroyed", name)
+            logger.debug("{} Destroyed", name)
             sleep(1)
             hsc.object_teleport(name, "vehicle_destroy_bypass")
             sleep(utils.secondsToTicks(7))
-            logger:debug("Destroying {} Object", name)
+            logger.debug("Destroying {} Object", name)
             hsc.object_destroy(name)
             sleep(utils.secondsToTicks(7))
-            logger:debug("Collectiong garbage...")
+            logger.debug("Collectiong garbage...")
             hsc.garbage_collect_now()
             lastVehicleHealth[name] = health
             break
@@ -549,13 +548,13 @@ function firefightManager.vehicleAssistances()
         sleep(utils.secondsToTicks(5))
         firefightManager.spawnPlayerAssistances()
     end)()
-    logger:debug("Vehicle assistances are arriving!")
+    logger.debug("Vehicle assistances are arriving!")
 end
 
 -- Deploy allies in a Pelican. (ODSTs for now)
 function firefightManager.deployPlayerAllies()
     script.wake(unitDeployer.scriptDeployPelicans)
-    logger:debug("ODSTs are coming in hot!")
+    logger.debug("ODSTs are coming in hot!")
 end
 
 -- Turn on all starting skulls.
@@ -564,12 +563,12 @@ function firefightManager.enableStartingSkulls()
         return skull.isEnabled
     end)
     if #startingSkulls > 0 then
-        logger:debug("Activating initial skulls...")
+        logger.debug("Activating initial skulls...")
         -- Enable skull with balance
         skullsManager.enableSkulls(startingSkulls, true)
         return
     end
-    logger:debug("No starting skulls to enable.")
+    logger.debug("No starting skulls to enable.")
 end
 
 -- Turn on a random temporal skull.
@@ -582,7 +581,7 @@ function firefightManager.enableTemporalSkull()
     if #temporalSkulls > 0 then
         local randomIndex = math.random(1, #temporalSkulls)
         local selectedSkull = temporalSkulls[randomIndex]
-        logger:debug("Chosen random skull: {}", selectedSkull.name)
+        logger.debug("Chosen random skull: {}", selectedSkull.name)
         -- Enable skull with balance
         skullsManager.enableSkulls({selectedSkull}, true)
     end
@@ -602,7 +601,7 @@ function firefightManager.enablePermanentSkull()
     if #permanentSkulls > 0 then
         local randomIndex = math.random(1, #permanentSkulls)
         local selectedSkull = permanentSkulls[randomIndex]
-        logger:debug("Chosen permanent skull: {}", selectedSkull.name)
+        logger.debug("Chosen permanent skull: {}", selectedSkull.name)
         -- Enable skull with balance
         selectedSkull.isPermanent = true
         skullsManager.enableSkulls({selectedSkull}, true)
@@ -815,7 +814,7 @@ function firefightManager.firefightProgression()
                 progression.set = progression.set + 1
                 script.wake(firefightManager.startSet) -- Keep counting and start the next set!
             else -- If we reached the setsPerGame limit...
-                logger:debug("You won. Go brag about it, prick.")
+                logger.debug("You won. Go brag about it, prick.")
                 script.wake(firefightManager.scriptEndGame) -- End the game!
             end
         end
@@ -823,7 +822,7 @@ function firefightManager.firefightProgression()
     progression.totalWaves = progression.totalWaves + 1
     firefightManager.waveDefinition()
     -- We announce bad guys coming in.
-    logger:debug("Bad guys coming in...")
+    logger.debug("Bad guys coming in...")
 end
 
 --- Define in which type of wave are we depending on the settings.
@@ -876,7 +875,7 @@ function firefightManager.startWave()
     hsc.garbage_collect_now()
     hsc.rasterizer_decals_flush()
     if isLastWave then
-        logger:info("Hang in there, just one final effort...")
+        logger.info("Hang in there, just one final effort...")
     end
     waveIsOn = true
     drawNavPoint = false
@@ -906,10 +905,10 @@ function firefightManager.reloadGame()
     hsc.object_destroy_containing("foehammer")
     hsc.garbage_collect_now()
     hsc.rasterizer_decals_flush()
-    if engine.netgame.getServerType() ~= "sapp" then
-        skullsManager.disableSkull("all")
-    end
-    logger:debug("Game reload completed")
+    --if engine.game.getGameConnectionType() == "networkServer" then
+    --    skullsManager.disableSkull("all")
+    --end
+    logger.debug("Game reload completed")
 end
 
 ---End Game.
@@ -935,11 +934,11 @@ end
 -- end
 
 local function loadFirefightSettings()
-    logger:debug("Loading Firefight settings from file...")
+    logger.debug("Loading Firefight settings from file...")
     local path = balltze.filesystem.getPluginPath():split("\\")
     local pluginsPath = table.concat(path, "\\", 1, #path - 1)
     local settingsPath = pluginsPath .. "\\lua_insurrection\\firefight_settings.json"
-    logger:debug("Settings path: {}", settingsPath)
+    logger.debug("Settings path: {}", settingsPath)
     local settingsFile = luna.file.read(settingsPath)
 
     -- local settingsFile = balltze.filesystem.readFile(settingsPath)
@@ -955,22 +954,22 @@ local function loadFirefightSettings()
                       settings.resetTemporalSkullEach)
             loadEvent(firefightManager.deployPlayerAllies, settings.deployAlliesEach)
             loadEvent(firefightManager.vehicleAssistances, settings.playerAssistancesEach)
-            logger:debug("Firefight settings loaded from file.")
+            logger.debug("Firefight settings loaded from file.")
             return
         end
-        logger:warn("Failed to decode settings file, using default settings. Error: {}", data)
+        logger.warning("Failed to decode settings file, using default settings. Error: {}", data)
         return
     end
-    logger:warn("Settings file not found, using default settings.")
+    logger.warning("Settings file not found, using default settings.")
 end
 
 local function loadSkullsSettings()
-    logger:debug("Loading Firefight skull settings from file...")
+    logger.debug("Loading Firefight skull settings from file...")
     local path = balltze.filesystem.getPluginPath():split("/")
     local pluginsPath = table.concat(path, "/", 1, #path - 1)
     local skullsSettingsPath = pluginsPath .. "/lua_insurrection/firefight_skulls_settings.json"
     skullsSettingsPath = skullsSettingsPath:replace("\\", "/")
-    logger:debug("Skulls settings path: {}", skullsSettingsPath)
+    logger.debug("Skulls settings path: {}", skullsSettingsPath)
     local skullsSettingsFile = luna.file.read(skullsSettingsPath)
     if skullsSettingsFile then
         local success, data = pcall(json.decode, skullsSettingsFile)
@@ -984,10 +983,10 @@ local function loadSkullsSettings()
                     skullObj.isPermanent = skullData.isPermanent or false
                 end
             end
-            logger:debug("Firefight skull settings loaded from file.")
+            logger.debug("Firefight skull settings loaded from file.")
             return
         end
-        logger:warning(
+        logger.warninging(
             "Failed to decode skulls settings file, using default skull settings. Error: {}", data)
         return
     end
@@ -1021,7 +1020,7 @@ function firefightManager.playMusic()
         if latestPlayedMusic ~= selectedMusic.path then
             return
         end
-        logger:debug("Stopping music loop: {}", selectedMusic.path)
+        logger.debug("Stopping music loop: {}", selectedMusic.path)
         hsc.sound_looping_stop(selectedMusic.path)
     end)
 end

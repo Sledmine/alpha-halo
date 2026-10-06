@@ -27,7 +27,7 @@ function eyePatch.skullEffect(isActive)
         -- end -- Comment this if you want to apply the skull to the Needler as well (It will not track targets).
     end
     -- skullsManager.skulls.eyepatch.active = isActive
-    -- logger:debug("Eye Patch {}", isActive and "On" or "Off")
+    -- logger.debug("Eye Patch {}", isActive and "On" or "Off")
 end
 
 return eyePatch

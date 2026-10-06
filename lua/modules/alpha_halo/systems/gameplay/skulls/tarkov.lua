@@ -74,7 +74,7 @@ function tarkov.skullEffect(isActive)
         end
     end
     -- skullsManager.skulls.tarkov.active = isActive
-    -- logger:debug("Tarkov {}", isActive and "On" or "Off")
+    -- logger.debug("Tarkov {}", isActive and "On" or "Off")
 end
 
 return tarkov

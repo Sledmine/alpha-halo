@@ -28,7 +28,7 @@ function thunderstorm.skullEffect(isActive)
             Balltze.features.reloadTagData(globalsEntry.handle)
         end
     -- skullsManager.skulls.thunderstorm.active = isActive
-    -- logger:debug("Thunderstorm {}", isActive and "On" or "Off")
+    -- logger.debug("Thunderstorm {}", isActive and "On" or "Off")
 end
 
 return thunderstorm

@@ -1,12 +1,14 @@
 -- Lua libraries
-local blam = require "blam"
-local tagClasses = blam.tagClasses
 local engine = Engine
-local balltze = Balltze
-local findTags = engine.tag.findTags
 local utils = require "alpha_halo.utils"
 
 local constants = {}
+
+-- Balltze v2's Engine.tag.lookupTag only accepts a full tag path. For name-based lookups,
+-- use Engine.tag.filterTags(group, pathFilter) instead; it searches tag paths by substring.
+local function lookupTag(path, group)
+    return engine.tag.filterTags(group, path)[1]
+end
 
 -- Constant gameplay values
 constants.healthRegenerationAmount = 0.005
@@ -20,71 +22,68 @@ constants.dropshipDeploymentDropTick = 950 -- Tick when the units will drop from
 constants.dropshipDelayTicks = utils.secondsToTicks(20) -- Delay between each dropship deployment
 constants.maximumMusicTime = utils.minutesToTicks(3) -- Maximum time a music track can play
 constants.maximumObjectsCount = 4096
-if engine.netgame.getServerType() == "sapp" then
-    constants.maximumObjectsCount = 2048
-end
 
 constants.hsc = {playSound = [[(begin (sound_impulse_start "%s" (list_get (players) %s) %s))]]}
 
 function constants.get()
     constants.sounds = {
-        livesAdded = findTags("survival_awarded_lives2", engine.tag.classes.sound)[1],
-        setStart = findTags("survival_new_set", engine.tag.classes.sound)[1],
-        roundStart = findTags("survival_new_round", engine.tag.classes.sound)[1],
-        reinforcements = findTags("survival_reinforcements", engine.tag.classes.sound)[1],
-        roundCompleted = findTags("survival_end_round", engine.tag.classes.sound)[1],
-        fiveLivesLeft = findTags("survival_5_lives_left", engine.tag.classes.sound)[1],
-        oneLiveLeft = findTags("survival_1_life_left", engine.tag.classes.sound)[1],
-        noLivesLeft = findTags("survival_0_lives_left", engine.tag.classes.sound)[1],
-        skullOn = findTags("skull_on", engine.tag.classes.sound)[1],
-        skullsOn = findTags("skulls_on", engine.tag.classes.sound)[1],
-        skullsReset = findTags("skulls_reset", engine.tag.classes.sound)[1],
-        goldenSkullOn = findTags("skull_golden_on", engine.tag.classes.sound)[1],
-        enemySniper = findTags("survival_enemy_sniper_incoming", engine.tag.classes.sound)[1],
-        enemyIncoming = findTags("survival_enemy_incoming", engine.tag.classes.sound)[1],
-        hillMove = findTags("hill_move", engine.tag.classes.sound)[1],
+        livesAdded = lookupTag("survival_awarded_lives2", "sound"),
+        setStart = lookupTag("survival_new_set", "sound"),
+        roundStart = lookupTag("survival_new_round", "sound"),
+        reinforcements = lookupTag("survival_reinforcements", "sound"),
+        roundCompleted = lookupTag("survival_end_round", "sound"),
+        fiveLivesLeft = lookupTag("survival_5_lives_left", "sound"),
+        oneLiveLeft = lookupTag("survival_1_life_left", "sound"),
+        noLivesLeft = lookupTag("survival_0_lives_left", "sound"),
+        skullOn = lookupTag("skull_on", "sound"),
+        skullsOn = lookupTag("skulls_on", "sound"),
+        skullsReset = lookupTag("skulls_reset", "sound"),
+        goldenSkullOn = lookupTag("skull_golden_on", "sound"),
+        enemySniper = lookupTag("survival_enemy_sniper_incoming", "sound"),
+        enemyIncoming = lookupTag("survival_enemy_incoming", "sound"),
+        hillMove = lookupTag("hill_move", "sound"),
     }
 
     constants.music = {
-        drumrun = findTags("drumrun", engine.tag.classes.soundLooping)[1],
+        drumrun = lookupTag("drumrun", "sound_looping"),
         -- TODO Add proper stop sound into sound loops
-        covenantDance = findTags("covenant_dance", engine.tag.classes.soundLooping)[1],
-        onAPaleHorse = findTags("on_a_pale_horse", engine.tag.classes.soundLooping)[1],
-        theLongRun = findTags("the_long_run", engine.tag.classes.soundLooping)[1],
-        aWalkInTheWoods = findTags("a_walk_in_the_woods", engine.tag.classes.soundLooping)[1],
+        covenantDance = lookupTag("covenant_dance", "sound_looping"),
+        onAPaleHorse = lookupTag("on_a_pale_horse", "sound_looping"),
+        theLongRun = lookupTag("the_long_run", "sound_looping"),
+        aWalkInTheWoods = lookupTag("a_walk_in_the_woods", "sound_looping"),
     }
 
     constants.bipeds = {
-        odstAllyTag = findTags("mrchromed\\halo_2\\characters\\marine\\odst\\odst_h2",
-                               engine.tag.classes.biped)[1]
+        odstAllyTag = lookupTag("mrchromed\\halo_2\\characters\\marine\\odst\\odst_h2",
+                                "biped")
     }
 
     constants.fonts = {
         geogrotesqueRegular = {
-            title = findTags("geogrotesque-regular-title", engine.tag.classes.font)[1],
-            subtitle = findTags("geogrotesque-regular-subtitle", engine.tag.classes.font)[1],
-            text = findTags("geogrotesque-regular-text", engine.tag.classes.font)[1],
-            smaller = findTags("geogrotesque-regular-smaller", engine.tag.classes.font)[1]
+            title = lookupTag("geogrotesque-regular-title", "font"),
+            subtitle = lookupTag("geogrotesque-regular-subtitle", "font"),
+            text = lookupTag("geogrotesque-regular-text", "font"),
+            smaller = lookupTag("geogrotesque-regular-smaller", "font")
         }
     }
 
     constants.hud = {
-        skullsIcons = findTags([[alpha_firefight\ui\chud\skulls_icons]], engine.tag.classes.weaponHudInterface)[1],
-        skullsInfo = findTags([[alpha_firefight\ui\chud\skulls_info]], engine.tag.classes.weaponHudInterface)[1],
-        extBeamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1],
-        extSniperRifle = findTags([[alpha_firefight\weapons\sniper_rifle\sniper_rifle_ext_meters]], engine.tag.classes.weaponHudInterface)[1],
-        extAssaultRifle = findTags([[alpha_firefight\weapons\assault_rifle\assault_rifle]], engine.tag.classes.weaponHudInterface)[1],
+        skullsIcons = lookupTag([[alpha_firefight\ui\chud\skulls_icons]], "weapon_hud_interface"),
+        skullsInfo = lookupTag([[alpha_firefight\ui\chud\skulls_info]], "weapon_hud_interface"),
+        extBeamRifle = lookupTag([[alpha_firefight\weapons\beam_rifle\beam_rifle_ext_meters]], "weapon_hud_interface"),
+        extSniperRifle = lookupTag([[alpha_firefight\weapons\sniper_rifle\sniper_rifle_ext_meters]], "weapon_hud_interface"),
+        extAssaultRifle = lookupTag([[alpha_firefight\weapons\assault_rifle\assault_rifle]], "weapon_hud_interface"),
     }
 
     constants.weapons = {
-        beamRifle = findTags([[alpha_firefight\weapons\beam_rifle\beam_rifle]], engine.tag.classes.weapon)[1],
-        sniperRifle = findTags([[weapons\sniper_rifle\sniper_rifle]], engine.tag.classes.weapon)[1]
+        beamRifle = lookupTag([[alpha_firefight\weapons\beam_rifle\beam_rifle]], "weapon"),
+        sniperRifle = lookupTag([[weapons\sniper_rifle\sniper_rifle]], "weapon")
     }
 
     constants.shaders = {
         transparentChicago = {
-            brCounter = findTags([[gdd\weapons\battle_rifle\shaders\br_numbers]], engine.tag.classes.shaderTransparentChicago)[1],
-            glCounter = findTags([[alpha_firefight\weapons\assault_rifle_gl\shaders\gl_numers]], engine.tag.classes.shaderTransparentChicago)[1]
+            brCounter = lookupTag([[gdd\weapons\battle_rifle\shaders\br_numbers]], "shader_transparent_chicago"),
+            glCounter = lookupTag([[alpha_firefight\weapons\assault_rifle_gl\shaders\gl_numers]], "shader_transparent_chicago")
         }
     }
 end

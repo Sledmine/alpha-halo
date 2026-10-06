@@ -51,7 +51,7 @@ function knucklehead.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.knucklehead.active = isActive
-    -- logger:debug("Knucklehead {}", isActive and "On" or "Off")
+    -- logger.debug("Knucklehead {}", isActive and "On" or "Off")
 end
 
 return knucklehead

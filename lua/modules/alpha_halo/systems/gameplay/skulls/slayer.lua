@@ -29,7 +29,7 @@ function slayer.skullEffect(isActive, totalSkullPower)
         end
     end
     -- skullsManager.skulls.slayer.active = isActive
-    -- logger:debug("Slayer {}", isActive and "On" or "Off")
+    -- logger.debug("Slayer {}", isActive and "On" or "Off")
 end
 
 return slayer
