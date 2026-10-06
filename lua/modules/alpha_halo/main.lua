@@ -5,8 +5,7 @@ local sleep = script.sleep
 inspect = require "inspect"
 math.randomseed(os.time())
 
-local isGameClient = engine.netgame.getServerType() ~= "sapp"
-local isGameServer = engine.netgame.getServerType() == "sapp"
+local isGameDedicated = engine.netgame.getServerType() == "dedicated"
 
 -- Project modules
 local firefightManager = require "alpha_halo.systems.firefightManager"
@@ -17,40 +16,40 @@ local vehiclePosition = require "alpha_halo.systems.core.vehiclePosition"
 local extendedHud = require "alpha_halo.systems.interface.extendedHud"
 -- local extendedWeapon = require "alpha_halo.systems.weapons.extendedWeapon"
 
-    firefightManager.stopMusic()
-    if not DebugFirefight then
-        script.startup(firefightManager.whenMapLoads)
-        script.continuous(eventsManager.randomEventTimerThread)
+firefightManager.stopMusic()
+if not DebugFirefight and not isGameDedicated then
+    script.startup(firefightManager.whenMapLoads)
+    script.continuous(eventsManager.randomEventTimerThread)
+end
+
+script.continuous(function()
+    firefightManager.scriptVehicleDestroyer()
+    if isGameLocal then
+        extendedHud.hideMetersOnZoom()
+        firefightManager.updateSkullsHud()
+        -- extendedWeapon.noZoomWhenOverheating()
     end
 
-    script.continuous(function ()
-        firefightManager.scriptVehicleDestroyer()
-        if isGameClient then
-            extendedHud.hideMetersOnZoom()
-            firefightManager.updateSkullsHud()
-        end
+    -- Sleep to reduce CPU usage
+    sleep(1)
+end)
 
-        -- Sleep to reduce CPU usage
-        sleep(1)
-    end)
-
-    script.continuous(function()
-        firefightManager.eachTick()
-        healthManager.eachTick()
-        if isGameClient then
-            skullsManager.eachTick()
+script.continuous(function()
+    firefightManager.eachTick()
+    healthManager.eachTick()
+    if not isGameDedicated then
+        skullsManager.eachTick()
+    end
+    vehiclePosition.positionUpdater()
+    if not DebugFirefight then
+        if firefightManager.gameProgression.isGameOn then
+            eventsManager.eachTick()
         end
-        vehiclePosition.positionUpdater()
-        -- extendedWeapon.noZoomWhenOverheating()
-        if not DebugFirefight then
-            if firefightManager.gameProgression.isGameOn then
-                eventsManager.eachTick()
-            end
-        end
+    end
 
-        -- Add a small sleep to reduce CPU usage
-        sleep(3)
-    end)
+    -- Add a small sleep to reduce CPU usage
+    sleep(3)
+end)
 
 local align = "left"
 local bounds = {left = 15, top = 300, right = 640, bottom = 480}

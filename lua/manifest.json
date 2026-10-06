@@ -1,0 +1,12 @@
+{
+    "name": "Alpha Halo",
+    "author": "Insurrection Team",
+    "plugin_main": "alpha_halo.lua",
+    "version": "1.0.0",
+    "target_api": "2.0.0",
+    "maps": [
+        "alpha_halo",
+        "alpha_halo_dev"
+    ],
+    "reloadable": true
+}

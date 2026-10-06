@@ -4,14 +4,25 @@ require "luna"
 require "balltzeCompat"
 local blam = require "blam"
 local script = require "script"
+local hscDoc = require "hscDoc"
+local hsc = require "hsc"
 local balltze = Balltze
 local engine = Engine
+local concat = table.concat
+local tagClasses = blam.tagClasses
+local objectClasses = blam.objectClasses
+local performance
+
+if DebugMode then
+    performance = require "performance"
+end
 
 -- Pre require structures for blam2
 -- This helps the bundler to include modules properly
-require "structures.tag.actorVariant"
-require "structures.tag.projectile"
-require "structures.tag.weapon"
+assert(require "structures.tag.actorVariant")
+assert(require "structures.tag.projectile")
+assert(require "structures.tag.weapon")
+assert(require "structures.tag.scenario")
 
 DebugMode = false
 DebugLuaMemory = false
@@ -58,34 +69,6 @@ function PluginMetadata()
     }
 end
 
-local function loadChimeraCompatibility()
-    -- Load Chimera compatibility
-    for k, v in pairs(balltze.chimera) do
-        if not k:includes "timer" and not k:includes "execute_script" and
-            not k:includes "set_callback" then
-            _G[k] = v
-        end
-    end
-    server_type = engine.netgame.getServerType()
-
-    -- Replace Chimera functions with Balltze functions
-    write_bit = balltze.memory.writeBit
-    write_byte = balltze.memory.writeInt8
-    write_word = balltze.memory.writeInt16
-    write_dword = balltze.memory.writeInt32
-    write_int = balltze.memory.writeInt32
-    write_float = balltze.memory.writeFloat
-    write_string = function(address, value)
-        for i = 1, #value do
-            write_byte(address + i - 1, string.byte(value, i))
-        end
-        if #value == 0 then
-            write_byte(address, 0)
-        end
-    end
-    execute_script = engine.hsc.executeScript
-end
-
 function PluginFirstTick()
     constants.get()
     require "alpha_halo.main"
@@ -100,36 +83,18 @@ function PluginLoad()
     local isSapp = engine.netgame.getServerType() == "sapp"
 
     if not isSapp then
-        loadChimeraCompatibility()
+        require "chimeraCompat"()
     end
 
-    Balltze.event.frame.subscribe(function(event)
+    balltze.event.tick.subscribe(function(event)
         if event.time == "before" then
-            local font = "smaller"
-            local align = "center"
-            if DebugMode and DebugLuaMemory then
-                local bounds = {left = 0, top = 400, right = 640, bottom = 480}
-                local textColor = {1.0, 0.45, 0.72, 1.0}
-                local memory = collectgarbage("count")
-                local sizeInMb = memory / 1024
-                local text = string.format("Alpha Halo Lua %.4f MB", sizeInMb)
-                Balltze.chimera.draw_text(text, bounds.left, bounds.top, bounds.right,
-                                          bounds.bottom, font, align, table.unpack(textColor))
-            end
-        end
-    end)
-
-    local onTickEvent = balltze.event.tick.subscribe(function(event)
-        if event.time == "before" then
-            local startTime
+            local tickStart
             if DebugPerformance then
-                startTime = os.clock()
+                tickStart = os.clock()
             end
             script.poll()
             if DebugPerformance then
-                local endTime = os.clock()
-                local elapsedTime = endTime - startTime
-                DebugTimes.tickTime = elapsedTime
+                performance.tick(os.clock() - tickStart)
             end
         end
     end)

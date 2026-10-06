@@ -391,8 +391,8 @@ function hsc.unit_enter_vehicle(...)
                             assert(vehicleTag,
                                    "Vehicle tag not found for object id " .. tostring(objectId))
                             local vehicle = vehicleTag.data --[[@as MetaEngineTagDataVehicle]]
-                            for i = 1, vehicle.base.seats.count do
-                                local seat = vehicle.base.seats.elements[i]
+                            for i = 1, vehicle.seats.count do
+                                local seat = vehicle.seats.elements[i]
                                 if seat.label.string:lower() == targetSeatName:lower() then
                                     seatIndex = i - 1 -- Convert to 0-based index
                                     break

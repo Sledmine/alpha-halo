@@ -83,7 +83,6 @@ local progression = firefightManager.gameProgression
 
 function firefightManager.whenMapLoads()
     logger:info("Welcome to Alpha Firefight")
-    logger:debug("firefight is On '{}'", progression.isGameOn)
     firefightManager.reloadGame()
     firefightManager.loadSettings()
     logger:debug("Waiting 30 ticks before starting game")
@@ -339,18 +338,18 @@ function firefightManager.aiSight()
     end
 
     -- For each player, each enemy team tries to see and follow them if not invisible.
-    local player = blam.biped(get_dynamic_player())
-    if not player then
-        return
-    end
-    if player.camoScale < 1 then
+    --local player = blam.biped(get_dynamic_player())
+    --if not player then
+    --    return
+    --end
+    --if player.camoScale < 1 then
         for _, badGuy in pairs(unitDeployer.badGuys) do
             hsc.ai_magically_see_players(badGuy)
             if not (badGuy == "Covenant_Banshee") then
                 hsc.ai_follow_target_players(badGuy)
             end
         end
-    end
+    --end
 end
 
 -- Set a navpoint for remaining enemies.
@@ -967,9 +966,10 @@ end
 
 local function loadSkullsSettings()
     logger:debug("Loading Firefight skull settings from file...")
-    local path = balltze.filesystem.getPluginPath():split("\\")
-    local pluginsPath = table.concat(path, "\\", 1, #path - 1)
-    local skullsSettingsPath = pluginsPath .. "\\lua_insurrection\\firefight_skulls_settings.json"
+    local path = balltze.filesystem.getPluginPath():split("/")
+    local pluginsPath = table.concat(path, "/", 1, #path - 1)
+    local skullsSettingsPath = pluginsPath .. "/lua_insurrection/firefight_skulls_settings.json"
+    skullsSettingsPath = skullsSettingsPath:replace("\\", "/")
     logger:debug("Skulls settings path: {}", skullsSettingsPath)
     local skullsSettingsFile = luna.file.read(skullsSettingsPath)
     if skullsSettingsFile then
